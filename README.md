@@ -1,0 +1,43 @@
+# ChatGPT API WEB
+
+一个简单的网页，调用 OPENAI ChatGPT 进行对话。
+
+与官方 ChatGPT 相比：
+
+- 对话记录使用浏览器的 localStorage 保存在本地
+- 可删除对话消息
+- 可以设置 system message (如："你是一个喵娘"，参见官方 [API 文档](https://platform.openai.com/docs/guides/chat))
+- 可以为不同对话设置不同 APIKEY
+- 小（整个网页 30k 左右）
+- 可以设置不同的 API Endpoint（方便墙内人士使用反向代理转发 API 请求）
+
+## 屏幕截图
+
+![screenshot](./screenshot.webp)
+
+~~发病.webp~~
+
+## 使用
+
+以下任意方式都可：
+
+- 访问 github pages 部署
+- 从 release 下载网页文件然后双击打开
+- 自行编译构建网页
+
+### 更改默认参数
+
+- `key`: OPENAI API KEY 默认为空
+- `sys`: system message 默认为 "你是一个猫娘，你要模仿猫娘的语气说话"
+- `api`: API Endpoint 默认为 `https://api.openai.com/v1/chat/completions`
+
+例如 `http://localhost:1234/?key=xxxx` 那么新创建的会话将会使用该默认 API
+
+以上三个参数应用于单个对话，随时可在顶部更改
+
+## 自行编译构建网页
+
+```bash
+yarn install
+yarn build
+```
