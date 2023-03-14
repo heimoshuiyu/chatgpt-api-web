@@ -39,7 +39,7 @@ class Chat {
     this.apiEndpoint = apiEndPoint;
   }
 
-  _fetch() {
+  _fetch(stream = false) {
     return fetch(this.apiEndpoint, {
       method: "POST",
       headers: {
@@ -52,7 +52,7 @@ class Chat {
           { role: "system", content: this.sysMessageContent },
           ...this.messages,
         ],
-        stream: true,
+        stream,
       }),
     });
   }
@@ -102,11 +102,10 @@ class Chat {
   }
 
   completeWithSteam() {
-    this.total_tokens =
-      this.messages
-        .map((msg) => this.calculate_token_length(msg.content) + 20)
-        .reduce((a, v) => a + v);
-    return this._fetch();
+    this.total_tokens = this.messages
+      .map((msg) => this.calculate_token_length(msg.content) + 20)
+      .reduce((a, v) => a + v);
+    return this._fetch(true);
   }
 
   // https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them

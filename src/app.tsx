@@ -13,6 +13,7 @@ export interface ChatStore {
   maxTokens: number;
   apiKey: string;
   apiEndpoint: string;
+  streamMode: boolean;
 }
 
 const defaultAPIKEY = () => {
@@ -33,11 +34,20 @@ const defaultAPIEndpoint = () => {
   return sys;
 };
 
+const defauleMode = () => {
+  const queryParameters = new URLSearchParams(window.location.search);
+  const sys = queryParameters.get("mode");
+  if (sys === "stream") return true;
+  if (sys === "fetch") return false;
+  return undefined;
+};
+
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
 export const newChatStore = (
   apiKey = "",
   systemMessageContent = "你是一个猫娘，你要模仿猫娘的语气说话",
-  apiEndpoint = _defaultAPIEndpoint
+  apiEndpoint = _defaultAPIEndpoint,
+  streamMode = true
 ): ChatStore => {
   return {
     systemMessageContent: defaultSysMessage() || systemMessageContent,
@@ -48,6 +58,7 @@ export const newChatStore = (
     maxTokens: 4096,
     apiKey: defaultAPIKEY() || apiKey,
     apiEndpoint: defaultAPIEndpoint() || apiEndpoint,
+    streamMode: defauleMode() ?? streamMode,
   };
 };
 
@@ -83,12 +94,7 @@ export function App() {
 
   const client = new ChatGPT(chatStore.apiKey);
 
-  const _complete = async () => {
-    // manually copy status from chatStore to client
-    client.apiEndpoint = chatStore.apiEndpoint;
-    client.sysMessageContent = chatStore.systemMessageContent;
-    client.messages = chatStore.history.slice(chatStore.postBeginIndex);
-
+  const _completeWithStreamMode = async () => {
     // call api, return reponse text
     const response = await client.completeWithSteam();
     console.log("response", response);
@@ -149,25 +155,39 @@ export function App() {
         setShowGenerating(false);
       },
     });
+  };
 
-    // manually copy status from client to chatStore
-    chatStore.maxTokens = client.max_tokens;
-    chatStore.tokenMargin = client.tokens_margin;
-    chatStore.totalTokens = client.total_tokens;
-    // when total token > max token - margin token:
-    // ChatGPT will "forgot" some historical message
-    // so client.message.length will be less than chatStore.history.length
-    chatStore.postBeginIndex =
-      chatStore.history.length - client.messages.length;
-    console.log("postBeginIndex", chatStore.postBeginIndex);
-    setChatStore({ ...chatStore });
+  const _completeWithFetchMode = async () => {
+    // call api, return reponse text
+    const response = await client.complete();
+    chatStore.history.push({ role: "assistant", content: response });
+    setShowGenerating(false);
   };
 
   // wrap the actuall complete api
   const complete = async () => {
+    // manually copy status from chatStore to client
+    client.apiEndpoint = chatStore.apiEndpoint;
+    client.sysMessageContent = chatStore.systemMessageContent;
+    client.messages = chatStore.history.slice(chatStore.postBeginIndex);
     try {
       setShowGenerating(true);
-      await _complete();
+      if (chatStore.streamMode) {
+        await _completeWithStreamMode();
+      } else {
+        await _completeWithFetchMode();
+      }
+      // manually copy status from client to chatStore
+      chatStore.maxTokens = client.max_tokens;
+      chatStore.tokenMargin = client.tokens_margin;
+      chatStore.totalTokens = client.total_tokens;
+      // when total token > max token - margin token:
+      // ChatGPT will "forgot" some historical message
+      // so client.message.length will be less than chatStore.history.length
+      chatStore.postBeginIndex =
+        chatStore.history.length - client.messages.length;
+      console.log("postBeginIndex", chatStore.postBeginIndex);
+      setChatStore({ ...chatStore });
     } catch (error) {
       alert(error);
     }
@@ -205,7 +225,8 @@ export function App() {
                 newChatStore(
                   allChatStore[selectedChatIndex].apiKey,
                   allChatStore[selectedChatIndex].systemMessageContent,
-                  allChatStore[selectedChatIndex].apiEndpoint
+                  allChatStore[selectedChatIndex].apiEndpoint,
+                  allChatStore[selectedChatIndex].streamMode
                 )
               );
               setAllChatStore([...allChatStore]);
@@ -240,13 +261,15 @@ export function App() {
             const oldSystemMessageContent =
               allChatStore[selectedChatIndex].systemMessageContent;
             const oldAPIEndpoint = allChatStore[selectedChatIndex].apiEndpoint;
+            const oldMode = allChatStore[selectedChatIndex].streamMode;
             allChatStore.splice(selectedChatIndex, 1);
             if (allChatStore.length === 0) {
               allChatStore.push(
                 newChatStore(
                   defaultAPIKEY() || oldAPIkey,
                   defaultSysMessage() || oldSystemMessageContent,
-                  defaultAPIEndpoint() || oldAPIEndpoint
+                  defaultAPIEndpoint() || oldAPIEndpoint,
+                  defauleMode() || oldMode
                 )
               );
               setSelectedChatIndex(0);
@@ -290,6 +313,18 @@ export function App() {
               }}
             >
               ENDPOINT
+            </button>
+            <button
+              className="underline"
+              onClick={() => {
+                const choice = confirm(
+                  "FETCH 模式单次请求一段完整的对话文本，tokens 数量是准确的。\nSTREAM 模式下可以动态看到生成过程，但只能估算 tokens 数量，token 过多时可能裁剪过多或过少历史消息。\n需要使用 STREAM 模式吗？"
+                );
+                chatStore.streamMode = !!choice;
+                setChatStore({ ...chatStore });
+              }}
+            >
+              {chatStore.streamMode ? "STREAM" : "FETCH"}
             </button>
           </div>
           <div className="text-xs">
