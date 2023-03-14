@@ -181,13 +181,16 @@ export function App() {
             if (!confirm("Are you sure you want to delete this chat history?"))
               return;
             const oldAPIkey = allChatStore[selectedChatIndex].apiKey;
+            const oldSystemMessageContent =
+              allChatStore[selectedChatIndex].systemMessageContent;
+            const oldAPIEndpoint = allChatStore[selectedChatIndex].apiEndpoint;
             allChatStore.splice(selectedChatIndex, 1);
             if (allChatStore.length === 0) {
               allChatStore.push(
                 newChatStore(
-                  oldAPIkey,
-                  allChatStore[selectedChatIndex].systemMessageContent,
-                  allChatStore[selectedChatIndex].apiEndpoint
+                  defaultAPIKEY() || oldAPIkey,
+                  defaultSysMessage() || oldSystemMessageContent,
+                  defaultAPIEndpoint() || oldAPIEndpoint
                 )
               );
               setSelectedChatIndex(0);
