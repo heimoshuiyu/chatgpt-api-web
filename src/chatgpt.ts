@@ -3,6 +3,12 @@ export interface Message {
   content: string;
 }
 
+export interface ChunkMessage {
+  choices: {
+    delta: { role: "assitant" | undefined; content: string | undefined };
+  }[];
+}
+
 class Chat {
   OPENAI_API_KEY: string;
   messages: Message[];
@@ -33,6 +39,24 @@ class Chat {
     this.apiEndpoint = apiEndPoint;
   }
 
+  _fetch() {
+    return fetch(this.apiEndpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: this.sysMessageContent },
+          ...this.messages,
+        ],
+        stream: true,
+      }),
+    });
+  }
+
   async fetch(): Promise<{
     id: string;
     object: string;
@@ -49,21 +73,8 @@ class Chat {
       index: number | undefined;
     }[];
   }> {
-    const resp = await fetch(this.apiEndpoint, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: this.sysMessageContent },
-          ...this.messages,
-        ],
-      }),
-    }).then((resp) => resp.json());
-    return resp;
+    const resp = await this._fetch();
+    return await resp.json();
   }
 
   async say(content: string): Promise<string> {
@@ -88,6 +99,14 @@ class Chat {
     return (
       resp?.choices[0]?.message?.content ?? `Error: ${JSON.stringify(resp)}`
     );
+  }
+
+  completeWithSteam() {
+    this.total_tokens =
+      this.messages
+        .map((msg) => this.calculate_token_length(msg.content) + 20)
+        .reduce((a, v) => a + v);
+    return this._fetch();
   }
 
   // https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them

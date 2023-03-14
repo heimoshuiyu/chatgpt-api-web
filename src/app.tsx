@@ -1,7 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import "./global.css";
 
-import ChatGPT, { Message } from "./chatgpt";
+import ChatGPT, { Message, ChunkMessage } from "./chatgpt";
 import { createRef } from "preact";
 
 export interface ChatStore {
@@ -79,6 +79,7 @@ export function App() {
 
   const [inputMsg, setInputMsg] = useState("");
   const [showGenerating, setShowGenerating] = useState(false);
+  const [generatingMessage, setGeneratingMessage] = useState("");
 
   const client = new ChatGPT(chatStore.apiKey);
 
@@ -89,8 +90,65 @@ export function App() {
     client.messages = chatStore.history.slice(chatStore.postBeginIndex);
 
     // call api, return reponse text
-    const response = await client.complete();
-    chatStore.history.push({ role: "assistant", content: response });
+    const response = await client.completeWithSteam();
+    console.log("response", response);
+    const reader = response.body?.getReader();
+    const allChunkMessage: string[] = [];
+    await new ReadableStream({
+      async start(controller) {
+        while (true) {
+          let responseDone = false;
+          let state = await reader?.read();
+          let done = state?.done;
+          let value = state?.value;
+          if (done) break;
+          let text = new TextDecoder().decode(value);
+          // console.log("text:", text);
+          const lines = text
+            .trim()
+            .split("\n")
+            .map((line) => line.trim())
+            .filter((i) => {
+              if (!i) return false;
+              if (i === "data: [DONE]") {
+                responseDone = true;
+                return false;
+              }
+              return true;
+            });
+          console.log("lines", lines);
+          const jsons: ChunkMessage[] = lines
+            .map((line) => {
+              return JSON.parse(line.trim().slice("data: ".length));
+            })
+            .filter((i) => i);
+          // console.log("jsons", jsons);
+          const chunkText = jsons
+            .map((j) => j.choices[0].delta.content ?? "")
+            .join("");
+          // console.log("chunk text", chunkText);
+          allChunkMessage.push(chunkText);
+          setGeneratingMessage(allChunkMessage.join(""));
+          if (responseDone) break;
+        }
+
+        // console.log("push to history", allChunkMessage);
+        chatStore.history.push({
+          role: "assistant",
+          content: allChunkMessage.join(""),
+        });
+        // manually copy status from client to chatStore
+        chatStore.maxTokens = client.max_tokens;
+        chatStore.tokenMargin = client.tokens_margin;
+        chatStore.totalTokens =
+          client.total_tokens +
+          39 +
+          client.calculate_token_length(allChunkMessage.join(""));
+        setChatStore({ ...chatStore });
+        setGeneratingMessage("");
+        setShowGenerating(false);
+      },
+    });
 
     // manually copy status from client to chatStore
     chatStore.maxTokens = client.max_tokens;
@@ -112,8 +170,6 @@ export function App() {
       await _complete();
     } catch (error) {
       alert(error);
-    } finally {
-      setShowGenerating(false);
     }
   };
 
@@ -304,7 +360,10 @@ export function App() {
             );
           })}
           {showGenerating && (
-            <p className="animate-pulse">Generating... please wait...</p>
+            <p className="p-2 my-2 animate-pulse">
+              {generatingMessage ? generatingMessage : "生成中，保持网络稳定喵"}
+              ...
+            </p>
           )}
         </div>
         <div className="flex justify-between">
