@@ -247,9 +247,19 @@ export function App() {
           </div>
         </p>
         <div className="grow overflow-scroll">
+          {!chatStore.apiKey && (
+            <p className="opacity-60 p-6 rounded bg-white my-3 text-left">
+              喵喵，请先在上方设置 API Endpoint
+            </p>
+          )}
+          {!chatStore.apiEndpoint && (
+            <p className="opacity-60 p-6 rounded bg-white my-3 text-left">
+              喵喵，请先在上方设置 API Endpoint
+            </p>
+          )}
           {chatStore.history.length === 0 && (
             <p className="opacity-60 p-6 rounded bg-white my-3 text-left">
-              喵喵，请先在上方设置 (OPENAI) API KEY
+              这里什么都没有哦 QwQ
             </p>
           )}
           {chatStore.history.map((chat, i) => {
