@@ -4,6 +4,8 @@
 
 一个简单的网页，调用 OPENAI ChatGPT 进行对话。
 
+![build status](https://github.com/heimoshuiyu/chatgpt-api-web/actions/workflows/pages.yml/badge.svg)
+
 与官方 ChatGPT 相比：
 
 - 对话记录使用浏览器的 localStorage 保存在本地
