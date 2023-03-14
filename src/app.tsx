@@ -340,7 +340,7 @@ export function App() {
         <div className="grow overflow-scroll">
           {!chatStore.apiKey && (
             <p className="opacity-60 p-6 rounded bg-white my-3 text-left">
-              喵喵，请先在上方设置 API Endpoint
+              喵喵，请先在上方设置 (OPENAI) API KEY
             </p>
           )}
           {!chatStore.apiEndpoint && (
