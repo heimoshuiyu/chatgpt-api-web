@@ -63,6 +63,7 @@ export const newChatStore = (
 };
 
 const STORAGE_NAME = "chatgpt-api-web";
+const STORAGE_NAME_SELECTED = `${STORAGE_NAME}-selected`;
 
 export function App() {
   // init all chat store
@@ -75,7 +76,12 @@ export function App() {
   }
   const [allChatStore, setAllChatStore] = useState(initAllChatStore);
 
-  const [selectedChatIndex, setSelectedChatIndex] = useState(0);
+  const [selectedChatIndex, setSelectedChatIndex] = useState(
+    parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "0")
+  );
+  useEffect(() => {
+    localStorage.setItem(STORAGE_NAME_SELECTED, `${selectedChatIndex}`);
+  }, [selectedChatIndex]);
   const chatStore = allChatStore[selectedChatIndex];
 
   const setChatStore = (cs: ChatStore) => {
