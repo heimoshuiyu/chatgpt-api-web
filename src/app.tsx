@@ -311,7 +311,7 @@ export function App() {
             placeholder="Type here..."
           ></textarea>
           <button
-            className="rounded m-1 p-1 border-2 border-rose-400 bg-cyan-400 hover:bg-cyan-600"
+            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
               send();
