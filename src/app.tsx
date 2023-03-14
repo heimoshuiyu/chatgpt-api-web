@@ -54,6 +54,7 @@ export const newChatStore = (
 const STORAGE_NAME = "chatgpt-api-web";
 
 export function App() {
+  // init all chat store
   const initAllChatStore: ChatStore[] = JSON.parse(
     localStorage.getItem(STORAGE_NAME) || "[]"
   );
@@ -62,12 +63,15 @@ export function App() {
     localStorage.setItem(STORAGE_NAME, JSON.stringify(initAllChatStore));
   }
   const [allChatStore, setAllChatStore] = useState(initAllChatStore);
+
   const [selectedChatIndex, setSelectedChatIndex] = useState(0);
   const chatStore = allChatStore[selectedChatIndex];
+
   const setChatStore = (cs: ChatStore) => {
     allChatStore[selectedChatIndex] = cs;
     setAllChatStore([...allChatStore]);
   };
+
   useEffect(() => {
     console.log("saved", allChatStore);
     localStorage.setItem(STORAGE_NAME, JSON.stringify(allChatStore));
@@ -79,20 +83,29 @@ export function App() {
   const client = new ChatGPT(chatStore.apiKey);
 
   const _complete = async () => {
+    // manually copy status from chatStore to client
     client.apiEndpoint = chatStore.apiEndpoint;
     client.sysMessageContent = chatStore.systemMessageContent;
     client.messages = chatStore.history.slice(chatStore.postBeginIndex);
+
+    // call api, return reponse text
     const response = await client.complete();
     chatStore.history.push({ role: "assistant", content: response });
+
+    // manually copy status from client to chatStore
     chatStore.maxTokens = client.max_tokens;
     chatStore.tokenMargin = client.tokens_margin;
     chatStore.totalTokens = client.total_tokens;
+    // when total token > max token - margin token:
+    // ChatGPT will "forgot" some historical message
+    // so client.message.length will be less than chatStore.history.length
     chatStore.postBeginIndex =
       chatStore.history.length - client.messages.length;
     console.log("postBeginIndex", chatStore.postBeginIndex);
     setChatStore({ ...chatStore });
   };
 
+  // wrap the actuall complete api
   const complete = async () => {
     try {
       setShowGenerating(true);
@@ -104,6 +117,7 @@ export function App() {
     }
   };
 
+  // when user click the "send" button or ctrl+Enter in the textarea
   const send = async () => {
     if (!inputMsg) {
       console.log("empty message");
@@ -116,6 +130,7 @@ export function App() {
     setChatStore({ ...chatStore });
   };
 
+  // change api key
   const changAPIKEY = () => {
     const newAPIKEY = prompt(`Current API KEY: ${chatStore.apiKey}`);
     if (!newAPIKEY) return;

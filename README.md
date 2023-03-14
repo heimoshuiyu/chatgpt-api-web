@@ -1,5 +1,7 @@
 # ChatGPT API WEB
 
+> 灵车东西，做着玩儿的
+
 一个简单的网页，调用 OPENAI ChatGPT 进行对话。
 
 与官方 ChatGPT 相比：
@@ -15,14 +17,14 @@
 
 ![screenshot](./screenshot.webp)
 
-~~发病.webp~~
+~~让喵娘统治世界吧（（发病.webp~~
 
 ## 使用
 
 以下任意方式都可：
 
-- 访问 github pages 部署
-- 从 release 下载网页文件然后双击打开
+- 访问 github pages 部署 <https://heimoshuiyu.github.io/chatgpt-api-web/>
+- 从 [release](https://github.com/heimoshuiyu/chatgpt-api-web/releases) 下载网页文件，或在 [github pages](https://heimoshuiyu.github.io/chatgpt-api-web/) 按 `ctrl+s` 保存网页，然后双击打开
 - 自行编译构建网页
 
 ### 更改默认参数
@@ -33,7 +35,7 @@
 
 例如 `http://localhost:1234/?key=xxxx` 那么新创建的会话将会使用该默认 API
 
-以上三个参数应用于单个对话，随时可在顶部更改
+以上参数应用于单个对话，随时可在顶部更改
 
 ## 自行编译构建网页
 
@@ -41,3 +43,5 @@
 yarn install
 yarn build
 ```
+
+构建产物在 `dist` 文件夹中
