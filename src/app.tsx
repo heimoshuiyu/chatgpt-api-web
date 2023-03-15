@@ -302,7 +302,9 @@ export function App() {
                 setChatStore({ ...chatStore });
               }}
             >
-              {chatStore.systemMessageContent}
+              {chatStore.systemMessageContent.length > 13
+                ? chatStore.systemMessageContent.slice(0, 10) + "..."
+                : chatStore.systemMessageContent}
             </button>{" "}
             <button className="underline" onClick={changAPIKEY}>
               KEY
