@@ -402,7 +402,9 @@ export function App() {
           })}
           {showGenerating && (
             <p className="p-2 my-2 animate-pulse">
-              {generatingMessage ? generatingMessage : "生成中，保持网络稳定喵"}
+              {generatingMessage
+                ? generatingMessage.split("\n").map((line) => <p>{line}</p>)
+                : "生成中，保持网络稳定喵"}
               ...
             </p>
           )}
