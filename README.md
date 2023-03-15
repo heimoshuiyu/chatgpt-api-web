@@ -1,3 +1,5 @@
+> 前排提示：滥用 API 或在不支持的地区调用 API 有被封号的风险 <https://github.com/zhayujie/chatgpt-on-wechat/issues/423>
+
 # ChatGPT API WEB
 
 > 灵车东西，做着玩儿的
