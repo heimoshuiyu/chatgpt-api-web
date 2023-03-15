@@ -34,6 +34,7 @@
 - `key`: OPENAI API KEY 默认为空
 - `sys`: system message 默认为 "你是一个猫娘，你要模仿猫娘的语气说话"
 - `api`: API Endpoint 默认为 `https://api.openai.com/v1/chat/completions`
+- `mode`: `fetch` 或 `stream` 模式，stream 模式下可以动态看到 api 返回的数据，但无法得知 token 数量，只能进行估算，在 token 数量过多时可能会裁切过多或过少历史消息
 
 例如 `http://localhost:1234/?key=xxxx` 那么新创建的会话将会使用该默认 API
 
