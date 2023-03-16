@@ -4,7 +4,6 @@ import "./global.css";
 import { Message } from "./chatgpt";
 import getDefaultParams from "./getDefaultParam";
 import ChatBOX from "./chatbox";
-import Settings from "./settings";
 
 export interface ChatStore {
   systemMessageContent: string;
@@ -70,16 +69,8 @@ export function App() {
     localStorage.setItem(STORAGE_NAME, JSON.stringify(allChatStore));
   }, [allChatStore]);
 
-  const [showSettings, setShowSettings] = useState(false);
-
   return (
     <div className="flex text-sm h-screen bg-slate-200">
-      <Settings
-        chatStore={chatStore}
-        setChatStore={setChatStore}
-        show={showSettings}
-        setShow={setShowSettings}
-      />
       <div className="flex flex-col h-full p-4 border-r-indigo-500 border-2">
         <div className="grow overflow-scroll">
           <button
@@ -146,11 +137,7 @@ export function App() {
           DEL
         </button>
       </div>
-      <ChatBOX
-        chatStore={chatStore}
-        setChatStore={setChatStore}
-        setShowSettings={setShowSettings}
-      />
+      <ChatBOX chatStore={chatStore} setChatStore={setChatStore} />
     </div>
   );
 }

@@ -1,11 +1,11 @@
-import { StateUpdater, useState } from "preact/hooks";
+import { useState } from "preact/hooks";
 import type { ChatStore } from "./app";
 import ChatGPT, { ChunkMessage } from "./chatgpt";
+import Settings from "./settings";
 
 export default function ChatBOX(props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  setShowSettings: StateUpdater<boolean>;
 }) {
   const { chatStore, setChatStore } = props;
   const [inputMsg, setInputMsg] = useState("");
@@ -127,9 +127,15 @@ export default function ChatBOX(props: {
     setChatStore({ ...chatStore });
   };
 
-  const { setShowSettings } = props;
+  const [showSettings, setShowSettings] = useState(false);
   return (
     <div className="grow flex flex-col p-4">
+      <Settings
+        chatStore={chatStore}
+        setChatStore={setChatStore}
+        show={showSettings}
+        setShow={setShowSettings}
+      />
       <p className="cursor-pointer" onClick={() => setShowSettings(true)}>
         <div>
           <button className="underline">
