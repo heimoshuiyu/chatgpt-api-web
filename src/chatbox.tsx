@@ -110,6 +110,8 @@ export default function ChatBOX(props: {
       setChatStore({ ...chatStore });
     } catch (error) {
       alert(error);
+    } finally {
+      setShowGenerating(false);
     }
   };
 
