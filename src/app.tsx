@@ -269,12 +269,10 @@ export function App() {
         <p className="cursor-pointer" onClick={() => setShowSettings(true)}>
           <div>
             <button className="underline">
-              {chatStore.systemMessageContent.length > 13
-                ? chatStore.systemMessageContent.slice(0, 10) + "..."
+              {chatStore.systemMessageContent.length > 16
+                ? chatStore.systemMessageContent.slice(0, 16) + ".."
                 : chatStore.systemMessageContent}
             </button>{" "}
-            <button className="underline">KEY</button>{" "}
-            <button className="underline">ENDPOINT</button>{" "}
             <button className="underline">
               {chatStore.streamMode ? "STREAM" : "FETCH"}
             </button>
