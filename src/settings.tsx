@@ -97,7 +97,9 @@ export default (props: {
     "//" +
     location.host +
     location.pathname +
-    `?sys=${encodeURIComponent(
+    `?key=${encodeURIComponent(
+      props.chatStore.apiKey
+    )}&sys=${encodeURIComponent(
       props.chatStore.systemMessageContent
     )}&api=${encodeURIComponent(props.chatStore.apiEndpoint)}&mode=${
       props.chatStore.streamMode ? "stream" : "fetch"
