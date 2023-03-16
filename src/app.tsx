@@ -3,6 +3,8 @@ import "./global.css";
 
 import ChatGPT, { Message, ChunkMessage } from "./chatgpt";
 import { createRef } from "preact";
+import Settings from "./settings";
+import getDefaultParams from "./getDefaultParam";
 
 export interface ChatStore {
   systemMessageContent: string;
@@ -16,49 +18,23 @@ export interface ChatStore {
   streamMode: boolean;
 }
 
-const defaultAPIKEY = () => {
-  const queryParameters = new URLSearchParams(window.location.search);
-  const key = queryParameters.get("key");
-  return key;
-};
-
-const defaultSysMessage = () => {
-  const queryParameters = new URLSearchParams(window.location.search);
-  const sys = queryParameters.get("sys");
-  return sys;
-};
-
-const defaultAPIEndpoint = () => {
-  const queryParameters = new URLSearchParams(window.location.search);
-  const sys = queryParameters.get("api");
-  return sys;
-};
-
-const defauleMode = () => {
-  const queryParameters = new URLSearchParams(window.location.search);
-  const sys = queryParameters.get("mode");
-  if (sys === "stream") return true;
-  if (sys === "fetch") return false;
-  return undefined;
-};
-
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
-export const newChatStore = (
+const newChatStore = (
   apiKey = "",
   systemMessageContent = "你是一个猫娘，你要模仿猫娘的语气说话",
   apiEndpoint = _defaultAPIEndpoint,
   streamMode = true
 ): ChatStore => {
   return {
-    systemMessageContent: defaultSysMessage() || systemMessageContent,
+    systemMessageContent: getDefaultParams("sys", systemMessageContent),
     history: [],
     postBeginIndex: 0,
     tokenMargin: 1024,
     totalTokens: 0,
     maxTokens: 4096,
-    apiKey: defaultAPIKEY() || apiKey,
-    apiEndpoint: defaultAPIEndpoint() || apiEndpoint,
-    streamMode: defauleMode() ?? streamMode,
+    apiKey: getDefaultParams("key", apiKey),
+    apiEndpoint: getDefaultParams("api", apiEndpoint),
+    streamMode: getDefaultParams("mode", streamMode),
   };
 };
 
@@ -213,16 +189,16 @@ export function App() {
     setChatStore({ ...chatStore });
   };
 
-  // change api key
-  const changAPIKEY = () => {
-    const newAPIKEY = prompt(`Current API KEY: ${chatStore.apiKey}`);
-    if (!newAPIKEY) return;
-    chatStore.apiKey = newAPIKEY;
-    setChatStore({ ...chatStore });
-  };
+  const [showSettings, setShowSettings] = useState(false);
 
   return (
     <div className="flex text-sm h-screen bg-slate-200">
+      <Settings
+        chatStore={chatStore}
+        setChatStore={setChatStore}
+        show={showSettings}
+        setShow={setShowSettings}
+      />
       <div className="flex flex-col h-full p-4 border-r-indigo-500 border-2">
         <div className="grow overflow-scroll">
           <button
@@ -273,10 +249,10 @@ export function App() {
             if (allChatStore.length === 0) {
               allChatStore.push(
                 newChatStore(
-                  defaultAPIKEY() || oldAPIkey,
-                  defaultSysMessage() || oldSystemMessageContent,
-                  defaultAPIEndpoint() || oldAPIEndpoint,
-                  defauleMode() || oldMode
+                  getDefaultParams("api", oldAPIkey),
+                  getDefaultParams("sys", oldSystemMessageContent),
+                  getDefaultParams("api", oldAPIEndpoint),
+                  getDefaultParams("mode", oldMode)
                 )
               );
               setSelectedChatIndex(0);
@@ -290,49 +266,16 @@ export function App() {
         </button>
       </div>
       <div className="grow flex flex-col p-4">
-        <p>
+        <p className="cursor-pointer" onClick={() => setShowSettings(true)}>
           <div>
-            <button
-              className="underline"
-              onClick={() => {
-                const newSysMsgContent = prompt(
-                  "Change system message content"
-                );
-                if (newSysMsgContent === null) return;
-                chatStore.systemMessageContent = newSysMsgContent;
-                setChatStore({ ...chatStore });
-              }}
-            >
+            <button className="underline">
               {chatStore.systemMessageContent.length > 13
                 ? chatStore.systemMessageContent.slice(0, 10) + "..."
                 : chatStore.systemMessageContent}
             </button>{" "}
-            <button className="underline" onClick={changAPIKEY}>
-              KEY
-            </button>{" "}
-            <button
-              className="underline"
-              onClick={() => {
-                const newEndpoint = prompt(
-                  `Enter new API endpoint\n(current: ${chatStore.apiEndpoint})\n(default: ${_defaultAPIEndpoint})`
-                );
-                if (!newEndpoint) return;
-                chatStore.apiEndpoint = newEndpoint;
-                setChatStore({ ...chatStore });
-              }}
-            >
-              ENDPOINT
-            </button>{" "}
-            <button
-              className="underline"
-              onClick={() => {
-                const choice = confirm(
-                  "FETCH 模式单次请求一段完整的对话文本，tokens 数量是准确的。\nSTREAM 模式下可以动态看到生成过程，但只能估算 tokens 数量，token 过多时可能裁剪过多或过少历史消息。\n需要使用 STREAM 模式吗？"
-                );
-                chatStore.streamMode = !!choice;
-                setChatStore({ ...chatStore });
-              }}
-            >
+            <button className="underline">KEY</button>{" "}
+            <button className="underline">ENDPOINT</button>{" "}
+            <button className="underline">
               {chatStore.streamMode ? "STREAM" : "FETCH"}
             </button>
           </div>
