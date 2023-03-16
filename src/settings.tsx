@@ -92,6 +92,16 @@ export default (props: {
   setShow: StateUpdater<boolean>;
 }) => {
   if (!props.show) return <div></div>;
+  const link =
+    location.protocol +
+    "//" +
+    location.host +
+    location.pathname +
+    `?sys=${encodeURIComponent(
+      props.chatStore.systemMessageContent
+    )}&api=${encodeURIComponent(props.chatStore.apiEndpoint)}&mode=${
+      props.chatStore.streamMode ? "stream" : "fetch"
+    }`;
   return (
     <div className="overflow-scroll flex justify-center absolute w-screen h-screen bg-black bg-opacity-50 z-10">
       <div className="m-2 p-2 bg-white rounded-lg h-fit">
@@ -140,7 +150,16 @@ export default (props: {
           />
         </div>
         <hr />
-        <div className="flex justify-end">
+        <div className="flex justify-between">
+          <button
+            className="p-2 m-2 rounded bg-purple-600 text-white"
+            onClick={() => {
+              navigator.clipboard.writeText(link);
+              alert(`Copied link: ${link}`);
+            }}
+          >
+            Copy Link
+          </button>
           <button
             className="p-2 m-2 rounded bg-cyan-600 text-white"
             onClick={() => {
