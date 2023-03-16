@@ -161,6 +161,21 @@ export default (props: {
             Copy Link
           </button>
           <button
+            className="p-2 m-2 rounded bg-rose-600 text-white"
+            onClick={() => {
+              if (
+                !confirm(
+                  `Are you sure to clear all ${props.chatStore.history.length} messages?`
+                )
+              )
+                return;
+              props.chatStore.history = [];
+              props.setChatStore({ ...props.chatStore });
+            }}
+          >
+            Clear History
+          </button>
+          <button
             className="p-2 m-2 rounded bg-cyan-600 text-white"
             onClick={() => {
               props.setShow(false);
