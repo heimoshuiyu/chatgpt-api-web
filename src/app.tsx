@@ -39,35 +39,49 @@ const newChatStore = (
 
 const STORAGE_NAME = "chatgpt-api-web";
 const STORAGE_NAME_SELECTED = `${STORAGE_NAME}-selected`;
+const STORAGE_NAME_INDEXES = `${STORAGE_NAME}-indexes`;
 
 export function App() {
-  // init all chat store
-  const initAllChatStore: ChatStore[] = JSON.parse(
-    localStorage.getItem(STORAGE_NAME) || "[]"
+  // init indexes
+  const initAllChatStoreIndexes: number[] = JSON.parse(
+    localStorage.getItem(STORAGE_NAME_INDEXES) ?? "[0]"
   );
-  if (initAllChatStore.length === 0) {
-    initAllChatStore.push(newChatStore());
-    localStorage.setItem(STORAGE_NAME, JSON.stringify(initAllChatStore));
-  }
-  const [allChatStore, setAllChatStore] = useState(initAllChatStore);
+  const [allChatStoreIndexes, setAllChatStoreIndexes] = useState(
+    initAllChatStoreIndexes
+  );
+  useEffect(() => {
+    if (allChatStoreIndexes.length === 0) allChatStoreIndexes.push(0);
+    console.log("saved all chat store indexes", allChatStoreIndexes);
+    localStorage.setItem(
+      STORAGE_NAME_INDEXES,
+      JSON.stringify(allChatStoreIndexes)
+    );
+  }, [allChatStoreIndexes]);
 
+  // init selected index
   const [selectedChatIndex, setSelectedChatIndex] = useState(
     parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "0")
   );
   useEffect(() => {
+    console.log("set selected chat index", selectedChatIndex);
     localStorage.setItem(STORAGE_NAME_SELECTED, `${selectedChatIndex}`);
   }, [selectedChatIndex]);
-  const chatStore = allChatStore[selectedChatIndex];
 
-  const setChatStore = (cs: ChatStore) => {
-    allChatStore[selectedChatIndex] = cs;
-    setAllChatStore([...allChatStore]);
+  const getChatStoreByIndex = (index: number): ChatStore => {
+    const key = `${STORAGE_NAME}-${index}`;
+    const val = localStorage.getItem(key);
+    if (val === null) return newChatStore();
+    return JSON.parse(val) as ChatStore;
   };
 
-  useEffect(() => {
-    console.log("saved", allChatStore);
-    localStorage.setItem(STORAGE_NAME, JSON.stringify(allChatStore));
-  }, [allChatStore]);
+  const chatStore = getChatStoreByIndex(selectedChatIndex);
+  const setChatStore = (cs: ChatStore) => {
+    console.log("saved chat", selectedChatIndex, chatStore);
+    localStorage.setItem(
+      `${STORAGE_NAME}-${selectedChatIndex}`,
+      JSON.stringify(chatStore)
+    );
+  };
 
   return (
     <div className="flex text-sm h-screen bg-slate-200">
@@ -76,27 +90,32 @@ export function App() {
           <button
             className="bg-violet-300 p-1 rounded hover:bg-violet-400"
             onClick={() => {
-              allChatStore.push(
-                newChatStore(
-                  allChatStore[selectedChatIndex].apiKey,
-                  allChatStore[selectedChatIndex].systemMessageContent,
-                  allChatStore[selectedChatIndex].apiEndpoint,
-                  allChatStore[selectedChatIndex].streamMode
+              const max = Math.max(...allChatStoreIndexes);
+              const next = max + 1;
+              localStorage.setItem(
+                `${STORAGE_NAME}-${next}`,
+                JSON.stringify(
+                  newChatStore(
+                    chatStore.apiKey,
+                    chatStore.systemMessageContent,
+                    chatStore.apiEndpoint,
+                    chatStore.streamMode
+                  )
                 )
               );
-              setAllChatStore([...allChatStore]);
-              setSelectedChatIndex(allChatStore.length - 1);
+              allChatStoreIndexes.push(next);
+              setAllChatStoreIndexes([...allChatStoreIndexes]);
+              setSelectedChatIndex(next);
             }}
           >
             NEW
           </button>
           <ul>
-            {allChatStore
+            {allChatStoreIndexes
               .slice()
               .reverse()
-              .map((cs, _i) => {
+              .map((i) => {
                 // reverse
-                const i = allChatStore.length - _i - 1;
                 return (
                   <li>
                     <button
@@ -119,26 +138,29 @@ export function App() {
           onClick={() => {
             if (!confirm("Are you sure you want to delete this chat history?"))
               return;
-            const oldAPIkey = allChatStore[selectedChatIndex].apiKey;
-            const oldSystemMessageContent =
-              allChatStore[selectedChatIndex].systemMessageContent;
-            const oldAPIEndpoint = allChatStore[selectedChatIndex].apiEndpoint;
-            const oldMode = allChatStore[selectedChatIndex].streamMode;
-            allChatStore.splice(selectedChatIndex, 1);
-            if (allChatStore.length === 0) {
-              allChatStore.push(
-                newChatStore(
-                  getDefaultParams("api", oldAPIkey),
-                  getDefaultParams("sys", oldSystemMessageContent),
-                  getDefaultParams("api", oldAPIEndpoint),
-                  getDefaultParams("mode", oldMode)
-                )
-              );
-              setSelectedChatIndex(0);
-            } else {
-              setSelectedChatIndex(Math.max(selectedChatIndex - 1, 0));
+            localStorage.removeItem(`${STORAGE_NAME}-${selectedChatIndex}`);
+            const newAllChatStoreIndexes = [
+              ...allChatStoreIndexes.filter((v) => v !== selectedChatIndex),
+            ];
+
+            if (newAllChatStoreIndexes.length === 0) {
+              newAllChatStoreIndexes.push(0);
             }
-            setAllChatStore([...allChatStore]);
+            setChatStore(
+              newChatStore(
+                chatStore.apiKey,
+                chatStore.systemMessageContent,
+                chatStore.apiEndpoint,
+                chatStore.streamMode
+              )
+            );
+
+            // find nex selected chat index
+            const next = newAllChatStoreIndexes[0];
+            console.log("next is", next);
+            setSelectedChatIndex(next);
+
+            setAllChatStoreIndexes([...newAllChatStoreIndexes]);
           }}
         >
           DEL
