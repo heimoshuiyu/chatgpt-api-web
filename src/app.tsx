@@ -79,7 +79,7 @@ export function App() {
     console.log("saved chat", selectedChatIndex, chatStore);
     localStorage.setItem(
       `${STORAGE_NAME}-${selectedChatIndex}`,
-      JSON.stringify(chatStore)
+      JSON.stringify(cs)
     );
   };
 
@@ -92,6 +92,7 @@ export function App() {
             onClick={() => {
               const max = Math.max(...allChatStoreIndexes);
               const next = max + 1;
+              console.log("save next chat", next);
               localStorage.setItem(
                 `${STORAGE_NAME}-${next}`,
                 JSON.stringify(
@@ -138,6 +139,7 @@ export function App() {
           onClick={() => {
             if (!confirm("Are you sure you want to delete this chat history?"))
               return;
+            console.log("remove item", `${STORAGE_NAME}-${selectedChatIndex}`);
             localStorage.removeItem(`${STORAGE_NAME}-${selectedChatIndex}`);
             const newAllChatStoreIndexes = [
               ...allChatStoreIndexes.filter((v) => v !== selectedChatIndex),
@@ -145,15 +147,15 @@ export function App() {
 
             if (newAllChatStoreIndexes.length === 0) {
               newAllChatStoreIndexes.push(0);
+              setChatStore(
+                newChatStore(
+                  chatStore.apiKey,
+                  chatStore.systemMessageContent,
+                  chatStore.apiEndpoint,
+                  chatStore.streamMode
+                )
+              );
             }
-            setChatStore(
-              newChatStore(
-                chatStore.apiKey,
-                chatStore.systemMessageContent,
-                chatStore.apiEndpoint,
-                chatStore.streamMode
-              )
-            );
 
             // find nex selected chat index
             const next = newAllChatStoreIndexes[0];
