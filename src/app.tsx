@@ -327,6 +327,10 @@ export function App() {
                     )
                   ) {
                     chatStore.history.splice(i, 1);
+                    chatStore.postBeginIndex = Math.max(
+                      chatStore.postBeginIndex - 1,
+                      0
+                    );
                     setChatStore({ ...chatStore });
                   }
                 }}
