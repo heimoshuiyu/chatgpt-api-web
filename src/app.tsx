@@ -200,7 +200,8 @@ export function App() {
   };
 
   // when user click the "send" button or ctrl+Enter in the textarea
-  const send = async () => {
+  const send = async (msg = "") => {
+    const inputMsg = msg;
     if (!inputMsg) {
       console.log("empty message");
       return;
@@ -418,7 +419,7 @@ export function App() {
             onKeyPress={(event: any) => {
               console.log(event);
               if (event.ctrlKey && event.code === "Enter") {
-                send();
+                send(event.target.value);
                 setInputMsg("");
                 return;
               }
@@ -431,7 +432,7 @@ export function App() {
             className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
-              send();
+              send(inputMsg);
             }}
           >
             Send
