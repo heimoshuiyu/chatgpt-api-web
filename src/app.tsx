@@ -91,20 +91,27 @@ export function App() {
             NEW
           </button>
           <ul>
-            {allChatStore.map((cs, i) => (
-              <li>
-                <button
-                  className={`w-full my-1 p-1 rounded  hover:bg-blue-300 ${
-                    i === selectedChatIndex ? "bg-blue-500" : "bg-blue-200"
-                  }`}
-                  onClick={() => {
-                    setSelectedChatIndex(i);
-                  }}
-                >
-                  {i}
-                </button>
-              </li>
-            ))}
+            {allChatStore
+              .slice()
+              .reverse()
+              .map((cs, _i) => {
+                // reverse
+                const i = allChatStore.length - _i - 1;
+                return (
+                  <li>
+                    <button
+                      className={`w-full my-1 p-1 rounded  hover:bg-blue-300 ${
+                        i === selectedChatIndex ? "bg-blue-500" : "bg-blue-200"
+                      }`}
+                      onClick={() => {
+                        setSelectedChatIndex(i);
+                      }}
+                    >
+                      {i}
+                    </button>
+                  </li>
+                );
+              })}
           </ul>
         </div>
         <button
