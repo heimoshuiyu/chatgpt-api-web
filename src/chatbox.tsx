@@ -8,6 +8,8 @@ export default function ChatBOX(props: {
   setChatStore: (cs: ChatStore) => void;
 }) {
   const { chatStore, setChatStore } = props;
+  // prevent error
+  if (chatStore === undefined) return <div></div>;
   const [inputMsg, setInputMsg] = useState("");
   const [showGenerating, setShowGenerating] = useState(false);
   const [generatingMessage, setGeneratingMessage] = useState("");

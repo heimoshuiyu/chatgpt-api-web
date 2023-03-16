@@ -129,7 +129,7 @@ export function App() {
               );
               setSelectedChatIndex(0);
             } else {
-              setSelectedChatIndex(selectedChatIndex - 1);
+              setSelectedChatIndex(Math.max(selectedChatIndex - 1, 0));
             }
             setAllChatStore([...allChatStore]);
           }}
