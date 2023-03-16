@@ -164,17 +164,17 @@ export default function ChatBOX(props: {
       <div className="grow overflow-scroll">
         {!chatStore.apiKey && (
           <p className="opacity-60 p-6 rounded bg-white my-3 text-left">
-            喵喵，请先在上方设置 (OPENAI) API KEY
+            请先在上方设置 (OPENAI) API KEY
           </p>
         )}
         {!chatStore.apiEndpoint && (
           <p className="opacity-60 p-6 rounded bg-white my-3 text-left">
-            喵喵，请先在上方设置 API Endpoint
+            请先在上方设置 API Endpoint
           </p>
         )}
         {chatStore.history.length === 0 && (
           <p className="opacity-60 p-6 rounded bg-white my-3 text-left">
-            这里什么都没有哦 QwQ
+            暂无历史对话记录
           </p>
         )}
         {chatStore.history.map((chat, i) => {
@@ -226,7 +226,7 @@ export default function ChatBOX(props: {
           <p className="p-2 my-2 animate-pulse">
             {generatingMessage
               ? generatingMessage.split("\n").map((line) => <p>{line}</p>)
-              : "生成中，保持网络稳定喵"}
+              : "生成中，请保持网络稳定"}
             ...
           </p>
         )}

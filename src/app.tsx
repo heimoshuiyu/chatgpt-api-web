@@ -20,7 +20,7 @@ export interface ChatStore {
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
 const newChatStore = (
   apiKey = "",
-  systemMessageContent = "你是一个猫娘，你要模仿猫娘的语气说话",
+  systemMessageContent = "你是一个有用的人工智能助理",
   apiEndpoint = _defaultAPIEndpoint,
   streamMode = true
 ): ChatStore => {

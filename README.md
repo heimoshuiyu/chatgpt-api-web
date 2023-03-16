@@ -12,7 +12,7 @@
 
 - 对话记录使用浏览器的 localStorage 保存在本地
 - 可删除对话消息
-- 可以设置 system message (如："你是一个喵娘"，参见官方 [API 文档](https://platform.openai.com/docs/guides/chat))
+- 可以设置 system message (如："你是一个猫娘"，参见官方 [API 文档](https://platform.openai.com/docs/guides/chat))
 - 可以为不同对话设置不同 APIKEY
 - 小（整个网页 30k 左右）
 - 可以设置不同的 API Endpoint（方便墙内人士使用反向代理转发 API 请求）
@@ -20,8 +20,6 @@
 ## 屏幕截图
 
 ![screenshot](./screenshot.webp)
-
-~~让喵娘统治世界吧（（发病.webp~~
 
 ## 使用
 
