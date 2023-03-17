@@ -22,8 +22,8 @@ export default function ChatBOX(props: {
     console.log("response", response);
     const reader = response.body?.getReader();
     const allChunkMessage: string[] = [];
-    await new ReadableStream({
-      async start(controller) {
+    new ReadableStream({
+      async start() {
         while (true) {
           let responseDone = false;
           let state = await reader?.read();
@@ -56,9 +56,11 @@ export default function ChatBOX(props: {
             .join("");
           // console.log("chunk text", chunkText);
           allChunkMessage.push(chunkText);
+          setShowGenerating(true);
           setGeneratingMessage(allChunkMessage.join(""));
           if (responseDone) break;
         }
+        setShowGenerating(false);
 
         // console.log("push to history", allChunkMessage);
         chatStore.history.push({
@@ -140,7 +142,10 @@ export default function ChatBOX(props: {
         show={showSettings}
         setShow={setShowSettings}
       />
-      <p className="cursor-pointer dark:text-white" onClick={() => setShowSettings(true)}>
+      <p
+        className="cursor-pointer dark:text-white"
+        onClick={() => setShowSettings(true)}
+      >
         <div>
           <button className="underline">
             {chatStore.systemMessageContent.length > 16
