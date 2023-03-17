@@ -172,6 +172,8 @@ export default (props: {
               )
                 return;
               props.chatStore.history = [];
+              props.chatStore.postBeginIndex = 0;
+              props.chatStore.totalTokens = 0;
               props.setChatStore({ ...props.chatStore });
             }}
           >
