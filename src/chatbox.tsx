@@ -133,14 +133,14 @@ export default function ChatBOX(props: {
 
   const [showSettings, setShowSettings] = useState(false);
   return (
-    <div className="grow flex flex-col p-4">
+    <div className="grow flex flex-col p-4 dark:text-black">
       <Settings
         chatStore={chatStore}
         setChatStore={setChatStore}
         show={showSettings}
         setShow={setShowSettings}
       />
-      <p className="cursor-pointer" onClick={() => setShowSettings(true)}>
+      <p className="cursor-pointer dark:text-white" onClick={() => setShowSettings(true)}>
         <div>
           <button className="underline">
             {chatStore.systemMessageContent.length > 16
@@ -163,24 +163,24 @@ export default function ChatBOX(props: {
       </p>
       <div className="grow overflow-scroll">
         {!chatStore.apiKey && (
-          <p className="opacity-60 p-6 rounded bg-white my-3 text-left">
+          <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
             请先在上方设置 (OPENAI) API KEY
           </p>
         )}
         {!chatStore.apiEndpoint && (
-          <p className="opacity-60 p-6 rounded bg-white my-3 text-left">
+          <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
             请先在上方设置 API Endpoint
           </p>
         )}
         {chatStore.history.length === 0 && (
-          <p className="opacity-60 p-6 rounded bg-white my-3 text-left">
+          <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
             暂无历史对话记录
           </p>
         )}
         {chatStore.history.map((chat, i) => {
           const pClassName =
             chat.role === "assistant"
-              ? "p-2 rounded relative bg-white my-2 text-left"
+              ? "p-2 rounded relative bg-white my-2 text-left dark:bg-gray-700 dark:text-white"
               : "p-2 rounded relative bg-green-400 my-2 text-right";
           const iconClassName =
             chat.role === "user"
@@ -223,7 +223,7 @@ export default function ChatBOX(props: {
           );
         })}
         {showGenerating && (
-          <p className="p-2 my-2 animate-pulse">
+          <p className="p-2 my-2 animate-pulse dark:text-white">
             {generatingMessage
               ? generatingMessage.split("\n").map((line) => <p>{line}</p>)
               : "生成中，请保持网络稳定"}
