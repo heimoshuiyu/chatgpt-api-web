@@ -74,14 +74,20 @@ export function App() {
     return JSON.parse(val) as ChatStore;
   };
 
-  const chatStore = getChatStoreByIndex(selectedChatIndex);
+  const [chatStore, _setChatStore] = useState(
+    getChatStoreByIndex(selectedChatIndex)
+  );
   const setChatStore = (cs: ChatStore) => {
     console.log("saved chat", selectedChatIndex, chatStore);
     localStorage.setItem(
       `${STORAGE_NAME}-${selectedChatIndex}`,
       JSON.stringify(cs)
     );
+    _setChatStore(cs);
   };
+  useEffect(() => {
+    _setChatStore(getChatStoreByIndex(selectedChatIndex));
+  }, [selectedChatIndex]);
 
   return (
     <div className="flex text-sm h-screen bg-slate-200 dark:bg-slate-800 dark:text-white">
