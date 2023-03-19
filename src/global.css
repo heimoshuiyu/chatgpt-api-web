@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Hide scrollbar for webkit based browsers */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for moz based browsers */
+::-moz-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE/Edge based browsers */
+::-ms-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for all based browsers */
+body::-webkit-scrollbar {
+  display: none;
+}
