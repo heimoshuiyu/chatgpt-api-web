@@ -137,7 +137,7 @@ export default function ChatBOX(props: {
 
   const [showSettings, setShowSettings] = useState(false);
   return (
-    <div className="grow flex flex-col p-4 dark:text-black">
+    <div className="grow flex flex-col p-2 dark:text-black">
       <Settings
         chatStore={chatStore}
         setChatStore={setChatStore}
