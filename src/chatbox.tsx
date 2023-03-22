@@ -1,6 +1,7 @@
 import { useState } from "preact/hooks";
 import type { ChatStore } from "./app";
 import ChatGPT, { ChunkMessage } from "./chatgpt";
+import Message from "./message";
 import Settings from "./settings";
 
 export default function ChatBOX(props: {
@@ -184,51 +185,13 @@ export default function ChatBOX(props: {
             暂无历史对话记录
           </p>
         )}
-        {chatStore.history.map((chat, i) => {
-          const pClassName =
-            chat.role === "assistant"
-              ? "p-2 rounded relative bg-white my-2 text-left dark:bg-gray-700 dark:text-white"
-              : "p-2 rounded relative bg-green-400 my-2 text-right";
-          const iconClassName =
-            chat.role === "user"
-              ? "absolute bottom-0 left-0"
-              : "absolute bottom-0 right-0";
-          const DeleteIcon = () => (
-            <button
-              className={iconClassName}
-              onClick={() => {
-                if (
-                  confirm(
-                    `Are you sure to delete this message?\n${chat.content.slice(
-                      0,
-                      39
-                    )}...`
-                  )
-                ) {
-                  chatStore.history.splice(i, 1);
-                  chatStore.postBeginIndex = Math.max(
-                    chatStore.postBeginIndex - 1,
-                    0
-                  );
-                  setChatStore({ ...chatStore });
-                }
-              }}
-            >
-              🗑️
-            </button>
-          );
-          return (
-            <p className={pClassName}>
-              {chat.content
-                .split("\n")
-                .filter((line) => line)
-                .map((line) => (
-                  <p className="my-1">{line}</p>
-                ))}
-              <DeleteIcon />
-            </p>
-          );
-        })}
+        {chatStore.history.map((_, messageIndex) => (
+          <Message
+            chatStore={chatStore}
+            setChatStore={setChatStore}
+            messageIndex={messageIndex}
+          />
+        ))}
         {showGenerating && (
           <p className="p-2 my-2 animate-pulse dark:text-white">
             {generatingMessage
