@@ -110,13 +110,17 @@ export default (props: {
         <div className="box">
           <Input
             field="systemMessageContent"
-            help="系统消息，用于指示ChatGPT的角色和一些前置条件"
+            help="系统消息，用于指示ChatGPT的角色和一些前置条件，例如“你是一个有帮助的人工智能助理”，或者“你是一个专业英语翻译，把我的话全部翻译成英语”，详情参考 OPEAN AI API 文档"
             {...props}
           />
-          <Input field="apiKey" help="OPEN AI API 密钥" {...props} />
+          <Input
+            field="apiKey"
+            help="OPEN AI API 密钥，请勿泄漏此密钥"
+            {...props}
+          />
           <Input
             field="apiEndpoint"
-            help="API 端点，方便在不支持的地区使用反向代理服务"
+            help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
             {...props}
           />
           <Choice
