@@ -10,8 +10,8 @@ export default function Message(props: Props) {
   const chat = chatStore.history[messageIndex];
   const pClassName =
     chat.role === "assistant"
-      ? "p-2 rounded relative bg-white my-2 text-left dark:bg-gray-700 dark:text-white"
-      : "p-2 rounded relative bg-green-400 my-2 text-right";
+      ? "message-content p-2 rounded bg-white my-2 text-left dark:bg-gray-700 dark:text-white"
+      : "message-content p-2 rounded bg-green-400 my-2 text-right";
   const iconClassName =
     chat.role === "user"
       ? "absolute bottom-0 left-0"
@@ -38,14 +38,9 @@ export default function Message(props: Props) {
     </button>
   );
   return (
-    <p className={pClassName}>
-      {chat.content
-        .split("\n")
-        .filter((line) => line)
-        .map((line) => (
-          <p className="my-1">{line}</p>
-        ))}
+    <div className="relative">
+      <p className={pClassName}>{chat.content}</p>
       <DeleteIcon />
-    </p>
+    </div>
   );
 }

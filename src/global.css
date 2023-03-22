@@ -21,3 +21,7 @@
 body::-webkit-scrollbar {
   display: none;
 }
+
+p.message-content {
+  white-space: pre-wrap;
+}
