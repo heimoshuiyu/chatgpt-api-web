@@ -13,6 +13,7 @@ export default function ChatBOX(props: {
   const [inputMsg, setInputMsg] = useState("");
   const [showGenerating, setShowGenerating] = useState(false);
   const [generatingMessage, setGeneratingMessage] = useState("");
+  const [showRetry, setShowRetry] = useState(false);
 
   const client = new ChatGPT(chatStore.apiKey);
 
@@ -113,6 +114,7 @@ export default function ChatBOX(props: {
       console.log("postBeginIndex", chatStore.postBeginIndex);
       setChatStore({ ...chatStore });
     } catch (error) {
+      setShowRetry(true);
       alert(error);
     } finally {
       setShowGenerating(false);
@@ -233,6 +235,19 @@ export default function ChatBOX(props: {
               ? generatingMessage.split("\n").map((line) => <p>{line}</p>)
               : "生成中，请保持网络稳定"}
             ...
+          </p>
+        )}
+        {showRetry && (
+          <p className="text-right p-2 my-2 dark:text-white">
+            <button
+              className="p-1 rounded bg-rose-500"
+              onClick={async () => {
+                setShowRetry(false);
+                await complete();
+              }}
+            >
+              Retry
+            </button>
           </p>
         )}
       </div>
