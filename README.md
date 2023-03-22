@@ -10,9 +10,10 @@
 
 与官方 ChatGPT 相比：
 
-- 对话记录使用浏览器的 localStorage 保存在本地
+- API 调用速度更快更稳定
+- 对话记录、API 密钥等使用浏览器的 localStorage 保存在本地
 - 可删除对话消息
-- 可以设置 system message (如："你是一个猫娘"，参见官方 [API 文档](https://platform.openai.com/docs/guides/chat))
+- 可以设置 system message (如："你是一个猫娘" 或 "你是一个有用的助理" 或 "将我的话翻译成英语"，参见官方 [API 文档](https://platform.openai.com/docs/guides/chat))
 - 可以为不同对话设置不同 APIKEY
 - 小（整个网页 30k 左右）
 - 可以设置不同的 API Endpoint（方便墙内人士使用反向代理转发 API 请求）
@@ -36,7 +37,7 @@
 - `api`: API Endpoint 默认为 `https://api.openai.com/v1/chat/completions`
 - `mode`: `fetch` 或 `stream` 模式，stream 模式下可以动态看到 api 返回的数据，但无法得知 token 数量，只能进行估算，在 token 数量过多时可能会裁切过多或过少历史消息
 
-例如 `http://localhost:1234/?key=xxxx` 那么新创建的会话将会使用该默认 API
+例如 `http://localhost:1234/?key=xxxx&api=xxxx` 那么 **新创建** 的会话将会使用该默认 API 和 API Endpoint
 
 以上参数应用于单个对话，随时可在顶部更改
 
