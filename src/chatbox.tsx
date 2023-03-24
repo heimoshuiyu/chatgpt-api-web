@@ -166,9 +166,7 @@ export default function ChatBOX(props: {
           <span>Total: {chatStore.totalTokens}</span>{" "}
           <span>Max: {chatStore.maxTokens}</span>{" "}
           <span>Margin: {chatStore.tokenMargin}</span>{" "}
-          <span>
-            Message: {chatStore.history.length - chatStore.postBeginIndex}
-          </span>{" "}
+          <span>Message: {chatStore.history.length}</span>{" "}
           <span>Cut: {chatStore.postBeginIndex}</span>
         </div>
       </p>
