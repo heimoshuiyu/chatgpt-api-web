@@ -1,4 +1,5 @@
-import { useState } from "preact/hooks";
+import { createRef } from "preact";
+import { useEffect, useState } from "preact/hooks";
 import type { ChatStore } from "./app";
 import ChatGPT, { ChunkMessage, FetchResponse } from "./chatgpt";
 import Message from "./message";
@@ -15,6 +16,12 @@ export default function ChatBOX(props: {
   const [showGenerating, setShowGenerating] = useState(false);
   const [generatingMessage, setGeneratingMessage] = useState("");
   const [showRetry, setShowRetry] = useState(false);
+
+  const messagesEndRef = createRef();
+  useEffect(() => {
+    console.log("ref", messagesEndRef);
+    messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [showRetry, showGenerating]);
 
   const client = new ChatGPT(chatStore.apiKey);
 
@@ -136,7 +143,6 @@ export default function ChatBOX(props: {
     setChatStore({ ...chatStore });
     setInputMsg("");
     await complete();
-    setChatStore({ ...chatStore });
   };
 
   const [showSettings, setShowSettings] = useState(false);
@@ -214,6 +220,7 @@ export default function ChatBOX(props: {
             </button>
           </p>
         )}
+        <div ref={messagesEndRef}></div>
       </div>
       <div className="flex justify-between">
         <textarea
