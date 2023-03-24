@@ -164,7 +164,8 @@ export function App() {
             }
 
             // find nex selected chat index
-            const next = newAllChatStoreIndexes[0];
+            const next =
+              newAllChatStoreIndexes[newAllChatStoreIndexes.length - 1];
             console.log("next is", next);
             setSelectedChatIndex(next);
 
