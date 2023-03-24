@@ -8,17 +8,11 @@ interface Props {
 export default function Message(props: Props) {
   const { chatStore, messageIndex, setChatStore } = props;
   const chat = chatStore.history[messageIndex];
-  const pClassName =
-    chat.role === "assistant"
-      ? "message-content p-2 rounded bg-white my-2 text-left dark:bg-gray-700 dark:text-white"
-      : "message-content p-2 rounded bg-green-400 my-2 text-right";
-  const iconClassName =
-    chat.role === "user"
-      ? "absolute bottom-0 left-0"
-      : "absolute bottom-0 right-0";
   const DeleteIcon = () => (
     <button
-      className={iconClassName}
+      className={`absolute bottom-0 ${
+        chat.role === "user" ? "left-0" : "right-0"
+      }`}
       onClick={() => {
         if (
           confirm(
@@ -38,9 +32,21 @@ export default function Message(props: Props) {
     </button>
   );
   return (
-    <div className="relative">
-      <p className={pClassName}>{chat.content}</p>
-      <DeleteIcon />
+    <div
+      className={`flex ${
+        chat.role === "assistant" ? "justify-start" : "justify-end"
+      }`}
+    >
+      <div
+        className={`relative w-fit p-2 rounded my-2 ${
+          chat.role === "assistant"
+            ? "bg-white dark:bg-gray-700 dark:text-white"
+            : "bg-green-400"
+        }`}
+      >
+        <p className="message-content">{chat.content}</p>
+        <DeleteIcon />
+      </div>
     </div>
   );
 }
