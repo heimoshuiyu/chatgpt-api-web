@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
 import type { ChatStore } from "./app";
-import ChatGPT, { ChunkMessage } from "./chatgpt";
+import ChatGPT, { ChunkMessage, FetchResponse } from "./chatgpt";
 import Message from "./message";
 import Settings from "./settings";
 
@@ -18,9 +18,8 @@ export default function ChatBOX(props: {
 
   const client = new ChatGPT(chatStore.apiKey);
 
-  const _completeWithStreamMode = async () => {
+  const _completeWithStreamMode = async (response: Response) => {
     // call api, return reponse text
-    const response = await client.completeWithSteam();
     console.log("response", response);
     const reader = response.body?.getReader();
     const allChunkMessage: string[] = [];
@@ -83,10 +82,10 @@ export default function ChatBOX(props: {
     });
   };
 
-  const _completeWithFetchMode = async () => {
-    // call api, return reponse text
-    const response = await client.complete();
-    chatStore.history.push({ role: "assistant", content: response });
+  const _completeWithFetchMode = async (response: Response) => {
+    const data = (await response.json()) as FetchResponse;
+    const content = client.processFetchResponse(data);
+    chatStore.history.push({ role: "assistant", content });
     setShowGenerating(false);
   };
 
@@ -98,10 +97,14 @@ export default function ChatBOX(props: {
     client.messages = chatStore.history.slice(chatStore.postBeginIndex);
     try {
       setShowGenerating(true);
-      if (chatStore.streamMode) {
-        await _completeWithStreamMode();
+      const response = await client._fetch(chatStore.streamMode);
+      const contentType = response.headers.get("content-type");
+      if (contentType === "text/event-stream") {
+        await _completeWithStreamMode(response);
+      } else if (contentType === "application/json") {
+        await _completeWithFetchMode(response);
       } else {
-        await _completeWithFetchMode();
+        throw `unknown response content type ${contentType}`;
       }
       // manually copy status from client to chatStore
       chatStore.maxTokens = client.max_tokens;

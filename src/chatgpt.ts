@@ -9,6 +9,23 @@ export interface ChunkMessage {
   }[];
 }
 
+export interface FetchResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  usage: {
+    prompt_tokens: number | undefined;
+    completion_tokens: number | undefined;
+    total_tokens: number | undefined;
+  };
+  choices: {
+    message: Message | undefined;
+    finish_reason: "stop" | "length";
+    index: number | undefined;
+  }[];
+}
+
 class Chat {
   OPENAI_API_KEY: string;
   messages: Message[];
@@ -57,22 +74,7 @@ class Chat {
     });
   }
 
-  async fetch(): Promise<{
-    id: string;
-    object: string;
-    created: number;
-    model: string;
-    usage: {
-      prompt_tokens: number | undefined;
-      completion_tokens: number | undefined;
-      total_tokens: number | undefined;
-    };
-    choices: {
-      message: Message | undefined;
-      finish_reason: "stop" | "length";
-      index: number | undefined;
-    }[];
-  }> {
+  async fetch(): Promise<FetchResponse> {
     const resp = await this._fetch();
     return await resp.json();
   }
@@ -83,8 +85,7 @@ class Chat {
     return this.messages.slice(-1)[0].content;
   }
 
-  async complete(): Promise<string> {
-    const resp = await this.fetch();
+  processFetchResponse(resp: FetchResponse): string {
     this.total_tokens = resp?.usage?.total_tokens ?? 0;
     if (resp?.choices[0]?.message) {
       this.messages.push(resp?.choices[0]?.message);
@@ -99,6 +100,11 @@ class Chat {
     return (
       resp?.choices[0]?.message?.content ?? `Error: ${JSON.stringify(resp)}`
     );
+  }
+
+  async complete(): Promise<string> {
+    const resp = await this.fetch();
+    return this.processFetchResponse(resp);
   }
 
   completeWithSteam() {
