@@ -21,7 +21,7 @@ export default function ChatBOX(props: {
   useEffect(() => {
     console.log("ref", messagesEndRef);
     messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-  }, [showRetry, showGenerating]);
+  }, [showRetry, showGenerating, generatingMessage]);
 
   const client = new ChatGPT(chatStore.apiKey);
 
