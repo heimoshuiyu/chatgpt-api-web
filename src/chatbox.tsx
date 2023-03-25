@@ -190,6 +190,12 @@ export default function ChatBOX(props: {
         {chatStore.history.length === 0 && (
           <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
             暂无历史对话记录
+            <br />
+            ⬆点击上方更改此对话的参数
+            <br />
+            ↖点击左上角 NEW 新建对话
+            <br />
+            ⚠回答内容和速度会受到对话历史的影响，因此建议为不相关的问题创建一个单独的对话。
           </p>
         )}
         {chatStore.history.map((_, messageIndex) => (
