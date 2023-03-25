@@ -224,6 +224,7 @@ export default function ChatBOX(props: {
       </div>
       <div className="flex justify-between">
         <textarea
+          rows={Math.min(10, (inputMsg.match(/\n/g) || []).length + 2)}
           value={inputMsg}
           onChange={(event: any) => setInputMsg(event.target.value)}
           onKeyPress={(event: any) => {
