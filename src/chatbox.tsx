@@ -220,7 +220,7 @@ export default function ChatBOX(props: {
           <p className="p-2 my-2 animate-pulse dark:text-white">
             {generatingMessage
               ? generatingMessage.split("\n").map((line) => <p>{line}</p>)
-              : "生成中，请保持网络稳定"}
+              : "生成中，最长可能需要一分钟，请保持网络稳定"}
             ...
           </p>
         )}
