@@ -90,7 +90,7 @@ export function App() {
   }, [selectedChatIndex]);
 
   return (
-    <div className="flex text-sm h-screen bg-slate-200 dark:bg-slate-800 dark:text-white">
+    <div className="flex text-sm h-full bg-slate-200 dark:bg-slate-800 dark:text-white">
       <div className="flex flex-col h-full p-2 border-r-indigo-500 border-2 dark:border-slate-800 dark:border-r-indigo-500 dark:text-black">
         <div className="grow overflow-scroll">
           <button

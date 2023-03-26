@@ -103,7 +103,7 @@ export default (props: {
       props.chatStore.streamMode ? "stream" : "fetch"
     }&sys=${encodeURIComponent(props.chatStore.systemMessageContent)}`;
   return (
-    <div className="left-0 top-0 overflow-scroll flex justify-center absolute w-screen h-screen bg-black bg-opacity-50 z-10">
+    <div className="left-0 top-0 overflow-scroll flex justify-center absolute w-screen h-full bg-black bg-opacity-50 z-10">
       <div className="m-2 p-2 bg-white rounded-lg h-fit">
         <h3 className="text-xl">Settings</h3>
         <hr />

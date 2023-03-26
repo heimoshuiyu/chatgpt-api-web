@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body,
+#app {
+  height: 100%;
+}
+
 /* Hide scrollbar for webkit based browsers */
 ::-webkit-scrollbar {
   display: none;
