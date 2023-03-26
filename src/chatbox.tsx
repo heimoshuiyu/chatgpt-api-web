@@ -196,6 +196,17 @@ export default function ChatBOX(props: {
             ↖点击左上角 NEW 新建对话
             <br />
             ⚠回答内容和速度会受到对话历史的影响，因此建议为不相关的问题创建一个单独的对话。
+            <br />
+            ⚠所有历史对话与参数储存在浏览器本地
+            <br />
+            ⚠详细文档与源代码:{" "}
+            <a
+            className="underline"
+              href="https://github.com/heimoshuiyu/chatgpt-api-web"
+              target="_blank"
+            >
+              github.com/heimoshuiyu/chatgpt-api-web
+            </a>
           </p>
         )}
         {chatStore.history.map((_, messageIndex) => (
