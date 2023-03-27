@@ -188,7 +188,7 @@ export default function ChatBOX(props: {
           </p>
         )}
         {chatStore.history.length === 0 && (
-          <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
+          <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
             暂无历史对话记录
             <br />
             ⚙Key: {chatStore.apiKey}
