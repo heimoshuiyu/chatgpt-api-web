@@ -111,11 +111,17 @@ export function App() {
 
   // if there are any params in URL, create a new chatStore
   useEffect(() => {
+    const api = getDefaultParams("api", "");
+    const key = getDefaultParams("key", "");
+    const sys = getDefaultParams("sys", "");
+    const mode = getDefaultParams("mode", "");
+    // only create new chatStore if the params in URL are NOT
+    // equal to the current selected chatStore
     if (
-      getDefaultParams("api", "") ||
-      getDefaultParams("key", "") ||
-      getDefaultParams("mode", "") ||
-      getDefaultParams("sys", "")
+      (api && api !== chatStore.apiEndpoint) ||
+      (key && key !== chatStore.apiKey) ||
+      (sys && sys !== chatStore.systemMessageContent) ||
+      (mode && mode !== (chatStore.streamMode ? "stream" : "fetch"))
     ) {
       handleNewChatStore();
     }
