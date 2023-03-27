@@ -89,31 +89,45 @@ export function App() {
     _setChatStore(getChatStoreByIndex(selectedChatIndex));
   }, [selectedChatIndex]);
 
+  const handleNewChatStore = () => {
+    const max = Math.max(...allChatStoreIndexes);
+    const next = max + 1;
+    console.log("save next chat", next);
+    localStorage.setItem(
+      `${STORAGE_NAME}-${next}`,
+      JSON.stringify(
+        newChatStore(
+          chatStore.apiKey,
+          chatStore.systemMessageContent,
+          chatStore.apiEndpoint,
+          chatStore.streamMode
+        )
+      )
+    );
+    allChatStoreIndexes.push(next);
+    setAllChatStoreIndexes([...allChatStoreIndexes]);
+    setSelectedChatIndex(next);
+  };
+
+  // if there are any params in URL, create a new chatStore
+  useEffect(() => {
+    if (
+      getDefaultParams("api", "") ||
+      getDefaultParams("key", "") ||
+      getDefaultParams("mode", "") ||
+      getDefaultParams("sys", "")
+    ) {
+      handleNewChatStore();
+    }
+  }, []);
+
   return (
     <div className="flex text-sm h-full bg-slate-200 dark:bg-slate-800 dark:text-white">
       <div className="flex flex-col h-full p-2 border-r-indigo-500 border-2 dark:border-slate-800 dark:border-r-indigo-500 dark:text-black">
         <div className="grow overflow-scroll">
           <button
             className="bg-violet-300 p-1 rounded hover:bg-violet-400"
-            onClick={() => {
-              const max = Math.max(...allChatStoreIndexes);
-              const next = max + 1;
-              console.log("save next chat", next);
-              localStorage.setItem(
-                `${STORAGE_NAME}-${next}`,
-                JSON.stringify(
-                  newChatStore(
-                    chatStore.apiKey,
-                    chatStore.systemMessageContent,
-                    chatStore.apiEndpoint,
-                    chatStore.streamMode
-                  )
-                )
-              );
-              allChatStoreIndexes.push(next);
-              setAllChatStoreIndexes([...allChatStoreIndexes]);
-              setSelectedChatIndex(next);
-            }}
+            onClick={handleNewChatStore}
           >
             NEW
           </button>
@@ -126,7 +140,7 @@ export function App() {
                 return (
                   <li>
                     <button
-                      className={`w-full my-1 p-1 rounded  hover:bg-blue-300 ${
+                      className={`w-full my-1 p-1 rounded  hover:bg-blue-500 ${
                         i === selectedChatIndex ? "bg-blue-500" : "bg-blue-200"
                       }`}
                       onClick={() => {

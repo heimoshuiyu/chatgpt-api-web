@@ -191,6 +191,10 @@ export default function ChatBOX(props: {
           <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
             暂无历史对话记录
             <br />
+            ⚙Key: {chatStore.apiKey}
+            <br />
+            ⚙Endpoint: {chatStore.apiEndpoint}
+            <br />
             ⬆点击上方更改此对话的参数
             <br />
             ↖点击左上角 NEW 新建对话
@@ -201,7 +205,7 @@ export default function ChatBOX(props: {
             <br />
             ⚠详细文档与源代码:{" "}
             <a
-            className="underline"
+              className="underline"
               href="https://github.com/heimoshuiyu/chatgpt-api-web"
               target="_blank"
             >
