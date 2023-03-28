@@ -109,8 +109,10 @@ export default function ChatBOX(props: {
       const response = await client._fetch(chatStore.streamMode);
       const contentType = response.headers.get("content-type");
       if (contentType === "text/event-stream") {
+        chatStore.streamMode = true;
         await _completeWithStreamMode(response);
       } else if (contentType === "application/json") {
+        chatStore.streamMode = false;
         await _completeWithFetchMode(response);
       } else {
         throw `unknown response content type ${contentType}`;
