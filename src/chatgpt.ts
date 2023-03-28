@@ -25,6 +25,14 @@ export interface FetchResponse {
     index: number | undefined;
   }[];
 }
+// https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
+export function calculate_token_length(content: string): number {
+  const totalCount = content.length;
+  const chineseCount = content.match(/[\u00ff-\uffff]|\S+/g)?.length ?? 0;
+  const englishCount = totalCount - chineseCount;
+  const tokenLength = englishCount / 4 + (chineseCount * 4) / 3;
+  return ~~tokenLength;
+}
 
 class Chat {
   OPENAI_API_KEY: string;
@@ -114,13 +122,8 @@ class Chat {
     return this._fetch(true);
   }
 
-  // https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
   calculate_token_length(content: string): number {
-    const totalCount = content.length;
-    const chineseCount = content.match(/[\u00ff-\uffff]|\S+/g)?.length ?? 0;
-    const englishCount = totalCount - chineseCount;
-    const tokenLength = englishCount / 4 + (chineseCount * 4) / 3;
-    return ~~tokenLength;
+    return calculate_token_length(content);
   }
 
   user(...messages: string[]) {

@@ -102,6 +102,8 @@ export default function ChatBOX(props: {
     client.apiEndpoint = chatStore.apiEndpoint;
     client.sysMessageContent = chatStore.systemMessageContent;
     client.messages = chatStore.history.slice(chatStore.postBeginIndex);
+    // try forget message before sending request
+    client.forgetSomeMessages();
     try {
       setShowGenerating(true);
       const response = await client._fetch(chatStore.streamMode);
@@ -140,6 +142,9 @@ export default function ChatBOX(props: {
       return;
     }
     chatStore.history.push({ role: "user", content: inputMsg.trim() });
+    // manually calculate token length
+    chatStore.totalTokens += client.calculate_token_length(inputMsg.trim());
+    client.total_tokens += client.calculate_token_length(inputMsg.trim());
     setChatStore({ ...chatStore });
     setInputMsg("");
     await complete();

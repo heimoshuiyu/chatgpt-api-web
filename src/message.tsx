@@ -1,4 +1,5 @@
 import { ChatStore } from "./app";
+import { calculate_token_length } from "./chatgpt";
 
 interface Props {
   messageIndex: number;
@@ -24,6 +25,10 @@ export default function Message(props: Props) {
         ) {
           chatStore.history.splice(messageIndex, 1);
           chatStore.postBeginIndex = Math.max(chatStore.postBeginIndex - 1, 0);
+          chatStore.totalTokens = Math.max(
+            0,
+            chatStore.totalTokens - calculate_token_length(chat.content)
+          );
           setChatStore({ ...chatStore });
         }
       }}
