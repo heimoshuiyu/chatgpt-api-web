@@ -121,13 +121,15 @@ export function App() {
     const key = getDefaultParams("key", "");
     const sys = getDefaultParams("sys", "");
     const mode = getDefaultParams("mode", "");
+    const model = getDefaultParams("model", "");
     // only create new chatStore if the params in URL are NOT
     // equal to the current selected chatStore
     if (
       (api && api !== chatStore.apiEndpoint) ||
       (key && key !== chatStore.apiKey) ||
       (sys && sys !== chatStore.systemMessageContent) ||
-      (mode && mode !== (chatStore.streamMode ? "stream" : "fetch"))
+      (mode && mode !== (chatStore.streamMode ? "stream" : "fetch")) ||
+      (model && model !== chatStore.model)
     ) {
       handleNewChatStore();
     }
