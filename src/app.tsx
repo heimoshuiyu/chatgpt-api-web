@@ -205,7 +205,12 @@ export function App() {
           DEL
         </button>
       </div>
-      <ChatBOX chatStore={chatStore} setChatStore={setChatStore} />
+      <ChatBOX
+        chatStore={chatStore}
+        setChatStore={setChatStore}
+        selectedChatIndex={selectedChatIndex}
+        setSelectedChatIndex={setSelectedChatIndex}
+      />
     </div>
   );
 }

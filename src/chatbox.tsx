@@ -1,5 +1,5 @@
 import { createRef } from "preact";
-import { useEffect, useState } from "preact/hooks";
+import { StateUpdater, useEffect, useState } from "preact/hooks";
 import type { ChatStore } from "./app";
 import ChatGPT, { ChunkMessage, FetchResponse } from "./chatgpt";
 import Message from "./message";
@@ -8,6 +8,8 @@ import Settings from "./settings";
 export default function ChatBOX(props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
+  selectedChatIndex: number;
+  setSelectedChatIndex: StateUpdater<number>;
 }) {
   const { chatStore, setChatStore } = props;
   // prevent error
@@ -134,6 +136,7 @@ export default function ChatBOX(props: {
       alert(error);
     } finally {
       setShowGenerating(false);
+      props.setSelectedChatIndex(props.selectedChatIndex);
     }
   };
 
@@ -205,7 +208,7 @@ export default function ChatBOX(props: {
             <br />
             ⚙Endpoint: {chatStore.apiEndpoint}
             <br />
-            ⬆点击上方更改此对话的参数
+            ⬆点击上方更改此对话的参数（请勿泄漏）
             <br />
             ↖点击左上角 NEW 新建对话
             <br />
