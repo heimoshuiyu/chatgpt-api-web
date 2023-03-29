@@ -17,6 +17,41 @@ const Help = (props: { children: any; help: string }) => {
   );
 };
 
+const SelectModel = (props: {
+  chatStore: ChatStore;
+  setChatStore: (cs: ChatStore) => void;
+  help: string;
+}) => {
+  // model and their max token
+  const options: Record<string, number> = {
+    "gpt-3.5-turbo": 4096,
+    "gpt-3.5-turbo-0301": 4096,
+    "gpt-4": 8192,
+    "gpt-4-0314": 8192,
+    "gpt-4-32k": 32768,
+    "gpt-4-32k-0314": 32768,
+  };
+  return (
+    <Help help={props.help}>
+      <label className="m-2 p-2">Model</label>
+      <select
+        className="m-2 p-2"
+        value={props.chatStore.model}
+        onChange={(event: any) => {
+          const model = event.target.value as string;
+          props.chatStore.model = model;
+          props.chatStore.maxTokens = options[model];
+          props.setChatStore({ ...props.chatStore });
+        }}
+      >
+        {Object.keys(options).map((opt) => (
+          <option value={opt}>{opt}</option>
+        ))}
+      </select>
+    </Help>
+  );
+};
+
 const Input = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
@@ -101,7 +136,9 @@ export default (props: {
       props.chatStore.apiKey
     )}&api=${encodeURIComponent(props.chatStore.apiEndpoint)}&mode=${
       props.chatStore.streamMode ? "stream" : "fetch"
-    }&sys=${encodeURIComponent(props.chatStore.systemMessageContent)}`;
+    }&model=${props.chatStore.model}&sys=${encodeURIComponent(
+      props.chatStore.systemMessageContent
+    )}`;
   return (
     <div className="left-0 top-0 overflow-scroll flex justify-center absolute w-screen h-full bg-black bg-opacity-50 z-10">
       <div className="m-2 p-2 bg-white rounded-lg h-fit">
@@ -128,9 +165,13 @@ export default (props: {
             help="流模式，使用 stream mode 将可以动态看到生成内容，但无法准确计算 token 数量，在 token 数量过多时可能会裁切过多或过少历史消息"
             {...props}
           />
+          <SelectModel
+            help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
+            {...props}
+          />
           <Number
             field="maxTokens"
-            help="最大 token 数量，这个详情参考 OPENAI API 文档"
+            help="最大 token 数量。如果使用非gpt-3.5模型，请手动修改上限。gpt-4 & gpt-4-0314: 8192。gpt-4-32k & gpt-4-32k-0314: 32768"
             readOnly={false}
             {...props}
           />

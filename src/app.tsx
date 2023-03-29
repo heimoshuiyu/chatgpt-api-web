@@ -15,6 +15,7 @@ export interface ChatStore {
   apiKey: string;
   apiEndpoint: string;
   streamMode: boolean;
+  model: string;
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
@@ -22,7 +23,8 @@ const newChatStore = (
   apiKey = "",
   systemMessageContent = "你是一个有用的人工智能助理，根据我的提问和要求回答我的问题",
   apiEndpoint = _defaultAPIEndpoint,
-  streamMode = true
+  streamMode = true,
+  model = "gpt-3.5-turbo"
 ): ChatStore => {
   return {
     systemMessageContent: getDefaultParams("sys", systemMessageContent),
@@ -34,6 +36,7 @@ const newChatStore = (
     apiKey: getDefaultParams("key", apiKey),
     apiEndpoint: getDefaultParams("api", apiEndpoint),
     streamMode: getDefaultParams("mode", streamMode),
+    model: getDefaultParams("model", model),
   };
 };
 
@@ -71,7 +74,10 @@ export function App() {
     const key = `${STORAGE_NAME}-${index}`;
     const val = localStorage.getItem(key);
     if (val === null) return newChatStore();
-    return JSON.parse(val) as ChatStore;
+    const ret = JSON.parse(val) as ChatStore;
+    // handle read from old version chatstore
+    if (ret.model === undefined) ret.model = "gpt-3.5-turbo";
+    return ret;
   };
 
   const [chatStore, _setChatStore] = useState(

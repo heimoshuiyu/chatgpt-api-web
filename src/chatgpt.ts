@@ -42,6 +42,7 @@ class Chat {
   max_tokens: number;
   tokens_margin: number;
   apiEndpoint: string;
+  model: string;
 
   constructor(
     OPENAI_API_KEY: string | undefined,
@@ -50,6 +51,7 @@ class Chat {
       max_tokens = 4096,
       tokens_margin = 1024,
       apiEndPoint = "https://api.openai.com/v1/chat/completions",
+      model = "gpt-3.5-turbo",
     } = {}
   ) {
     if (OPENAI_API_KEY === undefined) {
@@ -62,6 +64,7 @@ class Chat {
     this.tokens_margin = tokens_margin;
     this.sysMessageContent = systemMessage;
     this.apiEndpoint = apiEndPoint;
+    this.model = model;
   }
 
   _fetch(stream = false) {
@@ -72,7 +75,7 @@ class Chat {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: this.model,
         messages: [
           { role: "system", content: this.sysMessageContent },
           ...this.messages,

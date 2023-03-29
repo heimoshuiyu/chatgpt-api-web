@@ -102,6 +102,7 @@ export default function ChatBOX(props: {
     client.apiEndpoint = chatStore.apiEndpoint;
     client.sysMessageContent = chatStore.systemMessageContent;
     client.messages = chatStore.history.slice(chatStore.postBeginIndex);
+    client.model = chatStore.model;
     // try forget message before sending request
     client.forgetSomeMessages();
     try {
@@ -197,6 +198,8 @@ export default function ChatBOX(props: {
         {chatStore.history.length === 0 && (
           <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
             暂无历史对话记录
+            <br />
+            ⚙Model: {chatStore.model}
             <br />
             ⚙Key: {chatStore.apiKey}
             <br />
