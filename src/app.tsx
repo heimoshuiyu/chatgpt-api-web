@@ -4,6 +4,7 @@ import "./global.css";
 import { Message } from "./chatgpt";
 import getDefaultParams from "./getDefaultParam";
 import ChatBOX from "./chatbox";
+import { options } from "./settings";
 
 export interface ChatStore {
   systemMessageContent: string;
@@ -32,7 +33,7 @@ const newChatStore = (
     postBeginIndex: 0,
     tokenMargin: 1024,
     totalTokens: 0,
-    maxTokens: 4096,
+    maxTokens: options[getDefaultParams("model", model)],
     apiKey: getDefaultParams("key", apiKey),
     apiEndpoint: getDefaultParams("api", apiEndpoint),
     streamMode: getDefaultParams("mode", streamMode),
@@ -106,7 +107,8 @@ export function App() {
           chatStore.apiKey,
           chatStore.systemMessageContent,
           chatStore.apiEndpoint,
-          chatStore.streamMode
+          chatStore.streamMode,
+          chatStore.model
         )
       )
     );

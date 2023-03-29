@@ -17,20 +17,21 @@ const Help = (props: { children: any; help: string }) => {
   );
 };
 
+// model and their max token
+export const options: Record<string, number> = {
+  "gpt-3.5-turbo": 4096,
+  "gpt-3.5-turbo-0301": 4096,
+  "gpt-4": 8192,
+  "gpt-4-0314": 8192,
+  "gpt-4-32k": 32768,
+  "gpt-4-32k-0314": 32768,
+};
+
 const SelectModel = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
   help: string;
 }) => {
-  // model and their max token
-  const options: Record<string, number> = {
-    "gpt-3.5-turbo": 4096,
-    "gpt-3.5-turbo-0301": 4096,
-    "gpt-4": 8192,
-    "gpt-4-0314": 8192,
-    "gpt-4-32k": 32768,
-    "gpt-4-32k-0314": 32768,
-  };
   return (
     <Help help={props.help}>
       <label className="m-2 p-2">Model</label>
