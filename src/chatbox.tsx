@@ -105,6 +105,7 @@ export default function ChatBOX(props: {
     client.sysMessageContent = chatStore.systemMessageContent;
     client.messages = chatStore.history.slice(chatStore.postBeginIndex);
     client.model = chatStore.model;
+    client.max_tokens = chatStore.maxTokens;
     // try forget message before sending request
     client.forgetSomeMessages();
     try {
