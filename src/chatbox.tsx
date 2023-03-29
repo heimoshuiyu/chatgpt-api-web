@@ -166,7 +166,7 @@ export default function ChatBOX(props: {
         setShow={setShowSettings}
       />
       <p
-        className="cursor-pointer dark:text-white"
+        className="cursor-pointer rounded bg-cyan-300 dark:text-white p-1 dark:bg-cyan-800"
         onClick={() => setShowSettings(true)}
       >
         <div>
@@ -180,10 +180,11 @@ export default function ChatBOX(props: {
           </button>
         </div>
         <div className="text-xs">
-          <span>Total: {chatStore.totalTokens}</span>{" "}
-          <span>Max: {chatStore.maxTokens}</span>{" "}
-          <span>Margin: {chatStore.tokenMargin}</span>{" "}
-          <span>Message: {chatStore.history.length}</span>{" "}
+          <span>
+            Tokens: {chatStore.totalTokens} / {chatStore.maxTokens}
+          </span>{" "}
+          <span>{chatStore.model}</span>{" "}
+          <span>Messages: {chatStore.history.length}</span>{" "}
           <span>Cut: {chatStore.postBeginIndex}</span>
         </div>
       </p>
