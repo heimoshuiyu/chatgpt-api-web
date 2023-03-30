@@ -4,7 +4,7 @@ import "./global.css";
 import { calculate_token_length, Message } from "./chatgpt";
 import getDefaultParams from "./getDefaultParam";
 import ChatBOX from "./chatbox";
-import { options } from "./settings";
+import models from "./models";
 
 import CHATGPT_API_WEB_VERSION from "./CHATGPT_API_WEB_VERSION";
 
@@ -26,6 +26,7 @@ export interface ChatStore {
   streamMode: boolean;
   model: string;
   responseModelName: string;
+  cost: number;
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
@@ -43,12 +44,13 @@ const newChatStore = (
     postBeginIndex: 0,
     tokenMargin: 1024,
     totalTokens: 0,
-    maxTokens: options[getDefaultParams("model", model)],
+    maxTokens: models[getDefaultParams("model", model)].maxToken,
     apiKey: getDefaultParams("key", apiKey),
     apiEndpoint: getDefaultParams("api", apiEndpoint),
     streamMode: getDefaultParams("mode", streamMode),
     model: getDefaultParams("model", model),
     responseModelName: "",
+    cost: 0,
   };
 };
 
@@ -99,6 +101,7 @@ export function App() {
       if (message.token === undefined)
         message.token = calculate_token_length(message.content);
     }
+    if (ret.cost === undefined) ret.cost = 0;
     return ret;
   };
 

@@ -1,6 +1,7 @@
 import { createRef } from "preact";
 import { StateUpdater } from "preact/hooks";
 import { ChatStore } from "./app";
+import models from "./models";
 
 const Help = (props: { children: any; help: string }) => {
   return (
@@ -18,16 +19,6 @@ const Help = (props: { children: any; help: string }) => {
   );
 };
 
-// model and their max token
-export const options: Record<string, number> = {
-  "gpt-3.5-turbo": 4096,
-  "gpt-3.5-turbo-0301": 4096,
-  "gpt-4": 8192,
-  "gpt-4-0314": 8192,
-  "gpt-4-32k": 32768,
-  "gpt-4-32k-0314": 32768,
-};
-
 const SelectModel = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
@@ -42,11 +33,11 @@ const SelectModel = (props: {
         onChange={(event: any) => {
           const model = event.target.value as string;
           props.chatStore.model = model;
-          props.chatStore.maxTokens = options[model];
+          props.chatStore.maxTokens = models[model].maxToken;
           props.setChatStore({ ...props.chatStore });
         }}
       >
-        {Object.keys(options).map((opt) => (
+        {Object.keys(models).map((opt) => (
           <option value={opt}>{opt}</option>
         ))}
       </select>
@@ -149,6 +140,9 @@ export default (props: {
       <div className="m-2 p-2 bg-white rounded-lg h-fit">
         <h3 className="text-xl">Settings</h3>
         <hr />
+        <p className="m-2 p-2">
+          Total cost in this section ${props.chatStore.cost.toFixed(4)}
+        </p>
         <div className="box">
           <Input
             field="systemMessageContent"
@@ -268,6 +262,10 @@ export default (props: {
                 reader.readAsText(file);
               }}
             />
+          </p>
+          <p className="text-center m-2 p-2">
+            chatgpt-api-web ChatStore Version{" "}
+            {props.chatStore.chatgpt_api_web_version}
           </p>
         </div>
         <hr />

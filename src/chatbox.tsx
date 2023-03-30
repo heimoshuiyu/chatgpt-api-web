@@ -7,6 +7,7 @@ import ChatGPT, {
   FetchResponse,
 } from "./chatgpt";
 import Message from "./message";
+import models from "./models";
 import Settings from "./settings";
 
 export default function ChatBOX(props: {
@@ -102,6 +103,13 @@ export default function ChatBOX(props: {
     chatStore.streamMode = false;
     const data = (await response.json()) as FetchResponse;
     chatStore.responseModelName = data.model ?? "";
+    if (data.model) {
+      chatStore.cost +=
+        (data.usage.prompt_tokens ?? 0) * models[data.model].price.prompt;
+      chatStore.cost +=
+        (data.usage.completion_tokens ?? 0) *
+        models[data.model].price.completion;
+    }
     const content = client.processFetchResponse(data);
     chatStore.history.push({
       role: "assistant",
@@ -239,9 +247,10 @@ export default function ChatBOX(props: {
           </span>{" "}
           <span>{chatStore.model}</span>{" "}
           <span>
-            Messages: {chatStore.history.filter(({ hide }) => !hide).length}
+            Msg: {chatStore.history.filter(({ hide }) => !hide).length}
           </span>{" "}
-          <span>Cut: {chatStore.postBeginIndex}</span>
+          <span>Cut: {chatStore.postBeginIndex}</span>{" "}
+          <span className="underline">${chatStore.cost.toFixed(4)}</span>
         </div>
       </p>
       <div className="grow overflow-scroll">
