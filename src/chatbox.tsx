@@ -243,14 +243,23 @@ export default function ChatBOX(props: {
         </div>
         <div className="text-xs">
           <span>
-            Tokens: {chatStore.totalTokens} / {chatStore.maxTokens}
+            Tokens:{" "}
+            <span className="underline">
+              {chatStore.totalTokens}/{chatStore.maxTokens}
+            </span>
           </span>{" "}
-          <span>{chatStore.model}</span>{" "}
+          <span className="underline">{chatStore.model}</span>{" "}
           <span>
-            Msg: {chatStore.history.filter(({ hide }) => !hide).length}
+            Cut:{" "}
+            <span className="underline">
+              {chatStore.postBeginIndex}/
+              {chatStore.history.filter(({ hide }) => !hide).length}
+            </span>{" "}
           </span>{" "}
-          <span>Cut: {chatStore.postBeginIndex}</span>{" "}
-          <span className="underline">${chatStore.cost.toFixed(4)}</span>
+          <span>
+            Cost:{" "}
+            <span className="underline">${chatStore.cost.toFixed(4)}</span>
+          </span>
         </div>
       </p>
       <div className="grow overflow-scroll">
