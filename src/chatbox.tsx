@@ -307,17 +307,17 @@ export default function ChatBOX(props: {
                 提示：会话过长，已裁切前 {chatStore.postBeginIndex} 条消息
               </>
             )}
-            {chatStore.chatgpt_api_web_version < "v1.3.0" && (
-              <>
-                <br />
-                提示：当前会话版本 {chatStore.chatgpt_api_web_version}。
-                <br />
-                v1.3.0
-                引入与旧版不兼容的消息裁切算法。继续使用旧版可能会导致消息裁切过多或过少（表现为失去上下文或输出不完整）。
-                <br />
-                请在左上角创建新会话：）
-              </>
-            )}
+          </p>
+        )}
+        {chatStore.chatgpt_api_web_version < "v1.3.0" && (
+          <p className="p-2 my-2 text-center dark:text-white">
+            <br />
+            提示：当前会话版本 {chatStore.chatgpt_api_web_version}。
+            <br />
+            v1.3.0
+            引入与旧版不兼容的消息裁切算法。继续使用旧版可能会导致消息裁切过多或过少（表现为失去上下文或输出不完整）。
+            <br />
+            请在左上角创建新会话：）
           </p>
         )}
         {showRetry && (
