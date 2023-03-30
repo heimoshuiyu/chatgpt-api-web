@@ -126,6 +126,7 @@ export default (props: {
   setChatStore: (cs: ChatStore) => void;
   show: boolean;
   setShow: StateUpdater<boolean>;
+  selectedChatStoreIndex: number;
 }) => {
   if (!props.show) return <div></div>;
   const link =
@@ -194,6 +195,43 @@ export default (props: {
             readOnly={true}
             {...props}
           />
+          <p className="flex justify-evenly">
+            <button
+              className="p-2 m-2 rounded bg-amber-500"
+              onClick={() => {
+                let dataStr =
+                  "data:text/json;charset=utf-8," +
+                  encodeURIComponent(
+                    JSON.stringify(props.chatStore, null, "\t")
+                  );
+                let downloadAnchorNode = document.createElement("a");
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute(
+                  "download",
+                  `chatgpt-api-web-${props.selectedChatStoreIndex}.json`
+                );
+                document.body.appendChild(downloadAnchorNode); // required for firefox
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+              }}
+            >
+              Export
+            </button>
+            <button
+              className="p-2 m-2 rounded bg-amber-500"
+              onClick={() => {
+                if (
+                  !confirm(
+                    "This will OVERWRITE the current chat history! Continue?"
+                  )
+                )
+                  alert("Error: This function is currently unimplemented :)");
+                return;
+              }}
+            >
+              Import
+            </button>
+          </p>
         </div>
         <hr />
         <div className="flex justify-between">

@@ -170,6 +170,7 @@ export default function ChatBOX(props: {
         setChatStore={setChatStore}
         show={showSettings}
         setShow={setShowSettings}
+        selectedChatStoreIndex={props.selectedChatIndex}
       />
       <p
         className="cursor-pointer rounded bg-cyan-300 dark:text-white p-1 dark:bg-cyan-800"
