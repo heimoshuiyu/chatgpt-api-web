@@ -17,6 +17,7 @@ export interface ChatStore {
   apiEndpoint: string;
   streamMode: boolean;
   model: string;
+  responseModelName: string;
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
@@ -38,6 +39,7 @@ const newChatStore = (
     apiEndpoint: getDefaultParams("api", apiEndpoint),
     streamMode: getDefaultParams("mode", streamMode),
     model: getDefaultParams("model", model),
+    responseModelName: "",
   };
 };
 
@@ -78,6 +80,7 @@ export function App() {
     const ret = JSON.parse(val) as ChatStore;
     // handle read from old version chatstore
     if (ret.model === undefined) ret.model = "gpt-3.5-turbo";
+    if (ret.responseModelName === undefined) ret.responseModelName = "";
     return ret;
   };
 
@@ -107,7 +110,7 @@ export function App() {
           chatStore.apiKey,
           chatStore.systemMessageContent,
           chatStore.apiEndpoint,
-          chatStore.streamMode,
+          chatStore.streamMode
         )
       )
     );

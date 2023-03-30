@@ -4,6 +4,7 @@ export interface Message {
 }
 
 export interface ChunkMessage {
+  model: string;
   choices: {
     delta: { role: "assitant" | undefined; content: string | undefined };
   }[];
