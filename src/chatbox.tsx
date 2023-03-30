@@ -256,13 +256,13 @@ export default function ChatBOX(props: {
           </button>
         </div>
         <div className="text-xs">
+          <span className="underline">{chatStore.model}</span>{" "}
           <span>
             Tokens:{" "}
             <span className="underline">
               {chatStore.totalTokens}/{chatStore.maxTokens}
             </span>
           </span>{" "}
-          <span className="underline">{chatStore.model}</span>{" "}
           <span>
             Cut:{" "}
             <span className="underline">
