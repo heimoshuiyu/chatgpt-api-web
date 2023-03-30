@@ -15,43 +15,71 @@ export default function Message(props: Props) {
         chat.role === "user" ? "left-0" : "right-0"
       }`}
       onClick={() => {
-        if (
-          confirm(
-            `Are you sure to delete this message?\n${chat.content.slice(
-              0,
-              39
-            )}...`
-          )
-        ) {
-          chatStore.history.splice(messageIndex, 1);
-          chatStore.postBeginIndex = Math.max(chatStore.postBeginIndex - 1, 0);
-          chatStore.totalTokens = Math.max(
-            0,
-            chatStore.totalTokens - calculate_token_length(chat.content)
-          );
-          setChatStore({ ...chatStore });
+        chatStore.history[messageIndex].hide =
+          !chatStore.history[messageIndex].hide;
+
+        // todo move code
+        const max = chatStore.maxTokens - chatStore.tokenMargin;
+        let sum = 0;
+        chatStore.postBeginIndex = chatStore.history.filter(
+          ({ hide }) => !hide
+        ).length;
+        for (const msg of chatStore.history.slice().reverse()) {
+          sum += msg.token;
+          if (sum > max) break;
+          chatStore.postBeginIndex -= 1;
         }
+        chatStore.postBeginIndex =
+          chatStore.postBeginIndex < 0 ? 0 : chatStore.postBeginIndex;
+
+        //chatStore.totalTokens =
+        chatStore.totalTokens = 0;
+        for (const i of chatStore.history
+          .filter(({ hide }) => !hide)
+          .slice(chatStore.postBeginIndex)
+          .map(({ token }) => token)) {
+          chatStore.totalTokens += i;
+        }
+        setChatStore({ ...chatStore });
       }}
     >
       🗑️
     </button>
   );
   return (
-    <div
-      className={`flex ${
-        chat.role === "assistant" ? "justify-start" : "justify-end"
-      }`}
-    >
+    <>
+      {chatStore.postBeginIndex !== 0 &&
+        !chatStore.history[messageIndex].hide &&
+        chatStore.postBeginIndex ===
+          chatStore.history.slice(0, messageIndex).filter(({ hide }) => !hide)
+            .length && (
+          <div className="flex items-center relative justify-center">
+            <hr className="w-full h-px my-4 border-0 bg-slate-800 dark:bg-white" />
+            <span className="absolute px-3 bg-slate-800 text-white rounded p-1 dark:bg-white dark:text-black">
+              Above messages are "forgotten"
+            </span>
+          </div>
+        )}
       <div
-        className={`relative w-fit p-2 rounded my-2 ${
-          chat.role === "assistant"
-            ? "bg-white dark:bg-gray-700 dark:text-white"
-            : "bg-green-400"
+        className={`flex ${
+          chat.role === "assistant" ? "justify-start" : "justify-end"
         }`}
       >
-        <p className="message-content">{chat.content}</p>
-        <DeleteIcon />
+        <div
+          className={`relative w-fit p-2 rounded my-2 ${
+            chat.role === "assistant"
+              ? "bg-white dark:bg-gray-700 dark:text-white"
+              : "bg-green-400"
+          } ${chat.hide ? "opacity-50" : ""}`}
+        >
+          <p className="message-content">
+            {chat.hide
+              ? chat.content.split("\n")[0].slice(0, 16) + "... (deleted)"
+              : chat.content}
+          </p>
+          <DeleteIcon />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

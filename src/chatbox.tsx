@@ -1,7 +1,11 @@
 import { createRef } from "preact";
 import { StateUpdater, useEffect, useState } from "preact/hooks";
 import type { ChatStore } from "./app";
-import ChatGPT, { ChunkMessage, FetchResponse } from "./chatgpt";
+import ChatGPT, {
+  calculate_token_length,
+  ChunkMessage,
+  FetchResponse,
+} from "./chatgpt";
 import Message from "./message";
 import Settings from "./settings";
 
@@ -77,17 +81,16 @@ export default function ChatBOX(props: {
         setShowGenerating(false);
 
         // console.log("push to history", allChunkMessage);
+        const content = allChunkMessage.join("");
         chatStore.history.push({
           role: "assistant",
-          content: allChunkMessage.join(""),
+          content,
+          hide: false,
+          token: calculate_token_length(content),
         });
         // manually copy status from client to chatStore
         chatStore.maxTokens = client.max_tokens;
         chatStore.tokenMargin = client.tokens_margin;
-        chatStore.totalTokens =
-          client.total_tokens +
-          39 +
-          client.calculate_token_length(allChunkMessage.join(""));
         setChatStore({ ...chatStore });
         setGeneratingMessage("");
         setShowGenerating(false);
@@ -100,7 +103,12 @@ export default function ChatBOX(props: {
     const data = (await response.json()) as FetchResponse;
     chatStore.responseModelName = data.model ?? "";
     const content = client.processFetchResponse(data);
-    chatStore.history.push({ role: "assistant", content });
+    chatStore.history.push({
+      role: "assistant",
+      content,
+      hide: false,
+      token: data.usage.completion_tokens ?? calculate_token_length(content),
+    });
     setShowGenerating(false);
   };
 
@@ -109,11 +117,35 @@ export default function ChatBOX(props: {
     // manually copy status from chatStore to client
     client.apiEndpoint = chatStore.apiEndpoint;
     client.sysMessageContent = chatStore.systemMessageContent;
-    client.messages = chatStore.history.slice(chatStore.postBeginIndex);
+    client.tokens_margin = chatStore.tokenMargin;
+    client.messages = chatStore.history
+      .slice(chatStore.postBeginIndex)
+      // only copy non hidden message
+      .filter(({ hide }) => !hide)
+      // only copy content and role attribute to client for posting
+      .map(({ content, role }) => {
+        return {
+          content,
+          role,
+        };
+      });
     client.model = chatStore.model;
     client.max_tokens = chatStore.maxTokens;
-    // try forget message before sending request
-    client.forgetSomeMessages();
+
+    // todo move code
+    const max = chatStore.maxTokens - chatStore.tokenMargin;
+    let sum = 0;
+    chatStore.postBeginIndex = chatStore.history.filter(
+      ({ hide }) => !hide
+    ).length;
+    for (const msg of chatStore.history.slice().reverse()) {
+      sum += msg.token;
+      if (sum > max) break;
+      chatStore.postBeginIndex -= 1;
+    }
+    chatStore.postBeginIndex =
+      chatStore.postBeginIndex < 0 ? 0 : chatStore.postBeginIndex;
+
     try {
       setShowGenerating(true);
       const response = await client._fetch(chatStore.streamMode);
@@ -129,11 +161,21 @@ export default function ChatBOX(props: {
       chatStore.maxTokens = client.max_tokens;
       chatStore.tokenMargin = client.tokens_margin;
       chatStore.totalTokens = client.total_tokens;
-      // when total token > max token - margin token:
-      // ChatGPT will "forgot" some historical message
-      // so client.message.length will be less than chatStore.history.length
+
+      // todo move code
+      const max = chatStore.maxTokens - chatStore.tokenMargin;
+      let sum = 0;
+      chatStore.postBeginIndex = chatStore.history.filter(
+        ({ hide }) => !hide
+      ).length;
+      for (const msg of chatStore.history.slice().reverse()) {
+        sum += msg.token;
+        if (sum > max) break;
+        chatStore.postBeginIndex -= 1;
+      }
       chatStore.postBeginIndex =
-        chatStore.history.length - client.messages.length;
+        chatStore.postBeginIndex < 0 ? 0 : chatStore.postBeginIndex;
+
       console.log("postBeginIndex", chatStore.postBeginIndex);
       setChatStore({ ...chatStore });
     } catch (error) {
@@ -153,7 +195,12 @@ export default function ChatBOX(props: {
       return;
     }
     chatStore.responseModelName = "";
-    chatStore.history.push({ role: "user", content: inputMsg.trim() });
+    chatStore.history.push({
+      role: "user",
+      content: inputMsg.trim(),
+      hide: false,
+      token: calculate_token_length(inputMsg.trim()),
+    });
     // manually calculate token length
     chatStore.totalTokens += client.calculate_token_length(inputMsg.trim());
     client.total_tokens += client.calculate_token_length(inputMsg.trim());
@@ -191,7 +238,9 @@ export default function ChatBOX(props: {
             Tokens: {chatStore.totalTokens} / {chatStore.maxTokens}
           </span>{" "}
           <span>{chatStore.model}</span>{" "}
-          <span>Messages: {chatStore.history.length}</span>{" "}
+          <span>
+            Messages: {chatStore.history.filter(({ hide }) => !hide).length}
+          </span>{" "}
           <span>Cut: {chatStore.postBeginIndex}</span>
         </div>
       </p>
@@ -252,6 +301,23 @@ export default function ChatBOX(props: {
         {chatStore.responseModelName && (
           <p className="p-2 my-2 text-center opacity-50 dark:text-white">
             Generated by {chatStore.responseModelName}
+            {chatStore.postBeginIndex !== 0 && (
+              <>
+                <br />
+                提示：会话过长，已裁切前 {chatStore.postBeginIndex} 条消息
+              </>
+            )}
+            {chatStore.chatgpt_api_web_version < "v1.3.0" && (
+              <>
+                <br />
+                提示：当前会话版本 {chatStore.chatgpt_api_web_version}。
+                <br />
+                v1.3.0
+                引入与旧版不兼容的消息裁切算法。继续使用旧版可能会导致消息裁切过多或过少（表现为失去上下文或输出不完整）。
+                <br />
+                请在左上角创建新会话：）
+              </>
+            )}
           </p>
         )}
         {showRetry && (

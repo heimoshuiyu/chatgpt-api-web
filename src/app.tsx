@@ -1,17 +1,22 @@
 import { useEffect, useState } from "preact/hooks";
 import "./global.css";
 
-import { Message } from "./chatgpt";
+import { calculate_token_length, Message } from "./chatgpt";
 import getDefaultParams from "./getDefaultParam";
 import ChatBOX from "./chatbox";
 import { options } from "./settings";
 
-import CHATGPT_API_WEB_VERSION from './CHATGPT_API_WEB_VERSION'
+import CHATGPT_API_WEB_VERSION from "./CHATGPT_API_WEB_VERSION";
+
+export interface ChatStoreMessage extends Message {
+  hide: boolean;
+  token: number;
+}
 
 export interface ChatStore {
   chatgpt_api_web_version: string;
   systemMessageContent: string;
-  history: Message[];
+  history: ChatStoreMessage[];
   postBeginIndex: number;
   tokenMargin: number;
   totalTokens: number;
@@ -86,7 +91,14 @@ export function App() {
     if (ret.model === undefined) ret.model = "gpt-3.5-turbo";
     if (ret.responseModelName === undefined) ret.responseModelName = "";
     if (ret.chatgpt_api_web_version === undefined)
-      ret.chatgpt_api_web_version = CHATGPT_API_WEB_VERSION;
+      // this is from old version becasue it is undefined,
+      // so no higher than v1.3.0
+      ret.chatgpt_api_web_version = "v1.2.2";
+    for (const message of ret.history) {
+      if (message.hide === undefined) message.hide = false;
+      if (message.token === undefined)
+        message.token = calculate_token_length(message.content);
+    }
     return ret;
   };
 
