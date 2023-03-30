@@ -6,7 +6,10 @@ import getDefaultParams from "./getDefaultParam";
 import ChatBOX from "./chatbox";
 import { options } from "./settings";
 
+import CHATGPT_API_WEB_VERSION from './CHATGPT_API_WEB_VERSION'
+
 export interface ChatStore {
+  chatgpt_api_web_version: string;
   systemMessageContent: string;
   history: Message[];
   postBeginIndex: number;
@@ -29,6 +32,7 @@ const newChatStore = (
   model = "gpt-3.5-turbo"
 ): ChatStore => {
   return {
+    chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
     systemMessageContent: getDefaultParams("sys", systemMessageContent),
     history: [],
     postBeginIndex: 0,
@@ -81,6 +85,8 @@ export function App() {
     // handle read from old version chatstore
     if (ret.model === undefined) ret.model = "gpt-3.5-turbo";
     if (ret.responseModelName === undefined) ret.responseModelName = "";
+    if (ret.chatgpt_api_web_version === undefined)
+      ret.chatgpt_api_web_version = CHATGPT_API_WEB_VERSION;
     return ret;
   };
 

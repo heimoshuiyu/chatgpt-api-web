@@ -1,3 +1,4 @@
+import { createRef } from "preact";
 import { StateUpdater } from "preact/hooks";
 import { ChatStore } from "./app";
 
@@ -141,6 +142,8 @@ export default (props: {
     }&model=${props.chatStore.model}&sys=${encodeURIComponent(
       props.chatStore.systemMessageContent
     )}`;
+
+  const importFileRef = createRef();
   return (
     <div className="left-0 top-0 overflow-scroll flex justify-center absolute w-screen h-full bg-black bg-opacity-50 z-10">
       <div className="m-2 p-2 bg-white rounded-lg h-fit">
@@ -225,12 +228,46 @@ export default (props: {
                     "This will OVERWRITE the current chat history! Continue?"
                   )
                 )
-                  alert("Error: This function is currently unimplemented :)");
-                return;
+                  return;
+                console.log("importFileRef", importFileRef);
+                importFileRef.current.click();
               }}
             >
               Import
             </button>
+            <input
+              className="hidden"
+              ref={importFileRef}
+              type="file"
+              onChange={() => {
+                const file = importFileRef.current.files[0];
+                console.log("file to import", file);
+                if (!file || file.type !== "application/json") {
+                  alert("Please select a json file");
+                  return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => {
+                  console.log("import content", reader.result);
+                  if (!reader) {
+                    alert("Empty file");
+                    return;
+                  }
+                  try {
+                    const newChatStore: ChatStore = JSON.parse(
+                      reader.result as string
+                    );
+                    if (!newChatStore.chatgpt_api_web_version) {
+                      throw "This is not an exported chatgpt-api-web chatstore file. The key 'chatgpt_api_web_version' is missing!";
+                    }
+                    props.setChatStore({ ...newChatStore });
+                  } catch (e) {
+                    alert(`Import error on parsing json: ${e}`);
+                  }
+                };
+                reader.readAsText(file);
+              }}
+            />
           </p>
         </div>
         <hr />

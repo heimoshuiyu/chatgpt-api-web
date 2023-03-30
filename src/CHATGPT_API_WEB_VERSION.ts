@@ -1,0 +1,3 @@
+const CHATGPT_API_WEB_VERSION = "v1.2.2";
+
+export default CHATGPT_API_WEB_VERSION;
