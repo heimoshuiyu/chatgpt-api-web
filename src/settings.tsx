@@ -167,7 +167,7 @@ export default (props: {
             {...props}
           />
           <SelectModel
-            help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
+            help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。（GPT-4 模型处于内测阶段，需要向 OPENAI 申请, 请确保您有访问权限）"
             {...props}
           />
           <Number
