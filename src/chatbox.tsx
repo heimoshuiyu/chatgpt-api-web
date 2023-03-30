@@ -83,11 +83,25 @@ export default function ChatBOX(props: {
 
         // console.log("push to history", allChunkMessage);
         const content = allChunkMessage.join("");
+        const token = calculate_token_length(content);
+        // estimate cost
+        if (chatStore.responseModelName) {
+          chatStore.cost +=
+            token * models[chatStore.responseModelName].price.completion;
+          let sum = 0;
+          for (const msg of chatStore.history
+            .filter(({ hide }) => !hide)
+            .slice(chatStore.postBeginIndex)) {
+            sum += msg.token;
+          }
+          chatStore.cost +=
+            sum * models[chatStore.responseModelName].price.prompt;
+        }
         chatStore.history.push({
           role: "assistant",
           content,
           hide: false,
-          token: calculate_token_length(content),
+          token,
         });
         // manually copy status from client to chatStore
         chatStore.maxTokens = client.max_tokens;
