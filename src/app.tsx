@@ -44,7 +44,7 @@ const newChatStore = (
     postBeginIndex: 0,
     tokenMargin: 1024,
     totalTokens: 0,
-    maxTokens: models[getDefaultParams("model", model)].maxToken,
+    maxTokens: models[getDefaultParams("model", model)]?.maxToken ?? 4096,
     apiKey: getDefaultParams("key", apiKey),
     apiEndpoint: getDefaultParams("api", apiEndpoint),
     streamMode: getDefaultParams("mode", streamMode),

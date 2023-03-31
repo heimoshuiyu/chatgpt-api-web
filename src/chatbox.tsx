@@ -87,7 +87,8 @@ export default function ChatBOX(props: {
         // estimate cost
         if (chatStore.responseModelName) {
           chatStore.cost +=
-            token * models[chatStore.responseModelName].price.completion;
+            token *
+            (models[chatStore.responseModelName]?.price?.completion ?? 0);
           let sum = 0;
           for (const msg of chatStore.history
             .filter(({ hide }) => !hide)
@@ -95,7 +96,7 @@ export default function ChatBOX(props: {
             sum += msg.token;
           }
           chatStore.cost +=
-            sum * models[chatStore.responseModelName].price.prompt;
+            sum * (models[chatStore.responseModelName]?.price?.prompt ?? 0);
         }
         chatStore.history.push({
           role: "assistant",
@@ -119,10 +120,11 @@ export default function ChatBOX(props: {
     chatStore.responseModelName = data.model ?? "";
     if (data.model) {
       chatStore.cost +=
-        (data.usage.prompt_tokens ?? 0) * models[data.model].price.prompt;
+        (data.usage.prompt_tokens ?? 0) *
+        (models[data.model]?.price?.prompt ?? 0);
       chatStore.cost +=
         (data.usage.completion_tokens ?? 0) *
-        models[data.model].price.completion;
+        (models[data.model]?.price?.completion ?? 0);
     }
     const content = client.processFetchResponse(data);
     chatStore.history.push({
