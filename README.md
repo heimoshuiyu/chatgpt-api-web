@@ -1,10 +1,10 @@
 > 前排提示：滥用 API 或在不支持的地区调用 API 有被封号的风险 <https://github.com/zhayujie/chatgpt-on-wechat/issues/423>
 > 
 > 建议自行搭建代理中转 API 请求，然后更改对话设置中的 API Endpoint 参数使用中转
+>
+> 具体反向代理搭建教程请参阅此 [>>Wiki页面<<](https://github.com/heimoshuiyu/chatgpt-api-web/wiki)
 
 # ChatGPT API WEB
-
-> 灵车东西，做着玩儿的
 
 一个简单的网页，调用 OPENAI ChatGPT 进行对话。
 
