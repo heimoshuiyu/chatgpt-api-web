@@ -108,13 +108,31 @@ export function App() {
   const [chatStore, _setChatStore] = useState(
     getChatStoreByIndex(selectedChatIndex)
   );
-  const setChatStore = (cs: ChatStore) => {
+  const setChatStore = (chatStore: ChatStore) => {
     console.log("saved chat", selectedChatIndex, chatStore);
     localStorage.setItem(
       `${STORAGE_NAME}-${selectedChatIndex}`,
-      JSON.stringify(cs)
+      JSON.stringify(chatStore)
     );
-    _setChatStore(cs);
+
+    console.log("recalculate postBeginIndex");
+    const max = chatStore.maxTokens - chatStore.tokenMargin;
+    let sum = 0;
+    chatStore.postBeginIndex = chatStore.history.filter(
+      ({ hide }) => !hide
+    ).length;
+    for (const msg of chatStore.history
+      .filter(({ hide }) => !hide)
+      .slice()
+      .reverse()) {
+      if (sum + msg.token > max) break;
+      sum += msg.token;
+      chatStore.postBeginIndex -= 1;
+    }
+    chatStore.postBeginIndex =
+      chatStore.postBeginIndex < 0 ? 0 : chatStore.postBeginIndex;
+
+    _setChatStore(chatStore);
   };
   useEffect(() => {
     _setChatStore(getChatStoreByIndex(selectedChatIndex));

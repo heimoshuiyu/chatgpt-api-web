@@ -127,6 +127,20 @@ export default function ChatBOX(props: {
         (models[data.model]?.price?.completion ?? 0);
     }
     const content = client.processFetchResponse(data);
+
+    // estimate user's input message token
+    let aboveToken = 0;
+    for (const msg of chatStore.history
+      .filter(({ hide }) => !hide)
+      .slice(chatStore.postBeginIndex, -1)) {
+      aboveToken += msg.token;
+    }
+    if (data.usage.prompt_tokens) {
+      const userMessageToken = data.usage.prompt_tokens - aboveToken;
+      console.log("set user message token");
+      chatStore.history.slice(-1)[0].token = userMessageToken;
+    }
+
     chatStore.history.push({
       role: "assistant",
       content,
@@ -143,9 +157,9 @@ export default function ChatBOX(props: {
     client.sysMessageContent = chatStore.systemMessageContent;
     client.tokens_margin = chatStore.tokenMargin;
     client.messages = chatStore.history
-      .slice(chatStore.postBeginIndex)
       // only copy non hidden message
       .filter(({ hide }) => !hide)
+      .slice(chatStore.postBeginIndex)
       // only copy content and role attribute to client for posting
       .map(({ content, role }) => {
         return {
@@ -155,20 +169,6 @@ export default function ChatBOX(props: {
       });
     client.model = chatStore.model;
     client.max_tokens = chatStore.maxTokens;
-
-    // todo move code
-    const max = chatStore.maxTokens - chatStore.tokenMargin;
-    let sum = 0;
-    chatStore.postBeginIndex = chatStore.history.filter(
-      ({ hide }) => !hide
-    ).length;
-    for (const msg of chatStore.history.slice().reverse()) {
-      sum += msg.token;
-      if (sum > max) break;
-      chatStore.postBeginIndex -= 1;
-    }
-    chatStore.postBeginIndex =
-      chatStore.postBeginIndex < 0 ? 0 : chatStore.postBeginIndex;
 
     try {
       setShowGenerating(true);
@@ -185,20 +185,6 @@ export default function ChatBOX(props: {
       chatStore.maxTokens = client.max_tokens;
       chatStore.tokenMargin = client.tokens_margin;
       chatStore.totalTokens = client.total_tokens;
-
-      // todo move code
-      const max = chatStore.maxTokens - chatStore.tokenMargin;
-      let sum = 0;
-      chatStore.postBeginIndex = chatStore.history.filter(
-        ({ hide }) => !hide
-      ).length;
-      for (const msg of chatStore.history.slice().reverse()) {
-        sum += msg.token;
-        if (sum > max) break;
-        chatStore.postBeginIndex -= 1;
-      }
-      chatStore.postBeginIndex =
-        chatStore.postBeginIndex < 0 ? 0 : chatStore.postBeginIndex;
 
       console.log("postBeginIndex", chatStore.postBeginIndex);
       setChatStore({ ...chatStore });

@@ -18,20 +18,6 @@ export default function Message(props: Props) {
         chatStore.history[messageIndex].hide =
           !chatStore.history[messageIndex].hide;
 
-        // todo move code
-        const max = chatStore.maxTokens - chatStore.tokenMargin;
-        let sum = 0;
-        chatStore.postBeginIndex = chatStore.history.filter(
-          ({ hide }) => !hide
-        ).length;
-        for (const msg of chatStore.history.slice().reverse()) {
-          sum += msg.token;
-          if (sum > max) break;
-          chatStore.postBeginIndex -= 1;
-        }
-        chatStore.postBeginIndex =
-          chatStore.postBeginIndex < 0 ? 0 : chatStore.postBeginIndex;
-
         //chatStore.totalTokens =
         chatStore.totalTokens = 0;
         for (const i of chatStore.history
