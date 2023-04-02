@@ -15,6 +15,7 @@
 - API 调用速度更快更稳定
 - 对话记录、API 密钥等使用浏览器的 localStorage 保存在本地
 - 可删除对话消息
+- 可以导入/导出整个历史对话记录
 - 可以设置 system message (参见官方 [API 文档](https://platform.openai.com/docs/guides/chat)) 例如：
   - > 你是一个有用的有用的人工智能助理
   - > You are a helpful assistant
