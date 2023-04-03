@@ -11,6 +11,7 @@ export interface ChunkMessage {
 }
 
 export interface FetchResponse {
+  error?: any;
   id: string;
   object: string;
   created: number;
@@ -88,7 +89,11 @@ class Chat {
 
   async fetch(): Promise<FetchResponse> {
     const resp = await this._fetch();
-    return await resp.json();
+    const j = await resp.json();
+    if (j.error !== undefined) {
+      throw JSON.stringify(j.error);
+    }
+    return j;
   }
 
   async say(content: string): Promise<string> {
@@ -98,6 +103,9 @@ class Chat {
   }
 
   processFetchResponse(resp: FetchResponse): string {
+    if (resp.error !== undefined) {
+      throw JSON.stringify(resp.error);
+    }
     this.total_tokens = resp?.usage?.total_tokens ?? 0;
     if (resp?.choices[0]?.message) {
       this.messages.push(resp?.choices[0]?.message);
