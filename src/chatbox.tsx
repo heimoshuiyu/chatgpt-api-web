@@ -107,6 +107,14 @@ export default function ChatBOX(props: {
         // manually copy status from client to chatStore
         chatStore.maxTokens = client.max_tokens;
         chatStore.tokenMargin = client.tokens_margin;
+        // manually estimate token
+        client.total_tokens = 0;
+        for (const msg of chatStore.history
+          .filter(({ hide }) => !hide)
+          .slice(chatStore.postBeginIndex)) {
+          client.total_tokens += msg.token;
+        }
+        chatStore.totalTokens = client.total_tokens;
         setChatStore({ ...chatStore });
         setGeneratingMessage("");
         setShowGenerating(false);
