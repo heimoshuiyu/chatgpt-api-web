@@ -182,7 +182,7 @@ export default function ChatBOX(props: {
       setShowGenerating(true);
       const response = await client._fetch(chatStore.streamMode);
       const contentType = response.headers.get("content-type");
-      if (contentType === "text/event-stream") {
+      if (contentType?.startsWith("text/event-stream")) {
         await _completeWithStreamMode(response);
       } else if (contentType === "application/json") {
         await _completeWithFetchMode(response);
