@@ -321,10 +321,8 @@ export default function ChatBOX(props: {
           />
         ))}
         {showGenerating && (
-          <p className="p-2 my-2 animate-pulse dark:text-white">
-            {generatingMessage
-              ? generatingMessage.split("\n").map((line) => <p>{line}</p>)
-              : "生成中，最长可能需要一分钟，请保持网络稳定"}
+          <p className="p-2 my-2 animate-pulse dark:text-white message-content">
+            {generatingMessage || "生成中，最长可能需要一分钟，请保持网络稳定"}
             ...
           </p>
         )}
