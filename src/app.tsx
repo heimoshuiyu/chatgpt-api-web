@@ -32,7 +32,7 @@ export interface ChatStore {
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
 const newChatStore = (
   apiKey = "",
-  systemMessageContent = "你是一个有用的人工智能助理，根据我的提问和要求回答我的问题",
+  systemMessageContent = "Follow my instructions carefully",
   apiEndpoint = _defaultAPIEndpoint,
   streamMode = true,
   model = "gpt-3.5-turbo-0613"
