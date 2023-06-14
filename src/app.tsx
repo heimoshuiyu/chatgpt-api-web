@@ -149,7 +149,8 @@ export function App() {
           chatStore.apiKey,
           chatStore.systemMessageContent,
           chatStore.apiEndpoint,
-          chatStore.streamMode
+          chatStore.streamMode,
+          chatStore.model
         )
       )
     );
@@ -229,7 +230,8 @@ export function App() {
                   chatStore.apiKey,
                   chatStore.systemMessageContent,
                   chatStore.apiEndpoint,
-                  chatStore.streamMode
+                  chatStore.streamMode,
+                  chatStore.model
                 )
               );
             }
