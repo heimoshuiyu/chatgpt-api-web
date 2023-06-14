@@ -35,7 +35,7 @@ const newChatStore = (
   systemMessageContent = "你是一个有用的人工智能助理，根据我的提问和要求回答我的问题",
   apiEndpoint = _defaultAPIEndpoint,
   streamMode = true,
-  model = "gpt-3.5-turbo"
+  model = "gpt-3.5-turbo-0613"
 ): ChatStore => {
   return {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
