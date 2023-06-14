@@ -1,6 +1,6 @@
 import { createRef } from "preact";
 import { StateUpdater, useEffect, useState } from "preact/hooks";
-import type { ChatStore } from "./app";
+import { ChatStore, addTotalCost } from "./app";
 import ChatGPT, {
   calculate_token_length,
   ChunkMessage,
@@ -84,9 +84,11 @@ export default function ChatBOX(props: {
         // console.log("push to history", allChunkMessage);
         const content = allChunkMessage.join("");
         const token = calculate_token_length(content);
+
         // estimate cost
+        let cost = 0;
         if (chatStore.responseModelName) {
-          chatStore.cost +=
+          cost +=
             token *
             (models[chatStore.responseModelName]?.price?.completion ?? 0);
           let sum = 0;
@@ -95,9 +97,12 @@ export default function ChatBOX(props: {
             .slice(chatStore.postBeginIndex)) {
             sum += msg.token;
           }
-          chatStore.cost +=
+          cost +=
             sum * (models[chatStore.responseModelName]?.price?.prompt ?? 0);
         }
+        chatStore.cost += cost;
+        addTotalCost(cost);
+
         chatStore.history.push({
           role: "assistant",
           content,
@@ -127,12 +132,15 @@ export default function ChatBOX(props: {
     const data = (await response.json()) as FetchResponse;
     chatStore.responseModelName = data.model ?? "";
     if (data.model) {
-      chatStore.cost +=
+      let cost = 0;
+      cost +=
         (data.usage.prompt_tokens ?? 0) *
         (models[data.model]?.price?.prompt ?? 0);
-      chatStore.cost +=
+      cost +=
         (data.usage.completion_tokens ?? 0) *
         (models[data.model]?.price?.completion ?? 0);
+      chatStore.cost += cost;
+      addTotalCost(cost);
     }
     const content = client.processFetchResponse(data);
 
@@ -230,13 +238,14 @@ export default function ChatBOX(props: {
   const [showSettings, setShowSettings] = useState(false);
   return (
     <div className="grow flex flex-col p-2 dark:text-black">
-      <Settings
-        chatStore={chatStore}
-        setChatStore={setChatStore}
-        show={showSettings}
-        setShow={setShowSettings}
-        selectedChatStoreIndex={props.selectedChatIndex}
-      />
+      {showSettings && (
+        <Settings
+          chatStore={chatStore}
+          setChatStore={setChatStore}
+          setShow={setShowSettings}
+          selectedChatStoreIndex={props.selectedChatIndex}
+        />
+      )}
       <p
         className="cursor-pointer rounded bg-cyan-300 dark:text-white p-1 dark:bg-cyan-800"
         onClick={() => setShowSettings(true)}

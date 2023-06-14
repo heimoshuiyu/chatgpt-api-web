@@ -57,6 +57,24 @@ const newChatStore = (
 const STORAGE_NAME = "chatgpt-api-web";
 const STORAGE_NAME_SELECTED = `${STORAGE_NAME}-selected`;
 const STORAGE_NAME_INDEXES = `${STORAGE_NAME}-indexes`;
+const STORAGE_NAME_TOTALCOST = `${STORAGE_NAME}-totalcost`;
+
+export function addTotalCost(cost: number) {
+  let totalCost = getTotalCost();
+  totalCost += cost;
+  localStorage.setItem(STORAGE_NAME_TOTALCOST, `${totalCost}`);
+}
+
+export function getTotalCost(): number {
+  let totalCost = parseFloat(
+    localStorage.getItem(STORAGE_NAME_TOTALCOST) ?? "0"
+  );
+  return totalCost;
+}
+
+export function clearTotalCost() {
+  localStorage.setItem(STORAGE_NAME_TOTALCOST, `0`);
+}
 
 export function App() {
   // init indexes

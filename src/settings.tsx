@@ -1,6 +1,6 @@
 import { createRef } from "preact";
-import { StateUpdater } from "preact/hooks";
-import { ChatStore } from "./app";
+import { StateUpdater, useState } from "preact/hooks";
+import { ChatStore, clearTotalCost, getTotalCost } from "./app";
 import models from "./models";
 
 const Help = (props: { children: any; help: string }) => {
@@ -116,11 +116,9 @@ const Choice = (props: {
 export default (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  show: boolean;
   setShow: StateUpdater<boolean>;
   selectedChatStoreIndex: number;
 }) => {
-  if (!props.show) return <div></div>;
   const link =
     location.protocol +
     "//" +
@@ -135,13 +133,28 @@ export default (props: {
     )}`;
 
   const importFileRef = createRef();
+  const [totalCost, setTotalCost] = useState(getTotalCost());
   return (
     <div className="left-0 top-0 overflow-scroll flex justify-center absolute w-screen h-full bg-black bg-opacity-50 z-10">
       <div className="m-2 p-2 bg-white rounded-lg h-fit">
         <h3 className="text-xl">Settings</h3>
         <hr />
+        <div className="flex justify-between">
+          <p className="m-2 p-2">
+            Accumulated cost in all sessions ${totalCost.toFixed(4)}
+          </p>
+          <button
+            className="p-2 m-2 rounded bg-emerald-500"
+            onClick={() => {
+              clearTotalCost();
+              setTotalCost(getTotalCost());
+            }}
+          >
+            Reset
+          </button>
+        </div>
         <p className="m-2 p-2">
-          Total cost in this section ${props.chatStore.cost.toFixed(4)}
+          Total cost in this session ${props.chatStore.cost.toFixed(4)}
         </p>
         <div className="box">
           <Input
