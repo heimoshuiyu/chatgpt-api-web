@@ -40,13 +40,14 @@ export default function ChatBOX(props: {
     const allChunkMessage: string[] = [];
     new ReadableStream({
       async start() {
+        let lastText = "";
         while (true) {
           let responseDone = false;
           let state = await reader?.read();
           let done = state?.done;
           let value = state?.value;
           if (done) break;
-          let text = new TextDecoder().decode(value);
+          let text = lastText + new TextDecoder().decode(value);
           // console.log("text:", text);
           const lines = text
             .trim()
@@ -63,7 +64,15 @@ export default function ChatBOX(props: {
           console.log("lines", lines);
           const jsons: ChunkMessage[] = lines
             .map((line) => {
-              return JSON.parse(line.trim().slice("data:".length));
+              try {
+                const ret = JSON.parse(line.trim().slice("data:".length));
+                lastText = "";
+                return ret;
+              } catch (e) {
+                console.log(`Chunk parse error at: ${line}`);
+                lastText = line;
+                return null;
+              }
             })
             .filter((i) => i);
           console.log("jsons", jsons);
