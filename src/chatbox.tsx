@@ -54,7 +54,7 @@ export default function ChatBOX(props: {
             .map((line) => line.trim())
             .filter((i) => {
               if (!i) return false;
-              if (i === "data: [DONE]") {
+              if (i === "data: [DONE]" || i === "data:[DONE]") {
                 responseDone = true;
                 return false;
               }
@@ -63,7 +63,7 @@ export default function ChatBOX(props: {
           console.log("lines", lines);
           const jsons: ChunkMessage[] = lines
             .map((line) => {
-              return JSON.parse(line.trim().slice("data: ".length));
+              return JSON.parse(line.trim().slice("data:".length));
             })
             .filter((i) => i);
           console.log("jsons", jsons);
