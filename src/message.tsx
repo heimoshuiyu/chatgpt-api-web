@@ -51,7 +51,7 @@ export default function Message(props: Props) {
           chat.role === "assistant" ? "justify-start" : "justify-end"
         }`}
       >
-        <div className=" bg-">
+        <div>
           <div
             className={`relative w-fit p-2 rounded my-2 ${
               chat.role === "assistant"
@@ -59,51 +59,38 @@ export default function Message(props: Props) {
                 : "bg-green-400"
             } ${chat.hide ? "opacity-50" : ""}`}
           >
-            {chatStore.develop_mode ? (
-              <textarea
-                className="message-content"
-                value={
-                  chat.hide
-                    ? chat.content.split("\n")[0].slice(0, 16) + "... (deleted)"
-                    : chat.content
-                }
-                onChange={(event: any) => {
-                  chatStore.history[messageIndex].content = event.target.value;
-                  setChatStore({ ...chatStore });
-                }}
-              ></textarea>
-            ) : (
-              <p className="message-content">
-                {chat.hide
-                  ? chat.content.split("\n")[0].slice(0, 16) + "... (deleted)"
-                  : chat.content}
-              </p>
-            )}
+            <p className="message-content">
+              {chat.hide
+                ? chat.content.split("\n")[0].slice(0, 16) + "... (deleted)"
+                : chat.content}
+            </p>
             <DeleteIcon />
           </div>
-          <div>
-            token {chatStore.history[messageIndex].token}
-            <button
-              onClick={() => {
-                chatStore.history.splice(messageIndex, 1);
-                chatStore.postBeginIndex = Math.max(
-                  chatStore.postBeginIndex - 1,
-                  0
-                );
-                //chatStore.totalTokens =
-                chatStore.totalTokens = 0;
-                for (const i of chatStore.history
-                  .filter(({ hide }) => !hide)
-                  .slice(chatStore.postBeginIndex)
-                  .map(({ token }) => token)) {
-                  chatStore.totalTokens += i;
-                }
-                setChatStore({ ...chatStore });
-              }}
-            >
-              ❌
-            </button>
-          </div>
+          {chatStore.develop_mode && (
+            <div>
+              token {chatStore.history[messageIndex].token}
+              <button
+                onClick={() => {
+                  chatStore.history.splice(messageIndex, 1);
+                  chatStore.postBeginIndex = Math.max(
+                    chatStore.postBeginIndex - 1,
+                    0
+                  );
+                  //chatStore.totalTokens =
+                  chatStore.totalTokens = 0;
+                  for (const i of chatStore.history
+                    .filter(({ hide }) => !hide)
+                    .slice(chatStore.postBeginIndex)
+                    .map(({ token }) => token)) {
+                    chatStore.totalTokens += i;
+                  }
+                  setChatStore({ ...chatStore });
+                }}
+              >
+                ❌
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
