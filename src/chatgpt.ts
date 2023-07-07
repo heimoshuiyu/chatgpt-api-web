@@ -1,5 +1,5 @@
 export interface Message {
-  role: "system" | "user" | "assistant";
+  role: "system" | "user" | "assistant" | "function";
   content: string;
 }
 
@@ -45,6 +45,10 @@ class Chat {
   tokens_margin: number;
   apiEndpoint: string;
   model: string;
+  temperature: number;
+  top_p: number;
+  presence_penalty: number;
+  frequency_penalty: number;
 
   constructor(
     OPENAI_API_KEY: string | undefined,
@@ -54,6 +58,10 @@ class Chat {
       tokens_margin = 1024,
       apiEndPoint = "https://api.openai.com/v1/chat/completions",
       model = "gpt-3.5-turbo",
+      temperature = 1.0,
+      top_p = 1,
+      presence_penalty = 0,
+      frequency_penalty = 0,
     } = {}
   ) {
     if (OPENAI_API_KEY === undefined) {
@@ -67,6 +75,10 @@ class Chat {
     this.sysMessageContent = systemMessage;
     this.apiEndpoint = apiEndPoint;
     this.model = model;
+    this.temperature = temperature;
+    this.top_p = top_p;
+    this.presence_penalty = presence_penalty;
+    this.frequency_penalty = frequency_penalty;
   }
 
   _fetch(stream = false) {
@@ -83,6 +95,10 @@ class Chat {
           ...this.messages,
         ],
         stream,
+        temperature: this.temperature,
+        top_p: this.top_p,
+        presence_penalty: this.presence_penalty,
+        frequency_penalty: this.frequency_penalty,
       }),
     });
   }
