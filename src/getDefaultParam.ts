@@ -7,10 +7,12 @@ function getDefaultParams(param: any, val: any) {
   if (typeof val === "string") {
     return get ?? val;
   } else if (typeof val === "number") {
-    return parseInt(get ?? `${val}`);
+    return parseFloat(get ?? `${val}`);
   } else if (typeof val === "boolean") {
     if (get === "stream") return true;
     if (get === "fetch") return false;
+    if (get === "true") return true;
+    if (get === "false") return false;
     return val;
   }
 }

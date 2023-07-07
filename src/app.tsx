@@ -27,6 +27,11 @@ export interface ChatStore {
   model: string;
   responseModelName: string;
   cost: number;
+  temperature: number;
+  top_p: number;
+  presence_penalty: number;
+  frequency_penalty: number;
+  develop_mode: boolean;
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
@@ -35,7 +40,9 @@ const newChatStore = (
   systemMessageContent = "Follow my instructions carefully",
   apiEndpoint = _defaultAPIEndpoint,
   streamMode = true,
-  model = "gpt-3.5-turbo-0613"
+  model = "gpt-3.5-turbo-0613",
+  temperature = 1.0,
+  dev = false
 ): ChatStore => {
   return {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
@@ -51,6 +58,11 @@ const newChatStore = (
     model: getDefaultParams("model", model),
     responseModelName: "",
     cost: 0,
+    temperature: getDefaultParams("temp", temperature),
+    top_p: 1,
+    presence_penalty: 0,
+    frequency_penalty: 0,
+    develop_mode: getDefaultParams("dev", dev),
   };
 };
 

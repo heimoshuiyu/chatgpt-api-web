@@ -45,10 +45,30 @@ const SelectModel = (props: {
   );
 };
 
+const LongInput = (props: {
+  chatStore: ChatStore;
+  setChatStore: (cs: ChatStore) => void;
+  field: "systemMessageContent";
+  help: string;
+}) => {
+  return (
+    <Help help={props.help}>
+      <textarea
+        className="m-2 p-2 border rounded focus w-full"
+        value={props.chatStore[props.field]}
+        onChange={(event: any) => {
+          props.chatStore[props.field] = event.target.value;
+          props.setChatStore({ ...props.chatStore });
+        }}
+      ></textarea>
+    </Help>
+  );
+};
+
 const Input = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  field: "apiKey" | "systemMessageContent" | "apiEndpoint";
+  field: "apiKey" | "apiEndpoint";
   help: string;
 }) => {
   return (
@@ -68,7 +88,15 @@ const Input = (props: {
 const Number = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  field: "totalTokens" | "maxTokens" | "tokenMargin" | "postBeginIndex";
+  field:
+    | "totalTokens"
+    | "maxTokens"
+    | "tokenMargin"
+    | "postBeginIndex"
+    | "temperature"
+    | "top_p"
+    | "presence_penalty"
+    | "frequency_penalty";
   readOnly: boolean;
   help: string;
 }) => {
@@ -82,7 +110,7 @@ const Number = (props: {
         value={props.chatStore[props.field]}
         onChange={(event: any) => {
           console.log("type", typeof event.target.value);
-          let newNumber = parseInt(event.target.value);
+          let newNumber = parseFloat(event.target.value);
           if (newNumber < 0) newNumber = 0;
           props.chatStore[props.field] = newNumber;
           props.setChatStore({ ...props.chatStore });
@@ -94,7 +122,7 @@ const Number = (props: {
 const Choice = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  field: "streamMode";
+  field: "streamMode" | "develop_mode";
   help: string;
 }) => {
   return (
@@ -119,7 +147,7 @@ export default (props: {
   setShow: StateUpdater<boolean>;
   selectedChatStoreIndex: number;
 }) => {
-  const link =
+  let link =
     location.protocol +
     "//" +
     location.host +
@@ -131,6 +159,9 @@ export default (props: {
     }&model=${props.chatStore.model}&sys=${encodeURIComponent(
       props.chatStore.systemMessageContent
     )}`;
+  if (props.chatStore.develop_mode) {
+    link = link + `&dev=true`;
+  }
 
   const importFileRef = createRef();
   const [totalCost, setTotalCost] = useState(getTotalCost());
@@ -157,7 +188,7 @@ export default (props: {
           Total cost in this session ${props.chatStore.cost.toFixed(4)}
         </p>
         <div className="box">
-          <Input
+          <LongInput
             field="systemMessageContent"
             help="系统消息，用于指示ChatGPT的角色和一些前置条件，例如“你是一个有帮助的人工智能助理”，或者“你是一个专业英语翻译，把我的话全部翻译成英语”，详情参考 OPEAN AI API 文档"
             {...props}
@@ -175,6 +206,11 @@ export default (props: {
           <Choice
             field="streamMode"
             help="流模式，使用 stream mode 将可以动态看到生成内容，但无法准确计算 token 数量，在 token 数量过多时可能会裁切过多或过少历史消息"
+            {...props}
+          />
+          <Choice
+            field="develop_mode"
+            help="开发者模式，拥有更多选项及功能"
             {...props}
           />
           <SelectModel
@@ -203,6 +239,20 @@ export default (props: {
             field="totalTokens"
             help="token总数，每次对话都会更新此参数，stream模式下该参数为估计值"
             readOnly={true}
+            {...props}
+          />
+          <Number field="temperature" help="温度" readOnly={false} {...props} />
+          <Number field="top_p" help="top_p" readOnly={false} {...props} />
+          <Number
+            field="presence_penalty"
+            help="presence_penalty"
+            readOnly={false}
+            {...props}
+          />
+          <Number
+            field="frequency_penalty"
+            help="frequency_penalty"
+            readOnly={false}
             {...props}
           />
           <p className="flex justify-evenly">

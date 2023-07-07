@@ -32,6 +32,19 @@ export default function ChatBOX(props: {
 
   const client = new ChatGPT(chatStore.apiKey);
 
+  const update_total_tokens = () => {
+    // manually estimate token
+    client.total_tokens = calculate_token_length(
+      chatStore.systemMessageContent
+    );
+    for (const msg of chatStore.history
+      .filter(({ hide }) => !hide)
+      .slice(chatStore.postBeginIndex)) {
+      client.total_tokens += msg.token;
+    }
+    chatStore.totalTokens = client.total_tokens;
+  };
+
   const _completeWithStreamMode = async (response: Response) => {
     chatStore.streamMode = true;
     // call api, return reponse text
@@ -121,14 +134,7 @@ export default function ChatBOX(props: {
         // manually copy status from client to chatStore
         chatStore.maxTokens = client.max_tokens;
         chatStore.tokenMargin = client.tokens_margin;
-        // manually estimate token
-        client.total_tokens = 0;
-        for (const msg of chatStore.history
-          .filter(({ hide }) => !hide)
-          .slice(chatStore.postBeginIndex)) {
-          client.total_tokens += msg.token;
-        }
-        chatStore.totalTokens = client.total_tokens;
+        update_total_tokens();
         setChatStore({ ...chatStore });
         setGeneratingMessage("");
         setShowGenerating(false);
@@ -407,6 +413,42 @@ export default function ChatBOX(props: {
         >
           Send
         </button>
+        {chatStore.develop_mode && (
+          <button
+            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            disabled={showGenerating || !chatStore.apiKey}
+            onClick={() => {
+              chatStore.history.push({
+                role: "assistant",
+                content: inputMsg,
+                token: calculate_token_length(inputMsg),
+                hide: false,
+              });
+              update_total_tokens();
+              setChatStore({ ...chatStore });
+            }}
+          >
+            Assistant
+          </button>
+        )}
+        {chatStore.develop_mode && (
+          <button
+            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            disabled={showGenerating || !chatStore.apiKey}
+            onClick={() => {
+              chatStore.history.push({
+                role: "user",
+                content: inputMsg,
+                token: calculate_token_length(inputMsg),
+                hide: false,
+              });
+              update_total_tokens();
+              setChatStore({ ...chatStore });
+            }}
+          >
+            User
+          </button>
+        )}
       </div>
     </div>
   );
