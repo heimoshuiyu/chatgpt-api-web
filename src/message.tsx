@@ -1,3 +1,4 @@
+import { useState } from "preact/hooks";
 import { ChatStore } from "./app";
 import { calculate_token_length } from "./chatgpt";
 
@@ -9,6 +10,7 @@ interface Props {
 export default function Message(props: Props) {
   const { chatStore, messageIndex, setChatStore } = props;
   const chat = chatStore.history[messageIndex];
+  const [showEdit, setShowEdit] = useState(false);
   const DeleteIcon = () => (
     <button
       className={`absolute bottom-0 ${
@@ -89,6 +91,33 @@ export default function Message(props: Props) {
               >
                 ❌
               </button>
+              <button onClick={() => setShowEdit(true)}>🖋</button>
+              {showEdit && (
+                <div
+                  className={
+                    "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 pt-5 px-5 pb-20 rounded"
+                  }
+                >
+                  <textarea
+                    className={"relative w-full h-full"}
+                    value={chat.content}
+                    onChange={(event: any) => {
+                      chat.content = event.target.value;
+                      setChatStore({ ...chatStore });
+                    }}
+                  ></textarea>
+                  <div className={"w-full flex justify-center"}>
+                    <button
+                      className={"m-2 p-1 rounded bg-green-500"}
+                      onClick={() => {
+                        setShowEdit(false);
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
