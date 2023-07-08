@@ -105,7 +105,7 @@ export default function Message(props: Props) {
               {showEdit && (
                 <div
                   className={
-                    "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 pt-5 px-5 pb-20 rounded"
+                    "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 pt-5 px-5 pb-20 rounded z-10"
                   }
                 >
                   <textarea
