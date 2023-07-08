@@ -74,7 +74,7 @@ export default function Message(props: Props) {
               token{" "}
               <input
                 value={chat.token}
-                className='w-20'
+                className="w-20"
                 onChange={(event: any) => {
                   chat.token = parseInt(event.target.value);
                   props.update_total_tokens();
@@ -113,6 +113,7 @@ export default function Message(props: Props) {
                     value={chat.content}
                     onChange={(event: any) => {
                       chat.content = event.target.value;
+                      chat.token = calculate_token_length(chat.content);
                       setChatStore({ ...chatStore });
                     }}
                   ></textarea>
