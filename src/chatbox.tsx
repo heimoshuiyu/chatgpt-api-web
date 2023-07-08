@@ -351,6 +351,12 @@ export default function ChatBOX(props: {
             update_total_tokens={update_total_tokens}
           />
         ))}
+        {showGenerating && (
+          <p className="p-2 my-2 animate-pulse dark:text-white message-content">
+            {generatingMessage || "生成中，最长可能需要一分钟，请保持网络稳定"}
+            ...
+          </p>
+        )}
         {chatStore.develop_mode && (
           <p className="text-center rounded">
             <button
@@ -376,12 +382,6 @@ export default function ChatBOX(props: {
             >
               Completion
             </button>
-          </p>
-        )}
-        {showGenerating && (
-          <p className="p-2 my-2 animate-pulse dark:text-white message-content">
-            {generatingMessage || "生成中，最长可能需要一分钟，请保持网络稳定"}
-            ...
           </p>
         )}
         <p className="p-2 my-2 text-center opacity-50 dark:text-white">
