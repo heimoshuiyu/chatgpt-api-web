@@ -169,8 +169,10 @@ export default function ChatBOX(props: {
     if (data.usage.prompt_tokens) {
       const userMessageToken = data.usage.prompt_tokens - aboveToken;
       console.log("set user message token");
-      chatStore.history.filter((msg) => !msg.hide).slice(-1)[0].token =
-        userMessageToken;
+      if (chatStore.history.filter((msg) => !msg.hide).length > 0) {
+        chatStore.history.filter((msg) => !msg.hide).slice(-1)[0].token =
+          userMessageToken;
+      }
     }
 
     chatStore.history.push({
