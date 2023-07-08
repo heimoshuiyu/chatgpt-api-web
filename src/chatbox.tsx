@@ -192,6 +192,10 @@ export default function ChatBOX(props: {
     client.apiEndpoint = chatStore.apiEndpoint;
     client.sysMessageContent = chatStore.systemMessageContent;
     client.tokens_margin = chatStore.tokenMargin;
+    client.temperature = chatStore.temperature;
+    client.top_p = chatStore.top_p;
+    client.frequency_penalty = chatStore.frequency_penalty;
+    client.presence_penalty = chatStore.presence_penalty;
     client.messages = chatStore.history
       // only copy non hidden message
       .filter(({ hide }) => !hide)
