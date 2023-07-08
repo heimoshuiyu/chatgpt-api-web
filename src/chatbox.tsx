@@ -372,6 +372,17 @@ export default function ChatBOX(props: {
             请在左上角创建新会话：）
           </p>
         )}
+        {chatStore.chatgpt_api_web_version < "v1.4.0" && (
+          <p className="p-2 my-2 text-center dark:text-white">
+            <br />
+            提示：当前会话版本 {chatStore.chatgpt_api_web_version} {"< v1.4.0"}。
+            <br />
+            v1.4.0
+            增加了更多参数，继续使用旧版可能因参数确实导致未定义的行为
+            <br />
+            请在左上角创建新会话：）
+          </p>
+        )}
         {showRetry && (
           <p className="text-right p-2 my-2 dark:text-white">
             <button
