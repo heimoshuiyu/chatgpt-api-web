@@ -344,6 +344,33 @@ export default function ChatBOX(props: {
             messageIndex={messageIndex}
           />
         ))}
+        {chatStore.develop_mode && (
+          <p className="text-center rounded">
+            <button
+              className="p-2 m-2 bg-teal-500 rounded"
+              onClick={async () => {
+                const messageIndex = chatStore.history.length - 1;
+                chatStore.history[messageIndex].hide = true;
+
+                //chatStore.totalTokens =
+                update_total_tokens();
+                setChatStore({ ...chatStore });
+
+                await complete();
+              }}
+            >
+              Re-Generate
+            </button>
+            <button
+              className="p-2 m-2 bg-yellow-500 rounded"
+              onClick={async () => {
+                await complete();
+              }}
+            >
+              Completion
+            </button>
+          </p>
+        )}
         {showGenerating && (
           <p className="p-2 my-2 animate-pulse dark:text-white message-content">
             {generatingMessage || "生成中，最长可能需要一分钟，请保持网络稳定"}
@@ -375,10 +402,10 @@ export default function ChatBOX(props: {
         {chatStore.chatgpt_api_web_version < "v1.4.0" && (
           <p className="p-2 my-2 text-center dark:text-white">
             <br />
-            提示：当前会话版本 {chatStore.chatgpt_api_web_version} {"< v1.4.0"}。
+            提示：当前会话版本 {chatStore.chatgpt_api_web_version} {"< v1.4.0"}
+            。
             <br />
-            v1.4.0
-            增加了更多参数，继续使用旧版可能因参数确实导致未定义的行为
+            v1.4.0 增加了更多参数，继续使用旧版可能因参数确实导致未定义的行为
             <br />
             请在左上角创建新会话：）
           </p>
