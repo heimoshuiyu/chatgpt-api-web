@@ -15,9 +15,6 @@ export default function Message(props: Props) {
   const [showCopiedHint, setShowCopiedHint] = useState(false);
   const DeleteIcon = () => (
     <button
-      className={`absolute bottom-0 left-${
-        chat.content.length < 4 ? "0" : "2"
-      }`}
       onClick={() => {
         chatStore.history[messageIndex].hide =
           !chatStore.history[messageIndex].hide;
@@ -50,9 +47,6 @@ export default function Message(props: Props) {
     return (
       <>
         <button
-          className={`absolute bottom-0 right-${
-            chat.content.length < 4 ? "0" : "2"
-          }`}
           onClick={() => {
             navigator.clipboard.writeText(chat.content);
             setShowCopiedHint(true);
@@ -86,19 +80,21 @@ export default function Message(props: Props) {
       >
         <div>
           <div
-            className={`relative w-fit p-2 rounded my-2 ${
+            className={`w-fit p-2 rounded my-2 ${
               chat.role === "assistant"
                 ? "bg-white dark:bg-gray-700 dark:text-white"
                 : "bg-green-400"
             } ${chat.hide ? "opacity-50" : ""}`}
           >
-            <p className="message-content mb-3">
+            <p className="message-content">
               {chat.hide
                 ? chat.content.split("\n")[0].slice(0, 16) + "... (deleted)"
                 : chat.content}
             </p>
-            <DeleteIcon />
-            <CopyIcon />
+            <div className="w-full flex justify-between">
+              <DeleteIcon />
+              <CopyIcon />
+            </div>
           </div>
           {showCopiedHint && <CopiedHint />}
           {chatStore.develop_mode && (
