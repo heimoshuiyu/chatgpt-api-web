@@ -46,6 +46,7 @@ export default function ChatBOX(props: {
   };
 
   const _completeWithStreamMode = async (response: Response) => {
+    let responseTokenCount = 0;
     chatStore.streamMode = true;
     // call api, return reponse text
     console.log("response", response);
@@ -70,10 +71,12 @@ export default function ChatBOX(props: {
               if (!i) return false;
               if (i === "data: [DONE]" || i === "data:[DONE]") {
                 responseDone = true;
+                responseTokenCount += 1;
                 return false;
               }
               return true;
             });
+          responseTokenCount += lines.length;
           console.log("lines", lines);
           const jsons: ChunkMessage[] = lines
             .map((line) => {
@@ -105,13 +108,12 @@ export default function ChatBOX(props: {
 
         // console.log("push to history", allChunkMessage);
         const content = allChunkMessage.join("");
-        const token = calculate_token_length(content);
 
         // estimate cost
         let cost = 0;
         if (chatStore.responseModelName) {
           cost +=
-            token *
+            responseTokenCount *
             (models[chatStore.responseModelName]?.price?.completion ?? 0);
           let sum = 0;
           for (const msg of chatStore.history
@@ -129,7 +131,7 @@ export default function ChatBOX(props: {
           role: "assistant",
           content,
           hide: false,
-          token,
+          token: responseTokenCount,
         });
         // manually copy status from client to chatStore
         chatStore.maxTokens = client.max_tokens;
