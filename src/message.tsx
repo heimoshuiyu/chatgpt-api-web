@@ -12,10 +12,11 @@ export default function Message(props: Props) {
   const { chatStore, messageIndex, setChatStore } = props;
   const chat = chatStore.history[messageIndex];
   const [showEdit, setShowEdit] = useState(false);
+  const [showCopiedHint, setShowCopiedHint] = useState(false);
   const DeleteIcon = () => (
     <button
-      className={`absolute bottom-0 ${
-        chat.role === "user" ? "left-0" : "right-0"
+      className={`absolute bottom-0 left-${
+        chat.content.length < 4 ? "0" : "2"
       }`}
       onClick={() => {
         chatStore.history[messageIndex].hide =
@@ -35,6 +36,35 @@ export default function Message(props: Props) {
       🗑️
     </button>
   );
+  const CopiedHint = () => (
+    <span
+      className={
+        "bg-purple-400 p-1 rounded shadow-md absolute z-20 left-1/2 top-3/4 transform -translate-x-1/2 -translate-y-1/2"
+      }
+    >
+      Message Copied to clipboard!
+    </span>
+  );
+
+  const CopyIcon = () => {
+    return (
+      <>
+        <button
+          className={`absolute bottom-0 right-${
+            chat.content.length < 4 ? "0" : "2"
+          }`}
+          onClick={() => {
+            navigator.clipboard.writeText(chat.content);
+            setShowCopiedHint(true);
+            setTimeout(() => setShowCopiedHint(false), 1000);
+          }}
+        >
+          📋
+        </button>
+      </>
+    );
+  };
+
   return (
     <>
       {chatStore.postBeginIndex !== 0 &&
@@ -62,13 +92,15 @@ export default function Message(props: Props) {
                 : "bg-green-400"
             } ${chat.hide ? "opacity-50" : ""}`}
           >
-            <p className="message-content">
+            <p className="message-content mb-3">
               {chat.hide
                 ? chat.content.split("\n")[0].slice(0, 16) + "... (deleted)"
                 : chat.content}
             </p>
             <DeleteIcon />
+            <CopyIcon />
           </div>
+          {showCopiedHint && <CopiedHint />}
           {chatStore.develop_mode && (
             <div>
               token{" "}
