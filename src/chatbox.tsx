@@ -221,6 +221,7 @@ export default function ChatBOX(props: {
       chatStore.totalTokens = client.total_tokens;
 
       console.log("postBeginIndex", chatStore.postBeginIndex);
+      setShowRetry(false);
       setChatStore({ ...chatStore });
     } catch (error) {
       setShowRetry(true);
