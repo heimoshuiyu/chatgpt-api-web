@@ -6,6 +6,7 @@ interface Props {
   messageIndex: number;
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
+  update_total_tokens: () => void;
 }
 export default function Message(props: Props) {
   const { chatStore, messageIndex, setChatStore } = props;
@@ -70,7 +71,16 @@ export default function Message(props: Props) {
           </div>
           {chatStore.develop_mode && (
             <div>
-              token {chatStore.history[messageIndex].token}
+              token{" "}
+              <input
+                value={chat.token}
+                className='w-20'
+                onChange={(event: any) => {
+                  chat.token = parseInt(event.target.value);
+                  props.update_total_tokens();
+                  setChatStore({ ...chatStore });
+                }}
+              />
               <button
                 onClick={() => {
                   chatStore.history.splice(messageIndex, 1);

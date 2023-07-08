@@ -346,6 +346,7 @@ export default function ChatBOX(props: {
             chatStore={chatStore}
             setChatStore={setChatStore}
             messageIndex={messageIndex}
+            update_total_tokens={update_total_tokens}
           />
         ))}
         {chatStore.develop_mode && (
