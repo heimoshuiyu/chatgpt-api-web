@@ -99,7 +99,7 @@ export default function Message(props: Props) {
           {showCopiedHint && <CopiedHint />}
           {chatStore.develop_mode && (
             <div>
-              token{" "}
+              <span className="dark:text-white">token</span>
               <input
                 value={chat.token}
                 className="w-20"
@@ -158,15 +158,16 @@ export default function Message(props: Props) {
                 </div>
               )}
               <span>
-                <label>example</label>
-                <input
-                  type="checkbox"
-                  checked={chat.example}
-                  onChange={(event: any) => {
-                    chat.example = event.target.checked;
+                <label
+                  className="dark:text-white"
+                  onClick={(event: any) => {
+                    chat.example = !chat.example;
                     setChatStore({ ...chatStore });
                   }}
-                />
+                >
+                  example
+                </label>
+                <input type="checkbox" checked={chat.example} />
               </span>
             </div>
           )}
