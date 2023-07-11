@@ -11,6 +11,7 @@ import CHATGPT_API_WEB_VERSION from "./CHATGPT_API_WEB_VERSION";
 export interface ChatStoreMessage extends Message {
   hide: boolean;
   token: number;
+  example: boolean;
 }
 
 export interface ChatStore {

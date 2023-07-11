@@ -157,6 +157,17 @@ export default function Message(props: Props) {
                   </div>
                 </div>
               )}
+              <span>
+                <label>example</label>
+                <input
+                  type="checkbox"
+                  checked={chat.example}
+                  onChange={(event: any) => {
+                    chat.example = event.target.checked;
+                    setChatStore({ ...chatStore });
+                  }}
+                />
+              </span>
             </div>
           )}
         </div>

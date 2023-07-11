@@ -1,6 +1,7 @@
 export interface Message {
   role: "system" | "user" | "assistant" | "function";
   content: string;
+  name?: "example_user" | "example_assistant";
 }
 
 export interface ChunkMessage {

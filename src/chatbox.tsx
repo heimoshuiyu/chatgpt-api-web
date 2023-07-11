@@ -132,6 +132,7 @@ export default function ChatBOX(props: {
           content,
           hide: false,
           token: responseTokenCount,
+          example: false,
         });
         // manually copy status from client to chatStore
         chatStore.maxTokens = client.max_tokens;
@@ -182,6 +183,7 @@ export default function ChatBOX(props: {
       content,
       hide: false,
       token: data.usage.completion_tokens ?? calculate_token_length(content),
+      example: false,
     });
     setShowGenerating(false);
   };
@@ -201,7 +203,14 @@ export default function ChatBOX(props: {
       .filter(({ hide }) => !hide)
       .slice(chatStore.postBeginIndex)
       // only copy content and role attribute to client for posting
-      .map(({ content, role }) => {
+      .map(({ content, role, example }) => {
+        if (example) {
+          return {
+            content,
+            role: "system",
+            name: role === "assistant" ? "example_assistant" : "example_user",
+          };
+        }
         return {
           content,
           role,
@@ -251,6 +260,7 @@ export default function ChatBOX(props: {
       content: inputMsg.trim(),
       hide: false,
       token: calculate_token_length(inputMsg.trim()),
+      example: false,
     });
     // manually calculate token length
     chatStore.totalTokens += client.calculate_token_length(inputMsg.trim());
@@ -472,6 +482,7 @@ export default function ChatBOX(props: {
                 content: inputMsg,
                 token: calculate_token_length(inputMsg),
                 hide: false,
+                example: false,
               });
               update_total_tokens();
               setChatStore({ ...chatStore });
@@ -490,6 +501,7 @@ export default function ChatBOX(props: {
                 content: inputMsg,
                 token: calculate_token_length(inputMsg),
                 hide: false,
+                example: false,
               });
               update_total_tokens();
               setChatStore({ ...chatStore });
