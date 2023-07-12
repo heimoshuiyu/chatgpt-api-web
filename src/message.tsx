@@ -157,16 +157,13 @@ export default function Message(props: Props) {
                   </div>
                 </div>
               )}
-              <span>
-                <label
-                  className="dark:text-white"
-                  onClick={(event: any) => {
-                    chat.example = !chat.example;
-                    setChatStore({ ...chatStore });
-                  }}
-                >
-                  example
-                </label>
+              <span
+                onClick={(event: any) => {
+                  chat.example = !chat.example;
+                  setChatStore({ ...chatStore });
+                }}
+              >
+                <label className="dark:text-white">example</label>
                 <input type="checkbox" checked={chat.example} />
               </span>
             </div>
