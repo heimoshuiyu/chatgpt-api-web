@@ -83,6 +83,29 @@ class Chat {
   }
 
   _fetch(stream = false) {
+    // perform role type check
+    let hasNonSystemMessage = false;
+    for (const msg of this.messages) {
+      if (msg.role === "system" && !hasNonSystemMessage) {
+        continue;
+      }
+      if (!hasNonSystemMessage) {
+        hasNonSystemMessage = true;
+        continue;
+      }
+      if (msg.role === "system") {
+        console.log(
+          "Warning: detected system message in the middle of history"
+        );
+      }
+    }
+    for (const msg of this.messages) {
+      if (msg.name && msg.role !== "system") {
+        console.log(
+          "Warning: detected message where name field set but role is system"
+        );
+      }
+    }
     return fetch(this.apiEndpoint, {
       method: "POST",
       headers: {
