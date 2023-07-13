@@ -71,10 +71,19 @@ const Input = (props: {
   field: "apiKey" | "apiEndpoint";
   help: string;
 }) => {
+  const [hideInput, setHideInput] = useState(false);
   return (
     <Help help={props.help}>
       <label className="m-2 p-2">{props.field}</label>
+      <span
+        className="m-2 p-2"
+        onClick={(event: any) => setHideInput(!hideInput)}
+      >
+        <label>hide</label>
+        <input type="checkbox" checked={hideInput} />
+      </span>
       <input
+        type={hideInput ? "password" : "text"}
         className="m-2 p-2 border rounded focus w-32 md:w-fit"
         value={props.chatStore[props.field]}
         onChange={(event: any) => {
