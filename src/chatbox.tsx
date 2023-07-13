@@ -487,6 +487,7 @@ export default function ChatBOX(props: {
                 example: false,
               });
               update_total_tokens();
+              setInputMsg("");
               setChatStore({ ...chatStore });
             }}
           >
@@ -506,6 +507,7 @@ export default function ChatBOX(props: {
                 example: false,
               });
               update_total_tokens();
+              setInputMsg("");
               setChatStore({ ...chatStore });
             }}
           >
