@@ -1,6 +1,7 @@
 import { useState } from "preact/hooks";
 import { ChatStore } from "./app";
 import { calculate_token_length } from "./chatgpt";
+import Markdown from "preact-markdown";
 
 interface Props {
   messageIndex: number;
@@ -13,6 +14,7 @@ export default function Message(props: Props) {
   const chat = chatStore.history[messageIndex];
   const [showEdit, setShowEdit] = useState(false);
   const [showCopiedHint, setShowCopiedHint] = useState(false);
+  const [renderMarkdown, setRenderWorkdown] = useState(false);
   const DeleteIcon = () => (
     <button
       onClick={() => {
@@ -87,9 +89,14 @@ export default function Message(props: Props) {
             } ${chat.hide ? "opacity-50" : ""}`}
           >
             <p className="message-content">
-              {chat.hide
-                ? chat.content.split("\n")[0].slice(0, 16) + "... (deleted)"
-                : chat.content}
+              {chat.hide ? (
+                chat.content.split("\n")[0].slice(0, 16) + "... (deleted)"
+              ) : renderMarkdown ? (
+                // @ts-ignore
+                <Markdown markdown={chat.content} />
+              ) : (
+                chat.content
+              )}
             </p>
             <div className="w-full flex justify-between">
               <DeleteIcon />
@@ -165,6 +172,12 @@ export default function Message(props: Props) {
               >
                 <label className="dark:text-white">example</label>
                 <input type="checkbox" checked={chat.example} />
+              </span>
+              <span
+                onClick={(event: any) => setRenderWorkdown(!renderMarkdown)}
+              >
+                <label className="dark:text-white">render</label>
+                <input type="checkbox" checked={renderMarkdown} />
               </span>
             </div>
           )}
