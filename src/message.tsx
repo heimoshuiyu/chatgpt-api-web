@@ -88,7 +88,7 @@ export default function Message(props: Props) {
                 : "bg-green-400"
             } ${chat.hide ? "opacity-50" : ""}`}
           >
-            <p className="message-content">
+            <p className={renderMarkdown ? "" : "message-content"}>
               {chat.hide ? (
                 chat.content.split("\n")[0].slice(0, 16) + "... (deleted)"
               ) : renderMarkdown ? (
