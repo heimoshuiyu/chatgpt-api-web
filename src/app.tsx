@@ -181,7 +181,9 @@ export function App() {
           chatStore.systemMessageContent,
           chatStore.apiEndpoint,
           chatStore.streamMode,
-          chatStore.model
+          chatStore.model,
+          1.0,
+          !!chatStore.develop_mode
         )
       )
     );
