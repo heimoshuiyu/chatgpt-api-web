@@ -175,10 +175,54 @@ export default (props: {
   const importFileRef = createRef();
   const [totalCost, setTotalCost] = useState(getTotalCost());
   return (
-    <div className="left-0 top-0 overflow-scroll flex justify-center absolute w-screen h-full bg-black bg-opacity-50 z-10">
-      <div className="m-2 p-2 bg-white rounded-lg h-fit">
-        <h3 className="text-xl">Settings</h3>
+    <div
+      onClick={() => props.setShow(false)}
+      className="left-0 top-0 overflow-scroll flex justify-center absolute w-screen h-full bg-black bg-opacity-50 z-10"
+    >
+      <div
+        onClick={(event: any) => {
+          event.stopPropagation();
+        }}
+        className="m-2 p-2 bg-white rounded-lg h-fit lg:w-2/3 z-20"
+      >
+        <h3 className="text-xl text-center">Settings</h3>
         <hr />
+        <div className="flex justify-between">
+          <button
+            className="p-2 m-2 rounded bg-purple-600 text-white"
+            onClick={() => {
+              navigator.clipboard.writeText(link);
+              alert(`Copied link: ${link}`);
+            }}
+          >
+            Copy Link
+          </button>
+          <button
+            className="p-2 m-2 rounded bg-rose-600 text-white"
+            onClick={() => {
+              if (
+                !confirm(
+                  `Are you sure to clear all ${props.chatStore.history.length} messages?`
+                )
+              )
+                return;
+              props.chatStore.history = [];
+              props.chatStore.postBeginIndex = 0;
+              props.chatStore.totalTokens = 0;
+              props.setChatStore({ ...props.chatStore });
+            }}
+          >
+            Clear History
+          </button>
+          <button
+            className="p-2 m-2 rounded bg-cyan-600 text-white"
+            onClick={() => {
+              props.setShow(false);
+            }}
+          >
+            Close
+          </button>
+        </div>
         <div className="flex justify-between">
           <p className="m-2 p-2">
             Accumulated cost in all sessions ${totalCost.toFixed(4)}
@@ -196,6 +240,7 @@ export default (props: {
         <p className="m-2 p-2">
           Total cost in this session ${props.chatStore.cost.toFixed(4)}
         </p>
+        <hr />
         <div className="box">
           <LongInput
             field="systemMessageContent"
@@ -341,42 +386,6 @@ export default (props: {
           </p>
         </div>
         <hr />
-        <div className="flex justify-between">
-          <button
-            className="p-2 m-2 rounded bg-purple-600 text-white"
-            onClick={() => {
-              navigator.clipboard.writeText(link);
-              alert(`Copied link: ${link}`);
-            }}
-          >
-            Copy Link
-          </button>
-          <button
-            className="p-2 m-2 rounded bg-rose-600 text-white"
-            onClick={() => {
-              if (
-                !confirm(
-                  `Are you sure to clear all ${props.chatStore.history.length} messages?`
-                )
-              )
-                return;
-              props.chatStore.history = [];
-              props.chatStore.postBeginIndex = 0;
-              props.chatStore.totalTokens = 0;
-              props.setChatStore({ ...props.chatStore });
-            }}
-          >
-            Clear History
-          </button>
-          <button
-            className="p-2 m-2 rounded bg-cyan-600 text-white"
-            onClick={() => {
-              props.setShow(false);
-            }}
-          >
-            Close
-          </button>
-        </div>
       </div>
     </div>
   );
