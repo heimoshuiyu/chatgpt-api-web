@@ -71,6 +71,7 @@ const STORAGE_NAME = "chatgpt-api-web";
 const STORAGE_NAME_SELECTED = `${STORAGE_NAME}-selected`;
 const STORAGE_NAME_INDEXES = `${STORAGE_NAME}-indexes`;
 const STORAGE_NAME_TOTALCOST = `${STORAGE_NAME}-totalcost`;
+export const STORAGE_NAME_TEMPLATE = `${STORAGE_NAME}-template`;
 
 export function addTotalCost(cost: number) {
   let totalCost = getTotalCost();

@@ -2,6 +2,7 @@ import { createRef } from "preact";
 import { StateUpdater, useState } from "preact/hooks";
 import { ChatStore, clearTotalCost, getTotalCost } from "./app";
 import models from "./models";
+import { TemplateChatStore } from "./chatbox";
 
 const Help = (props: { children: any; help: string }) => {
   return (
@@ -155,6 +156,8 @@ export default (props: {
   setChatStore: (cs: ChatStore) => void;
   setShow: StateUpdater<boolean>;
   selectedChatStoreIndex: number;
+  templates: TemplateChatStore[];
+  setTemplates: (templates: TemplateChatStore[]) => void;
 }) => {
   let link =
     location.protocol +
@@ -330,6 +333,21 @@ export default (props: {
               }}
             >
               Export
+            </button>
+            <button
+              className="p-2 m-2 rounded bg-amber-500"
+              onClick={() => {
+                const name = prompt("Give this template a name:");
+                if (!name) {
+                  alert("No template name specified");
+                  return;
+                }
+                const tmp: TemplateChatStore = { name, ...props.chatStore };
+                props.templates.push(tmp);
+                props.setTemplates([...props.templates]);
+              }}
+            >
+              As template
             </button>
             <button
               className="p-2 m-2 rounded bg-amber-500"

@@ -1,6 +1,6 @@
 import { createRef } from "preact";
 import { StateUpdater, useEffect, useState } from "preact/hooks";
-import { ChatStore, addTotalCost } from "./app";
+import { ChatStore, STORAGE_NAME_TEMPLATE, addTotalCost } from "./app";
 import ChatGPT, {
   calculate_token_length,
   ChunkMessage,
@@ -9,6 +9,10 @@ import ChatGPT, {
 import Message from "./message";
 import models from "./models";
 import Settings from "./settings";
+
+export interface TemplateChatStore extends ChatStore {
+  name: string;
+}
 
 export default function ChatBOX(props: {
   chatStore: ChatStore;
@@ -271,6 +275,17 @@ export default function ChatBOX(props: {
   };
 
   const [showSettings, setShowSettings] = useState(false);
+
+  const [templates, _setTemplates] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE) || "[]"
+    ) as TemplateChatStore[]
+  );
+  const setTemplates = (templates: TemplateChatStore[]) => {
+    localStorage.setItem(STORAGE_NAME_TEMPLATE, JSON.stringify(templates));
+    _setTemplates(templates);
+  };
+
   return (
     <div className="grow flex flex-col p-2 dark:text-black">
       {showSettings && (
@@ -279,6 +294,8 @@ export default function ChatBOX(props: {
           setChatStore={setChatStore}
           setShow={setShowSettings}
           selectedChatStoreIndex={props.selectedChatIndex}
+          templates={templates}
+          setTemplates={setTemplates}
         />
       )}
       <p
@@ -327,6 +344,55 @@ export default function ChatBOX(props: {
             请先在上方设置 API Endpoint
           </p>
         )}
+        {templates.length > 0 &&
+          chatStore.history.filter((msg) => !msg.example).length == 0 && (
+            <p className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
+              <h2>Templates</h2>
+              <hr className="my-2" />
+              <div className="flex flex-wrap">
+                {templates.map((t, index) => (
+                  <div
+                    className="cursor-pointer rounded bg-green-400 w-fit p-2 m-1 flex flex-col"
+                    onClick={() => {
+                      const newChatStore: any = { ...t };
+                      delete newChatStore.name;
+                      setChatStore({ ...newChatStore });
+                    }}
+                  >
+                    <span className="w-full text-center">{t.name}</span>
+                    <hr className="mt-2" />
+                    <span className="flex justify-between">
+                      <button
+                        onClick={() => {
+                          const name = prompt("Give template a name");
+                          if (!name) {
+                            return;
+                          }
+                          t.name = name;
+                          setTemplates([...templates]);
+                        }}
+                      >
+                        🖋
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (
+                            !confirm("Are you sure to delete this template?")
+                          ) {
+                            return;
+                          }
+                          templates.splice(index, 1);
+                          setTemplates([...templates]);
+                        }}
+                      >
+                        ❌
+                      </button>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </p>
+          )}
         {chatStore.history.length === 0 && (
           <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
             暂无历史对话记录
