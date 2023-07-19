@@ -9,6 +9,7 @@ import ChatGPT, {
 import Message from "./message";
 import models from "./models";
 import Settings from "./settings";
+import getDefaultParams from "./getDefaultParam";
 
 export interface TemplateChatStore extends ChatStore {
   name: string;
@@ -354,8 +355,22 @@ export default function ChatBOX(props: {
                   <div
                     className="cursor-pointer rounded bg-green-400 w-fit p-2 m-1 flex flex-col"
                     onClick={() => {
-                      const newChatStore: any = { ...t };
+                      const newChatStore: ChatStore = structuredClone(t);
+                      // @ts-ignore
                       delete newChatStore.name;
+                      if (!newChatStore.apiEndpoint) {
+                        newChatStore.apiEndpoint = getDefaultParams(
+                          "api",
+                          chatStore.apiEndpoint
+                        );
+                      }
+                      if (!newChatStore.apiKey) {
+                        newChatStore.apiKey = getDefaultParams(
+                          "key",
+                          chatStore.apiKey
+                        );
+                      }
+                      newChatStore.cost = 0;
                       setChatStore({ ...newChatStore });
                     }}
                   >

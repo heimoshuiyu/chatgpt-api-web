@@ -342,8 +342,11 @@ export default (props: {
                   alert("No template name specified");
                   return;
                 }
-                const tmp: TemplateChatStore = { name, ...props.chatStore };
-                props.templates.push(tmp);
+                const tmp: ChatStore = structuredClone(props.chatStore);
+                tmp.history = tmp.history.filter((h) => h.example);
+                // @ts-ignore
+                tmp.name = name;
+                props.templates.push(tmp as TemplateChatStore);
                 props.setTemplates([...props.templates]);
               }}
             >
