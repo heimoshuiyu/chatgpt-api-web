@@ -1,3 +1,4 @@
+import structuredClone from '@ungap/structured-clone'
 import { createRef } from "preact";
 import { StateUpdater, useEffect, useState } from "preact/hooks";
 import { ChatStore, STORAGE_NAME_TEMPLATE, addTotalCost } from "./app";

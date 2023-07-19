@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/ungap__structured-clone": "^0.3.0",
+    "@ungap/structured-clone": "^1.2.0",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.24",
     "preact": "^10.15.1",
