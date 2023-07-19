@@ -223,20 +223,6 @@ export default (props: {
             Close
           </button>
         </div>
-        <div className="flex justify-between">
-          <p className="m-2 p-2">
-            Accumulated cost in all sessions ${totalCost.toFixed(4)}
-          </p>
-          <button
-            className="p-2 m-2 rounded bg-emerald-500"
-            onClick={() => {
-              clearTotalCost();
-              setTotalCost(getTotalCost());
-            }}
-          >
-            Reset
-          </button>
-        </div>
         <p className="m-2 p-2">
           Total cost in this session ${props.chatStore.cost.toFixed(4)}
         </p>
@@ -309,6 +295,20 @@ export default (props: {
             readOnly={false}
             {...props}
           />
+          <div className="flex justify-between">
+            <p className="m-2 p-2">
+              Accumulated cost in all sessions ${totalCost.toFixed(4)}
+            </p>
+            <button
+              className="p-2 m-2 rounded bg-emerald-500"
+              onClick={() => {
+                clearTotalCost();
+                setTotalCost(getTotalCost());
+              }}
+            >
+              Reset
+            </button>
+          </div>
           <p className="flex justify-evenly">
             <button
               className="p-2 m-2 rounded bg-amber-500"
