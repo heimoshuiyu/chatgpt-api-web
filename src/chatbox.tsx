@@ -384,7 +384,7 @@ export default function ChatBOX(props: {
                             return;
                           }
                           t.name = name;
-                          setTemplates([...templates]);
+                          setTemplates(structuredClone(templates));
                         }}
                       >
                         🖋
@@ -397,7 +397,7 @@ export default function ChatBOX(props: {
                             return;
                           }
                           templates.splice(index, 1);
-                          setTemplates([...templates]);
+                          setTemplates(structuredClone(templates));
                         }}
                       >
                         ❌
