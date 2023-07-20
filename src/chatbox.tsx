@@ -1,4 +1,4 @@
-import structuredClone from '@ungap/structured-clone'
+import structuredClone from "@ungap/structured-clone";
 import { createRef } from "preact";
 import { StateUpdater, useEffect, useState } from "preact/hooks";
 import { ChatStore, STORAGE_NAME_TEMPLATE, addTotalCost } from "./app";
@@ -456,7 +456,8 @@ export default function ChatBOX(props: {
         <p className="text-center">
           {chatStore.history.length > 0 && (
             <button
-              className="p-2 m-2 bg-teal-500 rounded"
+              className="disabled:line-through disabled:bg-slate-500 rounded m-2 p-2 border-2 bg-teal-500 hover:bg-teal-600"
+              disabled={showGenerating || !chatStore.apiKey}
               onClick={async () => {
                 const messageIndex = chatStore.history.length - 1;
                 chatStore.history[messageIndex].hide = true;
@@ -473,7 +474,8 @@ export default function ChatBOX(props: {
           )}
           {chatStore.develop_mode && chatStore.history.length > 0 && (
             <button
-              className="p-2 m-2 bg-yellow-500 rounded"
+              className="disabled:line-through disabled:bg-slate-500 rounded m-2 p-2 border-2 bg-yellow-500 hover:bg-yellow-600"
+              disabled={showGenerating || !chatStore.apiKey}
               onClick={async () => {
                 await complete();
               }}
