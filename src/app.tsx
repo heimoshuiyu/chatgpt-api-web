@@ -164,6 +164,16 @@ export function App() {
     chatStore.postBeginIndex =
       chatStore.postBeginIndex < 0 ? 0 : chatStore.postBeginIndex;
 
+    // manually estimate token
+    chatStore.totalTokens = calculate_token_length(
+      chatStore.systemMessageContent
+    );
+    for (const msg of chatStore.history
+      .filter(({ hide }) => !hide)
+      .slice(chatStore.postBeginIndex)) {
+      chatStore.totalTokens += msg.token;
+    }
+
     _setChatStore(chatStore);
   };
   useEffect(() => {
