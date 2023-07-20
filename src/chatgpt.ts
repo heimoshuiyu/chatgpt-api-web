@@ -70,7 +70,7 @@ class Chat {
     }
     this.OPENAI_API_KEY = OPENAI_API_KEY;
     this.messages = [];
-    this.total_tokens = 0;
+    this.total_tokens = calculate_token_length(systemMessage);
     this.max_tokens = max_tokens;
     this.tokens_margin = tokens_margin;
     this.sysMessageContent = systemMessage;
