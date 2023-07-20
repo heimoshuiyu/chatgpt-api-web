@@ -209,9 +209,10 @@ export default (props: {
                 )
               )
                 return;
-              props.chatStore.history = [];
+              props.chatStore.history = props.chatStore.history.filter(
+                (msg) => msg.example && !msg.hide
+              );
               props.chatStore.postBeginIndex = 0;
-              props.chatStore.totalTokens = 0;
               props.setChatStore({ ...props.chatStore });
             }}
           >
