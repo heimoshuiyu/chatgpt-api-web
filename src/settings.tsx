@@ -1,5 +1,5 @@
 import { createRef } from "preact";
-import { StateUpdater, useState } from "preact/hooks";
+import { StateUpdater, useEffect, useState } from "preact/hooks";
 import { ChatStore, clearTotalCost, getTotalCost } from "./app";
 import models from "./models";
 import { TemplateChatStore } from "./chatbox";
@@ -177,6 +177,22 @@ export default (props: {
 
   const importFileRef = createRef();
   const [totalCost, setTotalCost] = useState(getTotalCost());
+
+  useEffect(() => {
+    const handleKeyPress = (event: any) => {
+      if (event.keyCode === 27) {
+        // keyCode for ESC key is 27
+        props.setShow(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []); // The empty dependency array ensures that the effect runs only once
+
   return (
     <div
       onClick={() => props.setShow(false)}
