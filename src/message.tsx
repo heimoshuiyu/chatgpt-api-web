@@ -102,36 +102,36 @@ export default function Message(props: Props) {
             <div className="w-full flex justify-between">
               <DeleteIcon />
               <button onClick={() => setShowEdit(true)}>🖋</button>
-              {showEdit && (
-                <div
-                  className={
-                    "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 pt-5 px-5 pb-20 rounded z-10"
-                  }
-                >
-                  <textarea
-                    className={"relative w-full h-full"}
-                    value={chat.content}
-                    onChange={(event: any) => {
-                      chat.content = event.target.value;
-                      chat.token = calculate_token_length(chat.content);
-                      setChatStore({ ...chatStore });
-                    }}
-                  ></textarea>
-                  <div className={"w-full flex justify-center"}>
-                    <button
-                      className={"m-2 p-1 rounded bg-green-500"}
-                      onClick={() => {
-                        setShowEdit(false);
-                      }}
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              )}
               <CopyIcon />
             </div>
           </div>
+          {showEdit && (
+            <div
+              className={
+                "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 pt-5 px-5 pb-20 rounded z-10"
+              }
+            >
+              <textarea
+                className={"relative w-full h-full"}
+                value={chat.content}
+                onChange={(event: any) => {
+                  chat.content = event.target.value;
+                  chat.token = calculate_token_length(chat.content);
+                  setChatStore({ ...chatStore });
+                }}
+              ></textarea>
+              <div className={"w-full flex justify-center"}>
+                <button
+                  className={"m-2 p-1 rounded bg-green-500"}
+                  onClick={() => {
+                    setShowEdit(false);
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
           {showCopiedHint && <CopiedHint />}
           {chatStore.develop_mode && (
             <div>
