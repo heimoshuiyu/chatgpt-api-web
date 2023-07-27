@@ -460,7 +460,9 @@ export default function ChatBOX(props: {
               disabled={showGenerating || !chatStore.apiKey}
               onClick={async () => {
                 const messageIndex = chatStore.history.length - 1;
-                chatStore.history[messageIndex].hide = true;
+                if (chatStore.history[messageIndex].role === "assistant") {
+                  chatStore.history[messageIndex].hide = true;
+                }
 
                 //chatStore.totalTokens =
                 update_total_tokens();
