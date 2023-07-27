@@ -110,25 +110,31 @@ export default function Message(props: Props) {
               className={
                 "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 pt-5 px-5 pb-20 rounded z-10"
               }
+              onClick={() => setShowEdit(false)}
             >
-              <textarea
-                className={"relative w-full h-full"}
-                value={chat.content}
-                onChange={(event: any) => {
-                  chat.content = event.target.value;
-                  chat.token = calculate_token_length(chat.content);
-                  setChatStore({ ...chatStore });
-                }}
-              ></textarea>
-              <div className={"w-full flex justify-center"}>
-                <button
-                  className={"m-2 p-1 rounded bg-green-500"}
-                  onClick={() => {
-                    setShowEdit(false);
+              <div className="w-full h-full z-20">
+                <textarea
+                  className={"w-full h-full"}
+                  value={chat.content}
+                  onClick={(event: any) => {
+                    event.stopPropagation();
                   }}
-                >
-                  Close
-                </button>
+                  onChange={(event: any) => {
+                    chat.content = event.target.value;
+                    chat.token = calculate_token_length(chat.content);
+                    setChatStore({ ...chatStore });
+                  }}
+                ></textarea>
+                <div className={"w-full flex justify-center"}>
+                  <button
+                    className={"m-2 p-1 rounded bg-green-500"}
+                    onClick={() => {
+                      setShowEdit(false);
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           )}
