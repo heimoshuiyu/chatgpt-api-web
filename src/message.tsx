@@ -1,7 +1,66 @@
-import { useState } from "preact/hooks";
-import { ChatStore } from "./app";
+import { useState, useEffect, StateUpdater } from "preact/hooks";
+import { ChatStore, ChatStoreMessage } from "./app";
 import { calculate_token_length } from "./chatgpt";
 import Markdown from "preact-markdown";
+
+interface EditMessageProps {
+  chat: ChatStoreMessage;
+  chatStore: ChatStore;
+  setShowEdit: StateUpdater<boolean>;
+  setChatStore: (cs: ChatStore) => void;
+}
+
+function EditMessage(props: EditMessageProps) {
+  const { setShowEdit, chat, setChatStore, chatStore } = props;
+  useEffect(() => {
+    const handleKeyPress = (event: any) => {
+      if (event.keyCode === 27) {
+        // keyCode for ESC key is 27
+        setShowEdit(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []); // The empty dependency array ensures that the effect runs only once
+
+  return (
+    <div
+      className={
+        "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 pt-5 px-5 pb-20 rounded z-10"
+      }
+      onClick={() => setShowEdit(false)}
+    >
+      <div className="w-full h-full z-20">
+        <textarea
+          className={"w-full h-full"}
+          value={chat.content}
+          onClick={(event: any) => {
+            event.stopPropagation();
+          }}
+          onChange={(event: any) => {
+            chat.content = event.target.value;
+            chat.token = calculate_token_length(chat.content);
+            setChatStore({ ...chatStore });
+          }}
+        ></textarea>
+        <div className={"w-full flex justify-center"}>
+          <button
+            className={"m-2 p-1 rounded bg-green-500"}
+            onClick={() => {
+              setShowEdit(false);
+            }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface Props {
   messageIndex: number;
@@ -9,6 +68,7 @@ interface Props {
   setChatStore: (cs: ChatStore) => void;
   update_total_tokens: () => void;
 }
+
 export default function Message(props: Props) {
   const { chatStore, messageIndex, setChatStore } = props;
   const chat = chatStore.history[messageIndex];
@@ -106,42 +166,12 @@ export default function Message(props: Props) {
             </div>
           </div>
           {showEdit && (
-            <div
-              className={
-                "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 pt-5 px-5 pb-20 rounded z-10"
-              }
-              onClick={() => setShowEdit(false)}
-              onKeyDown={(e: any) => {
-                if (e.keyCode === 27) {
-                  setShowEdit(false);
-                }
-              }}
-            >
-              <div className="w-full h-full z-20">
-                <textarea
-                  className={"w-full h-full"}
-                  value={chat.content}
-                  onClick={(event: any) => {
-                    event.stopPropagation();
-                  }}
-                  onChange={(event: any) => {
-                    chat.content = event.target.value;
-                    chat.token = calculate_token_length(chat.content);
-                    setChatStore({ ...chatStore });
-                  }}
-                ></textarea>
-                <div className={"w-full flex justify-center"}>
-                  <button
-                    className={"m-2 p-1 rounded bg-green-500"}
-                    onClick={() => {
-                      setShowEdit(false);
-                    }}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
+            <EditMessage
+              setShowEdit={setShowEdit}
+              chat={chat}
+              chatStore={chatStore}
+              setChatStore={setChatStore}
+            />
           )}
           {showCopiedHint && <CopiedHint />}
           {chatStore.develop_mode && (
