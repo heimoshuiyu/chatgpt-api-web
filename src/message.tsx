@@ -111,6 +111,11 @@ export default function Message(props: Props) {
                 "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 pt-5 px-5 pb-20 rounded z-10"
               }
               onClick={() => setShowEdit(false)}
+              onKeyDown={(e: any) => {
+                if (e.keyCode === 27) {
+                  setShowEdit(false);
+                }
+              }}
             >
               <div className="w-full h-full z-20">
                 <textarea
