@@ -1,12 +1,14 @@
 > 前排提示：滥用 API 或在不支持的地区调用 API 有被封号的风险 <https://github.com/zhayujie/chatgpt-on-wechat/issues/423>
-> 
+>
 > 建议自行搭建代理中转 API 请求，然后更改对话设置中的 API Endpoint 参数使用中转
 >
-> 具体反向代理搭建教程请参阅此 [>>Wiki页面<<](https://github.com/heimoshuiyu/chatgpt-api-web/wiki)
+> 具体反向代理搭建教程请参阅此 [>>Wiki 页面<<](https://github.com/heimoshuiyu/chatgpt-api-web/wiki)
 
 # ChatGPT API WEB
 
-一个简单的网页，调用 OPENAI ChatGPT 进行对话。
+ChatGPT API WEB 是为 ChatGPT 的日常用户和 Prompt 工程师设计的项目。它让你方便地在 PC 和移动端浏览器上使用 ChatGPT，并根据需要调整系统 Prompt 和修改 OpenAI 接口参数。你还可以重复生成、编辑消息（包括用户消息与 AI 消息），以更好地与 ChatGPT 进行交互。
+
+无论你是 ChatGPT 的一般用户、想要定制 ChatGPT 的用户，还是 Prompt 工程师，这个项目都能满足你的需求。
 
 ![build status](https://github.com/heimoshuiyu/chatgpt-api-web/actions/workflows/pages.yml/badge.svg)
 
@@ -14,13 +16,11 @@
 
 - API 调用速度更快更稳定
 - 对话记录、API 密钥等使用浏览器的 localStorage 保存在本地
-- 可删除对话消息
+- 可编辑并删除对话消息
 - 可以导入/导出整个历史对话记录
 - 可以设置 system message (参见官方 [API 文档](https://platform.openai.com/docs/guides/chat)) 例如：
-  - > 你是一个有用的有用的人工智能助理
   - > You are a helpful assistant
   - > 你是一个专业英语翻译，把我说的话翻译成英语，为了保持通顺连贯可以适当修改内容。
-  - > 根据我的描述给出适用于 Stable Diffusion 的 prompt 和 negative prompt，用英文回答，要求尽量长一些。
   - > 根据我的要求撰写并修改商业文案
   - > ~~你是一个猫娘，你要用猫娘的语气说话~~
 - 可以为不同对话设置不同 APIKEY
@@ -51,6 +51,8 @@
 - `sys`: system message 默认为 "你是一个猫娘，你要模仿猫娘的语气说话"
 - `api`: API Endpoint 默认为 `https://api.openai.com/v1/chat/completions`
 - `mode`: `fetch` 或 `stream` 模式，stream 模式下可以动态看到 api 返回的数据，但无法得知 token 数量，只能进行估算，在 token 数量过多时可能会裁切过多或过少历史消息
+- `dev`: true / false 开发模式，这个模式下可以看到并调整更多参数
+- `temp`: 温度，默认 0.7
 
 例如 `http://localhost:1234/?key=xxxx&api=xxxx` 那么 **新创建** 的会话将会使用该默认 API 和 API Endpoint
 
