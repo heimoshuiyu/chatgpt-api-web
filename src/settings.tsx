@@ -72,7 +72,7 @@ const Input = (props: {
   field: "apiKey" | "apiEndpoint";
   help: string;
 }) => {
-  const [hideInput, setHideInput] = useState(false);
+  const [hideInput, setHideInput] = useState(true);
   return (
     <Help help={props.help}>
       <label className="m-2 p-2">{props.field}</label>
