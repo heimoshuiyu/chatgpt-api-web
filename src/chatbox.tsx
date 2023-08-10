@@ -54,101 +54,48 @@ export default function ChatBOX(props: {
   const _completeWithStreamMode = async (response: Response) => {
     let responseTokenCount = 0;
     chatStore.streamMode = true;
-    // call api, return reponse text
-    console.log("response", response);
-    const reader = response.body?.getReader();
     const allChunkMessage: string[] = [];
-    new ReadableStream({
-      async start() {
-        let lastText = "";
-        while (true) {
-          let responseDone = false;
-          let state = await reader?.read();
-          let done = state?.done;
-          let value = state?.value;
-          if (done) break;
-          let text = lastText + new TextDecoder().decode(value);
-          // console.log("text:", text);
-          const lines = text
-            .trim()
-            .split("\n")
-            .map((line) => line.trim())
-            .filter((i) => {
-              if (!i) return false;
-              if (i === "data: [DONE]" || i === "data:[DONE]") {
-                responseDone = true;
-                responseTokenCount += 1;
-                return false;
-              }
-              return true;
-            });
-          responseTokenCount += lines.length;
-          console.log("lines", lines);
-          const jsons: ChunkMessage[] = lines
-            .map((line) => {
-              try {
-                const ret = JSON.parse(line.trim().slice("data:".length));
-                lastText = "";
-                return ret;
-              } catch (e) {
-                console.log(`Chunk parse error at: ${line}`);
-                lastText = line;
-                return null;
-              }
-            })
-            .filter((i) => i);
-          console.log("jsons", jsons);
-          for (const { model } of jsons) {
-            if (model) chatStore.responseModelName = model;
-          }
-          const chunkText = jsons
-            .map((j) => j.choices[0].delta.content ?? "")
-            .join("");
-          // console.log("chunk text", chunkText);
-          allChunkMessage.push(chunkText);
-          setShowGenerating(true);
-          setGeneratingMessage(allChunkMessage.join(""));
-          if (responseDone) break;
-        }
-        setShowGenerating(false);
+    setShowGenerating(true);
+    for await (const i of client.processStreamResponse(response)) {
+      responseTokenCount += 1;
+      allChunkMessage.push(i.choices[0].delta.content ?? "");
+      setGeneratingMessage(allChunkMessage.join(""));
+    }
+    setShowGenerating(false);
+    const content = allChunkMessage.join("");
 
-        // console.log("push to history", allChunkMessage);
-        const content = allChunkMessage.join("");
+    // estimate cost
+    let cost = 0;
+    if (chatStore.responseModelName) {
+      cost +=
+        responseTokenCount *
+        (models[chatStore.responseModelName]?.price?.completion ?? 0);
+      let sum = 0;
+      for (const msg of chatStore.history
+        .filter(({ hide }) => !hide)
+        .slice(chatStore.postBeginIndex)) {
+        sum += msg.token;
+      }
+      cost += sum * (models[chatStore.responseModelName]?.price?.prompt ?? 0);
+    }
 
-        // estimate cost
-        let cost = 0;
-        if (chatStore.responseModelName) {
-          cost +=
-            responseTokenCount *
-            (models[chatStore.responseModelName]?.price?.completion ?? 0);
-          let sum = 0;
-          for (const msg of chatStore.history
-            .filter(({ hide }) => !hide)
-            .slice(chatStore.postBeginIndex)) {
-            sum += msg.token;
-          }
-          cost +=
-            sum * (models[chatStore.responseModelName]?.price?.prompt ?? 0);
-        }
-        chatStore.cost += cost;
-        addTotalCost(cost);
+    chatStore.cost += cost;
+    addTotalCost(cost);
 
-        chatStore.history.push({
-          role: "assistant",
-          content,
-          hide: false,
-          token: responseTokenCount,
-          example: false,
-        });
-        // manually copy status from client to chatStore
-        chatStore.maxTokens = client.max_tokens;
-        chatStore.tokenMargin = client.tokens_margin;
-        update_total_tokens();
-        setChatStore({ ...chatStore });
-        setGeneratingMessage("");
-        setShowGenerating(false);
-      },
+    chatStore.history.push({
+      role: "assistant",
+      content,
+      hide: false,
+      token: responseTokenCount,
+      example: false,
     });
+    // manually copy status from client to chatStore
+    chatStore.maxTokens = client.max_tokens;
+    chatStore.tokenMargin = client.tokens_margin;
+    update_total_tokens();
+    setChatStore({ ...chatStore });
+    setGeneratingMessage("");
+    setShowGenerating(false);
   };
 
   const _completeWithFetchMode = async (response: Response) => {
