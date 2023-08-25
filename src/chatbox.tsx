@@ -32,7 +32,6 @@ export default function ChatBOX(props: {
 
   const messagesEndRef = createRef();
   useEffect(() => {
-    console.log("ref", messagesEndRef);
     messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
   }, [showRetry, showGenerating, generatingMessage]);
 
@@ -57,6 +56,7 @@ export default function ChatBOX(props: {
     const allChunkMessage: string[] = [];
     setShowGenerating(true);
     for await (const i of client.processStreamResponse(response)) {
+      chatStore.responseModelName = i.model;
       responseTokenCount += 1;
       allChunkMessage.push(i.choices[0].delta.content ?? "");
       setGeneratingMessage(allChunkMessage.join(""));
@@ -79,6 +79,7 @@ export default function ChatBOX(props: {
       cost += sum * (models[chatStore.responseModelName]?.price?.prompt ?? 0);
     }
 
+    console.log("cost", cost);
     chatStore.cost += cost;
     addTotalCost(cost);
 
