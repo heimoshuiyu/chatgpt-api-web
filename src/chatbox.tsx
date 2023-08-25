@@ -525,14 +525,15 @@ export default function ChatBOX(props: {
                 }
 
                 // build prompt
-                const prompt =
-                  chatStore.history
-                    .filter(({ hide }) => !hide)
-                    .slice(chatStore.postBeginIndex)
-                    .map(({ content }) => content)
-                    .join(" ") +
-                  " " +
-                  inputMsg;
+                const prompt = [chatStore.systemMessageContent]
+                  .concat(
+                    chatStore.history
+                      .filter(({ hide }) => !hide)
+                      .slice(chatStore.postBeginIndex)
+                      .map(({ content }) => content)
+                  )
+                  .concat([inputMsg])
+                  .join(" ");
                 console.log({ prompt });
 
                 setIsRecording("Recording");
