@@ -69,7 +69,7 @@ const LongInput = (props: {
 const Input = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  field: "apiKey" | "apiEndpoint";
+  field: "apiKey" | "apiEndpoint" | "whisper_api" | "whisper_key";
   help: string;
 }) => {
   const [hideInput, setHideInput] = useState(true);
@@ -313,6 +313,16 @@ export default (props: {
             field="frequency_penalty"
             help="frequency_penalty"
             readOnly={false}
+            {...props}
+          />
+          <Input
+            field="whisper_api"
+            help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transcptions"
+            {...props}
+          />
+          <Input
+            field="whisper_key"
+            help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
             {...props}
           />
           <div className="flex justify-between">

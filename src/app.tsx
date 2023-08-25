@@ -33,6 +33,8 @@ export interface ChatStore {
   presence_penalty: number;
   frequency_penalty: number;
   develop_mode: boolean;
+  whisper_api: string;
+  whisper_key: string;
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
@@ -43,7 +45,9 @@ const newChatStore = (
   streamMode = true,
   model = "gpt-3.5-turbo-0613",
   temperature = 1.0,
-  dev = false
+  dev = false,
+  whisper_api = "",
+  whisper_key = ""
 ): ChatStore => {
   return {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
@@ -64,6 +68,8 @@ const newChatStore = (
     presence_penalty: 0,
     frequency_penalty: 0,
     develop_mode: getDefaultParams("dev", dev),
+    whisper_api: getDefaultParams("whisper-api", whisper_api),
+    whisper_key: getDefaultParams("whisper-key", whisper_key),
   };
 };
 
@@ -194,7 +200,9 @@ export function App() {
           chatStore.streamMode,
           chatStore.model,
           chatStore.temperature,
-          !!chatStore.develop_mode
+          !!chatStore.develop_mode,
+          chatStore.whisper_api,
+          chatStore.whisper_key
         )
       )
     );

@@ -29,6 +29,8 @@ export default function ChatBOX(props: {
   const [showGenerating, setShowGenerating] = useState(false);
   const [generatingMessage, setGeneratingMessage] = useState("");
   const [showRetry, setShowRetry] = useState(false);
+  const [isRecording, setIsRecording] = useState("Mic");
+  const mediaRef = createRef();
 
   const messagesEndRef = createRef();
   useEffect(() => {
@@ -504,6 +506,98 @@ export default function ChatBOX(props: {
         >
           Send
         </button>
+        {chatStore.whisper_api &&
+          (chatStore.whisper_key || chatStore.apiKey) && (
+            <button
+              className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+              disabled={isRecording === "Transcribing"}
+              ref={mediaRef}
+              onClick={async () => {
+                if (isRecording === "Recording") {
+                  // @ts-ignore
+                  window.mediaRecorder.stop();
+                  setIsRecording("Transcribing");
+                  return;
+                }
+
+                // build prompt
+                const prompt = (
+                  chatStore.history
+                    .filter(({ hide }) => !hide)
+                    .slice(chatStore.postBeginIndex)
+                    .map(({ content }) => content)
+                    .join(" ") +
+                  " " +
+                  inputMsg
+                ).trim();
+                console.log({ prompt });
+
+                setIsRecording("Recording");
+                console.log("start recording");
+
+                const mediaRecorder = new MediaRecorder(
+                  await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                  }),
+                  { audioBitsPerSecond: 64 * 1000 }
+                );
+
+                // mount mediaRecorder to ref
+                // @ts-ignore
+                window.mediaRecorder = mediaRecorder;
+
+                mediaRecorder.start();
+                const audioChunks: Blob[] = [];
+                mediaRecorder.addEventListener("dataavailable", (event) => {
+                  audioChunks.push(event.data);
+                });
+                mediaRecorder.addEventListener("stop", async () => {
+                  setIsRecording("Transcribing");
+                  const audioBlob = new Blob(audioChunks);
+                  const audioUrl = URL.createObjectURL(audioBlob);
+                  console.log({ audioUrl });
+                  const audio = new Audio(audioUrl);
+                  // audio.play();
+                  const reader = new FileReader();
+                  reader.readAsDataURL(audioBlob);
+
+                  // file-like object with mimetype
+                  const blob = new Blob([audioBlob], {
+                    type: "application/octet-stream",
+                  });
+
+                  reader.onloadend = async () => {
+                    const base64data = reader.result;
+
+                    // post to openai whisper api
+                    const formData = new FormData();
+                    // append file
+                    formData.append("file", blob, "audio.ogx");
+                    formData.append("model", "whisper-1");
+                    formData.append("response_format", "text");
+                    formData.append("prompt", prompt);
+
+                    const response = await fetch(chatStore.whisper_api, {
+                      method: "POST",
+                      headers: {
+                        Authorization: `Bearer ${
+                          chatStore.whisper_api || chatStore.apiKey
+                        }`,
+                      },
+                      body: formData,
+                    });
+
+                    const { text } = await response.json();
+
+                    setInputMsg(inputMsg + text);
+                    setIsRecording("Mic");
+                  };
+                });
+              }}
+            >
+              {isRecording}
+            </button>
+          )}
         {chatStore.develop_mode && (
           <button
             className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
