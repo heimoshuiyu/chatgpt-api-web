@@ -26,6 +26,7 @@ ChatGPT API WEB 是为 ChatGPT 的日常用户和 Prompt 工程师设计的项�
 - 可以为不同对话设置不同 APIKEY
 - 小（整个网页 30k 左右）
 - 可以设置不同的 API Endpoint（方便墙内人士使用反向代理转发 API 请求）
+- 支持 Whisper 语音转文字输入，将会使用历史对话记录和当前输入框内的文本作为 Prompt，提高专有名词识别率
 
 ## 屏幕截图
 
@@ -53,6 +54,8 @@ ChatGPT API WEB 是为 ChatGPT 的日常用户和 Prompt 工程师设计的项�
 - `mode`: `fetch` 或 `stream` 模式，stream 模式下可以动态看到 api 返回的数据，但无法得知 token 数量，只能进行估算，在 token 数量过多时可能会裁切过多或过少历史消息
 - `dev`: true / false 开发模式，这个模式下可以看到并调整更多参数
 - `temp`: 温度，默认 0.7
+- `whisper-api`: Whisper 语音转文字服务 API, 只有设置了此值后才会显示语音转文字按钮
+- `whisper-key`: 用于 Whisper 服务的 key，如果留空则默认使用上方的 OPENAI API KEY
 
 例如 `http://localhost:1234/?key=xxxx&api=xxxx` 那么 **新创建** 的会话将会使用该默认 API 和 API Endpoint
 
