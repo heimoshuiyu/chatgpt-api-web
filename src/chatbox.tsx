@@ -571,30 +571,36 @@ export default function ChatBOX(props: {
                     });
 
                     reader.onloadend = async () => {
-                      const base64data = reader.result;
+                      try {
+                        const base64data = reader.result;
 
-                      // post to openai whisper api
-                      const formData = new FormData();
-                      // append file
-                      formData.append("file", blob, "audio.ogx");
-                      formData.append("model", "whisper-1");
-                      formData.append("response_format", "text");
-                      formData.append("prompt", prompt);
+                        // post to openai whisper api
+                        const formData = new FormData();
+                        // append file
+                        formData.append("file", blob, "audio.ogx");
+                        formData.append("model", "whisper-1");
+                        formData.append("response_format", "text");
+                        formData.append("prompt", prompt);
 
-                      const response = await fetch(chatStore.whisper_api, {
-                        method: "POST",
-                        headers: {
-                          Authorization: `Bearer ${
-                            chatStore.whisper_api || chatStore.apiKey
-                          }`,
-                        },
-                        body: formData,
-                      });
+                        const response = await fetch(chatStore.whisper_api, {
+                          method: "POST",
+                          headers: {
+                            Authorization: `Bearer ${
+                              chatStore.whisper_api || chatStore.apiKey
+                            }`,
+                          },
+                          body: formData,
+                        });
 
-                      const { text } = await response.json();
+                        const { text } = await response.json();
 
-                      setInputMsg(inputMsg ? inputMsg + " " + text : text);
-                      setIsRecording("Mic");
+                        setInputMsg(inputMsg ? inputMsg + " " + text : text);
+                      } catch (error) {
+                        alert(error);
+                        console.log(error);
+                      } finally {
+                        setIsRecording("Mic");
+                      }
                     };
                   });
                 } catch (error) {
