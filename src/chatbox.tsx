@@ -592,7 +592,7 @@ export default function ChatBOX(props: {
                           body: formData,
                         });
 
-                        const { text } = await response.json();
+                        const text = await response.text();
 
                         setInputMsg(inputMsg ? inputMsg + " " + text : text);
                       } catch (error) {
