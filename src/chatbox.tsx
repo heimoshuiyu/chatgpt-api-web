@@ -577,7 +577,7 @@ export default function ChatBOX(props: {
                         // post to openai whisper api
                         const formData = new FormData();
                         // append file
-                        formData.append("file", blob, "audio.ogx");
+                        formData.append("file", blob, "audio.ogg");
                         formData.append("model", "whisper-1");
                         formData.append("response_format", "text");
                         formData.append("prompt", prompt);
