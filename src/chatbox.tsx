@@ -509,7 +509,11 @@ export default function ChatBOX(props: {
         {chatStore.whisper_api &&
           (chatStore.whisper_key || chatStore.apiKey) && (
             <button
-              className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+              className={`disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 ${
+                isRecording === "Recording"
+                  ? "bg-red-400 hover:bg-red-600"
+                  : "bg-cyan-400 hover:bg-cyan-600"
+              } ${isRecording !== "Mic" ? "animate-pulse" : ""}`}
               disabled={isRecording === "Transcribing"}
               ref={mediaRef}
               onClick={async () => {
@@ -521,78 +525,83 @@ export default function ChatBOX(props: {
                 }
 
                 // build prompt
-                const prompt = (
+                const prompt =
                   chatStore.history
                     .filter(({ hide }) => !hide)
                     .slice(chatStore.postBeginIndex)
                     .map(({ content }) => content)
                     .join(" ") +
                   " " +
-                  inputMsg
-                ).trim();
+                  inputMsg;
                 console.log({ prompt });
 
                 setIsRecording("Recording");
                 console.log("start recording");
 
-                const mediaRecorder = new MediaRecorder(
-                  await navigator.mediaDevices.getUserMedia({
-                    audio: true,
-                  }),
-                  { audioBitsPerSecond: 64 * 1000 }
-                );
+                try {
+                  const mediaRecorder = new MediaRecorder(
+                    await navigator.mediaDevices.getUserMedia({
+                      audio: true,
+                    }),
+                    { audioBitsPerSecond: 64 * 1000 }
+                  );
 
-                // mount mediaRecorder to ref
-                // @ts-ignore
-                window.mediaRecorder = mediaRecorder;
+                  // mount mediaRecorder to ref
+                  // @ts-ignore
+                  window.mediaRecorder = mediaRecorder;
 
-                mediaRecorder.start();
-                const audioChunks: Blob[] = [];
-                mediaRecorder.addEventListener("dataavailable", (event) => {
-                  audioChunks.push(event.data);
-                });
-                mediaRecorder.addEventListener("stop", async () => {
-                  setIsRecording("Transcribing");
-                  const audioBlob = new Blob(audioChunks);
-                  const audioUrl = URL.createObjectURL(audioBlob);
-                  console.log({ audioUrl });
-                  const audio = new Audio(audioUrl);
-                  // audio.play();
-                  const reader = new FileReader();
-                  reader.readAsDataURL(audioBlob);
-
-                  // file-like object with mimetype
-                  const blob = new Blob([audioBlob], {
-                    type: "application/octet-stream",
+                  mediaRecorder.start();
+                  const audioChunks: Blob[] = [];
+                  mediaRecorder.addEventListener("dataavailable", (event) => {
+                    audioChunks.push(event.data);
                   });
+                  mediaRecorder.addEventListener("stop", async () => {
+                    setIsRecording("Transcribing");
+                    const audioBlob = new Blob(audioChunks);
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    console.log({ audioUrl });
+                    const audio = new Audio(audioUrl);
+                    // audio.play();
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
 
-                  reader.onloadend = async () => {
-                    const base64data = reader.result;
-
-                    // post to openai whisper api
-                    const formData = new FormData();
-                    // append file
-                    formData.append("file", blob, "audio.ogx");
-                    formData.append("model", "whisper-1");
-                    formData.append("response_format", "text");
-                    formData.append("prompt", prompt);
-
-                    const response = await fetch(chatStore.whisper_api, {
-                      method: "POST",
-                      headers: {
-                        Authorization: `Bearer ${
-                          chatStore.whisper_api || chatStore.apiKey
-                        }`,
-                      },
-                      body: formData,
+                    // file-like object with mimetype
+                    const blob = new Blob([audioBlob], {
+                      type: "application/octet-stream",
                     });
 
-                    const { text } = await response.json();
+                    reader.onloadend = async () => {
+                      const base64data = reader.result;
 
-                    setInputMsg(inputMsg + text);
-                    setIsRecording("Mic");
-                  };
-                });
+                      // post to openai whisper api
+                      const formData = new FormData();
+                      // append file
+                      formData.append("file", blob, "audio.ogx");
+                      formData.append("model", "whisper-1");
+                      formData.append("response_format", "text");
+                      formData.append("prompt", prompt);
+
+                      const response = await fetch(chatStore.whisper_api, {
+                        method: "POST",
+                        headers: {
+                          Authorization: `Bearer ${
+                            chatStore.whisper_api || chatStore.apiKey
+                          }`,
+                        },
+                        body: formData,
+                      });
+
+                      const { text } = await response.json();
+
+                      setInputMsg(inputMsg ? inputMsg + " " + text : text);
+                      setIsRecording("Mic");
+                    };
+                  });
+                } catch (error) {
+                  alert(error);
+                  console.log(error);
+                  setIsRecording("Mic");
+                }
               }}
             >
               {isRecording}
