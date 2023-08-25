@@ -193,7 +193,7 @@ export function App() {
           chatStore.apiEndpoint,
           chatStore.streamMode,
           chatStore.model,
-          1.0,
+          chatStore.temperature,
           !!chatStore.develop_mode
         )
       )
