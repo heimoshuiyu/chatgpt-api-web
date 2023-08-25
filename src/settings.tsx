@@ -317,7 +317,7 @@ export default (props: {
           />
           <Input
             field="whisper_api"
-            help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transcptions"
+            help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
             {...props}
           />
           <Input
