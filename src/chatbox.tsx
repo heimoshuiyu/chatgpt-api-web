@@ -363,10 +363,6 @@ export default function ChatBOX(props: {
             <br />
             ⚙Model: {chatStore.model}
             <br />
-            ⚙Key: {chatStore.apiKey}
-            <br />
-            ⚙Endpoint: {chatStore.apiEndpoint}
-            <br />
             ⬆点击上方更改此对话的参数（请勿泄漏）
             <br />
             ↖点击左上角 NEW 新建对话
