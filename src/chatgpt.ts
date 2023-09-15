@@ -63,7 +63,7 @@ class Chat {
       top_p = 1,
       presence_penalty = 0,
       frequency_penalty = 0,
-    } = {},
+    } = {}
   ) {
     if (OPENAI_API_KEY === undefined) {
       throw "OPENAI_API_KEY is undefined";
@@ -95,14 +95,14 @@ class Chat {
       }
       if (msg.role === "system") {
         console.log(
-          "Warning: detected system message in the middle of history",
+          "Warning: detected system message in the middle of history"
         );
       }
     }
     for (const msg of this.messages) {
       if (msg.name && msg.role !== "system") {
         console.log(
-          "Warning: detected message where name field set but role is system",
+          "Warning: detected message where name field set but role is system"
         );
       }
     }
@@ -126,7 +126,6 @@ class Chat {
       }),
     });
   }
-
 
   async fetch(): Promise<FetchResponse> {
     const resp = await this._fetch();
@@ -170,7 +169,7 @@ class Chat {
       const jsons: ChunkMessage[] = lines
         .map((line) => {
           try {
-            const ret = JSON.parse(line.trim());
+            const ret = JSON.parse(lastText + line.trim());
             lastText = "";
             return ret;
           } catch (e) {
