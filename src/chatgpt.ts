@@ -149,39 +149,32 @@ class Chat {
       return;
     }
     let receiving = true;
+    let buffer = "";
     while (receiving) {
-      let lastText = "";
       const { value, done } = await reader.read();
       if (done) break;
-      const lines = (lastText + value)
+
+      buffer += value;
+      console.log("begin buffer", buffer);
+      if (!buffer.includes("\n")) continue;
+      const lines = buffer
         .trim()
         .split("\n")
         .filter((line) => line.trim())
-        .map((line) => line.slice("data:".length))
-        .map((line) => line.trim())
-        .filter((i) => {
-          if (i === "[DONE]") {
-            receiving = false;
-            return false;
-          }
-          return true;
-        });
-      const jsons: ChunkMessage[] = lines
-        .map((line) => {
-          try {
-            const ret = JSON.parse(lastText + line.trim());
-            lastText = "";
-            return ret;
-          } catch (e) {
-            console.log(`Chunk parse error at: ${line}`);
-            lastText = line;
-            return null;
-          }
-        })
-        .filter((i) => i.choices[0].delta.content);
+        .map((line) => line.trim());
 
-      for (const j of jsons) {
-        yield j;
+      buffer = "";
+
+      for (const line of lines) {
+        console.log("line", line);
+        try {
+          const jsonStr = line.slice("data:".length).trim();
+          const json = JSON.parse(jsonStr);
+          yield json;
+        } catch (e) {
+          console.log(`Chunk parse error at: ${line}`);
+          buffer += line;
+        }
       }
     }
   }
