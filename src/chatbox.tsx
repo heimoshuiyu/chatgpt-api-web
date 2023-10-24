@@ -187,7 +187,7 @@ export default function ChatBOX(props: {
       const contentType = response.headers.get("content-type");
       if (contentType?.startsWith("text/event-stream")) {
         await _completeWithStreamMode(response);
-      } else if (contentType === "application/json") {
+      } else if (contentType?.startsWith("application/json")) {
         await _completeWithFetchMode(response);
       } else {
         throw `unknown response content type ${contentType}`;
@@ -211,7 +211,7 @@ export default function ChatBOX(props: {
 
   // when user click the "send" button or ctrl+Enter in the textarea
   const send = async (msg = "") => {
-    const inputMsg = msg;
+    const inputMsg = msg.trim();
     if (!inputMsg) {
       console.log("empty message");
       return;
