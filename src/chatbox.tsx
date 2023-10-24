@@ -1,7 +1,13 @@
 import structuredClone from "@ungap/structured-clone";
 import { createRef } from "preact";
 import { StateUpdater, useEffect, useState } from "preact/hooks";
-import { ChatStore, STORAGE_NAME_TEMPLATE, addTotalCost } from "./app";
+import {
+  ChatStore,
+  STORAGE_NAME_TEMPLATE,
+  STORAGE_NAME_TEMPLATE_API,
+  TemplateAPI,
+  addTotalCost,
+} from "./app";
 import ChatGPT, {
   calculate_token_length,
   ChunkMessage,
@@ -233,9 +239,21 @@ export default function ChatBOX(props: {
       localStorage.getItem(STORAGE_NAME_TEMPLATE) || "[]"
     ) as TemplateChatStore[]
   );
+  const [templateAPIs, _setTemplateAPIs] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API) || "[]"
+    ) as TemplateAPI[]
+  );
   const setTemplates = (templates: TemplateChatStore[]) => {
     localStorage.setItem(STORAGE_NAME_TEMPLATE, JSON.stringify(templates));
     _setTemplates(templates);
+  };
+  const setTemplateAPIs = (templateAPIs: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API,
+      JSON.stringify(templateAPIs)
+    );
+    _setTemplateAPIs(templateAPIs);
   };
 
   return (
@@ -248,6 +266,8 @@ export default function ChatBOX(props: {
           selectedChatStoreIndex={props.selectedChatIndex}
           templates={templates}
           setTemplates={setTemplates}
+          templateAPIs={templateAPIs}
+          setTemplateAPIs={setTemplateAPIs}
         />
       )}
       <p
@@ -294,6 +314,63 @@ export default function ChatBOX(props: {
         {!chatStore.apiEndpoint && (
           <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
             请先在上方设置 API Endpoint
+          </p>
+        )}
+        {(chatStore.history.filter((msg) => !msg.example).length == 0 ||
+          !chatStore.apiEndpoint ||
+          !chatStore.apiKey) && (
+          <p className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
+            <h2>已保存的 API 模板</h2>
+            <hr className="my-2" />
+            <div className="flex flex-wrap">
+              {templateAPIs.map((t, index) => (
+                <div
+                  className={`cursor-pointer rounded ${
+                    chatStore.apiEndpoint === t.endpoint &&
+                    chatStore.apiKey === t.key
+                      ? "bg-red-600"
+                      : "bg-red-400"
+                  } w-fit p-2 m-1 flex flex-col`}
+                  onClick={() => {
+                    chatStore.apiEndpoint = t.endpoint;
+                    chatStore.apiKey = t.key;
+                    setChatStore({ ...chatStore });
+                  }}
+                >
+                  <span className="w-full text-center">{t.name}</span>
+                  <hr className="mt-2" />
+                  <span className="flex justify-between">
+                    <button
+                      onClick={() => {
+                        const name = prompt("Give **API** template a name");
+                        if (!name) {
+                          return;
+                        }
+                        t.name = name;
+                        setTemplateAPIs(structuredClone(templateAPIs));
+                      }}
+                    >
+                      🖋
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (
+                          !confirm(
+                            "Are you sure to delete this **API** template?"
+                          )
+                        ) {
+                          return;
+                        }
+                        templateAPIs.splice(index, 1);
+                        setTemplateAPIs(structuredClone(templateAPIs));
+                      }}
+                    >
+                      ❌
+                    </button>
+                  </span>
+                </div>
+              ))}
+            </div>
           </p>
         )}
         {templates.length > 0 &&
@@ -461,6 +538,18 @@ export default function ChatBOX(props: {
             。
             <br />
             v1.4.0 增加了更多参数，继续使用旧版可能因参数确实导致未定义的行为
+            <br />
+            请在左上角创建新会话：）
+          </p>
+        )}
+        {chatStore.chatgpt_api_web_version < "v1.6.0" && (
+          <p className="p-2 my-2 text-center dark:text-white">
+            <br />
+            提示：当前会话版本 {chatStore.chatgpt_api_web_version} {"< v1.6.0"}
+            。
+            <br />
+            v1.6.0 开始保存会话模板时会将 apiKey 和 apiEndpoint
+            设置为空，继续使用旧版可能在保存读取模板时出现问题
             <br />
             请在左上角创建新会话：）
           </p>

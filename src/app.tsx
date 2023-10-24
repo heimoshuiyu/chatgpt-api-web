@@ -14,6 +14,11 @@ export interface ChatStoreMessage extends Message {
   example: boolean;
 }
 
+export interface TemplateAPI {
+  name: string;
+  key: string;
+  endpoint: string;
+}
 export interface ChatStore {
   chatgpt_api_web_version: string;
   systemMessageContent: string;
@@ -78,6 +83,7 @@ const STORAGE_NAME_SELECTED = `${STORAGE_NAME}-selected`;
 const STORAGE_NAME_INDEXES = `${STORAGE_NAME}-indexes`;
 const STORAGE_NAME_TOTALCOST = `${STORAGE_NAME}-totalcost`;
 export const STORAGE_NAME_TEMPLATE = `${STORAGE_NAME}-template`;
+export const STORAGE_NAME_TEMPLATE_API = `${STORAGE_NAME_TEMPLATE}-api`;
 
 export function addTotalCost(cost: number) {
   let totalCost = getTotalCost();

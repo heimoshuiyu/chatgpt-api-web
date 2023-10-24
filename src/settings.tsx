@@ -1,6 +1,6 @@
 import { createRef } from "preact";
 import { StateUpdater, useEffect, useState } from "preact/hooks";
-import { ChatStore, clearTotalCost, getTotalCost } from "./app";
+import { ChatStore, TemplateAPI, clearTotalCost, getTotalCost } from "./app";
 import models from "./models";
 import { TemplateChatStore } from "./chatbox";
 
@@ -158,6 +158,8 @@ export default (props: {
   selectedChatStoreIndex: number;
   templates: TemplateChatStore[];
   setTemplates: (templates: TemplateChatStore[]) => void;
+  templateAPIs: TemplateAPI[];
+  setTemplateAPIs: (templateAPIs: TemplateAPI[]) => void;
 }) => {
   let link =
     location.protocol +
@@ -371,6 +373,9 @@ export default (props: {
                 }
                 const tmp: ChatStore = structuredClone(props.chatStore);
                 tmp.history = tmp.history.filter((h) => h.example);
+                // clear api because it is stored in the API template
+                tmp.apiEndpoint = "";
+                tmp.apiKey = "";
                 // @ts-ignore
                 tmp.name = name;
                 props.templates.push(tmp as TemplateChatStore);
@@ -378,6 +383,25 @@ export default (props: {
               }}
             >
               As template
+            </button>
+            <button
+              className="p-2 m-2 rounded bg-amber-500"
+              onClick={() => {
+                const name = prompt("Give this **API** template a name:");
+                if (!name) {
+                  alert("No template name specified");
+                  return;
+                }
+                const tmp: TemplateAPI = {
+                  name,
+                  endpoint: props.chatStore.apiEndpoint,
+                  key: props.chatStore.apiKey,
+                };
+                props.templateAPIs.push(tmp);
+                props.setTemplateAPIs([...props.templateAPIs]);
+              }}
+            >
+              As API Template
             </button>
             <button
               className="p-2 m-2 rounded bg-amber-500"
