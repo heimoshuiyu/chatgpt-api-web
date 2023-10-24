@@ -54,7 +54,7 @@ class Chat {
   constructor(
     OPENAI_API_KEY: string | undefined,
     {
-      systemMessage = "你是一个有用的人工智能助理",
+      systemMessage = "",
       max_tokens = 4096,
       tokens_margin = 1024,
       apiEndPoint = "https://api.openai.com/v1/chat/completions",
@@ -106,6 +106,11 @@ class Chat {
         );
       }
     }
+    const messages = [];
+    if (this.sysMessageContent.trim()) {
+      messages.push({ role: "system", content: this.sysMessageContent });
+    }
+    messages.push(...this.messages);
     return fetch(this.apiEndpoint, {
       method: "POST",
       headers: {
@@ -114,10 +119,7 @@ class Chat {
       },
       body: JSON.stringify({
         model: this.model,
-        messages: [
-          { role: "system", content: this.sysMessageContent },
-          ...this.messages,
-        ],
+        messages,
         stream,
         temperature: this.temperature,
         top_p: this.top_p,
