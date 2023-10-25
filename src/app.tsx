@@ -306,6 +306,29 @@ export function App() {
         >
           {Tr("DEL")}
         </button>
+        {chatStore.develop_mode && (
+          <button
+            className="rounded bg-rose-800 p-1 my-1 w-full text-white"
+            onClick={() => {
+              if (
+                !confirm(
+                  "Are you sure you want to delete **ALL** chat history?"
+                )
+              )
+                return;
+              for (const i of allChatStoreIndexes) {
+                console.log("remove item", `${STORAGE_NAME}-${i}`);
+                localStorage.removeItem(`${STORAGE_NAME}-${i}`);
+              }
+              setAllChatStoreIndexes([]);
+              setSelectedChatIndex(0);
+              // reload page
+              window.location.reload();
+            }}
+          >
+            {Tr("CLS")}
+          </button>
+        )}
       </div>
       <ChatBOX
         chatStore={chatStore}
