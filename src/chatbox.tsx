@@ -271,7 +271,7 @@ export default function ChatBOX(props: {
           setTemplateAPIs={setTemplateAPIs}
         />
       )}
-      <p
+      <div
         className="cursor-pointer rounded bg-cyan-300 dark:text-white p-1 dark:bg-cyan-800"
         onClick={() => setShowSettings(true)}
       >
@@ -305,7 +305,7 @@ export default function ChatBOX(props: {
             <span className="underline">${chatStore.cost.toFixed(4)}</span>
           </span>
         </div>
-      </p>
+      </div>
       <div className="grow overflow-scroll">
         {!chatStore.apiKey && (
           <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
