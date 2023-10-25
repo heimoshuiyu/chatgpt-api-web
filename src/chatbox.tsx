@@ -318,7 +318,8 @@ export default function ChatBOX(props: {
           </p>
         )}
         {templateAPIs.length > 0 &&
-          (chatStore.history.filter((msg) => !msg.example).length == 0 ||
+          (chatStore.develop_mode ||
+            chatStore.history.filter((msg) => !msg.example).length == 0 ||
             !chatStore.apiEndpoint ||
             !chatStore.apiKey) && (
             <p className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
