@@ -1,3 +1,4 @@
+import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 import structuredClone from "@ungap/structured-clone";
 import { createRef } from "preact";
 import { StateUpdater, useEffect, useState } from "preact/hooks";
@@ -281,7 +282,7 @@ export default function ChatBOX(props: {
               : chatStore.systemMessageContent}
           </button>{" "}
           <button className="underline">
-            {chatStore.streamMode ? "STREAM" : "FETCH"}
+            {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
           </button>
         </div>
         <div className="text-xs">
@@ -293,14 +294,14 @@ export default function ChatBOX(props: {
             </span>
           </span>{" "}
           <span>
-            Cut:{" "}
+            {Tr("Cut")}:{" "}
             <span className="underline">
               {chatStore.postBeginIndex}/
               {chatStore.history.filter(({ hide }) => !hide).length}
             </span>{" "}
           </span>{" "}
           <span>
-            Cost:{" "}
+            {Tr("Cost")}:{" "}
             <span className="underline">${chatStore.cost.toFixed(4)}</span>
           </span>
         </div>
@@ -308,12 +309,12 @@ export default function ChatBOX(props: {
       <div className="grow overflow-scroll">
         {!chatStore.apiKey && (
           <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
-            请先在上方设置 (OPENAI) API KEY
+            {Tr("Please click above to set")} (OpenAI) API KEY
           </p>
         )}
         {!chatStore.apiEndpoint && (
           <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
-            请先在上方设置 API Endpoint
+            {Tr("Please click above to set")} API Endpoint
           </p>
         )}
         {templateAPIs.length > 0 &&
@@ -321,7 +322,7 @@ export default function ChatBOX(props: {
             !chatStore.apiEndpoint ||
             !chatStore.apiKey) && (
             <p className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
-              <h2>已保存的 API 模板</h2>
+              <h2>{Tr("Saved API templates")}</h2>
               <hr className="my-2" />
               <div className="flex flex-wrap">
                 {templateAPIs.map((t, index) => (
@@ -377,7 +378,7 @@ export default function ChatBOX(props: {
         {templates.length > 0 &&
           chatStore.history.filter((msg) => !msg.example).length == 0 && (
             <p className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
-              <h2>Templates</h2>
+              <h2>{Tr("Saved prompt templates")}</h2>
               <hr className="my-2" />
               <div className="flex flex-wrap">
                 {templates.map((t, index) => (
@@ -439,21 +440,15 @@ export default function ChatBOX(props: {
           )}
         {chatStore.history.length === 0 && (
           <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
-            暂无历史对话记录
-            <br />
-            ⚙Model: {chatStore.model}
-            <br />
-            ⬆点击上方更改此对话的参数（请勿泄漏）
-            <br />
-            ↖点击左上角 NEW 新建对话
-            <br />
-            请注意，使用 ChatGPT API
-            的生成文本质量和速度会受到会话上下文的影响，同时历史上下文过长会被裁切。API
-            会根据发送的上下文总量进行计费，因此建议您为不相关的问题或者不需要上文的问题创建新的对话，以避免不必要的计费。
-            <br />
-            ⚠所有历史对话与参数储存在浏览器本地
-            <br />
-            ⚠详细文档与源代码:{" "}
+            {Tr("No chat history here")}
+            <br />⚙{Tr("Model")}: {chatStore.model}
+            <br />⬆{Tr("Click above to change the settings of this chat")}
+            <br />↖{Tr("Click the conor to create a new chat")}
+            <br />⚠
+            {Tr(
+              "All chat history and settings are stored in the local browser"
+            )}
+            <br />⚠{Tr("Documents and source code are avaliable here")}:{" "}
             <a
               className="underline"
               href="https://github.com/heimoshuiyu/chatgpt-api-web"
@@ -473,7 +468,7 @@ export default function ChatBOX(props: {
         ))}
         {showGenerating && (
           <p className="p-2 my-2 animate-pulse dark:text-white message-content">
-            {generatingMessage || "生成中，最长可能需要一分钟，请保持网络稳定"}
+            {generatingMessage || Tr("Generating...")}
             ...
           </p>
         )}
@@ -495,7 +490,7 @@ export default function ChatBOX(props: {
                 await complete();
               }}
             >
-              Re-Generate
+              {Tr("Re-Generate")}
             </button>
           )}
           {chatStore.develop_mode && chatStore.history.length > 0 && (
@@ -506,25 +501,29 @@ export default function ChatBOX(props: {
                 await complete();
               }}
             >
-              Completion
+              {Tr("Completion")}
             </button>
           )}
         </p>
         <p className="p-2 my-2 text-center opacity-50 dark:text-white">
           {chatStore.responseModelName && (
-            <>Generated by {chatStore.responseModelName}</>
+            <>
+              {Tr("Generated by")} {chatStore.responseModelName}
+            </>
           )}
           {chatStore.postBeginIndex !== 0 && (
             <>
               <br />
-              提示：会话过长，已裁切前 {chatStore.postBeginIndex} 条消息
+              {Tr("Info: chat history is too long, forget messages")}:{" "}
+              {chatStore.postBeginIndex}
             </>
           )}
         </p>
         {chatStore.chatgpt_api_web_version < "v1.3.0" && (
           <p className="p-2 my-2 text-center dark:text-white">
             <br />
-            提示：当前会话版本 {chatStore.chatgpt_api_web_version}。
+            {Tr("Warning: current chatStore version")}:{" "}
+            {chatStore.chatgpt_api_web_version} {"< v1.3.0"}
             <br />
             v1.3.0
             引入与旧版不兼容的消息裁切算法。继续使用旧版可能会导致消息裁切过多或过少（表现为失去上下文或输出不完整）。
@@ -535,8 +534,8 @@ export default function ChatBOX(props: {
         {chatStore.chatgpt_api_web_version < "v1.4.0" && (
           <p className="p-2 my-2 text-center dark:text-white">
             <br />
-            提示：当前会话版本 {chatStore.chatgpt_api_web_version} {"< v1.4.0"}
-            。
+            {Tr("Warning: current chatStore version")}:{" "}
+            {chatStore.chatgpt_api_web_version} {"< v1.4.0"}
             <br />
             v1.4.0 增加了更多参数，继续使用旧版可能因参数确实导致未定义的行为
             <br />
@@ -546,7 +545,9 @@ export default function ChatBOX(props: {
         {chatStore.chatgpt_api_web_version < "v1.6.0" && (
           <p className="p-2 my-2 text-center dark:text-white">
             <br />
-            提示：当前会话版本 {chatStore.chatgpt_api_web_version} {"< v1.6.0"}
+            提示：当前会话版本 {chatStore.chatgpt_api_web_version}
+            {Tr("Warning: current chatStore version")}:{" "}
+            {chatStore.chatgpt_api_web_version} {"< v1.6.0"}
             。
             <br />
             v1.6.0 开始保存会话模板时会将 apiKey 和 apiEndpoint
@@ -564,7 +565,7 @@ export default function ChatBOX(props: {
                 await complete();
               }}
             >
-              Retry
+              {Tr("Retry")}
             </button>
           </p>
         )}
@@ -594,7 +595,7 @@ export default function ChatBOX(props: {
             send(inputMsg);
           }}
         >
-          Send
+          {Tr("Send")}
         </button>
         {chatStore.whisper_api &&
           (chatStore.whisper_key || chatStore.apiKey) && (
@@ -721,7 +722,7 @@ export default function ChatBOX(props: {
               setChatStore({ ...chatStore });
             }}
           >
-            Assistant
+            {Tr("Assistant")}
           </button>
         )}
         {chatStore.develop_mode && (
@@ -741,7 +742,7 @@ export default function ChatBOX(props: {
               setChatStore({ ...chatStore });
             }}
           >
-            User
+            {Tr("User")}
           </button>
         )}
       </div>

@@ -5,6 +5,7 @@ import { calculate_token_length, Message } from "./chatgpt";
 import getDefaultParams from "./getDefaultParam";
 import ChatBOX from "./chatbox";
 import models from "./models";
+import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 
 import CHATGPT_API_WEB_VERSION from "./CHATGPT_API_WEB_VERSION";
 
@@ -245,7 +246,7 @@ export function App() {
             className="bg-violet-300 p-1 rounded hover:bg-violet-400"
             onClick={handleNewChatStore}
           >
-            NEW
+            {Tr("NEW")}
           </button>
           <ul>
             {allChatStoreIndexes
@@ -303,7 +304,7 @@ export function App() {
             setAllChatStoreIndexes([...newAllChatStoreIndexes]);
           }}
         >
-          DEL
+          {Tr("DEL")}
         </button>
       </div>
       <ChatBOX

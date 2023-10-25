@@ -1,3 +1,4 @@
+import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 import { useState, useEffect, StateUpdater } from "preact/hooks";
 import { ChatStore, ChatStoreMessage } from "./app";
 import { calculate_token_length } from "./chatgpt";
@@ -54,7 +55,7 @@ function EditMessage(props: EditMessageProps) {
               setShowEdit(false);
             }}
           >
-            Close
+            {Tr("Close")}
           </button>
         </div>
       </div>
@@ -101,7 +102,7 @@ export default function Message(props: Props) {
         "bg-purple-400 p-1 rounded shadow-md absolute z-20 left-1/2 top-3/4 transform -translate-x-1/2 -translate-y-1/2"
       }
     >
-      Message Copied to clipboard!
+      {Tr("Message copied to clipboard!")}
     </span>
   );
 
@@ -212,13 +213,13 @@ export default function Message(props: Props) {
                   setChatStore({ ...chatStore });
                 }}
               >
-                <label className="dark:text-white">example</label>
+                <label className="dark:text-white">{Tr("example")}</label>
                 <input type="checkbox" checked={chat.example} />
               </span>
               <span
                 onClick={(event: any) => setRenderWorkdown(!renderMarkdown)}
               >
-                <label className="dark:text-white">render</label>
+                <label className="dark:text-white">{Tr("render")}</label>
                 <input type="checkbox" checked={renderMarkdown} />
               </span>
             </div>

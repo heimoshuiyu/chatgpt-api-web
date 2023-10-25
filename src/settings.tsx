@@ -1,8 +1,9 @@
 import { createRef } from "preact";
-import { StateUpdater, useEffect, useState } from "preact/hooks";
+import { StateUpdater, useContext, useEffect, useState } from "preact/hooks";
 import { ChatStore, TemplateAPI, clearTotalCost, getTotalCost } from "./app";
 import models from "./models";
 import { TemplateChatStore } from "./chatbox";
+import { tr, Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 
 const Help = (props: { children: any; help: string }) => {
   return (
@@ -95,6 +96,43 @@ const Input = (props: {
     </Help>
   );
 };
+
+const Slicer = (props: {
+  chatStore: ChatStore;
+  setChatStore: (cs: ChatStore) => void;
+  field: "temperature";
+  help: string;
+}) => {
+  return (
+    <Help help={props.help}>
+      <label className="m-2 p-2">{props.field}</label>
+      <span>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={props.chatStore[props.field]}
+          onChange={(event: any) => {
+            const value = parseFloat(event.target.value);
+            props.chatStore[props.field] = value;
+            props.setChatStore({ ...props.chatStore });
+          }}
+        />
+        <input
+          type="number"
+          value={props.chatStore[props.field]}
+          onChange={(event: any) => {
+            const value = parseFloat(event.target.value);
+            props.chatStore[props.field] = value;
+            props.setChatStore({ ...props.chatStore });
+          }}
+        />
+      </span>
+    </Help>
+  );
+};
+
 const Number = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
@@ -103,7 +141,6 @@ const Number = (props: {
     | "maxTokens"
     | "tokenMargin"
     | "postBeginIndex"
-    | "temperature"
     | "top_p"
     | "presence_penalty"
     | "frequency_penalty";
@@ -179,6 +216,8 @@ export default (props: {
 
   const importFileRef = createRef();
   const [totalCost, setTotalCost] = useState(getTotalCost());
+  // @ts-ignore
+  const { langCode, setLangCode } = useContext(langCodeContext);
 
   useEffect(() => {
     const handleKeyPress = (event: any) => {
@@ -206,26 +245,38 @@ export default (props: {
         }}
         className="m-2 p-2 bg-white rounded-lg h-fit lg:w-2/3 z-20"
       >
-        <h3 className="text-xl text-center">Settings</h3>
+        <h3 className="text-xl text-center">
+          <span>{Tr("Settings")}</span>
+          <select>
+            {Object.keys(LANG_OPTIONS).map((opt) => (
+              <option
+                value={opt}
+                selected={opt === (langCodeContext as any).langCode}
+                onClick={(event: any) => {
+                  console.log("set lang code", event.target.value);
+                  setLangCode(event.target.value);
+                }}
+              >
+                {LANG_OPTIONS[opt].name}
+              </option>
+            ))}
+          </select>
+        </h3>
         <hr />
         <div className="flex justify-between">
           <button
             className="p-2 m-2 rounded bg-purple-600 text-white"
             onClick={() => {
               navigator.clipboard.writeText(link);
-              alert(`Copied link: ${link}`);
+              alert(tr(`Copied link:`, langCode) + `${link}`);
             }}
           >
-            Copy Link
+            {Tr("Copy Setting Link")}
           </button>
           <button
             className="p-2 m-2 rounded bg-rose-600 text-white"
             onClick={() => {
-              if (
-                !confirm(
-                  `Are you sure to clear all ${props.chatStore.history.length} messages?`
-                )
-              )
+              if (!confirm(tr("Are you sure to clear all history?", langCode)))
                 return;
               props.chatStore.history = props.chatStore.history.filter(
                 (msg) => msg.example && !msg.hide
@@ -234,7 +285,7 @@ export default (props: {
               props.setChatStore({ ...props.chatStore });
             }}
           >
-            Clear History
+            {Tr("Clear History")}
           </button>
           <button
             className="p-2 m-2 rounded bg-cyan-600 text-white"
@@ -242,11 +293,11 @@ export default (props: {
               props.setShow(false);
             }}
           >
-            Close
+            {Tr("Close")}
           </button>
         </div>
         <p className="m-2 p-2">
-          Total cost in this session ${props.chatStore.cost.toFixed(4)}
+          {Tr("Total cost in this session")} ${props.chatStore.cost.toFixed(4)}
         </p>
         <hr />
         <div className="box">
@@ -303,7 +354,7 @@ export default (props: {
             readOnly={true}
             {...props}
           />
-          <Number field="temperature" help="温度" readOnly={false} {...props} />
+          <Slicer field="temperature" help="温度" {...props} />
           <Number field="top_p" help="top_p" readOnly={false} {...props} />
           <Number
             field="presence_penalty"
@@ -329,7 +380,7 @@ export default (props: {
           />
           <div className="flex justify-between">
             <p className="m-2 p-2">
-              Accumulated cost in all sessions ${totalCost.toFixed(4)}
+              {Tr("Accumulated cost in all sessions")} ${totalCost.toFixed(4)}
             </p>
             <button
               className="p-2 m-2 rounded bg-emerald-500"
@@ -338,7 +389,7 @@ export default (props: {
                 setTotalCost(getTotalCost());
               }}
             >
-              Reset
+              {Tr("Reset")}
             </button>
           </div>
           <p className="flex justify-evenly">
@@ -361,14 +412,14 @@ export default (props: {
                 downloadAnchorNode.remove();
               }}
             >
-              Export
+              {Tr("Export")}
             </button>
             <button
               className="p-2 m-2 rounded bg-amber-500"
               onClick={() => {
-                const name = prompt("Give this template a name:");
+                const name = prompt(tr("Give this template a name:", langCode));
                 if (!name) {
-                  alert("No template name specified");
+                  alert(tr("No template name specified", langCode));
                   return;
                 }
                 const tmp: ChatStore = structuredClone(props.chatStore);
@@ -382,7 +433,7 @@ export default (props: {
                 props.setTemplates([...props.templates]);
               }}
             >
-              As template
+              {Tr("As template")}
             </button>
             <button
               className="p-2 m-2 rounded bg-amber-500"
@@ -401,14 +452,17 @@ export default (props: {
                 props.setTemplateAPIs([...props.templateAPIs]);
               }}
             >
-              As API Template
+              {Tr("As API Template")}
             </button>
             <button
               className="p-2 m-2 rounded bg-amber-500"
               onClick={() => {
                 if (
                   !confirm(
-                    "This will OVERWRITE the current chat history! Continue?"
+                    tr(
+                      "This will OVERWRITE the current chat history! Continue?",
+                      langCode
+                    )
                   )
                 )
                   return;
@@ -426,14 +480,14 @@ export default (props: {
                 const file = importFileRef.current.files[0];
                 console.log("file to import", file);
                 if (!file || file.type !== "application/json") {
-                  alert("Please select a json file");
+                  alert(tr("Please select a json file", langCode));
                   return;
                 }
                 const reader = new FileReader();
                 reader.onload = () => {
                   console.log("import content", reader.result);
                   if (!reader) {
-                    alert("Empty file");
+                    alert(tr("Empty file", langCode));
                     return;
                   }
                   try {
@@ -441,11 +495,16 @@ export default (props: {
                       reader.result as string
                     );
                     if (!newChatStore.chatgpt_api_web_version) {
-                      throw "This is not an exported chatgpt-api-web chatstore file. The key 'chatgpt_api_web_version' is missing!";
+                      throw tr(
+                        "This is not an exported chatgpt-api-web chatstore file. The key 'chatgpt_api_web_version' is missing!",
+                        langCode
+                      );
                     }
                     props.setChatStore({ ...newChatStore });
                   } catch (e) {
-                    alert(`Import error on parsing json: ${e}`);
+                    alert(
+                      tr(`Import error on parsing json:`, langCode) + `${e}`
+                    );
                   }
                 };
                 reader.readAsText(file);
@@ -453,7 +512,7 @@ export default (props: {
             />
           </p>
           <p className="text-center m-2 p-2">
-            chatgpt-api-web ChatStore Version{" "}
+            chatgpt-api-web ChatStore {Tr("Version")}{" "}
             {props.chatStore.chatgpt_api_web_version}
           </p>
         </div>
