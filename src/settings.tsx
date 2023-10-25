@@ -108,6 +108,7 @@ const Slicer = (props: {
       <label className="m-2 p-2">{props.field}</label>
       <span>
         <input
+          className="m-2 p-2 border rounded focus w-28"
           type="range"
           min="0"
           max="1"
@@ -120,6 +121,7 @@ const Slicer = (props: {
           }}
         />
         <input
+          className="m-2 p-2 border rounded focus w-28"
           type="number"
           value={props.chatStore[props.field]}
           onChange={(event: any) => {
@@ -245,7 +247,7 @@ export default (props: {
         }}
         className="m-2 p-2 bg-white rounded-lg h-fit lg:w-2/3 z-20"
       >
-        <h3 className="text-xl text-center">
+        <h3 className="text-xl text-center flex justify-between">
           <span>{Tr("Settings")}</span>
           <select>
             {Object.keys(LANG_OPTIONS).map((opt) => (
