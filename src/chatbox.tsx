@@ -160,7 +160,7 @@ export default function ChatBOX(props: {
     client.temperature = chatStore.temperature;
     client.enable_temperature = chatStore.temperature_enabled;
     client.top_p = chatStore.top_p;
-    client.enable_top_p = chatStore.top_p_enabled
+    client.enable_top_p = chatStore.top_p_enabled;
     client.frequency_penalty = chatStore.frequency_penalty;
     client.presence_penalty = chatStore.presence_penalty;
     client.messages = chatStore.history
@@ -660,6 +660,11 @@ export default function ChatBOX(props: {
                     audioChunks.push(event.data);
                   });
                   mediaRecorder.addEventListener("stop", async () => {
+                    // Stop the MediaRecorder
+                    mediaRecorder.stop();
+                    // Stop the media stream
+                    mediaRecorder.stream.getTracks()[0].stop();
+
                     setIsRecording("Transcribing");
                     const audioBlob = new Blob(audioChunks);
                     const audioUrl = URL.createObjectURL(audioBlob);
