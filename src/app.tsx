@@ -43,7 +43,6 @@ export interface ChatStore {
   develop_mode: boolean;
   whisper_api: string;
   whisper_key: string;
-  audioDeviceID: string;
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
@@ -81,7 +80,6 @@ const newChatStore = (
     develop_mode: getDefaultParams("dev", dev),
     whisper_api: getDefaultParams("whisper-api", whisper_api),
     whisper_key: getDefaultParams("whisper-key", whisper_key),
-    audioDeviceID: "",
   };
 };
 

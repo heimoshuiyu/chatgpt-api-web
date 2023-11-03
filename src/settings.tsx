@@ -249,8 +249,6 @@ export default (props: {
   const [totalCost, setTotalCost] = useState(getTotalCost());
   // @ts-ignore
   const { langCode, setLangCode } = useContext(langCodeContext);
-  // type is MediaDeviceInfo
-  const [devices, setDevices] = useState([] as MediaDeviceInfo[]);
 
   useEffect(() => {
     const handleKeyPress = (event: any) => {
@@ -411,52 +409,6 @@ export default (props: {
             help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
             {...props}
           />
-
-          <p className="flex justify-between">
-            <label className="m-2 p-2">{Tr("Audio Device")}</label>
-            {devices.length === 0 && (
-              <button
-                className="p-2 m-2 rounded bg-emerald-500"
-                onClick={async () => {
-                  const ds: MediaDeviceInfo[] = (
-                    await navigator.mediaDevices.enumerateDevices()
-                  ).filter((device) => device.kind === "audioinput");
-
-                  setDevices([...ds]);
-                  console.log("devices", ds);
-                }}
-              >
-                {props.chatStore.audioDeviceID
-                  ? props.chatStore.audioDeviceID
-                  : Tr("default")}
-              </button>
-            )}
-            {devices.length > 0 && (
-              <select
-                value={
-                  props.chatStore.audioDeviceID
-                    ? props.chatStore.audioDeviceID
-                    : "default"
-                }
-                onChange={(event: any) => {
-                  const value = event.target.value;
-                  if (!value || value == "default") {
-                    props.chatStore.audioDeviceID = "";
-                    props.setChatStore({ ...props.chatStore });
-                    return;
-                  }
-                  props.chatStore.audioDeviceID = value;
-                  props.setChatStore({ ...props.chatStore });
-                }}
-              >
-                <option value={"default"}>{Tr("default")}</option>
-                {devices.map((device) => (
-                  <option value={device.deviceId}>{device.deviceId}</option>
-                ))}
-              </select>
-            )}
-          </p>
-
           <div className="flex justify-between">
             <p className="m-2 p-2">
               {Tr("Accumulated cost in all sessions")} ${totalCost.toFixed(4)}
