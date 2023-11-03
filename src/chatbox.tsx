@@ -8,7 +8,6 @@ import {
   STORAGE_NAME_TEMPLATE_API,
   TemplateAPI,
   addTotalCost,
-  newChatStore,
 } from "./app";
 import ChatGPT, {
   calculate_token_length,
