@@ -8,6 +8,7 @@ import {
   STORAGE_NAME_TEMPLATE_API,
   TemplateAPI,
   addTotalCost,
+  newChatStore,
 } from "./app";
 import ChatGPT, {
   calculate_token_length,
@@ -376,69 +377,78 @@ export default function ChatBOX(props: {
               </div>
             </p>
           )}
-        {templates.length > 0 &&
-          chatStore.history.filter((msg) => !msg.example).length == 0 && (
-            <p className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
-              <h2>{Tr("Saved prompt templates")}</h2>
-              <hr className="my-2" />
-              <div className="flex flex-wrap">
-                {templates.map((t, index) => (
-                  <div
-                    className="cursor-pointer rounded bg-green-400 w-fit p-2 m-1 flex flex-col"
-                    onClick={() => {
-                      const newChatStore: ChatStore = structuredClone(t);
-                      // @ts-ignore
-                      delete newChatStore.name;
-                      if (!newChatStore.apiEndpoint) {
-                        newChatStore.apiEndpoint = getDefaultParams(
-                          "api",
-                          chatStore.apiEndpoint
-                        );
-                      }
-                      if (!newChatStore.apiKey) {
-                        newChatStore.apiKey = getDefaultParams(
-                          "key",
-                          chatStore.apiKey
-                        );
-                      }
-                      newChatStore.cost = 0;
-                      setChatStore({ ...newChatStore });
-                    }}
-                  >
-                    <span className="w-full text-center">{t.name}</span>
-                    <hr className="mt-2" />
-                    <span className="flex justify-between">
-                      <button
-                        onClick={() => {
-                          const name = prompt("Give template a name");
-                          if (!name) {
-                            return;
-                          }
-                          t.name = name;
-                          setTemplates(structuredClone(templates));
-                        }}
-                      >
-                        🖋
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (
-                            !confirm("Are you sure to delete this template?")
-                          ) {
-                            return;
-                          }
-                          templates.splice(index, 1);
-                          setTemplates(structuredClone(templates));
-                        }}
-                      >
-                        ❌
-                      </button>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </p>
-          )}
+        {chatStore.history.filter((msg) => !msg.example).length == 0 && (
+          <p className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
+            <h2>
+              <span>{Tr("Saved prompt templates")}</span>
+              <button
+                className="mx-2 underline cursor-pointer"
+                onClick={() => {
+                  chatStore.systemMessageContent = "";
+                  chatStore.history = [];
+                  setChatStore({ ...chatStore });
+                }}
+              >
+                {Tr("Reset Current")}
+              </button>
+            </h2>
+            <hr className="my-2" />
+            <div className="flex flex-wrap">
+              {templates.map((t, index) => (
+                <div
+                  className="cursor-pointer rounded bg-green-400 w-fit p-2 m-1 flex flex-col"
+                  onClick={() => {
+                    const newChatStore: ChatStore = structuredClone(t);
+                    // @ts-ignore
+                    delete newChatStore.name;
+                    if (!newChatStore.apiEndpoint) {
+                      newChatStore.apiEndpoint = getDefaultParams(
+                        "api",
+                        chatStore.apiEndpoint
+                      );
+                    }
+                    if (!newChatStore.apiKey) {
+                      newChatStore.apiKey = getDefaultParams(
+                        "key",
+                        chatStore.apiKey
+                      );
+                    }
+                    newChatStore.cost = 0;
+                    setChatStore({ ...newChatStore });
+                  }}
+                >
+                  <span className="w-full text-center">{t.name}</span>
+                  <hr className="mt-2" />
+                  <span className="flex justify-between">
+                    <button
+                      onClick={() => {
+                        const name = prompt("Give template a name");
+                        if (!name) {
+                          return;
+                        }
+                        t.name = name;
+                        setTemplates(structuredClone(templates));
+                      }}
+                    >
+                      🖋
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (!confirm("Are you sure to delete this template?")) {
+                          return;
+                        }
+                        templates.splice(index, 1);
+                        setTemplates(structuredClone(templates));
+                      }}
+                    >
+                      ❌
+                    </button>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </p>
+        )}
         {chatStore.history.length === 0 && (
           <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
             {Tr("No chat history here")}

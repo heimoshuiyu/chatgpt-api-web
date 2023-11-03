@@ -53,6 +53,7 @@ const LANG_MAP: Record<string, string> = {
   reset: "重置",
   example: "示例",
   render: "渲染",
+  "reset current": "清空当前会话",
 };
 
 export default LANG_MAP;
