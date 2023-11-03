@@ -158,7 +158,9 @@ export default function ChatBOX(props: {
     client.sysMessageContent = chatStore.systemMessageContent;
     client.tokens_margin = chatStore.tokenMargin;
     client.temperature = chatStore.temperature;
+    client.enable_temperature = chatStore.temperature_enabled;
     client.top_p = chatStore.top_p;
+    client.enable_top_p = chatStore.top_p_enabled
     client.frequency_penalty = chatStore.frequency_penalty;
     client.presence_penalty = chatStore.presence_penalty;
     client.messages = chatStore.history

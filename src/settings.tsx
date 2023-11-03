@@ -4,6 +4,7 @@ import { ChatStore, TemplateAPI, clearTotalCost, getTotalCost } from "./app";
 import models from "./models";
 import { TemplateChatStore } from "./chatbox";
 import { tr, Tr, langCodeContext, LANG_OPTIONS } from "./translate";
+import p from "preact-markdown";
 
 const Help = (props: { children: any; help: string }) => {
   return (
@@ -100,14 +101,42 @@ const Input = (props: {
 const Slicer = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  field: "temperature";
+  field: "temperature" | "top_p";
   help: string;
 }) => {
+  const enable_filed_name: "temperature_enabled" | "top_p_enabled" =
+    `${props.field}_enabled` as any;
+
+  const enabled = props.chatStore[enable_filed_name];
+
+  if (enabled === null || enabled === undefined) {
+    if (props.field === "temperature") {
+      props.chatStore[enable_filed_name] = true;
+    }
+    if (props.field === "top_p") {
+      props.chatStore[enable_filed_name] = false;
+    }
+  }
+
+  const setEnabled = (state: boolean) => {
+    props.chatStore[enable_filed_name] = state;
+    props.setChatStore({ ...props.chatStore });
+  };
   return (
     <Help help={props.help}>
-      <label className="m-2 p-2">{props.field}</label>
+      <span>
+        <label className="m-2 p-2">{props.field}</label>
+        <input
+          type="checkbox"
+          checked={props.chatStore[enable_filed_name]}
+          onClick={() => {
+            setEnabled(!enabled);
+          }}
+        />
+      </span>
       <span>
         <input
+          disabled={!enabled}
           className="m-2 p-2 border rounded focus w-28"
           type="range"
           min="0"
@@ -121,6 +150,7 @@ const Slicer = (props: {
           }}
         />
         <input
+          disabled={!enabled}
           className="m-2 p-2 border rounded focus w-28"
           type="number"
           value={props.chatStore[props.field]}
@@ -143,7 +173,6 @@ const Number = (props: {
     | "maxTokens"
     | "tokenMargin"
     | "postBeginIndex"
-    | "top_p"
     | "presence_penalty"
     | "frequency_penalty";
   readOnly: boolean;
@@ -357,7 +386,7 @@ export default (props: {
             {...props}
           />
           <Slicer field="temperature" help="温度" {...props} />
-          <Number field="top_p" help="top_p" readOnly={false} {...props} />
+          <Slicer field="top_p" help="top_p" {...props} />
           <Number
             field="presence_penalty"
             help="presence_penalty"

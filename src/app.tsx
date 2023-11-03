@@ -35,7 +35,9 @@ export interface ChatStore {
   responseModelName: string;
   cost: number;
   temperature: number;
+  temperature_enabled: boolean;
   top_p: number;
+  top_p_enabled: boolean;
   presence_penalty: number;
   frequency_penalty: number;
   develop_mode: boolean;
@@ -70,7 +72,9 @@ const newChatStore = (
     responseModelName: "",
     cost: 0,
     temperature: getDefaultParams("temp", temperature),
+    temperature_enabled: true,
     top_p: 1,
+    top_p_enabled: false,
     presence_penalty: 0,
     frequency_penalty: 0,
     develop_mode: getDefaultParams("dev", dev),

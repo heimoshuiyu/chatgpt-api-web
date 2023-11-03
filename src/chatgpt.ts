@@ -47,7 +47,9 @@ class Chat {
   apiEndpoint: string;
   model: string;
   temperature: number;
+  enable_temperature: boolean;
   top_p: number;
+  enable_top_p: boolean;
   presence_penalty: number;
   frequency_penalty: number;
 
@@ -60,7 +62,9 @@ class Chat {
       apiEndPoint = "https://api.openai.com/v1/chat/completions",
       model = "gpt-3.5-turbo",
       temperature = 0.7,
+      enable_temperature = true,
       top_p = 1,
+      enable_top_p = false,
       presence_penalty = 0,
       frequency_penalty = 0,
     } = {}
@@ -77,7 +81,9 @@ class Chat {
     this.apiEndpoint = apiEndPoint;
     this.model = model;
     this.temperature = temperature;
+    this.enable_temperature = enable_temperature;
     this.top_p = top_p;
+    this.enable_top_p = enable_top_p;
     this.presence_penalty = presence_penalty;
     this.frequency_penalty = frequency_penalty;
   }
@@ -111,21 +117,28 @@ class Chat {
       messages.push({ role: "system", content: this.sysMessageContent });
     }
     messages.push(...this.messages);
+
+    const body: any = {
+      model: this.model,
+      messages,
+      stream,
+      presence_penalty: this.presence_penalty,
+      frequency_penalty: this.frequency_penalty,
+    };
+    if (this.enable_temperature) {
+      body["temperature"] = this.temperature;
+    }
+    if (this.enable_top_p) {
+      body["top_p"] = this.top_p;
+    }
+
     return fetch(this.apiEndpoint, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: this.model,
-        messages,
-        stream,
-        temperature: this.temperature,
-        top_p: this.top_p,
-        presence_penalty: this.presence_penalty,
-        frequency_penalty: this.frequency_penalty,
-      }),
+      body: JSON.stringify(body),
     });
   }
 
