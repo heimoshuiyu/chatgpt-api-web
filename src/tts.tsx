@@ -1,3 +1,4 @@
+import { useState } from "preact/hooks";
 import { ChatStore, addTotalCost } from "./app";
 
 interface TTSProps {
@@ -6,6 +7,7 @@ interface TTSProps {
   text: string;
 }
 export default function TTSButton(props: TTSProps) {
+  const [generating, setGenerating] = useState(false);
   return (
     <button
       onClick={() => {
@@ -13,7 +15,7 @@ export default function TTSButton(props: TTSProps) {
         const api_key = props.chatStore.tts_key;
         const model = "tts-1";
         const input = props.text;
-        const voice = "alloy";
+        const voice = props.chatStore.tts_voice;
 
         const body: Record<string, any> = {
           model,
@@ -24,6 +26,8 @@ export default function TTSButton(props: TTSProps) {
         if (props.chatStore.tts_speed_enabled) {
           body["speed"] = props.chatStore.tts_speed;
         }
+
+        setGenerating(true);
 
         fetch(api, {
           method: "POST",
@@ -44,10 +48,13 @@ export default function TTSButton(props: TTSProps) {
             const url = URL.createObjectURL(blob);
             const audio = new Audio(url);
             audio.play();
+          })
+          .finally(() => {
+            setGenerating(false);
           });
       }}
     >
-      🔈
+      {generating ? "🤔" : "🔈"}
     </button>
   );
 }

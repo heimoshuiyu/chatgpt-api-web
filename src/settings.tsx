@@ -266,8 +266,6 @@ export default (props: {
   const [totalCost, setTotalCost] = useState(getTotalCost());
   // @ts-ignore
   const { langCode, setLangCode } = useContext(langCodeContext);
-  // type is MediaDeviceInfo
-  const [devices, setDevices] = useState([] as MediaDeviceInfo[]);
 
   useEffect(() => {
     const handleKeyPress = (event: any) => {
