@@ -43,7 +43,11 @@ export interface ChatStore {
   develop_mode: boolean;
   whisper_api: string;
   whisper_key: string;
-  audioDeviceID: string;
+  tts_api: string;
+  tts_key: string;
+  tts_voice: string;
+  tts_speed: number;
+  tts_speed_enabled: boolean;
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
@@ -56,7 +60,11 @@ const newChatStore = (
   temperature = 0.7,
   dev = false,
   whisper_api = "",
-  whisper_key = ""
+  whisper_key = "",
+  tts_api = "",
+  tts_key = "",
+  tts_speed = 1.0,
+  tts_speed_enabled = false
 ): ChatStore => {
   return {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
@@ -81,7 +89,11 @@ const newChatStore = (
     develop_mode: getDefaultParams("dev", dev),
     whisper_api: getDefaultParams("whisper-api", whisper_api),
     whisper_key: getDefaultParams("whisper-key", whisper_key),
-    audioDeviceID: "",
+    tts_api: getDefaultParams("tts-api", tts_api),
+    tts_key: getDefaultParams("tts-key", tts_key),
+    tts_voice: "alloy",
+    tts_speed: tts_speed,
+    tts_speed_enabled: tts_speed_enabled,
   };
 };
 
@@ -215,7 +227,11 @@ export function App() {
           chatStore.temperature,
           !!chatStore.develop_mode,
           chatStore.whisper_api,
-          chatStore.whisper_key
+          chatStore.whisper_key,
+          chatStore.tts_api,
+          chatStore.tts_key,
+          chatStore.tts_speed,
+          chatStore.tts_speed_enabled
         )
       )
     );
@@ -296,7 +312,15 @@ export function App() {
                   chatStore.systemMessageContent,
                   chatStore.apiEndpoint,
                   chatStore.streamMode,
-                  chatStore.model
+                  chatStore.model,
+                  chatStore.temperature,
+                  !!chatStore.develop_mode,
+                  chatStore.whisper_api,
+                  chatStore.whisper_key,
+                  chatStore.tts_api,
+                  chatStore.tts_key,
+                  chatStore.tts_speed,
+                  chatStore.tts_speed_enabled
                 )
               );
             }

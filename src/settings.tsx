@@ -6,6 +6,15 @@ import { TemplateChatStore } from "./chatbox";
 import { tr, Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 import p from "preact-markdown";
 
+const TTS_VOICES: string[] = [
+  "alloy",
+  "echo",
+  "fable",
+  "onyx",
+  "nova",
+  "shimmer",
+];
+
 const Help = (props: { children: any; help: string }) => {
   return (
     <div>
@@ -71,7 +80,13 @@ const LongInput = (props: {
 const Input = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  field: "apiKey" | "apiEndpoint" | "whisper_api" | "whisper_key";
+  field:
+    | "apiKey"
+    | "apiEndpoint"
+    | "whisper_api"
+    | "whisper_key"
+    | "tts_api"
+    | "tts_key";
   help: string;
 }) => {
   const [hideInput, setHideInput] = useState(true);
@@ -101,8 +116,10 @@ const Input = (props: {
 const Slicer = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  field: "temperature" | "top_p";
+  field: "temperature" | "top_p" | "tts_speed";
   help: string;
+  min: number;
+  max: number;
 }) => {
   const enable_filed_name: "temperature_enabled" | "top_p_enabled" =
     `${props.field}_enabled` as any;
@@ -139,8 +156,8 @@ const Slicer = (props: {
           disabled={!enabled}
           className="m-2 p-2 border rounded focus w-28"
           type="range"
-          min="0"
-          max="1"
+          min={props.min}
+          max={props.max}
           step="0.01"
           value={props.chatStore[props.field]}
           onChange={(event: any) => {
@@ -387,8 +404,8 @@ export default (props: {
             readOnly={true}
             {...props}
           />
-          <Slicer field="temperature" help="温度" {...props} />
-          <Slicer field="top_p" help="top_p" {...props} />
+          <Slicer field="temperature" min={0} max={1} help="温度" {...props} />
+          <Slicer field="top_p" min={0} max={1} help="top_p" {...props} />
           <Number
             field="presence_penalty"
             help="presence_penalty"
@@ -401,61 +418,47 @@ export default (props: {
             readOnly={false}
             {...props}
           />
-          <Input
-            field="whisper_api"
-            help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
-            {...props}
-          />
+
           <Input
             field="whisper_key"
             help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
             {...props}
           />
+          <Input
+            field="whisper_api"
+            help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
+            {...props}
+          />
 
-          <p className="flex justify-between">
-            <label className="m-2 p-2">{Tr("Audio Device")}</label>
-            {devices.length === 0 && (
-              <button
-                className="p-2 m-2 rounded bg-emerald-500"
-                onClick={async () => {
-                  const ds: MediaDeviceInfo[] = (
-                    await navigator.mediaDevices.enumerateDevices()
-                  ).filter((device) => device.kind === "audioinput");
-
-                  setDevices([...ds]);
-                  console.log("devices", ds);
-                }}
-              >
-                {props.chatStore.audioDeviceID
-                  ? props.chatStore.audioDeviceID
-                  : Tr("default")}
-              </button>
-            )}
-            {devices.length > 0 && (
-              <select
-                value={
-                  props.chatStore.audioDeviceID
-                    ? props.chatStore.audioDeviceID
-                    : "default"
-                }
-                onChange={(event: any) => {
-                  const value = event.target.value;
-                  if (!value || value == "default") {
-                    props.chatStore.audioDeviceID = "";
-                    props.setChatStore({ ...props.chatStore });
-                    return;
-                  }
-                  props.chatStore.audioDeviceID = value;
-                  props.setChatStore({ ...props.chatStore });
-                }}
-              >
-                <option value={"default"}>{Tr("default")}</option>
-                {devices.map((device) => (
-                  <option value={device.deviceId}>{device.deviceId}</option>
-                ))}
-              </select>
-            )}
-          </p>
+          <Input field="tts_key" help="tts service api key" {...props} />
+          <Input
+            field="tts_api"
+            help="tts api, eg. https://api.openai.com/v1/audio/speech"
+            {...props}
+          />
+          <Help help="tts voice style">
+            <label className="m-2 p-2">TTS Voice</label>
+            <select
+              className="m-2 p-2"
+              value={props.chatStore.tts_voice}
+              onChange={(event: any) => {
+                const voice = event.target.value as string;
+                props.chatStore.tts_voice = voice;
+                props.setChatStore({ ...props.chatStore });
+              }}
+            >
+              {TTS_VOICES.map((opt) => (
+                <option value={opt}>{opt}</option>
+              ))}
+            </select>
+          </Help>
+          <Slicer
+            min={0.25}
+            max={4.0}
+            field="tts_speed"
+            help={"TTS Speed"}
+            {...props}
+          />
 
           <div className="flex justify-between">
             <p className="m-2 p-2">

@@ -3,6 +3,7 @@ import { useState, useEffect, StateUpdater } from "preact/hooks";
 import { ChatStore, ChatStoreMessage } from "./app";
 import { calculate_token_length } from "./chatgpt";
 import Markdown from "preact-markdown";
+import TTSButton from "./tts";
 
 interface EditMessageProps {
   chat: ChatStoreMessage;
@@ -163,6 +164,13 @@ export default function Message(props: Props) {
             <div className="w-full flex justify-between">
               <DeleteIcon />
               <button onClick={() => setShowEdit(true)}>🖋</button>
+              {chatStore.tts_api && chatStore.tts_key && (
+                <TTSButton
+                  chatStore={chatStore}
+                  text={chat.content}
+                  setChatStore={setChatStore}
+                />
+              )}
               <CopyIcon />
             </div>
           </div>
