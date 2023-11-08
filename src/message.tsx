@@ -69,18 +69,23 @@ function EditMessage(props: EditMessageProps) {
                     <>
                       <img
                         className="max-h-32 max-w-xs cursor-pointer"
-                        src={mdt.image_url}
+                        src={mdt.image_url?.url}
                         onClick={() => {
-                          window.open(mdt.image_url, "_blank");
+                          window.open(mdt.image_url?.url, "_blank");
                         }}
                       />
                       <button
                         className="bg-blue-300 p-1 rounded"
                         onClick={() => {
-                          const image_url = prompt("image url", mdt.image_url);
+                          const image_url = prompt(
+                            "image url",
+                            mdt.image_url?.url
+                          );
                           if (image_url) {
                             if (typeof chat.content === "string") return;
-                            chat.content[index].image_url = image_url;
+                            const obj = chat.content[index].image_url;
+                            if (obj === undefined) return;
+                            obj.url = image_url;
                             setChatStore({ ...chatStore });
                           }
                         }}
@@ -106,8 +111,9 @@ function EditMessage(props: EditMessageProps) {
                               const base64data = reader.result;
                               if (!base64data) return;
                               if (typeof chat.content === "string") return;
-                              chat.content[index].image_url =
-                                String(base64data);
+                              const obj = chat.content[index].image_url;
+                              if (obj === undefined) return;
+                              obj.url = String(base64data);
                               setChatStore({ ...chatStore });
                             };
                           };
@@ -151,7 +157,10 @@ function EditMessage(props: EditMessageProps) {
                 if (typeof chat.content === "string") return;
                 chat.content.push({
                   type: "image_url",
-                  image_url: "",
+                  image_url: {
+                    url: "",
+                    detail: "low",
+                  },
                 });
                 setChatStore({ ...chatStore });
               }}
@@ -277,9 +286,9 @@ export default function Message(props: Props) {
                   ) : (
                     <img
                       className="cursor-pointer max-w-xs max-h-32 p-1"
-                      src={mdt.image_url}
+                      src={mdt.image_url?.url}
                       onClick={() => {
-                        window.open(mdt.image_url, "_blank");
+                        window.open(mdt.image_url?.url, "_blank");
                       }}
                     />
                   )

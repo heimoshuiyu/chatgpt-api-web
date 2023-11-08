@@ -1,7 +1,12 @@
+export interface ImageURL {
+  url: string;
+  detail: "low" | "high";
+}
+
 export interface MessageDetail {
   type: "text" | "image_url";
   text?: string;
-  image_url?: string;
+  image_url?: ImageURL;
 }
 export interface Message {
   role: "system" | "user" | "assistant" | "function";

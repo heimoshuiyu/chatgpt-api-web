@@ -607,7 +607,7 @@ export default function ChatBOX(props: {
               {image.type === "image_url" && (
                 <img
                   className="rounded m-1 p-1 border-2 border-gray-400 max-h-32 max-w-xs"
-                  src={image.image_url}
+                  src={image.image_url?.url}
                 />
               )}
             </div>
@@ -647,7 +647,16 @@ export default function ChatBOX(props: {
                     if (!image_url) {
                       return;
                     }
-                    setImages([...images, { type: "image_url", image_url }]);
+                    setImages([
+                      ...images,
+                      {
+                        type: "image_url",
+                        image_url: {
+                          url: image_url,
+                          detail: "low",
+                        },
+                      },
+                    ]);
                   }}
                 >
                   Add from URL
@@ -673,7 +682,10 @@ export default function ChatBOX(props: {
                           ...images,
                           {
                             type: "image_url",
-                            image_url: String(base64data),
+                            image_url: {
+                              url: String(base64data),
+                              detail: "low",
+                            },
                           },
                         ]);
                       };
@@ -690,7 +702,7 @@ export default function ChatBOX(props: {
                     {image.type === "image_url" && (
                       <img
                         className="rounded m-1 p-1 border-2 border-gray-400 w-32"
-                        src={image.image_url}
+                        src={image.image_url?.url}
                       />
                     )}
                     <span className="flex justify-between">
@@ -700,7 +712,10 @@ export default function ChatBOX(props: {
                           if (!image_url) {
                             return;
                           }
-                          images[index].image_url = image_url;
+                          images[index].image_url = {
+                            url: image_url,
+                            detail: "low",
+                          };
                           setImages([...images]);
                         }}
                       >
