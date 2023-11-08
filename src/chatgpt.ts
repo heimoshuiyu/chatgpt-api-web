@@ -47,19 +47,31 @@ export interface FetchResponse {
     index: number | undefined;
   }[];
 }
-// https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
-export function calculate_token_length(
-  content: string | MessageDetail[]
-): number {
-  const text =
-    typeof content === "string"
-      ? content
-      : content.map((c) => c?.text).join(" ");
+
+function calculate_token_length_from_text(text: string): number {
   const totalCount = text.length;
   const chineseCount = text.match(/[\u00ff-\uffff]|\S+/g)?.length ?? 0;
   const englishCount = totalCount - chineseCount;
   const tokenLength = englishCount / 4 + (chineseCount * 4) / 3;
   return ~~tokenLength;
+}
+// https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
+export function calculate_token_length(
+  content: string | MessageDetail[]
+): number {
+  if (typeof content === "string") {
+    return calculate_token_length_from_text(content);
+  }
+  let tokens = 0;
+  for (const m of content) {
+    if (m.type === "text") {
+      tokens += calculate_token_length_from_text(m.text ?? "");
+    }
+    if (m.type === "image_url") {
+      tokens += m.image_url?.detail === "high" ? 65 * 4 : 65;
+    }
+  }
+  return 0;
 }
 
 class Chat {
