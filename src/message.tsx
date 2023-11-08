@@ -1,7 +1,7 @@
 import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 import { useState, useEffect, StateUpdater } from "preact/hooks";
 import { ChatStore, ChatStoreMessage } from "./app";
-import { calculate_token_length } from "./chatgpt";
+import { calculate_token_length, getMessageText } from "./chatgpt";
 import Markdown from "preact-markdown";
 import TTSButton from "./tts";
 
@@ -14,20 +14,6 @@ interface EditMessageProps {
 
 function EditMessage(props: EditMessageProps) {
   const { setShowEdit, chat, setChatStore, chatStore } = props;
-  useEffect(() => {
-    const handleKeyPress = (event: any) => {
-      if (event.keyCode === 27) {
-        // keyCode for ESC key is 27
-        setShowEdit(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyPress);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyPress);
-    };
-  }, []); // The empty dependency array ensures that the effect runs only once
 
   return (
     <div
@@ -37,18 +23,25 @@ function EditMessage(props: EditMessageProps) {
       onClick={() => setShowEdit(false)}
     >
       <div className="w-full h-full z-20">
-        <textarea
-          className={"w-full h-full"}
-          value={chat.content}
-          onClick={(event: any) => {
-            event.stopPropagation();
-          }}
-          onChange={(event: any) => {
-            chat.content = event.target.value;
-            chat.token = calculate_token_length(chat.content);
-            setChatStore({ ...chatStore });
-          }}
-        ></textarea>
+        {typeof chat.content === "string" && (
+          <textarea
+            className={"w-full h-full"}
+            value={chat.content}
+            onClick={(event: any) => {
+              event.stopPropagation();
+            }}
+            onChange={(event: any) => {
+              chat.content = event.target.value;
+              chat.token = calculate_token_length(chat.content);
+              setChatStore({ ...chatStore });
+            }}
+            onKeyPress={(event: any) => {
+              if (event.keyCode == 27) {
+                setShowEdit(false);
+              }
+            }}
+          ></textarea>
+        )}
         <div className={"w-full flex justify-center"}>
           <button
             className={"m-2 p-1 rounded bg-green-500"}
@@ -112,7 +105,7 @@ export default function Message(props: Props) {
       <>
         <button
           onClick={() => {
-            navigator.clipboard.writeText(chat.content);
+            navigator.clipboard.writeText(getMessageText(chat));
             setShowCopiedHint(true);
             setTimeout(() => setShowCopiedHint(false), 1000);
           }}
@@ -152,7 +145,8 @@ export default function Message(props: Props) {
           >
             <p className={renderMarkdown ? "" : "message-content"}>
               {chat.hide ? (
-                chat.content.split("\n")[0].slice(0, 16) + "... (deleted)"
+                getMessageText(chat).split("\n")[0].slice(0, 16) +
+                "... (deleted)"
               ) : renderMarkdown ? (
                 // @ts-ignore
                 <Markdown markdown={chat.content} />
@@ -167,7 +161,7 @@ export default function Message(props: Props) {
               {chatStore.tts_api && chatStore.tts_key && (
                 <TTSButton
                   chatStore={chatStore}
-                  text={chat.content}
+                  text={getMessageText(chat)}
                   setChatStore={setChatStore}
                 />
               )}

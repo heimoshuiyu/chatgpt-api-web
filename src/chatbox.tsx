@@ -13,6 +13,7 @@ import ChatGPT, {
   calculate_token_length,
   ChunkMessage,
   FetchResponse,
+  MessageDetail,
 } from "./chatgpt";
 import Message from "./message";
 import models from "./models";
@@ -258,6 +259,7 @@ export default function ChatBOX(props: {
     );
     _setTemplateAPIs(templateAPIs);
   };
+  const [images, setImages] = useState<MessageDetail[]>([]);
 
   return (
     <div className="grow flex flex-col p-2 dark:text-black">
@@ -633,7 +635,13 @@ export default function ChatBOX(props: {
                     chatStore.history
                       .filter(({ hide }) => !hide)
                       .slice(chatStore.postBeginIndex)
-                      .map(({ content }) => content)
+                      .map(({ content }) => {
+                        if (typeof content === "string") {
+                          return content;
+                        } else {
+                          return content.map((c) => c?.text).join(" ");
+                        }
+                      })
                   )
                   .concat([inputMsg])
                   .join(" ");

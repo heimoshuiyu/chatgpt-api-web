@@ -1,8 +1,22 @@
+export interface MessageDetail {
+  type: "text" | "image_url";
+  text?: string;
+  image_url?: string;
+}
 export interface Message {
   role: "system" | "user" | "assistant" | "function";
-  content: string;
+  content: string | MessageDetail[];
   name?: "example_user" | "example_assistant";
 }
+export const getMessageText = (message: Message): string => {
+  if (typeof message.content === "string") {
+    return message.content;
+  }
+  return message.content
+    .filter((c) => c.type === "text")
+    .map((c) => c?.text)
+    .join("\n");
+};
 
 export interface ChunkMessage {
   model: string;
@@ -29,9 +43,15 @@ export interface FetchResponse {
   }[];
 }
 // https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
-export function calculate_token_length(content: string): number {
-  const totalCount = content.length;
-  const chineseCount = content.match(/[\u00ff-\uffff]|\S+/g)?.length ?? 0;
+export function calculate_token_length(
+  content: string | MessageDetail[]
+): number {
+  const text =
+    typeof content === "string"
+      ? content
+      : content.map((c) => c?.text).join(" ");
+  const totalCount = text.length;
+  const chineseCount = text.match(/[\u00ff-\uffff]|\S+/g)?.length ?? 0;
   const englishCount = totalCount - chineseCount;
   const tokenLength = englishCount / 4 + (chineseCount * 4) / 3;
   return ~~tokenLength;
@@ -151,12 +171,6 @@ class Chat {
     return j;
   }
 
-  async say(content: string): Promise<string> {
-    this.messages.push({ role: "user", content });
-    await this.complete();
-    return this.messages.slice(-1)[0].content;
-  }
-
   async *processStreamResponse(resp: Response) {
     const reader = resp?.body?.pipeThrough(new TextDecoderStream()).getReader();
     if (reader === undefined) {
@@ -210,7 +224,8 @@ class Chat {
     }
 
     return (
-      resp?.choices[0]?.message?.content ?? `Error: ${JSON.stringify(resp)}`
+      (resp?.choices[0]?.message?.content as string) ??
+      `Error: ${JSON.stringify(resp)}`
     );
   }
 
@@ -221,7 +236,7 @@ class Chat {
 
   completeWithSteam() {
     this.total_tokens = this.messages
-      .map((msg) => this.calculate_token_length(msg.content) + 20)
+      .map((msg) => this.calculate_token_length(msg.content as string) + 20)
       .reduce((a, v) => a + v);
     return this._fetch(true);
   }
