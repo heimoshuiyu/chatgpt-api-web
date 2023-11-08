@@ -34,6 +34,8 @@ export default function ChatBOX(props: {
   // prevent error
   if (chatStore === undefined) return <div></div>;
   const [inputMsg, setInputMsg] = useState("");
+  const [images, setImages] = useState<MessageDetail[]>([]);
+  const [showAddImage, setShowAddImage] = useState(false);
   const [showGenerating, setShowGenerating] = useState(false);
   const [generatingMessage, setGeneratingMessage] = useState("");
   const [showRetry, setShowRetry] = useState(false);
@@ -216,26 +218,38 @@ export default function ChatBOX(props: {
   };
 
   // when user click the "send" button or ctrl+Enter in the textarea
-  const send = async (msg = "") => {
+  const send = async (msg = "", call_complete = true) => {
     const inputMsg = msg.trim();
     if (!inputMsg) {
       console.log("empty message");
       return;
     }
-    chatStore.responseModelName = "";
+    if (call_complete) chatStore.responseModelName = "";
+
+    let content: string | MessageDetail[] = inputMsg;
+    if (images.length > 0) {
+      content = images;
+    }
+    if (inputMsg.trim()) {
+      content = [{ type: "text", text: inputMsg }, ...images];
+    }
     chatStore.history.push({
       role: "user",
-      content: inputMsg.trim(),
+      content,
       hide: false,
       token: calculate_token_length(inputMsg.trim()),
       example: false,
     });
+
     // manually calculate token length
     chatStore.totalTokens += client.calculate_token_length(inputMsg.trim());
     client.total_tokens += client.calculate_token_length(inputMsg.trim());
     setChatStore({ ...chatStore });
     setInputMsg("");
-    await complete();
+    setImages([]);
+    if (call_complete) {
+      await complete();
+    }
   };
 
   const [showSettings, setShowSettings] = useState(false);
@@ -261,7 +275,6 @@ export default function ChatBOX(props: {
     );
     _setTemplateAPIs(templateAPIs);
   };
-  const [images, setImages] = useState<MessageDetail[]>([]);
 
   return (
     <div className="grow flex flex-col p-2 dark:text-black">
@@ -587,7 +600,130 @@ export default function ChatBOX(props: {
         )}
         <div ref={messagesEndRef}></div>
       </div>
+      {images.length > 0 && (
+        <div className="flex flex-wrap">
+          {images.map((image, index) => (
+            <div className="flex flex-col">
+              {image.type === "image_url" && (
+                <img
+                  className="rounded m-1 p-1 border-2 border-gray-400 max-h-32 max-w-xs"
+                  src={image.image_url}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="flex justify-between">
+        <button
+          className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+          disabled={showGenerating || !chatStore.apiKey}
+          onClick={() => {
+            setShowAddImage(!showAddImage);
+          }}
+        >
+          Img
+        </button>
+        {showAddImage && (
+          <div
+            className="absolute z-10 bg-black bg-opacity-50 w-full h-full flex justify-center items-center left-0 top-0 overflow-scroll"
+            onClick={() => {
+              setShowAddImage(false);
+            }}
+          >
+            <div
+              className="bg-white rounded p-2 z-20"
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              <h2>Add Images</h2>
+              <span>
+                <button
+                  className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+                  onClick={() => {
+                    const image_url = prompt("Image URL");
+                    if (!image_url) {
+                      return;
+                    }
+                    setImages([...images, { type: "image_url", image_url }]);
+                  }}
+                >
+                  Add from URL
+                </button>
+                <button
+                  className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+                  onClick={() => {
+                    // select file and load it to base64 image URL format
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    input.accept = "image/*";
+                    input.onchange = (event) => {
+                      const file = (event.target as HTMLInputElement)
+                        .files?.[0];
+                      if (!file) {
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.readAsDataURL(file);
+                      reader.onloadend = () => {
+                        const base64data = reader.result;
+                        setImages([
+                          ...images,
+                          {
+                            type: "image_url",
+                            image_url: String(base64data),
+                          },
+                        ]);
+                      };
+                    };
+                    input.click();
+                  }}
+                >
+                  Add from local file
+                </button>
+              </span>
+              <div className="flex flex-wrap">
+                {images.map((image, index) => (
+                  <div className="flex flex-col">
+                    {image.type === "image_url" && (
+                      <img
+                        className="rounded m-1 p-1 border-2 border-gray-400 w-32"
+                        src={image.image_url}
+                      />
+                    )}
+                    <span className="flex justify-between">
+                      <button
+                        onClick={() => {
+                          const image_url = prompt("Image URL");
+                          if (!image_url) {
+                            return;
+                          }
+                          images[index].image_url = image_url;
+                          setImages([...images]);
+                        }}
+                      >
+                        🖋
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (!confirm("Are you sure to delete this image?")) {
+                            return;
+                          }
+                          images.splice(index, 1);
+                          setImages([...images]);
+                        }}
+                      >
+                        ❌
+                      </button>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         <textarea
           rows={Math.min(10, (inputMsg.match(/\n/g) || []).length + 2)}
           value={inputMsg}
@@ -595,7 +731,7 @@ export default function ChatBOX(props: {
           onKeyPress={(event: any) => {
             console.log(event);
             if (event.ctrlKey && event.code === "Enter") {
-              send(event.target.value);
+              send(event.target.value, true);
               setInputMsg("");
               return;
             }
@@ -608,7 +744,7 @@ export default function ChatBOX(props: {
           className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
           disabled={showGenerating || !chatStore.apiKey}
           onClick={() => {
-            send(inputMsg);
+            send(inputMsg, true);
           }}
         >
           {Tr("Send")}
@@ -757,16 +893,7 @@ export default function ChatBOX(props: {
             className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
-              chatStore.history.push({
-                role: "user",
-                content: inputMsg,
-                token: calculate_token_length(inputMsg),
-                hide: false,
-                example: false,
-              });
-              update_total_tokens();
-              setInputMsg("");
-              setChatStore({ ...chatStore });
+              send(inputMsg, false);
             }}
           >
             {Tr("User")}

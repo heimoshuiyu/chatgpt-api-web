@@ -23,7 +23,7 @@ function EditMessage(props: EditMessageProps) {
       onClick={() => setShowEdit(false)}
     >
       <div className="w-full h-full z-20">
-        {typeof chat.content === "string" && (
+        {typeof chat.content === "string" ? (
           <textarea
             className={"w-full h-full"}
             value={chat.content}
@@ -41,10 +41,128 @@ function EditMessage(props: EditMessageProps) {
               }
             }}
           ></textarea>
+        ) : (
+          <div
+            className={"w-full h-full flex flex-col overflow-scroll"}
+            onClick={(event) => event.stopPropagation()}
+          >
+            {chat.content.map((mdt, index) => (
+              <div className={"w-full p-2 px-4"}>
+                <div className="flex justify-between">
+                  {mdt.type === "text" ? (
+                    <textarea
+                      className={"w-full"}
+                      value={mdt.text}
+                      onChange={(event: any) => {
+                        if (typeof chat.content === "string") return;
+                        chat.content[index].text = event.target.value;
+                        chat.token = calculate_token_length(chat.content);
+                        setChatStore({ ...chatStore });
+                      }}
+                      onKeyPress={(event: any) => {
+                        if (event.keyCode == 27) {
+                          setShowEdit(false);
+                        }
+                      }}
+                    ></textarea>
+                  ) : (
+                    <>
+                      <img
+                        className="max-h-32 max-w-xs cursor-pointer"
+                        src={mdt.image_url}
+                        onClick={() => {
+                          window.open(mdt.image_url, "_blank");
+                        }}
+                      />
+                      <button
+                        className="bg-blue-300 p-1 rounded"
+                        onClick={() => {
+                          const image_url = prompt("image url", mdt.image_url);
+                          if (image_url) {
+                            if (typeof chat.content === "string") return;
+                            chat.content[index].image_url = image_url;
+                            setChatStore({ ...chatStore });
+                          }
+                        }}
+                      >
+                        {Tr("Edit URL")}
+                      </button>
+                      <button
+                        className="bg-blue-300 p-1 rounded"
+                        onClick={() => {
+                          // select file and load it to base64 image URL format
+                          const input = document.createElement("input");
+                          input.type = "file";
+                          input.accept = "image/*";
+                          input.onchange = (event) => {
+                            const file = (event.target as HTMLInputElement)
+                              .files?.[0];
+                            if (!file) {
+                              return;
+                            }
+                            const reader = new FileReader();
+                            reader.readAsDataURL(file);
+                            reader.onloadend = () => {
+                              const base64data = reader.result;
+                              if (!base64data) return;
+                              if (typeof chat.content === "string") return;
+                              chat.content[index].image_url =
+                                String(base64data);
+                              setChatStore({ ...chatStore });
+                            };
+                          };
+                          input.click();
+                        }}
+                      >
+                        {Tr("Upload")}
+                      </button>
+                    </>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      if (typeof chat.content === "string") return;
+                      chat.content.splice(index, 1);
+                      chat.token = calculate_token_length(chat.content);
+                      setChatStore({ ...chatStore });
+                    }}
+                  >
+                    ❌
+                  </button>
+                </div>
+              </div>
+            ))}
+            <button
+              className={"m-2 p-1 rounded bg-green-500"}
+              onClick={() => {
+                if (typeof chat.content === "string") return;
+                chat.content.push({
+                  type: "text",
+                  text: "",
+                });
+                setChatStore({ ...chatStore });
+              }}
+            >
+              {Tr("Add text")}
+            </button>
+            <button
+              className={"m-2 p-1 rounded bg-green-500"}
+              onClick={() => {
+                if (typeof chat.content === "string") return;
+                chat.content.push({
+                  type: "image_url",
+                  image_url: "",
+                });
+                setChatStore({ ...chatStore });
+              }}
+            >
+              {Tr("Add image")}
+            </button>
+          </div>
         )}
         <div className={"w-full flex justify-center"}>
           <button
-            className={"m-2 p-1 rounded bg-green-500"}
+            className={"w-full m-2 p-1 rounded bg-purple-500"}
             onClick={() => {
               setShowEdit(false);
             }}
@@ -144,14 +262,37 @@ export default function Message(props: Props) {
             } ${chat.hide ? "opacity-50" : ""}`}
           >
             <p className={renderMarkdown ? "" : "message-content"}>
-              {chat.hide ? (
+              {typeof chat.content !== "string" ? (
+                // render for multiple messages
+                chat.content.map((mdt) =>
+                  mdt.type === "text" ? (
+                    chat.hide ? (
+                      mdt.text?.split("\n")[0].slice(0, 16) + "... (deleted)"
+                    ) : renderMarkdown ? (
+                      // @ts-ignore
+                      <Markdown markdown={mdt.text} />
+                    ) : (
+                      mdt.text
+                    )
+                  ) : (
+                    <img
+                      className="cursor-pointer max-w-xs max-h-32 p-1"
+                      src={mdt.image_url}
+                      onClick={() => {
+                        window.open(mdt.image_url, "_blank");
+                      }}
+                    />
+                  )
+                )
+              ) : // render for single message
+              chat.hide ? (
                 getMessageText(chat).split("\n")[0].slice(0, 16) +
                 "... (deleted)"
               ) : renderMarkdown ? (
                 // @ts-ignore
-                <Markdown markdown={chat.content} />
+                <Markdown markdown={getMessageText(chat)} />
               ) : (
-                chat.content
+                getMessageText(chat)
               )}
             </p>
             <hr className="mt-2" />
