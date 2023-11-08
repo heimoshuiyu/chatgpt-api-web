@@ -617,15 +617,17 @@ export default function ChatBOX(props: {
       )}
 
       <div className="flex justify-between">
-        <button
-          className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
-          disabled={showGenerating || !chatStore.apiKey}
-          onClick={() => {
-            setShowAddImage(!showAddImage);
-          }}
-        >
-          Img
-        </button>
+        {chatStore.model.match("vision") && (
+          <button
+            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            disabled={showGenerating || !chatStore.apiKey}
+            onClick={() => {
+              setShowAddImage(!showAddImage);
+            }}
+          >
+            Img
+          </button>
+        )}
         {showAddImage && (
           <div
             className="absolute z-10 bg-black bg-opacity-50 w-full h-full flex justify-center items-center left-0 top-0 overflow-scroll"
