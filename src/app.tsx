@@ -1,3 +1,4 @@
+import { IDBPDatabase, openDB } from "idb";
 import { useEffect, useState } from "preact/hooks";
 import "./global.css";
 
@@ -51,7 +52,7 @@ export interface ChatStore {
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
-const newChatStore = (
+export const newChatStore = (
   apiKey = "",
   systemMessageContent = "",
   apiEndpoint = _defaultAPIEndpoint,
@@ -97,7 +98,7 @@ const newChatStore = (
   };
 };
 
-const STORAGE_NAME = "chatgpt-api-web";
+export const STORAGE_NAME = "chatgpt-api-web";
 const STORAGE_NAME_SELECTED = `${STORAGE_NAME}-selected`;
 const STORAGE_NAME_INDEXES = `${STORAGE_NAME}-indexes`;
 const STORAGE_NAME_TOTALCOST = `${STORAGE_NAME}-totalcost`;
@@ -122,36 +123,45 @@ export function clearTotalCost() {
 }
 
 export function App() {
-  // init indexes
-  const initAllChatStoreIndexes: number[] = JSON.parse(
-    localStorage.getItem(STORAGE_NAME_INDEXES) ?? "[0]"
-  );
-  const [allChatStoreIndexes, setAllChatStoreIndexes] = useState(
-    initAllChatStoreIndexes
-  );
-  useEffect(() => {
-    if (allChatStoreIndexes.length === 0) allChatStoreIndexes.push(0);
-    console.log("saved all chat store indexes", allChatStoreIndexes);
-    localStorage.setItem(
-      STORAGE_NAME_INDEXES,
-      JSON.stringify(allChatStoreIndexes)
-    );
-  }, [allChatStoreIndexes]);
-
   // init selected index
   const [selectedChatIndex, setSelectedChatIndex] = useState(
-    parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "0")
+    parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "1")
   );
+  console.log("selectedChatIndex", selectedChatIndex);
   useEffect(() => {
     console.log("set selected chat index", selectedChatIndex);
     localStorage.setItem(STORAGE_NAME_SELECTED, `${selectedChatIndex}`);
   }, [selectedChatIndex]);
 
-  const getChatStoreByIndex = (index: number): ChatStore => {
-    const key = `${STORAGE_NAME}-${index}`;
-    const val = localStorage.getItem(key);
-    if (val === null) return newChatStore();
-    const ret = JSON.parse(val) as ChatStore;
+  const db = openDB<ChatStore>(STORAGE_NAME, 1, {
+    upgrade(db) {
+      const store = db.createObjectStore(STORAGE_NAME, {
+        autoIncrement: true,
+      });
+
+      // copy from localStorage to indexedDB
+      const allChatStoreIndexes: number[] = JSON.parse(
+        localStorage.getItem(STORAGE_NAME_INDEXES) ?? "[]"
+      );
+      let keyCount = 0;
+      for (const i of allChatStoreIndexes) {
+        console.log("importing chatStore from localStorage", i);
+        const key = `${STORAGE_NAME}-${i}`;
+        const val = localStorage.getItem(key);
+        if (val === null) continue;
+        store.add(JSON.parse(val));
+        keyCount += 1;
+      }
+      setSelectedChatIndex(keyCount);
+      alert(
+        "v2.0.0 Update: Imported chat history from localStorage to indexedDB. 🎉"
+      );
+    },
+  });
+
+  const getChatStoreByIndex = async (index: number): Promise<ChatStore> => {
+    const ret: ChatStore = await (await db).get(STORAGE_NAME, index);
+    if (ret === null || ret === undefined) return newChatStore();
     // handle read from old version chatstore
     if (ret.model === undefined) ret.model = "gpt-3.5-turbo";
     if (ret.responseModelName === undefined) ret.responseModelName = "";
@@ -168,16 +178,8 @@ export function App() {
     return ret;
   };
 
-  const [chatStore, _setChatStore] = useState(
-    getChatStoreByIndex(selectedChatIndex)
-  );
-  const setChatStore = (chatStore: ChatStore) => {
-    console.log("saved chat", selectedChatIndex, chatStore);
-    localStorage.setItem(
-      `${STORAGE_NAME}-${selectedChatIndex}`,
-      JSON.stringify(chatStore)
-    );
-
+  const [chatStore, _setChatStore] = useState(newChatStore());
+  const setChatStore = async (chatStore: ChatStore) => {
     console.log("recalculate postBeginIndex");
     const max = chatStore.maxTokens - chatStore.tokenMargin;
     let sum = 0;
@@ -205,59 +207,75 @@ export function App() {
       chatStore.totalTokens += msg.token;
     }
 
+    console.log("saved chat", selectedChatIndex, chatStore);
+    (await db).put(STORAGE_NAME, chatStore, selectedChatIndex);
+
     _setChatStore(chatStore);
   };
   useEffect(() => {
-    _setChatStore(getChatStoreByIndex(selectedChatIndex));
+    const run = async () => {
+      _setChatStore(await getChatStoreByIndex(selectedChatIndex));
+    };
+    run();
   }, [selectedChatIndex]);
 
-  const handleNewChatStore = () => {
-    const max = Math.max(...allChatStoreIndexes);
-    const next = max + 1;
-    console.log("save next chat", next);
-    localStorage.setItem(
-      `${STORAGE_NAME}-${next}`,
-      JSON.stringify(
-        newChatStore(
-          chatStore.apiKey,
-          chatStore.systemMessageContent,
-          chatStore.apiEndpoint,
-          chatStore.streamMode,
-          chatStore.model,
-          chatStore.temperature,
-          !!chatStore.develop_mode,
-          chatStore.whisper_api,
-          chatStore.whisper_key,
-          chatStore.tts_api,
-          chatStore.tts_key,
-          chatStore.tts_speed,
-          chatStore.tts_speed_enabled
-        )
+  // all chat store indexes
+  const [allChatStoreIndexes, setAllChatStoreIndexes] = useState<IDBValidKey>(
+    []
+  );
+
+  const handleNewChatStore = async () => {
+    const newKey = await (
+      await db
+    ).add(
+      STORAGE_NAME,
+      newChatStore(
+        chatStore.apiKey,
+        chatStore.systemMessageContent,
+        chatStore.apiEndpoint,
+        chatStore.streamMode,
+        chatStore.model,
+        chatStore.temperature,
+        !!chatStore.develop_mode,
+        chatStore.whisper_api,
+        chatStore.whisper_key,
+        chatStore.tts_api,
+        chatStore.tts_key,
+        chatStore.tts_speed,
+        chatStore.tts_speed_enabled
       )
     );
-    allChatStoreIndexes.push(next);
-    setAllChatStoreIndexes([...allChatStoreIndexes]);
-    setSelectedChatIndex(next);
+    setSelectedChatIndex(newKey as number);
+    setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
   };
 
   // if there are any params in URL, create a new chatStore
   useEffect(() => {
-    const api = getDefaultParams("api", "");
-    const key = getDefaultParams("key", "");
-    const sys = getDefaultParams("sys", "");
-    const mode = getDefaultParams("mode", "");
-    const model = getDefaultParams("model", "");
-    // only create new chatStore if the params in URL are NOT
-    // equal to the current selected chatStore
-    if (
-      (api && api !== chatStore.apiEndpoint) ||
-      (key && key !== chatStore.apiKey) ||
-      (sys && sys !== chatStore.systemMessageContent) ||
-      (mode && mode !== (chatStore.streamMode ? "stream" : "fetch")) ||
-      (model && model !== chatStore.model)
-    ) {
-      handleNewChatStore();
-    }
+    const run = async () => {
+      const api = getDefaultParams("api", "");
+      const key = getDefaultParams("key", "");
+      const sys = getDefaultParams("sys", "");
+      const mode = getDefaultParams("mode", "");
+      const model = getDefaultParams("model", "");
+      // only create new chatStore if the params in URL are NOT
+      // equal to the current selected chatStore
+      if (
+        (api && api !== chatStore.apiEndpoint) ||
+        (key && key !== chatStore.apiKey) ||
+        (sys && sys !== chatStore.systemMessageContent) ||
+        (mode && mode !== (chatStore.streamMode ? "stream" : "fetch")) ||
+        (model && model !== chatStore.model)
+      ) {
+        handleNewChatStore();
+      }
+      await db;
+      const allidx = await (await db).getAllKeys(STORAGE_NAME);
+      if (allidx.length === 0) {
+        handleNewChatStore();
+      }
+      setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
+    };
+    run();
   }, []);
 
   return (
@@ -271,7 +289,7 @@ export function App() {
             {Tr("NEW")}
           </button>
           <ul>
-            {allChatStoreIndexes
+            {(allChatStoreIndexes as number[])
               .slice()
               .reverse()
               .map((i) => {
@@ -295,43 +313,26 @@ export function App() {
         </div>
         <button
           className="rounded bg-rose-400 p-1 my-1 w-full"
-          onClick={() => {
+          onClick={async () => {
             if (!confirm("Are you sure you want to delete this chat history?"))
               return;
             console.log("remove item", `${STORAGE_NAME}-${selectedChatIndex}`);
-            localStorage.removeItem(`${STORAGE_NAME}-${selectedChatIndex}`);
-            const newAllChatStoreIndexes = [
-              ...allChatStoreIndexes.filter((v) => v !== selectedChatIndex),
-            ];
+            (await db).delete(STORAGE_NAME, selectedChatIndex);
+            const newAllChatStoreIndexes = await (
+              await db
+            ).getAllKeys(STORAGE_NAME);
 
             if (newAllChatStoreIndexes.length === 0) {
-              newAllChatStoreIndexes.push(0);
-              setChatStore(
-                newChatStore(
-                  chatStore.apiKey,
-                  chatStore.systemMessageContent,
-                  chatStore.apiEndpoint,
-                  chatStore.streamMode,
-                  chatStore.model,
-                  chatStore.temperature,
-                  !!chatStore.develop_mode,
-                  chatStore.whisper_api,
-                  chatStore.whisper_key,
-                  chatStore.tts_api,
-                  chatStore.tts_key,
-                  chatStore.tts_speed,
-                  chatStore.tts_speed_enabled
-                )
-              );
+              handleNewChatStore();
+              return;
             }
 
             // find nex selected chat index
             const next =
               newAllChatStoreIndexes[newAllChatStoreIndexes.length - 1];
             console.log("next is", next);
-            setSelectedChatIndex(next);
-
-            setAllChatStoreIndexes([...newAllChatStoreIndexes]);
+            setSelectedChatIndex(next as number);
+            setAllChatStoreIndexes(newAllChatStoreIndexes);
           }}
         >
           {Tr("DEL")}
@@ -339,20 +340,17 @@ export function App() {
         {chatStore.develop_mode && (
           <button
             className="rounded bg-rose-800 p-1 my-1 w-full text-white"
-            onClick={() => {
+            onClick={async () => {
               if (
                 !confirm(
                   "Are you sure you want to delete **ALL** chat history?"
                 )
               )
                 return;
-              for (const i of allChatStoreIndexes) {
-                console.log("remove item", `${STORAGE_NAME}-${i}`);
-                localStorage.removeItem(`${STORAGE_NAME}-${i}`);
-              }
+
+              await (await db).clear(STORAGE_NAME);
               setAllChatStoreIndexes([]);
-              setSelectedChatIndex(0);
-              // reload page
+              setSelectedChatIndex(1);
               window.location.reload();
             }}
           >

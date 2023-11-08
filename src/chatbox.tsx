@@ -324,7 +324,7 @@ export default function ChatBOX(props: {
             chatStore.history.filter((msg) => !msg.example).length == 0 ||
             !chatStore.apiEndpoint ||
             !chatStore.apiKey) && (
-            <p className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
+            <div className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
               <h2>{Tr("Saved API templates")}</h2>
               <hr className="my-2" />
               <div className="flex flex-wrap">
@@ -376,10 +376,10 @@ export default function ChatBOX(props: {
                   </div>
                 ))}
               </div>
-            </p>
+            </div>
           )}
         {chatStore.history.filter((msg) => !msg.example).length == 0 && (
-          <p className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
+          <div className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
             <h2>
               <span>{Tr("Saved prompt templates")}</span>
               <button
@@ -448,7 +448,7 @@ export default function ChatBOX(props: {
                 </div>
               ))}
             </div>
-          </p>
+          </div>
         )}
         {chatStore.history.length === 0 && (
           <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
