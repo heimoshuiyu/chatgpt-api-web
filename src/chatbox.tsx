@@ -730,6 +730,20 @@ export default function ChatBOX(props: {
                       >
                         🖋
                       </button>
+                      <span
+                        onClick={() => {
+                          if (image.image_url === undefined) return;
+                          image.image_url.detail =
+                            image.image_url?.detail === "low" ? "high" : "low";
+                          setImages([...images]);
+                        }}
+                      >
+                        <label>HiRes</label>
+                        <input
+                          type="checkbox"
+                          checked={image.image_url?.detail === "high"}
+                        />
+                      </span>
                       <button
                         onClick={() => {
                           if (!confirm("Are you sure to delete this image?")) {

@@ -27,6 +27,8 @@ ChatGPT API WEB 是为 ChatGPT 的日常用户和 Prompt 工程师设计的项�
 - 小（整个网页 30k 左右）
 - 可以设置不同的 API Endpoint（方便墙内人士使用反向代理转发 API 请求）
 - 支持 Whisper 语音转文字输入，将会使用历史对话记录和当前输入框内的文本作为 Prompt，提高专有名词识别率
+- 支持 TTS API
+- 支持 GPT-4v 图片输入
 
 ## 屏幕截图
 
