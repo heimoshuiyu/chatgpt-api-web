@@ -220,7 +220,7 @@ export default function ChatBOX(props: {
   // when user click the "send" button or ctrl+Enter in the textarea
   const send = async (msg = "", call_complete = true) => {
     const inputMsg = msg.trim();
-    if (!inputMsg) {
+    if (!inputMsg && images.length === 0) {
       console.log("empty message");
       return;
     }
