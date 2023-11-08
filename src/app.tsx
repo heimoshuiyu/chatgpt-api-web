@@ -153,9 +153,11 @@ export function App() {
         keyCount += 1;
       }
       setSelectedChatIndex(keyCount);
-      alert(
-        "v2.0.0 Update: Imported chat history from localStorage to indexedDB. 🎉"
-      );
+      if (keyCount > 0) {
+        alert(
+          "v2.0.0 Update: Imported chat history from localStorage to indexedDB. 🎉"
+        );
+      }
     },
   });
 
