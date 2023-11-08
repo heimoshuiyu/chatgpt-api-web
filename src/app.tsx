@@ -29,6 +29,8 @@ export interface ChatStore {
   tokenMargin: number;
   totalTokens: number;
   maxTokens: number;
+  maxGenTokens: number;
+  maxGenTokens_enabled: boolean;
   apiKey: string;
   apiEndpoint: string;
   streamMode: boolean;
@@ -75,6 +77,8 @@ export const newChatStore = (
     tokenMargin: 1024,
     totalTokens: 0,
     maxTokens: models[getDefaultParams("model", model)]?.maxToken ?? 4096,
+    maxGenTokens: 2048,
+    maxGenTokens_enabled: true,
     apiKey: getDefaultParams("key", apiKey),
     apiEndpoint: getDefaultParams("api", apiEndpoint),
     streamMode: getDefaultParams("mode", streamMode),
@@ -165,6 +169,8 @@ export function App() {
     const ret: ChatStore = await (await db).get(STORAGE_NAME, index);
     if (ret === null || ret === undefined) return newChatStore();
     // handle read from old version chatstore
+    if (ret.maxGenTokens === undefined) ret.maxGenTokens = 2048;
+    if (ret.maxGenTokens_enabled === undefined) ret.maxGenTokens_enabled = true;
     if (ret.model === undefined) ret.model = "gpt-3.5-turbo";
     if (ret.responseModelName === undefined) ret.responseModelName = "";
     if (ret.chatgpt_api_web_version === undefined)

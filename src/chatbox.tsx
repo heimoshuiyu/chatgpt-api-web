@@ -184,6 +184,8 @@ export default function ChatBOX(props: {
       });
     client.model = chatStore.model;
     client.max_tokens = chatStore.maxTokens;
+    client.max_gen_tokens = chatStore.maxGenTokens;
+    client.enable_max_gen_tokens = chatStore.maxGenTokens_enabled;
 
     try {
       setShowGenerating(true);

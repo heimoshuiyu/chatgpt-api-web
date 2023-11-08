@@ -63,6 +63,8 @@ class Chat {
   sysMessageContent: string;
   total_tokens: number;
   max_tokens: number;
+  max_gen_tokens: number;
+  enable_max_gen_tokens: boolean;
   tokens_margin: number;
   apiEndpoint: string;
   model: string;
@@ -78,6 +80,8 @@ class Chat {
     {
       systemMessage = "",
       max_tokens = 4096,
+      max_gen_tokens = 2048,
+      enable_max_gen_tokens = true,
       tokens_margin = 1024,
       apiEndPoint = "https://api.openai.com/v1/chat/completions",
       model = "gpt-3.5-turbo",
@@ -96,6 +100,8 @@ class Chat {
     this.messages = [];
     this.total_tokens = calculate_token_length(systemMessage);
     this.max_tokens = max_tokens;
+    this.max_gen_tokens = max_gen_tokens;
+    this.enable_max_gen_tokens = enable_max_gen_tokens;
     this.tokens_margin = tokens_margin;
     this.sysMessageContent = systemMessage;
     this.apiEndpoint = apiEndPoint;
@@ -150,6 +156,9 @@ class Chat {
     }
     if (this.enable_top_p) {
       body["top_p"] = this.top_p;
+    }
+    if (this.enable_max_gen_tokens) {
+      body["max_tokens"] = this.max_gen_tokens;
     }
 
     return fetch(this.apiEndpoint, {

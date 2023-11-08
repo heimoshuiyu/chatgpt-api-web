@@ -188,6 +188,7 @@ const Number = (props: {
   field:
     | "totalTokens"
     | "maxTokens"
+    | "maxGenTokens"
     | "tokenMargin"
     | "postBeginIndex"
     | "presence_penalty"
@@ -197,9 +198,27 @@ const Number = (props: {
 }) => {
   return (
     <Help help={props.help}>
-      <label className="m-2 p-2">{props.field}</label>
+      <span>
+        <label className="m-2 p-2">{props.field}</label>
+        {props.field === "maxGenTokens" && (
+          <input
+            type="checkbox"
+            checked={props.chatStore.maxGenTokens_enabled}
+            onChange={() => {
+              const newChatStore = { ...props.chatStore };
+              newChatStore.maxGenTokens_enabled =
+                !newChatStore.maxGenTokens_enabled;
+              props.setChatStore({ ...newChatStore });
+            }}
+          />
+        )}
+      </span>
       <input
         readOnly={props.readOnly}
+        disabled={
+          props.field === "maxGenTokens" &&
+          !props.chatStore.maxGenTokens_enabled
+        }
         type="number"
         className="m-2 p-2 border rounded focus w-28"
         value={props.chatStore[props.field]}
@@ -381,6 +400,12 @@ export default (props: {
           <Number
             field="maxTokens"
             help="最大 token 数量。如果使用非gpt-3.5模型，请手动修改上限。gpt-4 & gpt-4-0314: 8192。gpt-4-32k & gpt-4-32k-0314: 32768"
+            readOnly={false}
+            {...props}
+          />
+          <Number
+            field="maxGenTokens"
+            help="最大生成 Tokens 数量"
             readOnly={false}
             {...props}
           />
