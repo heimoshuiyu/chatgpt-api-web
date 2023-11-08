@@ -122,6 +122,22 @@ function EditMessage(props: EditMessageProps) {
                       >
                         {Tr("Upload")}
                       </button>
+                      <span
+                        className="bg-blue-300 p-1 rounded"
+                        onClick={() => {
+                          if (typeof chat.content === "string") return;
+                          const obj = chat.content[index].image_url;
+                          if (obj === undefined) return;
+                          obj.detail = obj.detail === "high" ? "low" : "high";
+                          setChatStore({ ...chatStore });
+                        }}
+                      >
+                        <label>High Resolution</label>
+                        <input
+                          type="checkbox"
+                          checked={mdt.image_url?.detail === "high"}
+                        />
+                      </span>
                     </>
                   )}
 
@@ -159,7 +175,7 @@ function EditMessage(props: EditMessageProps) {
                   type: "image_url",
                   image_url: {
                     url: "",
-                    detail: "low",
+                    detail: "high",
                   },
                 });
                 setChatStore({ ...chatStore });

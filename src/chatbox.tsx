@@ -35,6 +35,7 @@ export default function ChatBOX(props: {
   if (chatStore === undefined) return <div></div>;
   const [inputMsg, setInputMsg] = useState("");
   const [images, setImages] = useState<MessageDetail[]>([]);
+  const [enableHighResolution, setEnableHighResolution] = useState(true);
   const [showAddImage, setShowAddImage] = useState(false);
   const [showGenerating, setShowGenerating] = useState(false);
   const [generatingMessage, setGeneratingMessage] = useState("");
@@ -653,7 +654,7 @@ export default function ChatBOX(props: {
                         type: "image_url",
                         image_url: {
                           url: image_url,
-                          detail: "low",
+                          detail: enableHighResolution ? "high" : "low",
                         },
                       },
                     ]);
@@ -684,7 +685,7 @@ export default function ChatBOX(props: {
                             type: "image_url",
                             image_url: {
                               url: String(base64data),
-                              detail: "low",
+                              detail: enableHighResolution ? "high" : "low",
                             },
                           },
                         ]);
@@ -695,6 +696,14 @@ export default function ChatBOX(props: {
                 >
                   Add from local file
                 </button>
+                <span
+                  onClick={() => {
+                    setEnableHighResolution(!enableHighResolution);
+                  }}
+                >
+                  <label>High resolution</label>
+                  <input type="checkbox" checked={enableHighResolution} />
+                </span>
               </span>
               <div className="flex flex-wrap">
                 {images.map((image, index) => (
@@ -714,7 +723,7 @@ export default function ChatBOX(props: {
                           }
                           images[index].image_url = {
                             url: image_url,
-                            detail: "low",
+                            detail: enableHighResolution ? "high" : "low",
                           };
                           setImages([...images]);
                         }}
