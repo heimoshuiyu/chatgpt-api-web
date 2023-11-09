@@ -9,7 +9,7 @@ export interface MessageDetail {
   image_url?: ImageURL;
 }
 export interface Message {
-  role: "system" | "user" | "assistant" | "function";
+  role: "system" | "user" | "assistant" | "tool";
   content: string | MessageDetail[];
   name?: "example_user" | "example_assistant";
   tool_calls?: {
@@ -17,6 +17,7 @@ export interface Message {
     type: string;
     function: any;
   }[];
+  tool_call_id?: string;
 }
 export const getMessageText = (message: Message): string => {
   if (typeof message.content === "string") {

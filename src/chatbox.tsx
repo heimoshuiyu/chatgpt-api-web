@@ -13,6 +13,7 @@ import ChatGPT, {
   calculate_token_length,
   ChunkMessage,
   FetchResponse,
+  Message as MessageType,
   MessageDetail,
 } from "./chatgpt";
 import Message from "./message";
@@ -41,6 +42,9 @@ export default function ChatBOX(props: {
   const [generatingMessage, setGeneratingMessage] = useState("");
   const [showRetry, setShowRetry] = useState(false);
   const [isRecording, setIsRecording] = useState("Mic");
+  const [showAddToolMsg, setShowAddToolMsg] = useState(false);
+  const [newToolCallID, setNewToolCallID] = useState("");
+  const [newToolContent, setNewToolContent] = useState("");
   const mediaRef = createRef();
 
   const messagesEndRef = createRef();
@@ -175,18 +179,21 @@ export default function ChatBOX(props: {
       .filter(({ hide }) => !hide)
       .slice(chatStore.postBeginIndex)
       // only copy content and role attribute to client for posting
-      .map(({ content, role, example }) => {
-        if (example) {
-          return {
-            content,
-            role: "system",
-            name: role === "assistant" ? "example_assistant" : "example_user",
-          };
-        }
-        return {
+      .map(({ content, role, example, tool_call_id }) => {
+        const ret: MessageType = {
           content,
           role,
         };
+
+        if (example) {
+          ret.name =
+            ret.role === "assistant" ? "example_assistant" : "example_user";
+          ret.role = "system";
+        }
+
+        if (tool_call_id) ret.tool_call_id = tool_call_id;
+
+        return ret;
       });
     client.model = chatStore.model;
     client.max_tokens = chatStore.maxTokens;
@@ -945,6 +952,93 @@ export default function ChatBOX(props: {
           >
             {Tr("User")}
           </button>
+        )}
+        {chatStore.develop_mode && (
+          <button
+            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            disabled={showGenerating || !chatStore.apiKey}
+            onClick={() => {
+              setShowAddToolMsg(true);
+            }}
+          >
+            {Tr("Tool")}
+          </button>
+        )}
+        {showAddToolMsg && (
+          <div
+            className="absolute z-10 bg-black bg-opacity-50 w-full h-full flex justify-center items-center left-0 top-0 overflow-scroll"
+            onClick={() => {
+              setShowAddToolMsg(false);
+            }}
+          >
+            <div
+              className="bg-white rounded p-2 z-20 flex flex-col"
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              <h2>Add Tool Message</h2>
+              <hr className="my-2" />
+              <span>
+                <label>tool_call_id</label>
+                <input
+                  className="rounded m-1 p-1 border-2 border-gray-400"
+                  type="text"
+                  value={newToolCallID}
+                  onChange={(event: any) =>
+                    setNewToolCallID(event.target.value)
+                  }
+                />
+              </span>
+              <span>
+                <label>Content</label>
+                <textarea
+                  className="rounded m-1 p-1 border-2 border-gray-400"
+                  rows={5}
+                  value={newToolContent}
+                  onChange={(event: any) =>
+                    setNewToolContent(event.target.value)
+                  }
+                ></textarea>
+              </span>
+              <span className={`flex justify-between p-2`}>
+                <button
+                  className="rounded m-1 p-1 border-2 bg-red-400 hover:bg-red-600"
+                  onClick={() => setShowAddToolMsg(false)}
+                >
+                  {Tr("Cancle")}
+                </button>
+                <button
+                  className="rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+                  onClick={() => {
+                    if (!newToolCallID.trim()) {
+                      alert("tool_call_id is empty");
+                      return;
+                    }
+                    if (!newToolContent.trim()) {
+                      alert("content is empty");
+                      return;
+                    }
+                    chatStore.history.push({
+                      role: "tool",
+                      tool_call_id: newToolCallID.trim(),
+                      content: newToolContent.trim(),
+                      token: calculate_token_length(newToolContent),
+                      hide: false,
+                      example: false,
+                    });
+                    update_total_tokens();
+                    setChatStore({ ...chatStore });
+                    setNewToolCallID("");
+                    setNewToolContent("");
+                    setShowAddToolMsg(false);
+                  }}
+                >
+                  {Tr("Add")}
+                </button>
+              </span>
+            </div>
+          </div>
         )}
       </div>
     </div>
