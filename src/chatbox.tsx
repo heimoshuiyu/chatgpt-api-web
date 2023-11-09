@@ -231,7 +231,7 @@ export default function ChatBOX(props: {
     if (images.length > 0) {
       content = images;
     }
-    if (inputMsg.trim()) {
+    if (images.length > 0 && inputMsg.trim()) {
       content = [{ type: "text", text: inputMsg }, ...images];
     }
     chatStore.history.push({
