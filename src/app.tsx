@@ -21,9 +21,11 @@ export interface TemplateAPI {
   key: string;
   endpoint: string;
 }
+
 export interface ChatStore {
   chatgpt_api_web_version: string;
   systemMessageContent: string;
+  toolsString: string;
   history: ChatStoreMessage[];
   postBeginIndex: number;
   tokenMargin: number;
@@ -67,11 +69,13 @@ export const newChatStore = (
   tts_api = "",
   tts_key = "",
   tts_speed = 1.0,
-  tts_speed_enabled = false
+  tts_speed_enabled = false,
+  toolsString = ""
 ): ChatStore => {
   return {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
     systemMessageContent: getDefaultParams("sys", systemMessageContent),
+    toolsString,
     history: [],
     postBeginIndex: 0,
     tokenMargin: 1024,
@@ -173,6 +177,7 @@ export function App() {
     if (ret.maxGenTokens_enabled === undefined) ret.maxGenTokens_enabled = true;
     if (ret.model === undefined) ret.model = "gpt-3.5-turbo";
     if (ret.responseModelName === undefined) ret.responseModelName = "";
+    if (ret.toolsString === undefined) ret.toolsString = "";
     if (ret.chatgpt_api_web_version === undefined)
       // this is from old version becasue it is undefined,
       // so no higher than v1.3.0

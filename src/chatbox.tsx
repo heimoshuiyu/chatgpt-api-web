@@ -127,7 +127,7 @@ export default function ChatBOX(props: {
       chatStore.cost += cost;
       addTotalCost(cost);
     }
-    const content = client.processFetchResponse(data);
+    const msg = client.processFetchResponse(data);
 
     // estimate user's input message token
     let aboveToken = 0;
@@ -147,9 +147,11 @@ export default function ChatBOX(props: {
 
     chatStore.history.push({
       role: "assistant",
-      content,
+      content: msg.content,
+      tool_calls: msg.tool_calls,
       hide: false,
-      token: data.usage.completion_tokens ?? calculate_token_length(content),
+      token:
+        data.usage.completion_tokens ?? calculate_token_length(msg.content),
       example: false,
     });
     setShowGenerating(false);
@@ -160,6 +162,7 @@ export default function ChatBOX(props: {
     // manually copy status from chatStore to client
     client.apiEndpoint = chatStore.apiEndpoint;
     client.sysMessageContent = chatStore.systemMessageContent;
+    client.toolsString = chatStore.toolsString;
     client.tokens_margin = chatStore.tokenMargin;
     client.temperature = chatStore.temperature;
     client.enable_temperature = chatStore.temperature_enabled;

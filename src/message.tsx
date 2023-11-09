@@ -288,6 +288,21 @@ export default function Message(props: Props) {
                 : "bg-green-400"
             } ${chat.hide ? "opacity-50" : ""}`}
           >
+            {chat.tool_calls && chat.hide ? (
+              <div className="message-content">Tool Call</div>
+            ) : (
+              <div className="message-content">
+                <div>
+                  {chat.tool_calls?.map((tool_call) => (
+                    <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded">
+                      <strong>Tool Call ID: {tool_call?.id}</strong>
+                      <p>Type: {tool_call?.type}</p>
+                      <p>Function: {JSON.stringify(tool_call?.function)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <p className={renderMarkdown ? "" : "message-content"}>
               {typeof chat.content !== "string" ? (
                 // render for multiple messages

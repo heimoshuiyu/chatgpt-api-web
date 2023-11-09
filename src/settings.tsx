@@ -60,7 +60,7 @@ const SelectModel = (props: {
 const LongInput = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  field: "systemMessageContent";
+  field: "systemMessageContent" | "toolsString";
   help: string;
 }) => {
   return (
@@ -371,6 +371,11 @@ export default (props: {
           <LongInput
             field="systemMessageContent"
             help="系统消息，用于指示ChatGPT的角色和一些前置条件，例如“你是一个有帮助的人工智能助理”，或者“你是一个专业英语翻译，把我的话全部翻译成英语”，详情参考 OPEAN AI API 文档"
+            {...props}
+          />
+          <LongInput
+            field="toolsString"
+            help="function call tools, should be valied json format in list"
             {...props}
           />
           <Input
