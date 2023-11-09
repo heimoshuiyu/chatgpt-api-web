@@ -57,6 +57,7 @@ function EditMessage(props: EditMessageProps) {
                         if (typeof chat.content === "string") return;
                         chat.content[index].text = event.target.value;
                         chat.token = calculate_token_length(chat.content);
+                        console.log("calculated token length", chat.token);
                         setChatStore({ ...chatStore });
                       }}
                       onKeyPress={(event: any) => {
@@ -129,6 +130,7 @@ function EditMessage(props: EditMessageProps) {
                           const obj = chat.content[index].image_url;
                           if (obj === undefined) return;
                           obj.detail = obj.detail === "high" ? "low" : "high";
+                          chat.token = calculate_token_length(chat.content);
                           setChatStore({ ...chatStore });
                         }}
                       >

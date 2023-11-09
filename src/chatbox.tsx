@@ -243,8 +243,10 @@ export default function ChatBOX(props: {
     });
 
     // manually calculate token length
-    chatStore.totalTokens += client.calculate_token_length(inputMsg.trim());
-    client.total_tokens += client.calculate_token_length(inputMsg.trim());
+    chatStore.totalTokens +=
+      calculate_token_length(inputMsg.trim()) + calculate_token_length(images);
+    client.total_tokens = chatStore.totalTokens;
+
     setChatStore({ ...chatStore });
     setInputMsg("");
     setImages([]);
@@ -916,7 +918,9 @@ export default function ChatBOX(props: {
               chatStore.history.push({
                 role: "assistant",
                 content: inputMsg,
-                token: calculate_token_length(inputMsg),
+                token:
+                  calculate_token_length(inputMsg) +
+                  calculate_token_length(images),
                 hide: false,
                 example: false,
               });

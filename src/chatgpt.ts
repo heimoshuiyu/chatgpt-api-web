@@ -71,7 +71,7 @@ export function calculate_token_length(
       tokens += m.image_url?.detail === "high" ? 65 * 4 : 65;
     }
   }
-  return 0;
+  return tokens;
 }
 
 class Chat {
@@ -267,11 +267,11 @@ class Chat {
     return this._fetch(true);
   }
 
-  calculate_token_length(content: string): number {
+  calculate_token_length(content: string | MessageDetail[]): number {
     return calculate_token_length(content);
   }
 
-  user(...messages: string[]) {
+  user(...messages: (string | MessageDetail[])[]) {
     for (const msg of messages) {
       this.messages.push({ role: "user", content: msg });
       this.total_tokens += this.calculate_token_length(msg);
@@ -279,7 +279,7 @@ class Chat {
     }
   }
 
-  assistant(...messages: string[]) {
+  assistant(...messages: (string | MessageDetail[])[]) {
     for (const msg of messages) {
       this.messages.push({ role: "assistant", content: msg });
       this.total_tokens += this.calculate_token_length(msg);
