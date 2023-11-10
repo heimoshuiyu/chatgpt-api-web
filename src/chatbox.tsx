@@ -4,6 +4,7 @@ import { createRef } from "preact";
 import { StateUpdater, useEffect, useState } from "preact/hooks";
 import {
   ChatStore,
+  ChatStoreMessage,
   STORAGE_NAME_TEMPLATE,
   STORAGE_NAME_TEMPLATE_API,
   TemplateAPI,
@@ -137,14 +138,16 @@ export default function ChatBOX(props: {
     chatStore.cost += cost;
     addTotalCost(cost);
 
-    chatStore.history.push({
+    const newMsg: ChatStoreMessage = {
       role: "assistant",
       content,
-      tool_calls: allChunkTool,
       hide: false,
       token: responseTokenCount,
       example: false,
-    });
+    };
+    if (allChunkTool.length > 0) newMsg.tool_calls = allChunkTool;
+
+    chatStore.history.push(newMsg);
     // manually copy status from client to chatStore
     chatStore.maxTokens = client.max_tokens;
     chatStore.tokenMargin = client.tokens_margin;
