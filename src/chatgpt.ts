@@ -277,7 +277,7 @@ class Chat {
       this.forgetSomeMessages();
     }
 
-    let content = "";
+    let content = resp.choices[0].message?.content ?? "";
     if (
       !resp.choices[0]?.message?.content &&
       !resp.choices[0]?.message?.tool_calls
