@@ -87,7 +87,9 @@ const Input = (props: {
     | "whisper_api"
     | "whisper_key"
     | "tts_api"
-    | "tts_key";
+    | "tts_key"
+    | "image_gen_api"
+    | "image_gen_key";
   help: string;
 }) => {
   const [hideInput, setHideInput] = useState(true);
@@ -490,6 +492,16 @@ export default (props: {
             max={4.0}
             field="tts_speed"
             help={"TTS Speed"}
+            {...props}
+          />
+          <Input
+            field="image_gen_api"
+            help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
+            {...props}
+          />
+          <Input
+            field="image_gen_key"
+            help="image generation service api key"
             {...props}
           />
 

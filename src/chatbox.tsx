@@ -22,6 +22,7 @@ import Message from "./message";
 import models from "./models";
 import Settings from "./settings";
 import getDefaultParams from "./getDefaultParam";
+import { AddImage } from "./addImage";
 
 export interface TemplateChatStore extends ChatStore {
   name: string;
@@ -38,7 +39,6 @@ export default function ChatBOX(props: {
   if (chatStore === undefined) return <div></div>;
   const [inputMsg, setInputMsg] = useState("");
   const [images, setImages] = useState<MessageDetail[]>([]);
-  const [enableHighResolution, setEnableHighResolution] = useState(true);
   const [showAddImage, setShowAddImage] = useState(false);
   const [showGenerating, setShowGenerating] = useState(false);
   const [generatingMessage, setGeneratingMessage] = useState("");
@@ -687,140 +687,13 @@ export default function ChatBOX(props: {
           </button>
         )}
         {showAddImage && (
-          <div
-            className="absolute z-10 bg-black bg-opacity-50 w-full h-full flex justify-center items-center left-0 top-0 overflow-scroll"
-            onClick={() => {
-              setShowAddImage(false);
-            }}
-          >
-            <div
-              className="bg-white rounded p-2 z-20"
-              onClick={(event) => {
-                event.stopPropagation();
-              }}
-            >
-              <h2>Add Images</h2>
-              <span>
-                <button
-                  className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
-                  onClick={() => {
-                    const image_url = prompt("Image URL");
-                    if (!image_url) {
-                      return;
-                    }
-                    setImages([
-                      ...images,
-                      {
-                        type: "image_url",
-                        image_url: {
-                          url: image_url,
-                          detail: enableHighResolution ? "high" : "low",
-                        },
-                      },
-                    ]);
-                  }}
-                >
-                  Add from URL
-                </button>
-                <button
-                  className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
-                  onClick={() => {
-                    // select file and load it to base64 image URL format
-                    const input = document.createElement("input");
-                    input.type = "file";
-                    input.accept = "image/*";
-                    input.onchange = (event) => {
-                      const file = (event.target as HTMLInputElement)
-                        .files?.[0];
-                      if (!file) {
-                        return;
-                      }
-                      const reader = new FileReader();
-                      reader.readAsDataURL(file);
-                      reader.onloadend = () => {
-                        const base64data = reader.result;
-                        setImages([
-                          ...images,
-                          {
-                            type: "image_url",
-                            image_url: {
-                              url: String(base64data),
-                              detail: enableHighResolution ? "high" : "low",
-                            },
-                          },
-                        ]);
-                      };
-                    };
-                    input.click();
-                  }}
-                >
-                  Add from local file
-                </button>
-                <span
-                  onClick={() => {
-                    setEnableHighResolution(!enableHighResolution);
-                  }}
-                >
-                  <label>High resolution</label>
-                  <input type="checkbox" checked={enableHighResolution} />
-                </span>
-              </span>
-              <div className="flex flex-wrap">
-                {images.map((image, index) => (
-                  <div className="flex flex-col">
-                    {image.type === "image_url" && (
-                      <img
-                        className="rounded m-1 p-1 border-2 border-gray-400 w-32"
-                        src={image.image_url?.url}
-                      />
-                    )}
-                    <span className="flex justify-between">
-                      <button
-                        onClick={() => {
-                          const image_url = prompt("Image URL");
-                          if (!image_url) {
-                            return;
-                          }
-                          images[index].image_url = {
-                            url: image_url,
-                            detail: enableHighResolution ? "high" : "low",
-                          };
-                          setImages([...images]);
-                        }}
-                      >
-                        🖋
-                      </button>
-                      <span
-                        onClick={() => {
-                          if (image.image_url === undefined) return;
-                          image.image_url.detail =
-                            image.image_url?.detail === "low" ? "high" : "low";
-                          setImages([...images]);
-                        }}
-                      >
-                        <label>HiRes</label>
-                        <input
-                          type="checkbox"
-                          checked={image.image_url?.detail === "high"}
-                        />
-                      </span>
-                      <button
-                        onClick={() => {
-                          if (!confirm("Are you sure to delete this image?")) {
-                            return;
-                          }
-                          images.splice(index, 1);
-                          setImages([...images]);
-                        }}
-                      >
-                        ❌
-                      </button>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <AddImage
+            chatStore={chatStore}
+            setChatStore={setChatStore}
+            setShowAddImage={setShowAddImage}
+            images={images}
+            setImages={setImages}
+          />
         )}
         <textarea
           rows={Math.min(10, (inputMsg.match(/\n/g) || []).length + 2)}

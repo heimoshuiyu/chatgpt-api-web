@@ -53,6 +53,8 @@ export interface ChatStore {
   tts_voice: string;
   tts_speed: number;
   tts_speed_enabled: boolean;
+  image_gen_api: string;
+  image_gen_key: string;
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
@@ -70,7 +72,9 @@ export const newChatStore = (
   tts_key = "",
   tts_speed = 1.0,
   tts_speed_enabled = false,
-  toolsString = ""
+  toolsString = "",
+  image_gen_api = "",
+  image_gen_key = ""
 ): ChatStore => {
   return {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
@@ -103,6 +107,8 @@ export const newChatStore = (
     tts_voice: "alloy",
     tts_speed: tts_speed,
     tts_speed_enabled: tts_speed_enabled,
+    image_gen_api: image_gen_api,
+    image_gen_key: image_gen_key,
   };
 };
 
