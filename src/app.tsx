@@ -255,7 +255,8 @@ export function App() {
         chatStore.tts_api,
         chatStore.tts_key,
         chatStore.tts_speed,
-        chatStore.tts_speed_enabled
+        chatStore.tts_speed_enabled,
+        chatStore.toolsString
       )
     );
     setSelectedChatIndex(newKey as number);
