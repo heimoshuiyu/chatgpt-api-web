@@ -8,13 +8,53 @@ export interface MessageDetail {
   text?: string;
   image_url?: ImageURL;
 }
+export interface ToolCall {
+  index: number;
+  id?: string;
+  type: string;
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
 export interface Message {
-  role: "system" | "user" | "assistant" | "function";
+  role: "system" | "user" | "assistant" | "tool";
   content: string | MessageDetail[];
   name?: "example_user" | "example_assistant";
+  tool_calls?: ToolCall[];
+  tool_call_id?: string;
+}
+
+interface Delta {
+  role?: string;
+  content?: string;
+  tool_calls?: ToolCall[];
+}
+
+interface Choices {
+  index: number;
+  delta: Delta;
+  finish_reason: string | null;
+}
+
+export interface StreamingResponseChunk {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  system_fingerprint: string;
+  choices: Choices[];
 }
 export const getMessageText = (message: Message): string => {
   if (typeof message.content === "string") {
+    // function call message
+    if (message.tool_calls) {
+      return message.tool_calls
+        .map((tc) => {
+          return `Tool Call ID: ${tc.id}\nType: ${tc.type}\nFunction: ${tc.function.name}\nArguments: ${tc.function.arguments}}`;
+        })
+        .join("\n");
+    }
     return message.content;
   }
   return message.content
@@ -78,6 +118,7 @@ class Chat {
   OPENAI_API_KEY: string;
   messages: Message[];
   sysMessageContent: string;
+  toolsString: string;
   total_tokens: number;
   max_tokens: number;
   max_gen_tokens: number;
@@ -96,6 +137,7 @@ class Chat {
     OPENAI_API_KEY: string | undefined,
     {
       systemMessage = "",
+      toolsString = "",
       max_tokens = 4096,
       max_gen_tokens = 2048,
       enable_max_gen_tokens = true,
@@ -121,6 +163,7 @@ class Chat {
     this.enable_max_gen_tokens = enable_max_gen_tokens;
     this.tokens_margin = tokens_margin;
     this.sysMessageContent = systemMessage;
+    this.toolsString = toolsString;
     this.apiEndpoint = apiEndPoint;
     this.model = model;
     this.temperature = temperature;
@@ -178,6 +221,25 @@ class Chat {
       body["max_tokens"] = this.max_gen_tokens;
     }
 
+    // parse toolsString to function call format
+    const ts = this.toolsString.trim();
+    if (ts) {
+      try {
+        const fcList: any[] = JSON.parse(ts);
+        body["tools"] = fcList.map((fc) => {
+          return {
+            type: "function",
+            function: fc,
+          };
+        });
+      } catch (e) {
+        console.log("toolsString parse error");
+        throw (
+          "Function call toolsString parse error, not a valied json list: " + e
+        );
+      }
+    }
+
     return fetch(this.apiEndpoint, {
       method: "POST",
       headers: {
@@ -224,7 +286,7 @@ class Chat {
         console.log("line", line);
         try {
           const jsonStr = line.slice("data:".length).trim();
-          const json = JSON.parse(jsonStr);
+          const json = JSON.parse(jsonStr) as StreamingResponseChunk;
           yield json;
         } catch (e) {
           console.log(`Chunk parse error at: ${line}`);
@@ -234,7 +296,7 @@ class Chat {
     }
   }
 
-  processFetchResponse(resp: FetchResponse): string {
+  processFetchResponse(resp: FetchResponse): Message {
     if (resp.error !== undefined) {
       throw JSON.stringify(resp.error);
     }
@@ -249,15 +311,19 @@ class Chat {
       this.forgetSomeMessages();
     }
 
-    return (
-      (resp?.choices[0]?.message?.content as string) ??
-      `Error: ${JSON.stringify(resp)}`
-    );
-  }
+    let content = resp.choices[0].message?.content ?? "";
+    if (
+      !resp.choices[0]?.message?.content &&
+      !resp.choices[0]?.message?.tool_calls
+    ) {
+      content = `Unparsed response: ${JSON.stringify(resp)}`;
+    }
 
-  async complete(): Promise<string> {
-    const resp = await this.fetch();
-    return this.processFetchResponse(resp);
+    return {
+      role: "assistant",
+      content,
+      tool_calls: resp?.choices[0]?.message?.tool_calls,
+    };
   }
 
   completeWithSteam() {

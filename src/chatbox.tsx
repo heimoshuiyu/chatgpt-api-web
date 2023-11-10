@@ -13,7 +13,9 @@ import ChatGPT, {
   calculate_token_length,
   ChunkMessage,
   FetchResponse,
+  Message as MessageType,
   MessageDetail,
+  ToolCall,
 } from "./chatgpt";
 import Message from "./message";
 import models from "./models";
@@ -41,6 +43,9 @@ export default function ChatBOX(props: {
   const [generatingMessage, setGeneratingMessage] = useState("");
   const [showRetry, setShowRetry] = useState(false);
   const [isRecording, setIsRecording] = useState("Mic");
+  const [showAddToolMsg, setShowAddToolMsg] = useState(false);
+  const [newToolCallID, setNewToolCallID] = useState("");
+  const [newToolContent, setNewToolContent] = useState("");
   const mediaRef = createRef();
 
   const messagesEndRef = createRef();
@@ -67,12 +72,48 @@ export default function ChatBOX(props: {
     let responseTokenCount = 0;
     chatStore.streamMode = true;
     const allChunkMessage: string[] = [];
+    const allChunkTool: ToolCall[] = [];
     setShowGenerating(true);
     for await (const i of client.processStreamResponse(response)) {
       chatStore.responseModelName = i.model;
       responseTokenCount += 1;
       allChunkMessage.push(i.choices[0].delta.content ?? "");
-      setGeneratingMessage(allChunkMessage.join(""));
+      const tool_calls = i.choices[0].delta.tool_calls;
+      if (tool_calls) {
+        for (const tool_call of tool_calls) {
+          // init
+          if (tool_call.id) {
+            allChunkTool.push({
+              id: tool_call.id,
+              type: tool_call.type,
+              index: tool_call.index,
+              function: {
+                name: tool_call.function.name,
+                arguments: "",
+              },
+            });
+            continue;
+          }
+
+          // update tool call arguments
+          const tool = allChunkTool.find(
+            (tool) => tool.index === tool_call.index
+          );
+
+          if (!tool) {
+            console.log("tool (by index) not found", tool_call.index);
+            continue;
+          }
+
+          tool.function.arguments += tool_call.function.arguments;
+        }
+      }
+      setGeneratingMessage(
+        allChunkMessage.join("") +
+          allChunkTool.map((tool) => {
+            return `Tool Call ID: ${tool.id}\nType: ${tool.type}\nFunction: ${tool.function.name}\nArguments: ${tool.function.arguments}`;
+          })
+      );
     }
     setShowGenerating(false);
     const content = allChunkMessage.join("");
@@ -99,6 +140,7 @@ export default function ChatBOX(props: {
     chatStore.history.push({
       role: "assistant",
       content,
+      tool_calls: allChunkTool,
       hide: false,
       token: responseTokenCount,
       example: false,
@@ -127,7 +169,7 @@ export default function ChatBOX(props: {
       chatStore.cost += cost;
       addTotalCost(cost);
     }
-    const content = client.processFetchResponse(data);
+    const msg = client.processFetchResponse(data);
 
     // estimate user's input message token
     let aboveToken = 0;
@@ -147,9 +189,11 @@ export default function ChatBOX(props: {
 
     chatStore.history.push({
       role: "assistant",
-      content,
+      content: msg.content,
+      tool_calls: msg.tool_calls,
       hide: false,
-      token: data.usage.completion_tokens ?? calculate_token_length(content),
+      token:
+        data.usage.completion_tokens ?? calculate_token_length(msg.content),
       example: false,
     });
     setShowGenerating(false);
@@ -160,6 +204,7 @@ export default function ChatBOX(props: {
     // manually copy status from chatStore to client
     client.apiEndpoint = chatStore.apiEndpoint;
     client.sysMessageContent = chatStore.systemMessageContent;
+    client.toolsString = chatStore.toolsString;
     client.tokens_margin = chatStore.tokenMargin;
     client.temperature = chatStore.temperature;
     client.enable_temperature = chatStore.temperature_enabled;
@@ -172,18 +217,22 @@ export default function ChatBOX(props: {
       .filter(({ hide }) => !hide)
       .slice(chatStore.postBeginIndex)
       // only copy content and role attribute to client for posting
-      .map(({ content, role, example }) => {
-        if (example) {
-          return {
-            content,
-            role: "system",
-            name: role === "assistant" ? "example_assistant" : "example_user",
-          };
-        }
-        return {
+      .map(({ content, role, example, tool_call_id, tool_calls }) => {
+        const ret: MessageType = {
           content,
           role,
+          tool_calls,
         };
+
+        if (example) {
+          ret.name =
+            ret.role === "assistant" ? "example_assistant" : "example_user";
+          ret.role = "system";
+        }
+
+        if (tool_call_id) ret.tool_call_id = tool_call_id;
+
+        return ret;
       });
     client.model = chatStore.model;
     client.max_tokens = chatStore.maxTokens;
@@ -406,6 +455,7 @@ export default function ChatBOX(props: {
                 className="mx-2 underline cursor-pointer"
                 onClick={() => {
                   chatStore.systemMessageContent = "";
+                  chatStore.toolsString = "";
                   chatStore.history = [];
                   setChatStore({ ...chatStore });
                 }}
@@ -942,6 +992,93 @@ export default function ChatBOX(props: {
           >
             {Tr("User")}
           </button>
+        )}
+        {chatStore.develop_mode && (
+          <button
+            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            disabled={showGenerating || !chatStore.apiKey}
+            onClick={() => {
+              setShowAddToolMsg(true);
+            }}
+          >
+            {Tr("Tool")}
+          </button>
+        )}
+        {showAddToolMsg && (
+          <div
+            className="absolute z-10 bg-black bg-opacity-50 w-full h-full flex justify-center items-center left-0 top-0 overflow-scroll"
+            onClick={() => {
+              setShowAddToolMsg(false);
+            }}
+          >
+            <div
+              className="bg-white rounded p-2 z-20 flex flex-col"
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              <h2>Add Tool Message</h2>
+              <hr className="my-2" />
+              <span>
+                <label>tool_call_id</label>
+                <input
+                  className="rounded m-1 p-1 border-2 border-gray-400"
+                  type="text"
+                  value={newToolCallID}
+                  onChange={(event: any) =>
+                    setNewToolCallID(event.target.value)
+                  }
+                />
+              </span>
+              <span>
+                <label>Content</label>
+                <textarea
+                  className="rounded m-1 p-1 border-2 border-gray-400"
+                  rows={5}
+                  value={newToolContent}
+                  onChange={(event: any) =>
+                    setNewToolContent(event.target.value)
+                  }
+                ></textarea>
+              </span>
+              <span className={`flex justify-between p-2`}>
+                <button
+                  className="rounded m-1 p-1 border-2 bg-red-400 hover:bg-red-600"
+                  onClick={() => setShowAddToolMsg(false)}
+                >
+                  {Tr("Cancle")}
+                </button>
+                <button
+                  className="rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+                  onClick={() => {
+                    if (!newToolCallID.trim()) {
+                      alert("tool_call_id is empty");
+                      return;
+                    }
+                    if (!newToolContent.trim()) {
+                      alert("content is empty");
+                      return;
+                    }
+                    chatStore.history.push({
+                      role: "tool",
+                      tool_call_id: newToolCallID.trim(),
+                      content: newToolContent.trim(),
+                      token: calculate_token_length(newToolContent),
+                      hide: false,
+                      example: false,
+                    });
+                    update_total_tokens();
+                    setChatStore({ ...chatStore });
+                    setNewToolCallID("");
+                    setNewToolContent("");
+                    setShowAddToolMsg(false);
+                  }}
+                >
+                  {Tr("Add")}
+                </button>
+              </span>
+            </div>
+          </div>
         )}
       </div>
     </div>

@@ -12,35 +12,97 @@ interface EditMessageProps {
   setChatStore: (cs: ChatStore) => void;
 }
 
+export const isVailedJSON = (str: string): boolean => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
+
 function EditMessage(props: EditMessageProps) {
   const { setShowEdit, chat, setChatStore, chatStore } = props;
 
   return (
     <div
       className={
-        "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 pt-5 px-5 pb-20 rounded z-10"
+        "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 rounded z-10 overflow-scroll"
       }
       onClick={() => setShowEdit(false)}
     >
-      <div className="w-full h-full z-20">
+      <div
+        className="m-10 p-2 bg-white rounded"
+        onClick={(event: any) => {
+          event.stopPropagation();
+        }}
+      >
         {typeof chat.content === "string" ? (
-          <textarea
-            className={"w-full h-full"}
-            value={chat.content}
-            onClick={(event: any) => {
-              event.stopPropagation();
-            }}
-            onChange={(event: any) => {
-              chat.content = event.target.value;
-              chat.token = calculate_token_length(chat.content);
-              setChatStore({ ...chatStore });
-            }}
-            onKeyPress={(event: any) => {
-              if (event.keyCode == 27) {
-                setShowEdit(false);
-              }
-            }}
-          ></textarea>
+          <div className="flex flex-col">
+            {chat.tool_call_id && (
+              <span className="my-2">
+                <label>tool_call_id: </label>
+                <input
+                  className="rounded border border-gray-400"
+                  value={chat.tool_call_id}
+                  onChange={(event: any) => {
+                    chat.tool_call_id = event.target.value;
+                    setChatStore({ ...chatStore });
+                  }}
+                />
+              </span>
+            )}
+            {chat.tool_calls &&
+              chat.tool_calls.map((tool_call) => (
+                <div className="flex flex-col w-full">
+                  <span className="my-2 w-full">
+                    <label>Tool Call ID: </label>
+                    <input
+                      value={tool_call.id}
+                      className="rounded border border-gray-400"
+                    />
+                  </span>
+                  <span className="my-2 w-full">
+                    <label>Function: </label>
+                    <input
+                      value={tool_call.function.name}
+                      className="rounded border border-gray-400"
+                    />
+                  </span>
+                  <span className="my-2">
+                    <label>Arguments: </label>
+                    <span className="underline">
+                      Vailed JSON:{" "}
+                      {isVailedJSON(tool_call.function.arguments) ? "🆗" : "❌"}
+                    </span>
+                    <textarea
+                      className="rounded border border-gray-400 w-full h-32 my-2"
+                      value={tool_call.function.arguments}
+                      onChange={(event: any) => {
+                        tool_call.function.arguments =
+                          event.target.value.trim();
+                        setChatStore({ ...chatStore });
+                      }}
+                    ></textarea>
+                  </span>
+                  <hr className="my-2" />
+                </div>
+              ))}
+            <textarea
+              className="rounded border border-gray-400 w-full h-32 my-2"
+              value={chat.content}
+              onChange={(event: any) => {
+                chat.content = event.target.value;
+                chat.token = calculate_token_length(chat.content);
+                setChatStore({ ...chatStore });
+              }}
+              onKeyPress={(event: any) => {
+                if (event.keyCode == 27) {
+                  setShowEdit(false);
+                }
+              }}
+            ></textarea>
+          </div>
         ) : (
           <div
             className={"w-full h-full flex flex-col overflow-scroll"}
@@ -245,14 +307,18 @@ export default function Message(props: Props) {
     </span>
   );
 
-  const CopyIcon = () => {
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setShowCopiedHint(true);
+    setTimeout(() => setShowCopiedHint(false), 1000);
+  };
+
+  const CopyIcon = ({ textToCopy }: { textToCopy: string }) => {
     return (
       <>
         <button
           onClick={() => {
-            navigator.clipboard.writeText(getMessageText(chat));
-            setShowCopiedHint(true);
-            setTimeout(() => setShowCopiedHint(false), 1000);
+            copyToClipboard(textToCopy);
           }}
         >
           📋
@@ -288,40 +354,81 @@ export default function Message(props: Props) {
                 : "bg-green-400"
             } ${chat.hide ? "opacity-50" : ""}`}
           >
-            <p className={renderMarkdown ? "" : "message-content"}>
-              {typeof chat.content !== "string" ? (
-                // render for multiple messages
-                chat.content.map((mdt) =>
-                  mdt.type === "text" ? (
-                    chat.hide ? (
-                      mdt.text?.split("\n")[0].slice(0, 16) + "... (deleted)"
-                    ) : renderMarkdown ? (
-                      // @ts-ignore
-                      <Markdown markdown={mdt.text} />
-                    ) : (
-                      mdt.text
-                    )
+            {chat.hide ? (
+              getMessageText(chat).split("\n")[0].slice(0, 18) + "... (deleted)"
+            ) : typeof chat.content !== "string" ? (
+              chat.content.map((mdt) =>
+                mdt.type === "text" ? (
+                  chat.hide ? (
+                    mdt.text?.split("\n")[0].slice(0, 16) + "... (deleted)"
+                  ) : renderMarkdown ? (
+                    // @ts-ignore
+                    <Markdown markdown={mdt.text} />
                   ) : (
-                    <img
-                      className="cursor-pointer max-w-xs max-h-32 p-1"
-                      src={mdt.image_url?.url}
-                      onClick={() => {
-                        window.open(mdt.image_url?.url, "_blank");
-                      }}
-                    />
+                    mdt.text
                   )
+                ) : (
+                  <img
+                    className="cursor-pointer max-w-xs max-h-32 p-1"
+                    src={mdt.image_url?.url}
+                    onClick={() => {
+                      window.open(mdt.image_url?.url, "_blank");
+                    }}
+                  />
                 )
-              ) : // render for single message
-              chat.hide ? (
-                getMessageText(chat).split("\n")[0].slice(0, 16) +
-                "... (deleted)"
-              ) : renderMarkdown ? (
-                // @ts-ignore
-                <Markdown markdown={getMessageText(chat)} />
-              ) : (
-                getMessageText(chat)
-              )}
-            </p>
+              )
+            ) : chat.tool_calls ? (
+              <div className="message-content">
+                <div>
+                  {chat.tool_calls?.map((tool_call) => (
+                    <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded my-1">
+                      <strong>
+                        Tool Call ID:{" "}
+                        <span
+                          className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+                          onClick={() => copyToClipboard(String(tool_call.id))}
+                        >
+                          {tool_call?.id}
+                        </span>
+                      </strong>
+                      <p>Type: {tool_call?.type}</p>
+                      <p>
+                        Function:
+                        <span
+                          className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+                          onClick={() =>
+                            copyToClipboard(tool_call.function.name)
+                          }
+                        >
+                          {tool_call.function.name}
+                        </span>
+                      </p>
+                      <p>
+                        Arguments:
+                        <span
+                          className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+                          onClick={() =>
+                            copyToClipboard(tool_call.function.arguments)
+                          }
+                        >
+                          {tool_call.function.arguments}
+                        </span>
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : renderMarkdown ? (
+              // @ts-ignore
+              <Markdown markdown={getMessageText(chat)} />
+            ) : (
+              <div className="message-content">
+                {
+                  // only show when content is string or list of message
+                  chat.content && getMessageText(chat)
+                }
+              </div>
+            )}
             <hr className="mt-2" />
             <div className="w-full flex justify-between">
               <DeleteIcon />
@@ -333,7 +440,7 @@ export default function Message(props: Props) {
                   setChatStore={setChatStore}
                 />
               )}
-              <CopyIcon />
+              <CopyIcon textToCopy={getMessageText(chat)} />
             </div>
           </div>
           {showEdit && (
