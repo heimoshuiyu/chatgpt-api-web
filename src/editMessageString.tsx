@@ -1,6 +1,7 @@
 import { ChatStore, ChatStoreMessage } from "./app";
 import { isVailedJSON } from "./message";
 import { calculate_token_length } from "./chatgpt";
+import { Tr } from "./translate";
 
 interface Props {
   chat: ChatStoreMessage;
@@ -30,6 +31,7 @@ export function EditMessageString({
           />
         </span>
       )}
+      <hr className="my-2" />
       {chat.tool_calls &&
         chat.tool_calls.map((tool_call) => (
           <div className="flex flex-col w-full">
@@ -62,9 +64,43 @@ export function EditMessageString({
                 }}
               ></textarea>
             </span>
+            <span className="flex flex-col my-2 justify-between">
+              <button
+                className="bg-red-300 text-black p-1 rounded"
+                onClick={() => {
+                  if (!chat.tool_calls) return;
+                  chat.tool_calls = chat.tool_calls.filter(
+                    (tc) => tc.id !== tool_call.id
+                  );
+                  setChatStore({ ...chatStore });
+                }}
+              >
+                {Tr("Delete this tool call")}
+              </button>
+            </span>
             <hr className="my-2" />
           </div>
         ))}
+      <span className="flex flex-col my-2 justify-between">
+        <button
+          className="bg-blue-300 text-black p-1 rounded"
+          onClick={() => {
+            if (!chat.tool_calls) return;
+            chat.tool_calls.push({
+              type: "function",
+              index: chat.tool_calls.length,
+              id: "",
+              function: {
+                name: "",
+                arguments: "",
+              },
+            });
+            setChatStore({ ...chatStore });
+          }}
+        >
+          {Tr("Add a tool call")}
+        </button>
+      </span>
       <textarea
         className="rounded border border-gray-400 w-full h-32 my-2"
         value={chat.content}
