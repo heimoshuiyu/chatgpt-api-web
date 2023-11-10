@@ -47,6 +47,14 @@ export interface StreamingResponseChunk {
 }
 export const getMessageText = (message: Message): string => {
   if (typeof message.content === "string") {
+    // function call message
+    if (message.tool_calls) {
+      return message.tool_calls
+        .map((tc) => {
+          return `Tool Call ID: ${tc.id}\nType: ${tc.type}\nFunction: ${tc.function.name}\nArguments: ${tc.function.arguments}}`;
+        })
+        .join("\n");
+    }
     return message.content;
   }
   return message.content

@@ -245,14 +245,18 @@ export default function Message(props: Props) {
     </span>
   );
 
-  const CopyIcon = () => {
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setShowCopiedHint(true);
+    setTimeout(() => setShowCopiedHint(false), 1000);
+  };
+
+  const CopyIcon = ({ textToCopy }: { textToCopy: string }) => {
     return (
       <>
         <button
           onClick={() => {
-            navigator.clipboard.writeText(getMessageText(chat));
-            setShowCopiedHint(true);
-            setTimeout(() => setShowCopiedHint(false), 1000);
+            copyToClipboard(textToCopy);
           }}
         >
           📋
@@ -288,59 +292,87 @@ export default function Message(props: Props) {
                 : "bg-green-400"
             } ${chat.hide ? "opacity-50" : ""}`}
           >
-            {chat.tool_calls && chat.hide ? (
-              <div className="message-content">Tool Call</div>
+            {chat.hide ? (
+              getMessageText(chat).split("\n")[0].slice(0, 18) + "... (deleted)"
+            ) : typeof chat.content !== "string" ? (
+              chat.content.map((mdt) =>
+                mdt.type === "text" ? (
+                  chat.hide ? (
+                    mdt.text?.split("\n")[0].slice(0, 16) + "... (deleted)"
+                  ) : renderMarkdown ? (
+                    // @ts-ignore
+                    <Markdown markdown={mdt.text} />
+                  ) : (
+                    mdt.text
+                  )
+                ) : (
+                  <img
+                    className="cursor-pointer max-w-xs max-h-32 p-1"
+                    src={mdt.image_url?.url}
+                    onClick={() => {
+                      window.open(mdt.image_url?.url, "_blank");
+                    }}
+                  />
+                )
+              )
+            ) : renderMarkdown ? (
+              // @ts-ignore
+              <Markdown markdown={getMessageText(chat)} />
             ) : (
+              <div className="message-content">
+                {
+                  // only show when content is string or list of message
+                  chat.content && getMessageText(chat)
+                }
+              </div>
+            )}
+            {chat.tool_calls && (
               <div className="message-content">
                 <div>
                   {chat.tool_calls?.map((tool_call) => (
                     <>
                       <hr className="my-1" />
                       <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded">
-                        <strong>Tool Call ID: {tool_call?.id}</strong>
+                        <strong>
+                          Tool Call ID:{" "}
+                          <span
+                            className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+                            onClick={() =>
+                              copyToClipboard(String(tool_call.id))
+                            }
+                          >
+                            {tool_call?.id}
+                          </span>
+                        </strong>
                         <p>Type: {tool_call?.type}</p>
-                        <p>Function: {tool_call.function.name}</p>
-                        <p>Arguments: {tool_call.function.arguments}</p>
+                        <p>
+                          Function:
+                          <span
+                            className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+                            onClick={() =>
+                              copyToClipboard(tool_call.function.name)
+                            }
+                          >
+                            {tool_call.function.name}
+                          </span>
+                        </p>
+                        <p>
+                          Arguments:
+                          <span
+                            className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+                            onClick={() =>
+                              copyToClipboard(tool_call.function.arguments)
+                            }
+                          >
+                            {tool_call.function.arguments}
+                          </span>
+                        </p>
                       </div>
                     </>
                   ))}
                 </div>
               </div>
             )}
-            <p className={renderMarkdown ? "" : "message-content"}>
-              {typeof chat.content !== "string" ? (
-                // render for multiple messages
-                chat.content.map((mdt) =>
-                  mdt.type === "text" ? (
-                    chat.hide ? (
-                      mdt.text?.split("\n")[0].slice(0, 16) + "... (deleted)"
-                    ) : renderMarkdown ? (
-                      // @ts-ignore
-                      <Markdown markdown={mdt.text} />
-                    ) : (
-                      mdt.text
-                    )
-                  ) : (
-                    <img
-                      className="cursor-pointer max-w-xs max-h-32 p-1"
-                      src={mdt.image_url?.url}
-                      onClick={() => {
-                        window.open(mdt.image_url?.url, "_blank");
-                      }}
-                    />
-                  )
-                )
-              ) : // render for single message
-              chat.hide ? (
-                getMessageText(chat).split("\n")[0].slice(0, 16) +
-                "... (deleted)"
-              ) : renderMarkdown ? (
-                // @ts-ignore
-                <Markdown markdown={getMessageText(chat)} />
-              ) : (
-                getMessageText(chat)
-              )}
-            </p>
             <hr className="mt-2" />
             <div className="w-full flex justify-between">
               <DeleteIcon />
@@ -352,7 +384,7 @@ export default function Message(props: Props) {
                   setChatStore={setChatStore}
                 />
               )}
-              <CopyIcon />
+              <CopyIcon textToCopy={getMessageText(chat)} />
             </div>
           </div>
           {showEdit && (

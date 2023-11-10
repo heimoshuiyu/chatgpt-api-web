@@ -28,6 +28,6 @@ body::-webkit-scrollbar {
   display: none;
 }
 
-p.message-content {
+.message-content {
   white-space: pre-wrap;
 }
