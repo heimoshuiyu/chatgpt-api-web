@@ -675,7 +675,8 @@ export default function ChatBOX(props: {
       )}
 
       <div className="flex justify-between">
-        {chatStore.model.match("vision") && (
+        {(chatStore.model.match("vision") ||
+          (chatStore.image_gen_api && chatStore.image_gen_key)) && (
           <button
             className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
             disabled={showGenerating || !chatStore.apiKey}

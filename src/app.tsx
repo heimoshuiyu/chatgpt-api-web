@@ -262,7 +262,9 @@ export function App() {
         chatStore.tts_key,
         chatStore.tts_speed,
         chatStore.tts_speed_enabled,
-        chatStore.toolsString
+        chatStore.toolsString,
+        chatStore.image_gen_api,
+        chatStore.image_gen_key
       )
     );
     setSelectedChatIndex(newKey as number);
