@@ -8,16 +8,42 @@ export interface MessageDetail {
   text?: string;
   image_url?: ImageURL;
 }
+export interface ToolCall {
+  index: number;
+  id?: string;
+  type: string;
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
 export interface Message {
   role: "system" | "user" | "assistant" | "tool";
   content: string | MessageDetail[];
   name?: "example_user" | "example_assistant";
-  tool_calls?: {
-    id: string;
-    type: string;
-    function: any;
-  }[];
+  tool_calls?: ToolCall[];
   tool_call_id?: string;
+}
+
+interface Delta {
+  role?: string;
+  content?: string;
+  tool_calls?: ToolCall[];
+}
+
+interface Choices {
+  index: number;
+  delta: Delta;
+  finish_reason: string | null;
+}
+
+export interface StreamingResponseChunk {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  system_fingerprint: string;
+  choices: Choices[];
 }
 export const getMessageText = (message: Message): string => {
   if (typeof message.content === "string") {
@@ -252,7 +278,7 @@ class Chat {
         console.log("line", line);
         try {
           const jsonStr = line.slice("data:".length).trim();
-          const json = JSON.parse(jsonStr);
+          const json = JSON.parse(jsonStr) as StreamingResponseChunk;
           yield json;
         } catch (e) {
           console.log(`Chunk parse error at: ${line}`);

@@ -299,7 +299,8 @@ export default function Message(props: Props) {
                       <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded">
                         <strong>Tool Call ID: {tool_call?.id}</strong>
                         <p>Type: {tool_call?.type}</p>
-                        <p>Function: {JSON.stringify(tool_call?.function)}</p>
+                        <p>Function: {tool_call.function.name}</p>
+                        <p>Arguments: {tool_call.function.arguments}</p>
                       </div>
                     </>
                   ))}

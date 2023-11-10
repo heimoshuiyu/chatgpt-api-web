@@ -15,6 +15,7 @@ import ChatGPT, {
   FetchResponse,
   Message as MessageType,
   MessageDetail,
+  ToolCall,
 } from "./chatgpt";
 import Message from "./message";
 import models from "./models";
@@ -71,12 +72,48 @@ export default function ChatBOX(props: {
     let responseTokenCount = 0;
     chatStore.streamMode = true;
     const allChunkMessage: string[] = [];
+    const allChunkTool: ToolCall[] = [];
     setShowGenerating(true);
     for await (const i of client.processStreamResponse(response)) {
       chatStore.responseModelName = i.model;
       responseTokenCount += 1;
       allChunkMessage.push(i.choices[0].delta.content ?? "");
-      setGeneratingMessage(allChunkMessage.join(""));
+      const tool_calls = i.choices[0].delta.tool_calls;
+      if (tool_calls) {
+        for (const tool_call of tool_calls) {
+          // init
+          if (tool_call.id) {
+            allChunkTool.push({
+              id: tool_call.id,
+              type: tool_call.type,
+              index: tool_call.index,
+              function: {
+                name: tool_call.function.name,
+                arguments: "",
+              },
+            });
+            continue;
+          }
+
+          // update tool call arguments
+          const tool = allChunkTool.find(
+            (tool) => tool.index === tool_call.index
+          );
+
+          if (!tool) {
+            console.log("tool (by index) not found", tool_call.index);
+            continue;
+          }
+
+          tool.function.arguments += tool_call.function.arguments;
+        }
+      }
+      setGeneratingMessage(
+        allChunkMessage.join("") +
+          allChunkTool.map((tool) => {
+            return `Tool Call ID: ${tool.id}\nType: ${tool.type}\nFunction: ${tool.function.name}\nArguments: ${tool.function.arguments}`;
+          })
+      );
     }
     setShowGenerating(false);
     const content = allChunkMessage.join("");
@@ -103,6 +140,7 @@ export default function ChatBOX(props: {
     chatStore.history.push({
       role: "assistant",
       content,
+      tool_calls: allChunkTool,
       hide: false,
       token: responseTokenCount,
       example: false,
