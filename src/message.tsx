@@ -315,6 +315,47 @@ export default function Message(props: Props) {
                   />
                 )
               )
+            ) : chat.tool_calls ? (
+              <div className="message-content">
+                <div>
+                  {chat.tool_calls?.map((tool_call) => (
+                    <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded my-1">
+                      <strong>
+                        Tool Call ID:{" "}
+                        <span
+                          className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+                          onClick={() => copyToClipboard(String(tool_call.id))}
+                        >
+                          {tool_call?.id}
+                        </span>
+                      </strong>
+                      <p>Type: {tool_call?.type}</p>
+                      <p>
+                        Function:
+                        <span
+                          className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+                          onClick={() =>
+                            copyToClipboard(tool_call.function.name)
+                          }
+                        >
+                          {tool_call.function.name}
+                        </span>
+                      </p>
+                      <p>
+                        Arguments:
+                        <span
+                          className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+                          onClick={() =>
+                            copyToClipboard(tool_call.function.arguments)
+                          }
+                        >
+                          {tool_call.function.arguments}
+                        </span>
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ) : renderMarkdown ? (
               // @ts-ignore
               <Markdown markdown={getMessageText(chat)} />
@@ -324,53 +365,6 @@ export default function Message(props: Props) {
                   // only show when content is string or list of message
                   chat.content && getMessageText(chat)
                 }
-              </div>
-            )}
-            {chat.tool_calls && (
-              <div className="message-content">
-                <div>
-                  {chat.tool_calls?.map((tool_call) => (
-                    <>
-                      <hr className="my-1" />
-                      <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded">
-                        <strong>
-                          Tool Call ID:{" "}
-                          <span
-                            className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
-                            onClick={() =>
-                              copyToClipboard(String(tool_call.id))
-                            }
-                          >
-                            {tool_call?.id}
-                          </span>
-                        </strong>
-                        <p>Type: {tool_call?.type}</p>
-                        <p>
-                          Function:
-                          <span
-                            className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
-                            onClick={() =>
-                              copyToClipboard(tool_call.function.name)
-                            }
-                          >
-                            {tool_call.function.name}
-                          </span>
-                        </p>
-                        <p>
-                          Arguments:
-                          <span
-                            className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
-                            onClick={() =>
-                              copyToClipboard(tool_call.function.arguments)
-                            }
-                          >
-                            {tool_call.function.arguments}
-                          </span>
-                        </p>
-                      </div>
-                    </>
-                  ))}
-                </div>
               </div>
             )}
             <hr className="mt-2" />
