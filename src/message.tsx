@@ -12,35 +12,97 @@ interface EditMessageProps {
   setChatStore: (cs: ChatStore) => void;
 }
 
+export const isVailedJSON = (str: string): boolean => {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
+
 function EditMessage(props: EditMessageProps) {
   const { setShowEdit, chat, setChatStore, chatStore } = props;
 
   return (
     <div
       className={
-        "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 pt-5 px-5 pb-20 rounded z-10"
+        "absolute bg-black bg-opacity-50 w-full h-full top-0 left-0 rounded z-10 overflow-scroll"
       }
       onClick={() => setShowEdit(false)}
     >
-      <div className="w-full h-full z-20">
+      <div
+        className="m-10 p-2 bg-white rounded"
+        onClick={(event: any) => {
+          event.stopPropagation();
+        }}
+      >
         {typeof chat.content === "string" ? (
-          <textarea
-            className={"w-full h-full"}
-            value={chat.content}
-            onClick={(event: any) => {
-              event.stopPropagation();
-            }}
-            onChange={(event: any) => {
-              chat.content = event.target.value;
-              chat.token = calculate_token_length(chat.content);
-              setChatStore({ ...chatStore });
-            }}
-            onKeyPress={(event: any) => {
-              if (event.keyCode == 27) {
-                setShowEdit(false);
-              }
-            }}
-          ></textarea>
+          <div className="flex flex-col">
+            {chat.tool_call_id && (
+              <span className="my-2">
+                <label>tool_call_id: </label>
+                <input
+                  className="rounded border border-gray-400"
+                  value={chat.tool_call_id}
+                  onChange={(event: any) => {
+                    chat.tool_call_id = event.target.value;
+                    setChatStore({ ...chatStore });
+                  }}
+                />
+              </span>
+            )}
+            {chat.tool_calls &&
+              chat.tool_calls.map((tool_call) => (
+                <div className="flex flex-col w-full">
+                  <span className="my-2 w-full">
+                    <label>Tool Call ID: </label>
+                    <input
+                      value={tool_call.id}
+                      className="rounded border border-gray-400"
+                    />
+                  </span>
+                  <span className="my-2 w-full">
+                    <label>Function: </label>
+                    <input
+                      value={tool_call.function.name}
+                      className="rounded border border-gray-400"
+                    />
+                  </span>
+                  <span className="my-2">
+                    <label>Arguments: </label>
+                    <span className="underline">
+                      Vailed JSON:{" "}
+                      {isVailedJSON(tool_call.function.arguments) ? "🆗" : "❌"}
+                    </span>
+                    <textarea
+                      className="rounded border border-gray-400 w-full h-32 my-2"
+                      value={tool_call.function.arguments}
+                      onChange={(event: any) => {
+                        tool_call.function.arguments =
+                          event.target.value.trim();
+                        setChatStore({ ...chatStore });
+                      }}
+                    ></textarea>
+                  </span>
+                  <hr className="my-2" />
+                </div>
+              ))}
+            <textarea
+              className="rounded border border-gray-400 w-full h-32 my-2"
+              value={chat.content}
+              onChange={(event: any) => {
+                chat.content = event.target.value;
+                chat.token = calculate_token_length(chat.content);
+                setChatStore({ ...chatStore });
+              }}
+              onKeyPress={(event: any) => {
+                if (event.keyCode == 27) {
+                  setShowEdit(false);
+                }
+              }}
+            ></textarea>
+          </div>
         ) : (
           <div
             className={"w-full h-full flex flex-col overflow-scroll"}
