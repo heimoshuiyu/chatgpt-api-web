@@ -455,6 +455,7 @@ export default function ChatBOX(props: {
                 className="mx-2 underline cursor-pointer"
                 onClick={() => {
                   chatStore.systemMessageContent = "";
+                  chatStore.toolsString = "";
                   chatStore.history = [];
                   setChatStore({ ...chatStore });
                 }}
