@@ -217,10 +217,11 @@ export default function ChatBOX(props: {
       .filter(({ hide }) => !hide)
       .slice(chatStore.postBeginIndex)
       // only copy content and role attribute to client for posting
-      .map(({ content, role, example, tool_call_id }) => {
+      .map(({ content, role, example, tool_call_id, tool_calls }) => {
         const ret: MessageType = {
           content,
           role,
+          tool_calls,
         };
 
         if (example) {
