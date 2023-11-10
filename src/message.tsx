@@ -4,6 +4,10 @@ import { ChatStore, ChatStoreMessage } from "./app";
 import { calculate_token_length, getMessageText } from "./chatgpt";
 import Markdown from "preact-markdown";
 import TTSButton from "./tts";
+import { MessageHide } from "./messageHide";
+import { MessageDetail } from "./messageDetail";
+import { MessageToolCall } from "./messageToolCall";
+import { MessageToolResp } from "./messageToolResp";
 
 interface EditMessageProps {
   chat: ChatStoreMessage;
@@ -355,69 +359,13 @@ export default function Message(props: Props) {
             } ${chat.hide ? "opacity-50" : ""}`}
           >
             {chat.hide ? (
-              getMessageText(chat).split("\n")[0].slice(0, 18) + "... (deleted)"
+              <MessageHide chat={chat} />
             ) : typeof chat.content !== "string" ? (
-              chat.content.map((mdt) =>
-                mdt.type === "text" ? (
-                  chat.hide ? (
-                    mdt.text?.split("\n")[0].slice(0, 16) + "... (deleted)"
-                  ) : renderMarkdown ? (
-                    // @ts-ignore
-                    <Markdown markdown={mdt.text} />
-                  ) : (
-                    mdt.text
-                  )
-                ) : (
-                  <img
-                    className="cursor-pointer max-w-xs max-h-32 p-1"
-                    src={mdt.image_url?.url}
-                    onClick={() => {
-                      window.open(mdt.image_url?.url, "_blank");
-                    }}
-                  />
-                )
-              )
+              <MessageDetail chat={chat} renderMarkdown={renderMarkdown} />
             ) : chat.tool_calls ? (
-              <div className="message-content">
-                <div>
-                  {chat.tool_calls?.map((tool_call) => (
-                    <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded my-1">
-                      <strong>
-                        Tool Call ID:{" "}
-                        <span
-                          className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
-                          onClick={() => copyToClipboard(String(tool_call.id))}
-                        >
-                          {tool_call?.id}
-                        </span>
-                      </strong>
-                      <p>Type: {tool_call?.type}</p>
-                      <p>
-                        Function:
-                        <span
-                          className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
-                          onClick={() =>
-                            copyToClipboard(tool_call.function.name)
-                          }
-                        >
-                          {tool_call.function.name}
-                        </span>
-                      </p>
-                      <p>
-                        Arguments:
-                        <span
-                          className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
-                          onClick={() =>
-                            copyToClipboard(tool_call.function.arguments)
-                          }
-                        >
-                          {tool_call.function.arguments}
-                        </span>
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
+            ) : chat.role === "tool" ? (
+              <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
               // @ts-ignore
               <Markdown markdown={getMessageText(chat)} />
@@ -425,6 +373,7 @@ export default function Message(props: Props) {
               <div className="message-content">
                 {
                   // only show when content is string or list of message
+                  // this check is used to avoid rendering tool call
                   chat.content && getMessageText(chat)
                 }
               </div>
