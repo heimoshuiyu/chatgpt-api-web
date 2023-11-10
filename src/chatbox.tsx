@@ -357,7 +357,10 @@ export default function ChatBOX(props: {
           </button>{" "}
           <button className="underline">
             {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
-          </button>
+          </button>{" "}
+          {chatStore.toolsString.trim() && (
+            <button className="underline">TOOL</button>
+          )}
         </div>
         <div className="text-xs">
           <span className="underline">{chatStore.model}</span>{" "}
