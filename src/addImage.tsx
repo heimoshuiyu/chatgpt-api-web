@@ -195,61 +195,66 @@ export function AddImage({
                 className="bg-sky-400 m-1 p-1 rounded disabled:bg-slate-500"
                 disabled={imageGenGenerating}
                 onClick={async () => {
-                  setImageGenGenerating(true);
-                  const body: any = {
-                    prompt: imageGenPrompt,
-                    model: imageGenModel,
-                    n: imageGenN,
-                    quality: imageGenQuality,
-                    response_format: imageGenResponseFormat,
-                    size: imageGenSize,
-                  };
-                  if (imageGenModel === "dall-e-3") {
-                    body.style = imageGenStyle;
-                  }
-                  const resp: ImageResponse[] = (
-                    await fetch(chatStore.image_gen_api, {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${chatStore.image_gen_key}`,
-                      },
-                      body: JSON.stringify(body),
-                    }).then((resp) => resp.json())
-                  ).data;
+                  try {
+                    setImageGenGenerating(true);
+                    const body: any = {
+                      prompt: imageGenPrompt,
+                      model: imageGenModel,
+                      n: imageGenN,
+                      quality: imageGenQuality,
+                      response_format: imageGenResponseFormat,
+                      size: imageGenSize,
+                    };
+                    if (imageGenModel === "dall-e-3") {
+                      body.style = imageGenStyle;
+                    }
+                    const resp: ImageResponse[] = (
+                      await fetch(chatStore.image_gen_api, {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          Authorization: `Bearer ${chatStore.image_gen_key}`,
+                        },
+                        body: JSON.stringify(body),
+                      }).then((resp) => resp.json())
+                    ).data;
+                    console.log("image gen resp", resp);
 
-                  for (const image of resp) {
-                    let url = "";
-                    if (image.url) url = image.url;
-                    if (image.b64_json)
-                      url = "data:image/png;base64," + image.b64_json;
-                    if (!url) continue;
+                    for (const image of resp) {
+                      let url = "";
+                      if (image.url) url = image.url;
+                      if (image.b64_json)
+                        url = "data:image/png;base64," + image.b64_json;
+                      if (!url) continue;
 
-                    chatStore.history.push({
-                      role: "user",
-                      content: [
-                        {
-                          type: "image_url",
-                          image_url: {
-                            url,
-                            detail: "low",
+                      chatStore.history.push({
+                        role: "user",
+                        content: [
+                          {
+                            type: "image_url",
+                            image_url: {
+                              url,
+                              detail: "low",
+                            },
                           },
-                        },
-                        {
-                          type: "text",
-                          text: image.revised_prompt,
-                        },
-                      ],
-                      hide: false,
-                      token: 65,
-                      example: false,
-                    });
+                          {
+                            type: "text",
+                            text: image.revised_prompt,
+                          },
+                        ],
+                        hide: false,
+                        token: 65,
+                        example: false,
+                      });
 
-                    setChatStore({ ...chatStore });
+                      setChatStore({ ...chatStore });
+                    }
+                  } catch (e) {
+                    console.error(e);
+                    alert("Failed to generate image: " + e);
+                  } finally {
+                    setImageGenGenerating(false);
                   }
-
-                  setImageGenGenerating(false);
-                  console.log("image resp", resp);
                 }}
               >
                 {Tr("Generate")}
