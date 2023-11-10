@@ -294,11 +294,14 @@ export default function Message(props: Props) {
               <div className="message-content">
                 <div>
                   {chat.tool_calls?.map((tool_call) => (
-                    <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded">
-                      <strong>Tool Call ID: {tool_call?.id}</strong>
-                      <p>Type: {tool_call?.type}</p>
-                      <p>Function: {JSON.stringify(tool_call?.function)}</p>
-                    </div>
+                    <>
+                      <hr className="my-1" />
+                      <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded">
+                        <strong>Tool Call ID: {tool_call?.id}</strong>
+                        <p>Type: {tool_call?.type}</p>
+                        <p>Function: {JSON.stringify(tool_call?.function)}</p>
+                      </div>
+                    </>
                   ))}
                 </div>
               </div>
