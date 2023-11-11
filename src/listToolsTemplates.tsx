@@ -1,0 +1,67 @@
+import { ChatStore, TemplateTools } from "./app";
+import { Tr } from "./translate";
+
+interface Props {
+  templateTools: TemplateTools[];
+  setTemplateTools: (tmps: TemplateTools[]) => void;
+  chatStore: ChatStore;
+  setChatStore: (cs: ChatStore) => void;
+}
+export function ListToolsTempaltes({
+  chatStore,
+  templateTools,
+  setTemplateTools,
+  setChatStore,
+}: Props) {
+  return (
+    <div className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
+      <h2>{Tr(`Saved tools templates`)}</h2>
+      <hr className="my-2" />
+      <div className="flex flex-wrap">
+        {templateTools.map((t, index) => (
+          <div
+            className={`cursor-pointer rounded ${
+              chatStore.toolsString === t.toolsString
+                ? "bg-red-600"
+                : "bg-red-400"
+            } w-fit p-2 m-1 flex flex-col`}
+            onClick={() => {
+              chatStore.toolsString = t.toolsString;
+              setChatStore({ ...chatStore });
+            }}
+          >
+            <span className="w-full text-center">{t.name}</span>
+            <hr className="mt-2" />
+            <span className="flex justify-between">
+              <button
+                onClick={() => {
+                  const name = prompt(`Give **tools** template a name`);
+                  if (!name) {
+                    return;
+                  }
+                  t.name = name;
+                  setTemplateTools(structuredClone(templateTools));
+                }}
+              >
+                🖋
+              </button>
+              <button
+                onClick={() => {
+                  if (
+                    !confirm(`Are you sure to delete this **tools** template?`)
+                  ) {
+                    return;
+                  }
+                  templateTools.splice(index, 1);
+                  setTemplateTools(structuredClone(templateTools));
+                }}
+              >
+                ❌
+              </button>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

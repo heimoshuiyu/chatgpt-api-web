@@ -22,6 +22,11 @@ export interface TemplateAPI {
   endpoint: string;
 }
 
+export interface TemplateTools {
+  name: string;
+  toolsString: string;
+}
+
 export interface ChatStore {
   chatgpt_api_web_version: string;
   systemMessageContent: string;
@@ -121,6 +126,7 @@ export const STORAGE_NAME_TEMPLATE_API = `${STORAGE_NAME_TEMPLATE}-api`;
 export const STORAGE_NAME_TEMPLATE_API_WHISPER = `${STORAGE_NAME_TEMPLATE}-api-whisper`;
 export const STORAGE_NAME_TEMPLATE_API_TTS = `${STORAGE_NAME_TEMPLATE}-api-tts`;
 export const STORAGE_NAME_TEMPLATE_API_IMAGE_GEN = `${STORAGE_NAME_TEMPLATE}-api-image-gen`;
+export const STORAGE_NAME_TEMPLATE_TOOLS = `${STORAGE_NAME_TEMPLATE}-tools`;
 
 export function addTotalCost(cost: number) {
   let totalCost = getTotalCost();

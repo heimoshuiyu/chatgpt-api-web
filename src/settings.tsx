@@ -1,6 +1,12 @@
 import { createRef } from "preact";
 import { StateUpdater, useContext, useEffect, useState } from "preact/hooks";
-import { ChatStore, TemplateAPI, clearTotalCost, getTotalCost } from "./app";
+import {
+  ChatStore,
+  TemplateAPI,
+  TemplateTools,
+  clearTotalCost,
+  getTotalCost,
+} from "./app";
 import models from "./models";
 import { TemplateChatStore } from "./chatbox";
 import { tr, Tr, langCodeContext, LANG_OPTIONS } from "./translate";
@@ -274,6 +280,8 @@ export default (props: {
   setTemplateAPIsTTS: (templateAPIs: TemplateAPI[]) => void;
   templateAPIsImageGen: TemplateAPI[];
   setTemplateAPIsImageGen: (templateAPIs: TemplateAPI[]) => void;
+  templateTools: TemplateTools[];
+  setTemplateTools: (templateTools: TemplateTools[]) => void;
 }) => {
   let link =
     location.protocol +
@@ -563,6 +571,27 @@ export default (props: {
                 tmps={props.templateAPIsImageGen}
                 setTmps={props.setTemplateAPIsImageGen}
               />
+            )}
+
+            {props.chatStore.toolsString.trim() && (
+              <button
+                className="p-2 m-2 rounded bg-blue-300"
+                onClick={() => {
+                  const name = prompt(`Give this **Tools** template a name:`);
+                  if (!name) {
+                    alert("No template name specified");
+                    return;
+                  }
+                  const newToolsTmp: TemplateTools = {
+                    name,
+                    toolsString: props.chatStore.toolsString,
+                  };
+                  props.templateTools.push(newToolsTmp);
+                  props.setTemplateTools([...props.templateTools]);
+                }}
+              >
+                {Tr(`Save Tools`)}
+              </button>
             )}
           </div>
           <p className="flex justify-evenly">

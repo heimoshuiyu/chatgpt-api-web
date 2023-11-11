@@ -10,7 +10,9 @@ import {
   STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
   STORAGE_NAME_TEMPLATE_API_TTS,
   STORAGE_NAME_TEMPLATE_API_WHISPER,
+  STORAGE_NAME_TEMPLATE_TOOLS,
   TemplateAPI,
+  TemplateTools,
   addTotalCost,
 } from "./app";
 import ChatGPT, {
@@ -27,6 +29,7 @@ import Settings from "./settings";
 import getDefaultParams from "./getDefaultParam";
 import { AddImage } from "./addImage";
 import { ListAPIs } from "./listAPIs";
+import { ListToolsTempaltes } from "./listToolsTemplates";
 
 export interface TemplateChatStore extends ChatStore {
   name: string;
@@ -338,6 +341,11 @@ export default function ChatBOX(props: {
       localStorage.getItem(STORAGE_NAME_TEMPLATE_API_IMAGE_GEN) || "[]"
     ) as TemplateAPI[]
   );
+  const [toolsTemplates, _setToolsTemplates] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_TOOLS) || "[]"
+    ) as TemplateTools[]
+  );
   const setTemplates = (templates: TemplateChatStore[]) => {
     localStorage.setItem(STORAGE_NAME_TEMPLATE, JSON.stringify(templates));
     _setTemplates(templates);
@@ -370,6 +378,13 @@ export default function ChatBOX(props: {
     );
     _setTemplateAPIsImageGen(templateAPIImageGen);
   };
+  const setTemplateTools = (templateTools: TemplateTools[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_TOOLS,
+      JSON.stringify(templateTools)
+    );
+    _setToolsTemplates(templateTools);
+  };
 
   return (
     <div className="grow flex flex-col p-2 dark:text-black">
@@ -389,6 +404,8 @@ export default function ChatBOX(props: {
           setTemplateAPIsTTS={setTemplateAPIsTTS}
           templateAPIsImageGen={templateAPIsImageGen}
           setTemplateAPIsImageGen={setTemplateAPIsImageGen}
+          templateTools={toolsTemplates}
+          setTemplateTools={setTemplateTools}
         />
       )}
       <div
@@ -501,6 +518,18 @@ export default function ChatBOX(props: {
               setChatStore={setChatStore}
               apiField="image_gen_api"
               keyField="image_gen_key"
+            />
+          )}
+
+        {toolsTemplates.length > 0 &&
+          (chatStore.develop_mode ||
+            chatStore.history.filter((msg) => !msg.example).length == 0 ||
+            !chatStore.toolsString) && (
+            <ListToolsTempaltes
+              templateTools={toolsTemplates}
+              setTemplateTools={setTemplateTools}
+              chatStore={chatStore}
+              setChatStore={setChatStore}
             />
           )}
 
