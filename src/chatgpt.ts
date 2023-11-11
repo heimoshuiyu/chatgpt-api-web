@@ -152,10 +152,7 @@ class Chat {
       frequency_penalty = 0,
     } = {}
   ) {
-    if (OPENAI_API_KEY === undefined) {
-      throw "OPENAI_API_KEY is undefined";
-    }
-    this.OPENAI_API_KEY = OPENAI_API_KEY;
+    this.OPENAI_API_KEY = OPENAI_API_KEY ?? "";
     this.messages = [];
     this.total_tokens = calculate_token_length(systemMessage);
     this.max_tokens = max_tokens;

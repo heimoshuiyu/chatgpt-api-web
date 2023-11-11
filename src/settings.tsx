@@ -6,6 +6,7 @@ import { TemplateChatStore } from "./chatbox";
 import { tr, Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 import p from "preact-markdown";
 import { isVailedJSON } from "./message";
+import { SetAPIsTemplate } from "./setAPIsTemplate";
 
 const TTS_VOICES: string[] = [
   "alloy",
@@ -267,6 +268,12 @@ export default (props: {
   setTemplates: (templates: TemplateChatStore[]) => void;
   templateAPIs: TemplateAPI[];
   setTemplateAPIs: (templateAPIs: TemplateAPI[]) => void;
+  templateAPIsWhisper: TemplateAPI[];
+  setTemplateAPIsWhisper: (templateAPIs: TemplateAPI[]) => void;
+  templateAPIsTTS: TemplateAPI[];
+  setTemplateAPIsTTS: (templateAPIs: TemplateAPI[]) => void;
+  templateAPIsImageGen: TemplateAPI[];
+  setTemplateAPIsImageGen: (templateAPIs: TemplateAPI[]) => void;
 }) => {
   let link =
     location.protocol +
@@ -519,6 +526,43 @@ export default (props: {
               {Tr("Reset")}
             </button>
           </div>
+
+          <div className="flex justify-evenly flex-wrap">
+            <SetAPIsTemplate
+              label="Chat API"
+              endpoint={props.chatStore.apiEndpoint}
+              APIkey={props.chatStore.apiKey}
+              tmps={props.templateAPIs}
+              setTmps={props.setTemplateAPIs}
+            />
+            {props.chatStore.whisper_api && props.chatStore.whisper_key && (
+              <SetAPIsTemplate
+                label="Whisper API"
+                endpoint={props.chatStore.whisper_api}
+                APIkey={props.chatStore.whisper_key}
+                tmps={props.templateAPIsWhisper}
+                setTmps={props.setTemplateAPIsWhisper}
+              />
+            )}
+            {props.chatStore.tts_api && props.chatStore.tts_key && (
+              <SetAPIsTemplate
+                label="TTS API"
+                endpoint={props.chatStore.tts_api}
+                APIkey={props.chatStore.tts_key}
+                tmps={props.templateAPIsTTS}
+                setTmps={props.setTemplateAPIsTTS}
+              />
+            )}
+            {props.chatStore.image_gen_api && props.chatStore.image_gen_key && (
+              <SetAPIsTemplate
+                label="Image Gen API"
+                endpoint={props.chatStore.image_gen_api}
+                APIkey={props.chatStore.image_gen_key}
+                tmps={props.templateAPIsImageGen}
+                setTmps={props.setTemplateAPIsImageGen}
+              />
+            )}
+          </div>
           <p className="flex justify-evenly">
             <button
               className="p-2 m-2 rounded bg-amber-500"
@@ -554,6 +598,12 @@ export default (props: {
                 // clear api because it is stored in the API template
                 tmp.apiEndpoint = "";
                 tmp.apiKey = "";
+                tmp.whisper_api = "";
+                tmp.whisper_key = "";
+                tmp.tts_api = "";
+                tmp.tts_key = "";
+                tmp.image_gen_api = "";
+                tmp.image_gen_key = "";
                 // @ts-ignore
                 tmp.name = name;
                 props.templates.push(tmp as TemplateChatStore);
@@ -561,25 +611,6 @@ export default (props: {
               }}
             >
               {Tr("As template")}
-            </button>
-            <button
-              className="p-2 m-2 rounded bg-amber-500"
-              onClick={() => {
-                const name = prompt("Give this **API** template a name:");
-                if (!name) {
-                  alert("No template name specified");
-                  return;
-                }
-                const tmp: TemplateAPI = {
-                  name,
-                  endpoint: props.chatStore.apiEndpoint,
-                  key: props.chatStore.apiKey,
-                };
-                props.templateAPIs.push(tmp);
-                props.setTemplateAPIs([...props.templateAPIs]);
-              }}
-            >
-              {Tr("As API Template")}
             </button>
             <button
               className="p-2 m-2 rounded bg-amber-500"

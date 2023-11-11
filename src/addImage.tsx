@@ -24,7 +24,7 @@ export function AddImage({
 }: Props) {
   const [enableHighResolution, setEnableHighResolution] = useState(true);
   const [imageGenPrompt, setImageGenPrompt] = useState("");
-  const [imageGenModel, setImageGenModel] = useState("dall-e-2");
+  const [imageGenModel, setImageGenModel] = useState("dall-e-3");
   const [imageGenN, setImageGenN] = useState(1);
   const [imageGenQuality, setImageGEnQuality] = useState("standard");
   const [imageGenResponseFormat, setImageGenResponseFormat] =

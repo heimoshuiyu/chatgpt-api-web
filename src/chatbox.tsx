@@ -7,6 +7,9 @@ import {
   ChatStoreMessage,
   STORAGE_NAME_TEMPLATE,
   STORAGE_NAME_TEMPLATE_API,
+  STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
+  STORAGE_NAME_TEMPLATE_API_TTS,
+  STORAGE_NAME_TEMPLATE_API_WHISPER,
   TemplateAPI,
   addTotalCost,
 } from "./app";
@@ -23,6 +26,7 @@ import models from "./models";
 import Settings from "./settings";
 import getDefaultParams from "./getDefaultParam";
 import { AddImage } from "./addImage";
+import { ListAPIs } from "./listAPIs";
 
 export interface TemplateChatStore extends ChatStore {
   name: string;
@@ -319,6 +323,21 @@ export default function ChatBOX(props: {
       localStorage.getItem(STORAGE_NAME_TEMPLATE_API) || "[]"
     ) as TemplateAPI[]
   );
+  const [templateAPIsWhisper, _setTemplateAPIsWhisper] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_WHISPER) || "[]"
+    ) as TemplateAPI[]
+  );
+  const [templateAPIsTTS, _setTemplateAPIsTTS] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_TTS) || "[]"
+    ) as TemplateAPI[]
+  );
+  const [templateAPIsImageGen, _setTemplateAPIsImageGen] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_IMAGE_GEN) || "[]"
+    ) as TemplateAPI[]
+  );
   const setTemplates = (templates: TemplateChatStore[]) => {
     localStorage.setItem(STORAGE_NAME_TEMPLATE, JSON.stringify(templates));
     _setTemplates(templates);
@@ -329,6 +348,27 @@ export default function ChatBOX(props: {
       JSON.stringify(templateAPIs)
     );
     _setTemplateAPIs(templateAPIs);
+  };
+  const setTemplateAPIsWhisper = (templateAPIWhisper: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API_WHISPER,
+      JSON.stringify(templateAPIWhisper)
+    );
+    _setTemplateAPIsWhisper(templateAPIWhisper);
+  };
+  const setTemplateAPIsTTS = (templateAPITTS: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API_TTS,
+      JSON.stringify(templateAPITTS)
+    );
+    _setTemplateAPIsTTS(templateAPITTS);
+  };
+  const setTemplateAPIsImageGen = (templateAPIImageGen: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
+      JSON.stringify(templateAPIImageGen)
+    );
+    _setTemplateAPIsImageGen(templateAPIImageGen);
   };
 
   return (
@@ -343,6 +383,12 @@ export default function ChatBOX(props: {
           setTemplates={setTemplates}
           templateAPIs={templateAPIs}
           setTemplateAPIs={setTemplateAPIs}
+          templateAPIsWhisper={templateAPIsWhisper}
+          setTemplateAPIsWhisper={setTemplateAPIsWhisper}
+          templateAPIsTTS={templateAPIsTTS}
+          setTemplateAPIsTTS={setTemplateAPIsTTS}
+          templateAPIsImageGen={templateAPIsImageGen}
+          setTemplateAPIsImageGen={setTemplateAPIsImageGen}
         />
       )}
       <div
@@ -399,60 +445,65 @@ export default function ChatBOX(props: {
             chatStore.history.filter((msg) => !msg.example).length == 0 ||
             !chatStore.apiEndpoint ||
             !chatStore.apiKey) && (
-            <div className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
-              <h2>{Tr("Saved API templates")}</h2>
-              <hr className="my-2" />
-              <div className="flex flex-wrap">
-                {templateAPIs.map((t, index) => (
-                  <div
-                    className={`cursor-pointer rounded ${
-                      chatStore.apiEndpoint === t.endpoint &&
-                      chatStore.apiKey === t.key
-                        ? "bg-red-600"
-                        : "bg-red-400"
-                    } w-fit p-2 m-1 flex flex-col`}
-                    onClick={() => {
-                      chatStore.apiEndpoint = t.endpoint;
-                      chatStore.apiKey = t.key;
-                      setChatStore({ ...chatStore });
-                    }}
-                  >
-                    <span className="w-full text-center">{t.name}</span>
-                    <hr className="mt-2" />
-                    <span className="flex justify-between">
-                      <button
-                        onClick={() => {
-                          const name = prompt("Give **API** template a name");
-                          if (!name) {
-                            return;
-                          }
-                          t.name = name;
-                          setTemplateAPIs(structuredClone(templateAPIs));
-                        }}
-                      >
-                        🖋
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (
-                            !confirm(
-                              "Are you sure to delete this **API** template?"
-                            )
-                          ) {
-                            return;
-                          }
-                          templateAPIs.splice(index, 1);
-                          setTemplateAPIs(structuredClone(templateAPIs));
-                        }}
-                      >
-                        ❌
-                      </button>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <ListAPIs
+              label="API"
+              tmps={templateAPIs}
+              setTmps={setTemplateAPIs}
+              chatStore={chatStore}
+              setChatStore={setChatStore}
+              apiField="apiEndpoint"
+              keyField="apiKey"
+            />
           )}
+
+        {templateAPIsWhisper.length > 0 &&
+          (chatStore.develop_mode ||
+            chatStore.history.filter((msg) => !msg.example).length == 0 ||
+            !chatStore.whisper_api ||
+            !chatStore.whisper_key) && (
+            <ListAPIs
+              label="Whisper API"
+              tmps={templateAPIsWhisper}
+              setTmps={setTemplateAPIsWhisper}
+              chatStore={chatStore}
+              setChatStore={setChatStore}
+              apiField="whisper_api"
+              keyField="whisper_key"
+            />
+          )}
+
+        {templateAPIsTTS.length > 0 &&
+          (chatStore.develop_mode ||
+            chatStore.history.filter((msg) => !msg.example).length == 0 ||
+            !chatStore.tts_api ||
+            !chatStore.tts_key) && (
+            <ListAPIs
+              label="TTS API"
+              tmps={templateAPIsTTS}
+              setTmps={setTemplateAPIsTTS}
+              chatStore={chatStore}
+              setChatStore={setChatStore}
+              apiField="tts_api"
+              keyField="tts_key"
+            />
+          )}
+
+        {templateAPIsImageGen.length > 0 &&
+          (chatStore.develop_mode ||
+            chatStore.history.filter((msg) => !msg.example).length == 0 ||
+            !chatStore.image_gen_api ||
+            !chatStore.image_gen_key) && (
+            <ListAPIs
+              label="Image Gen API"
+              tmps={templateAPIsImageGen}
+              setTmps={setTemplateAPIsImageGen}
+              chatStore={chatStore}
+              setChatStore={setChatStore}
+              apiField="image_gen_api"
+              keyField="image_gen_key"
+            />
+          )}
+
         {chatStore.history.filter((msg) => !msg.example).length == 0 && (
           <div className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
             <h2>
@@ -722,6 +773,7 @@ export default function ChatBOX(props: {
           {Tr("Send")}
         </button>
         {chatStore.whisper_api &&
+          chatStore.whisper_key &&
           (chatStore.whisper_key || chatStore.apiKey) && (
             <button
               className={`disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 ${

@@ -118,6 +118,9 @@ const STORAGE_NAME_INDEXES = `${STORAGE_NAME}-indexes`;
 const STORAGE_NAME_TOTALCOST = `${STORAGE_NAME}-totalcost`;
 export const STORAGE_NAME_TEMPLATE = `${STORAGE_NAME}-template`;
 export const STORAGE_NAME_TEMPLATE_API = `${STORAGE_NAME_TEMPLATE}-api`;
+export const STORAGE_NAME_TEMPLATE_API_WHISPER = `${STORAGE_NAME_TEMPLATE}-api-whisper`;
+export const STORAGE_NAME_TEMPLATE_API_TTS = `${STORAGE_NAME_TEMPLATE}-api-tts`;
+export const STORAGE_NAME_TEMPLATE_API_IMAGE_GEN = `${STORAGE_NAME_TEMPLATE}-api-image-gen`;
 
 export function addTotalCost(cost: number) {
   let totalCost = getTotalCost();
