@@ -502,13 +502,13 @@ export default (props: {
             {...props}
           />
           <Input
-            field="image_gen_api"
-            help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
+            field="image_gen_key"
+            help="image generation service api key"
             {...props}
           />
           <Input
-            field="image_gen_key"
-            help="image generation service api key"
+            field="image_gen_api"
+            help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
             {...props}
           />
 
@@ -526,15 +526,17 @@ export default (props: {
               {Tr("Reset")}
             </button>
           </div>
-
           <div className="flex justify-evenly flex-wrap">
-            <SetAPIsTemplate
-              label="Chat API"
-              endpoint={props.chatStore.apiEndpoint}
-              APIkey={props.chatStore.apiKey}
-              tmps={props.templateAPIs}
-              setTmps={props.setTemplateAPIs}
-            />
+            {props.chatStore.apiEndpoint && props.chatStore.apiKey && (
+              <SetAPIsTemplate
+                label="Chat API"
+                endpoint={props.chatStore.apiEndpoint}
+                APIkey={props.chatStore.apiKey}
+                tmps={props.templateAPIs}
+                setTmps={props.setTemplateAPIs}
+              />
+            )}
+
             {props.chatStore.whisper_api && props.chatStore.whisper_key && (
               <SetAPIsTemplate
                 label="Whisper API"

@@ -66,14 +66,14 @@ export const newChatStore = (
   model = "gpt-3.5-turbo-1106",
   temperature = 0.7,
   dev = false,
-  whisper_api = "",
+  whisper_api = "https://api.openai.com/v1/audio/transcriptions",
   whisper_key = "",
-  tts_api = "",
+  tts_api = "https://api.openai.com/v1/audio/speech",
   tts_key = "",
   tts_speed = 1.0,
   tts_speed_enabled = false,
   toolsString = "",
-  image_gen_api = "",
+  image_gen_api = "https://api.openai.com/v1/images/generations",
   image_gen_key = ""
 ): ChatStore => {
   return {
