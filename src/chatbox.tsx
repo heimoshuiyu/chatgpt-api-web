@@ -570,7 +570,47 @@ export default function ChatBOX(props: {
                         chatStore.apiKey
                       );
                     }
+                    if (!newChatStore.whisper_api) {
+                      newChatStore.whisper_api = getDefaultParams(
+                        "whisper-api",
+                        chatStore.whisper_api
+                      );
+                    }
+                    if (!newChatStore.whisper_key) {
+                      newChatStore.whisper_key = getDefaultParams(
+                        "whisper-key",
+                        chatStore.whisper_key
+                      );
+                    }
+                    if (!newChatStore.tts_api) {
+                      newChatStore.tts_api = getDefaultParams(
+                        "tts-api",
+                        chatStore.tts_api
+                      );
+                    }
+                    if (!newChatStore.tts_key) {
+                      newChatStore.tts_key = getDefaultParams(
+                        "tts-key",
+                        chatStore.tts_key
+                      );
+                    }
+                    if (!newChatStore.image_gen_api) {
+                      newChatStore.image_gen_api = getDefaultParams(
+                        "image-gen-api",
+                        chatStore.image_gen_api
+                      );
+                    }
+                    if (!newChatStore.image_gen_key) {
+                      newChatStore.image_gen_key = getDefaultParams(
+                        "image-gen-key",
+                        chatStore.image_gen_key
+                      );
+                    }
                     newChatStore.cost = 0;
+
+                    // manage undefined value because of version update
+                    newChatStore.toolsString = newChatStore.toolsString || "";
+
                     setChatStore({ ...newChatStore });
                   }}
                 >
