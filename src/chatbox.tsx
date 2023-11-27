@@ -222,6 +222,7 @@ export default function ChatBOX(props: {
     client.enable_top_p = chatStore.top_p_enabled;
     client.frequency_penalty = chatStore.frequency_penalty;
     client.presence_penalty = chatStore.presence_penalty;
+    client.json_mode = chatStore.json_mode;
     client.messages = chatStore.history
       // only copy non hidden message
       .filter(({ hide }) => !hide)

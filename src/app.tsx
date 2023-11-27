@@ -60,6 +60,7 @@ export interface ChatStore {
   tts_speed_enabled: boolean;
   image_gen_api: string;
   image_gen_key: string;
+  json_mode: boolean;
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
@@ -79,7 +80,8 @@ export const newChatStore = (
   tts_speed_enabled = false,
   toolsString = "",
   image_gen_api = "https://api.openai.com/v1/images/generations",
-  image_gen_key = ""
+  image_gen_key = "",
+  json_mode = false
 ): ChatStore => {
   return {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
@@ -114,6 +116,7 @@ export const newChatStore = (
     tts_speed_enabled: tts_speed_enabled,
     image_gen_api: image_gen_api,
     image_gen_key: image_gen_key,
+    json_mode: json_mode,
   };
 };
 
@@ -273,7 +276,8 @@ export function App() {
         chatStore.tts_speed_enabled,
         chatStore.toolsString,
         chatStore.image_gen_api,
-        chatStore.image_gen_key
+        chatStore.image_gen_key,
+        chatStore.json_mode
       )
     );
     setSelectedChatIndex(newKey as number);

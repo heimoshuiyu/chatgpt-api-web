@@ -132,6 +132,7 @@ class Chat {
   enable_top_p: boolean;
   presence_penalty: number;
   frequency_penalty: number;
+  json_mode: boolean;
 
   constructor(
     OPENAI_API_KEY: string | undefined,
@@ -150,6 +151,7 @@ class Chat {
       enable_top_p = false,
       presence_penalty = 0,
       frequency_penalty = 0,
+      json_mode = false,
     } = {}
   ) {
     this.OPENAI_API_KEY = OPENAI_API_KEY ?? "";
@@ -169,6 +171,7 @@ class Chat {
     this.enable_top_p = enable_top_p;
     this.presence_penalty = presence_penalty;
     this.frequency_penalty = frequency_penalty;
+    this.json_mode = json_mode;
   }
 
   _fetch(stream = false) {
@@ -216,6 +219,11 @@ class Chat {
     }
     if (this.enable_max_gen_tokens) {
       body["max_tokens"] = this.max_gen_tokens;
+    }
+    if (this.json_mode) {
+      body["response_format"] = {
+        type: "json_object",
+      };
     }
 
     // parse toolsString to function call format

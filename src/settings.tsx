@@ -246,7 +246,7 @@ const Number = (props: {
 const Choice = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  field: "streamMode" | "develop_mode";
+  field: "streamMode" | "develop_mode" | "json_mode";
   help: string;
 }) => {
   return (
@@ -420,6 +420,7 @@ export default (props: {
             help="开发者模式，拥有更多选项及功能"
             {...props}
           />
+          <Choice field="json_mode" help="JSON Mode" {...props} />
           <SelectModel
             help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。（GPT-4 模型处于内测阶段，需要向 OPENAI 申请, 请确保您有访问权限）"
             {...props}
