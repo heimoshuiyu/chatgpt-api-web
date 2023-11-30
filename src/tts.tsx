@@ -29,7 +29,7 @@ export default function TTSButton(props: TTSProps) {
           model,
           input,
           voice,
-          response_format: "opus",
+          response_format: props.chatStore.tts_format || "mp3",
         };
         if (props.chatStore.tts_speed_enabled) {
           body["speed"] = props.chatStore.tts_speed;

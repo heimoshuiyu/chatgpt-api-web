@@ -22,6 +22,7 @@ const TTS_VOICES: string[] = [
   "nova",
   "shimmer",
 ];
+const TTS_FORMAT: string[] = ["mp3", "opus", "aac", "flac"];
 
 const Help = (props: { children: any; help: string }) => {
   return (
@@ -510,6 +511,22 @@ export default (props: {
             help={"TTS Speed"}
             {...props}
           />
+          <Help help="tts response format">
+            <label className="m-2 p-2">TTS Format</label>
+            <select
+              className="m-2 p-2"
+              value={props.chatStore.tts_format}
+              onChange={(event: any) => {
+                const format = event.target.value as string;
+                props.chatStore.tts_format = format;
+                props.setChatStore({ ...props.chatStore });
+              }}
+            >
+              {TTS_FORMAT.map((opt) => (
+                <option value={opt}>{opt}</option>
+              ))}
+            </select>
+          </Help>
           <Input
             field="image_gen_key"
             help="image generation service api key"

@@ -59,6 +59,7 @@ export interface ChatStore {
   tts_voice: string;
   tts_speed: number;
   tts_speed_enabled: boolean;
+  tts_format: string;
   image_gen_api: string;
   image_gen_key: string;
   json_mode: boolean;
@@ -79,6 +80,7 @@ export const newChatStore = (
   tts_key = "",
   tts_speed = 1.0,
   tts_speed_enabled = false,
+  tts_format = "mp3",
   toolsString = "",
   image_gen_api = "https://api.openai.com/v1/images/generations",
   image_gen_key = "",
@@ -118,6 +120,7 @@ export const newChatStore = (
     image_gen_api: image_gen_api,
     image_gen_key: image_gen_key,
     json_mode: json_mode,
+    tts_format: tts_format,
   };
 };
 
@@ -275,6 +278,7 @@ export function App() {
         chatStore.tts_key,
         chatStore.tts_speed,
         chatStore.tts_speed_enabled,
+        chatStore.tts_format,
         chatStore.toolsString,
         chatStore.image_gen_api,
         chatStore.image_gen_key,
