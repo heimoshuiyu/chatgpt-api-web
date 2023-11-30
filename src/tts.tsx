@@ -1,10 +1,18 @@
 import { useState } from "preact/hooks";
-import { ChatStore, addTotalCost } from "./app";
+import { ChatStore, ChatStoreMessage, addTotalCost } from "./app";
+import { Message, getMessageText } from "./chatgpt";
 
 interface TTSProps {
   chatStore: ChatStore;
+  chat: ChatStoreMessage;
   setChatStore: (cs: ChatStore) => void;
-  text: string;
+}
+export function TTSPlay(props: TTSProps) {
+  if (props.chat.audio instanceof Blob) {
+    const url = URL.createObjectURL(props.chat.audio);
+    return <audio src={url} controls />;
+  }
+  return <></>;
 }
 export default function TTSButton(props: TTSProps) {
   const [generating, setGenerating] = useState(false);
@@ -14,7 +22,7 @@ export default function TTSButton(props: TTSProps) {
         const api = props.chatStore.tts_api;
         const api_key = props.chatStore.tts_key;
         const model = "tts-1";
-        const input = props.text;
+        const input = getMessageText(props.chat);
         const voice = props.chatStore.tts_voice;
 
         const body: Record<string, any> = {
@@ -40,9 +48,13 @@ export default function TTSButton(props: TTSProps) {
           .then((response) => response.blob())
           .then((blob) => {
             // update price
-            const cost = (props.text.length * 0.015) / 1000;
+            const cost = (input.length * 0.015) / 1000;
             props.chatStore.cost += cost;
             addTotalCost(cost);
+            props.setChatStore({ ...props.chatStore });
+
+            // save blob
+            props.chat.audio = blob;
             props.setChatStore({ ...props.chatStore });
 
             const url = URL.createObjectURL(blob);

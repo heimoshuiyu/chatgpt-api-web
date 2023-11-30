@@ -14,6 +14,7 @@ export interface ChatStoreMessage extends Message {
   hide: boolean;
   token: number;
   example: boolean;
+  audio: Blob | null;
 }
 
 export interface TemplateAPI {

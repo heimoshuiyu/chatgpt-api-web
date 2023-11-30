@@ -3,7 +3,7 @@ import { useState, useEffect, StateUpdater } from "preact/hooks";
 import { ChatStore, ChatStoreMessage } from "./app";
 import { calculate_token_length, getMessageText } from "./chatgpt";
 import Markdown from "preact-markdown";
-import TTSButton from "./tts";
+import TTSButton, { TTSPlay } from "./tts";
 import { MessageHide } from "./messageHide";
 import { MessageDetail } from "./messageDetail";
 import { MessageToolCall } from "./messageToolCall";
@@ -130,13 +130,18 @@ export default function Message(props: Props) {
               </div>
             )}
             <hr className="mt-2" />
+            <TTSPlay
+              chat={chat}
+              chatStore={chatStore}
+              setChatStore={setChatStore}
+            />
             <div className="w-full flex justify-between">
               <DeleteIcon />
               <button onClick={() => setShowEdit(true)}>🖋</button>
               {chatStore.tts_api && chatStore.tts_key && (
                 <TTSButton
                   chatStore={chatStore}
-                  text={getMessageText(chat)}
+                  chat={chat}
                   setChatStore={setChatStore}
                 />
               )}

@@ -151,6 +151,7 @@ export default function ChatBOX(props: {
       hide: false,
       token: responseTokenCount,
       example: false,
+      audio: null,
     };
     if (allChunkTool.length > 0) newMsg.tool_calls = allChunkTool;
 
@@ -205,6 +206,7 @@ export default function ChatBOX(props: {
       token:
         data.usage.completion_tokens ?? calculate_token_length(msg.content),
       example: false,
+      audio: null,
     });
     setShowGenerating(false);
   };
@@ -300,6 +302,7 @@ export default function ChatBOX(props: {
       hide: false,
       token: calculate_token_length(inputMsg.trim()),
       example: false,
+      audio: null,
     });
 
     // manually calculate token length
@@ -975,6 +978,7 @@ export default function ChatBOX(props: {
                   calculate_token_length(images),
                 hide: false,
                 example: false,
+                audio: null,
               });
               update_total_tokens();
               setInputMsg("");
@@ -1068,6 +1072,7 @@ export default function ChatBOX(props: {
                       token: calculate_token_length(newToolContent),
                       hide: false,
                       example: false,
+                      audio: null,
                     });
                     update_total_tokens();
                     setChatStore({ ...chatStore });
