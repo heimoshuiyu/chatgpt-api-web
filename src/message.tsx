@@ -130,11 +130,7 @@ export default function Message(props: Props) {
               </div>
             )}
             <hr className="mt-2" />
-            <TTSPlay
-              chat={chat}
-              chatStore={chatStore}
-              setChatStore={setChatStore}
-            />
+            <TTSPlay chat={chat} />
             <div className="w-full flex justify-between">
               <DeleteIcon />
               <button onClick={() => setShowEdit(true)}>🖋</button>

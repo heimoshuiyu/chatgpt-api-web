@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useMemo, useState } from "preact/hooks";
 import { ChatStore, ChatStoreMessage, addTotalCost } from "./app";
 import { Message, getMessageText } from "./chatgpt";
 
@@ -7,10 +7,22 @@ interface TTSProps {
   chat: ChatStoreMessage;
   setChatStore: (cs: ChatStore) => void;
 }
-export function TTSPlay(props: TTSProps) {
+interface TTSPlayProps {
+  chat: ChatStoreMessage;
+}
+export function TTSPlay(props: TTSPlayProps) {
+  const src = useMemo(() => {
+    if (props.chat.audio instanceof Blob) {
+      return URL.createObjectURL(props.chat.audio);
+    }
+    return "";
+  }, [props.chat.audio]);
+
+  if (props.chat.hide) {
+    return <></>;
+  }
   if (props.chat.audio instanceof Blob) {
-    const url = URL.createObjectURL(props.chat.audio);
-    return <audio src={url} controls />;
+    return <audio className="w-full" src={src} controls />;
   }
   return <></>;
 }
