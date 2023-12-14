@@ -231,12 +231,7 @@ class Chat {
     if (ts) {
       try {
         const fcList: any[] = JSON.parse(ts);
-        body["tools"] = fcList.map((fc) => {
-          return {
-            type: "function",
-            function: fc,
-          };
-        });
+        body["tools"] = fcList;
       } catch (e) {
         console.log("toolsString parse error");
         throw (
