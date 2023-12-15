@@ -938,7 +938,7 @@ export default function ChatBOX(props: {
                           method: "POST",
                           headers: {
                             Authorization: `Bearer ${
-                              chatStore.whisper_api || chatStore.apiKey
+                              chatStore.whisper_key || chatStore.apiKey
                             }`,
                           },
                           body: formData,
