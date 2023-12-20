@@ -456,7 +456,7 @@ export default (props: {
             readOnly={true}
             {...props}
           />
-          <Slicer field="temperature" min={0} max={1} help="温度" {...props} />
+          <Slicer field="temperature" min={0} max={2} help="温度" {...props} />
           <Slicer field="top_p" min={0} max={1} help="top_p" {...props} />
           <Number
             field="presence_penalty"
