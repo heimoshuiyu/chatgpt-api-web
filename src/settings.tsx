@@ -418,23 +418,23 @@ export default (props: {
           />
           <Choice
             field="develop_mode"
-            help="开发者模式，拥有更多选项及功能"
+            help="开发者模式，开启后会显示更多选项及功能"
             {...props}
           />
           <Choice field="json_mode" help="JSON Mode" {...props} />
           <SelectModel
-            help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。（GPT-4 模型处于内测阶段，需要向 OPENAI 申请, 请确保您有访问权限）"
+            help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
             {...props}
           />
           <Number
             field="maxTokens"
-            help="最大 token 数量。如果使用非gpt-3.5模型，请手动修改上限。gpt-4 & gpt-4-0314: 8192。gpt-4-32k & gpt-4-32k-0314: 32768"
+            help="最大上下文 token 数量。此值会根据选择的模型自动设置。"
             readOnly={false}
             {...props}
           />
           <Number
             field="maxGenTokens"
-            help="最大生成 Tokens 数量"
+            help="最大生成 Tokens 数量，可选值。"
             readOnly={false}
             {...props}
           />
@@ -447,7 +447,7 @@ export default (props: {
           <Number
             field="postBeginIndex"
             help="指示发送 API 请求时要”忘记“多少历史消息"
-            readOnly={false}
+            readOnly={true}
             {...props}
           />
           <Number
@@ -456,17 +456,17 @@ export default (props: {
             readOnly={true}
             {...props}
           />
-          <Slicer field="temperature" min={0} max={2} help="温度" {...props} />
-          <Slicer field="top_p" min={0} max={1} help="top_p" {...props} />
+          <Slicer field="temperature" min={0} max={2} help="温度，数值越大模型生成文字的随机性越高。" {...props} />
+          <Slicer field="top_p" min={0} max={1} help="Top P 采样方法。建议与温度采样方法二选一，不要同时开启。" {...props} />
           <Number
             field="presence_penalty"
-            help="presence_penalty"
+            help="存在惩罚度"
             readOnly={false}
             {...props}
           />
           <Number
             field="frequency_penalty"
-            help="frequency_penalty"
+            help="频率惩罚度"
             readOnly={false}
             {...props}
           />
