@@ -329,13 +329,6 @@ class Chat {
     };
   }
 
-  completeWithSteam() {
-    this.total_tokens = this.messages
-      .map((msg) => this.calculate_token_length(msg.content as string) + 20)
-      .reduce((a, v) => a + v);
-    return this._fetch(true);
-  }
-
   calculate_token_length(content: string | MessageDetail[]): number {
     return calculate_token_length(content);
   }

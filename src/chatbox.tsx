@@ -84,6 +84,10 @@ export default function ChatBOX(props: {
     for await (const i of client.processStreamResponse(response)) {
       chatStore.responseModelName = i.model;
       responseTokenCount += 1;
+
+      // skip if choice is empty (e.g. azure)
+      if (!i.choices[0]) continue;
+
       allChunkMessage.push(i.choices[0].delta.content ?? "");
       const tool_calls = i.choices[0].delta.tool_calls;
       if (tool_calls) {
@@ -692,7 +696,7 @@ export default function ChatBOX(props: {
           {chatStore.history.length > 0 && (
             <button
               className="disabled:line-through disabled:bg-slate-500 rounded m-2 p-2 border-2 bg-teal-500 hover:bg-teal-600"
-              disabled={showGenerating || !chatStore.apiKey}
+              disabled={showGenerating}
               onClick={async () => {
                 const messageIndex = chatStore.history.length - 1;
                 if (chatStore.history[messageIndex].role === "assistant") {
@@ -712,7 +716,7 @@ export default function ChatBOX(props: {
           {chatStore.develop_mode && chatStore.history.length > 0 && (
             <button
               className="disabled:line-through disabled:bg-slate-500 rounded m-2 p-2 border-2 bg-yellow-500 hover:bg-yellow-600"
-              disabled={showGenerating || !chatStore.apiKey}
+              disabled={showGenerating}
               onClick={async () => {
                 await complete();
               }}
