@@ -228,7 +228,7 @@ export function AddImage({
                       if (!url) continue;
 
                       chatStore.history.push({
-                        role: "user",
+                        role: "assistant",
                         content: [
                           {
                             type: "image_url",
