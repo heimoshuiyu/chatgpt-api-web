@@ -78,7 +78,6 @@ export default function ChatBOX(props: {
 
   const _completeWithStreamMode = async (response: Response) => {
     let responseTokenCount = 0;
-    chatStore.streamMode = true;
     const allChunkMessage: string[] = [];
     const allChunkTool: ToolCall[] = [];
     setShowGenerating(true);
@@ -166,7 +165,6 @@ export default function ChatBOX(props: {
   };
 
   const _completeWithFetchMode = async (response: Response) => {
-    chatStore.streamMode = false;
     const data = (await response.json()) as FetchResponse;
     chatStore.responseModelName = data.model ?? "";
     if (data.model) {
