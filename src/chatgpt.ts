@@ -240,12 +240,15 @@ class Chat {
       }
     }
 
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (this.OPENAI_API_KEY) {
+      headers["Authorization"] = `Bearer ${this.OPENAI_API_KEY}`;
+    }
     return fetch(this.apiEndpoint, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(body),
     });
   }
