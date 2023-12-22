@@ -622,7 +622,10 @@ export default function ChatBOX(props: {
                   <hr className="mt-2" />
                   <span className="flex justify-between">
                     <button
-                      onClick={() => {
+                      onClick={(event) => {
+                        // prevent triggert other event
+                        event.stopPropagation();
+
                         const name = prompt("Give template a name");
                         if (!name) {
                           return;
@@ -634,7 +637,10 @@ export default function ChatBOX(props: {
                       🖋
                     </button>
                     <button
-                      onClick={() => {
+                      onClick={(event) => {
+                        // prevent triggert other event
+                        event.stopPropagation();
+
                         if (!confirm("Are you sure to delete this template?")) {
                           return;
                         }
