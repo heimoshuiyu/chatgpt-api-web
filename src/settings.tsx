@@ -456,8 +456,20 @@ export default (props: {
             readOnly={true}
             {...props}
           />
-          <Slicer field="temperature" min={0} max={2} help="温度，数值越大模型生成文字的随机性越高。" {...props} />
-          <Slicer field="top_p" min={0} max={1} help="Top P 采样方法。建议与温度采样方法二选一，不要同时开启。" {...props} />
+          <Slicer
+            field="temperature"
+            min={0}
+            max={2}
+            help="温度，数值越大模型生成文字的随机性越高。"
+            {...props}
+          />
+          <Slicer
+            field="top_p"
+            min={0}
+            max={1}
+            help="Top P 采样方法。建议与温度采样方法二选一，不要同时开启。"
+            {...props}
+          />
           <Number
             field="presence_penalty"
             help="存在惩罚度"
@@ -553,7 +565,7 @@ export default (props: {
             </button>
           </div>
           <div className="flex justify-evenly flex-wrap">
-            {props.chatStore.apiEndpoint && props.chatStore.apiKey && (
+            {props.chatStore.apiEndpoint && (
               <SetAPIsTemplate
                 label="Chat API"
                 endpoint={props.chatStore.apiEndpoint}
