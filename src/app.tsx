@@ -94,7 +94,7 @@ export const newChatStore = (
     postBeginIndex: 0,
     tokenMargin: 1024,
     totalTokens: 0,
-    maxTokens: models[getDefaultParams("model", model)]?.maxToken ?? 4096,
+    maxTokens: getDefaultParams("max", models[getDefaultParams("model", model)]?.maxToken ?? 2048),
     maxGenTokens: 2048,
     maxGenTokens_enabled: true,
     apiKey: getDefaultParams("key", apiKey),
@@ -297,6 +297,7 @@ export function App() {
       const sys = getDefaultParams("sys", "");
       const mode = getDefaultParams("mode", "");
       const model = getDefaultParams("model", "");
+      const max = getDefaultParams("max", chatStore.maxTokens || 2048);
       // only create new chatStore if the params in URL are NOT
       // equal to the current selected chatStore
       if (
@@ -304,7 +305,8 @@ export function App() {
         (key && key !== chatStore.apiKey) ||
         (sys && sys !== chatStore.systemMessageContent) ||
         (mode && mode !== (chatStore.streamMode ? "stream" : "fetch")) ||
-        (model && model !== chatStore.model)
+        (model && model !== chatStore.model) ||
+        (max && max !== chatStore.maxTokens)
       ) {
         handleNewChatStore();
       }
@@ -337,9 +339,8 @@ export function App() {
                 return (
                   <li>
                     <button
-                      className={`w-full my-1 p-1 rounded  hover:bg-blue-500 ${
-                        i === selectedChatIndex ? "bg-blue-500" : "bg-blue-200"
-                      }`}
+                      className={`w-full my-1 p-1 rounded  hover:bg-blue-500 ${i === selectedChatIndex ? "bg-blue-500" : "bg-blue-200"
+                        }`}
                       onClick={() => {
                         setSelectedChatIndex(i);
                       }}
