@@ -496,16 +496,29 @@ export default (props: {
             {...props}
           />
 
-          <Input
-            field="whisper_key"
-            help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
-            {...props}
-          />
-          <Input
-            field="whisper_api"
-            help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
-            {...props}
-          />
+          <div className="relative border-slate-300 border rounded">
+            <div className="flex justify-between">
+              <strong className="p-1 m-1">Whisper API</strong>
+              <SetAPIsTemplate
+                label="Whisper API"
+                endpoint={props.chatStore.whisper_api}
+                APIkey={props.chatStore.whisper_key}
+                tmps={props.templateAPIsWhisper}
+                setTmps={props.setTemplateAPIsWhisper}
+              />
+            </div>
+            <hr />
+            <Input
+              field="whisper_key"
+              help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
+              {...props}
+            />
+            <Input
+              field="whisper_api"
+              help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
+              {...props}
+            />
+          </div>
 
           <Input field="tts_key" help="tts service api key" {...props} />
           <Input
@@ -578,15 +591,6 @@ export default (props: {
             </button>
           </div>
           <div className="flex justify-evenly flex-wrap">
-            {props.chatStore.whisper_api && props.chatStore.whisper_key && (
-              <SetAPIsTemplate
-                label="Whisper API"
-                endpoint={props.chatStore.whisper_api}
-                APIkey={props.chatStore.whisper_key}
-                tmps={props.templateAPIsWhisper}
-                setTmps={props.setTemplateAPIsWhisper}
-              />
-            )}
             {props.chatStore.tts_api && props.chatStore.tts_key && (
               <SetAPIsTemplate
                 label="TTS API"
