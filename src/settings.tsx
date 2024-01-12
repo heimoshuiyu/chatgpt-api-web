@@ -104,13 +104,15 @@ const Input = (props: {
   return (
     <Help help={props.help}>
       <label className="m-2 p-2">{props.field}</label>
-      <span
-        className="m-2 p-2"
-        onClick={(event: any) => setHideInput(!hideInput)}
+      <button
+       className="p-2"
+        onClick={() => {
+          setHideInput(!hideInput);
+          console.log("clicked", hideInput);
+        }}
       >
-        <label>hide</label>
-        <input type="checkbox" checked={hideInput} />
-      </span>
+        {hideInput ? "👀" : "🙈"}
+      </button>
       <input
         type={hideInput ? "password" : "text"}
         className="m-2 p-2 border rounded focus w-32 md:w-fit"
