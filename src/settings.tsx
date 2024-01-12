@@ -80,6 +80,12 @@ const LongInput = (props: {
         onChange={(event: any) => {
           props.chatStore[props.field] = event.target.value;
           props.setChatStore({ ...props.chatStore });
+          event.target.style.height = "auto";
+          event.target.style.height = `${event.target.scrollHeight + 1}px`;
+        }}
+        onKeyPress={(event: any) => {
+          event.target.style.height = "auto";
+          event.target.style.height = `${event.target.scrollHeight + 1}px`;
         }}
       ></textarea>
     </Help>

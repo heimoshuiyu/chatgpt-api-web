@@ -829,9 +829,12 @@ export default function ChatBOX(props: {
           />
         )}
         <textarea
-          rows={Math.min(10, (inputMsg.match(/\n/g) || []).length + 2)}
           value={inputMsg}
-          onChange={(event: any) => setInputMsg(event.target.value)}
+          onChange={(event: any) => {
+            setInputMsg(event.target.value);
+            event.target.style.height = "auto";
+            event.target.style.height = `${event.target.scrollHeight+1}px`;
+          }}
           onKeyPress={(event: any) => {
             console.log(event);
             if (event.ctrlKey && event.code === "Enter") {
@@ -840,6 +843,8 @@ export default function ChatBOX(props: {
               return;
             }
             setInputMsg(event.target.value);
+            event.target.style.height = "auto";
+            event.target.style.height = `${event.target.scrollHeight+1}px`;
           }}
           className="rounded grow m-1 p-1 border-2 border-gray-400 w-0"
           placeholder="Type here..."
