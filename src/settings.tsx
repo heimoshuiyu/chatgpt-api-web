@@ -578,16 +578,30 @@ export default (props: {
               ))}
             </select>
           </Help>
-          <Input
-            field="image_gen_key"
-            help="image generation service api key"
-            {...props}
-          />
-          <Input
-            field="image_gen_api"
-            help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
-            {...props}
-          />
+
+          <div className="relative border-slate-300 border rounded">
+            <div className="flex justify-between">
+              <strong className="p-1 m-1">Image Gen API</strong>
+              <SetAPIsTemplate
+                label="Image Gen API"
+                endpoint={props.chatStore.image_gen_api}
+                APIkey={props.chatStore.image_gen_key}
+                tmps={props.templateAPIsImageGen}
+                setTmps={props.setTemplateAPIsImageGen}
+              />
+            </div>
+            <hr />
+            <Input
+              field="image_gen_key"
+              help="image generation service api key"
+              {...props}
+            />
+            <Input
+              field="image_gen_api"
+              help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
+              {...props}
+            />
+          </div>
 
           <div className="flex justify-between">
             <p className="m-2 p-2">
@@ -604,16 +618,6 @@ export default (props: {
             </button>
           </div>
           <div className="flex justify-evenly flex-wrap">
-            {props.chatStore.image_gen_api && props.chatStore.image_gen_key && (
-              <SetAPIsTemplate
-                label="Image Gen API"
-                endpoint={props.chatStore.image_gen_api}
-                APIkey={props.chatStore.image_gen_key}
-                tmps={props.templateAPIsImageGen}
-                setTmps={props.setTemplateAPIsImageGen}
-              />
-            )}
-
             {props.chatStore.toolsString.trim() && (
               <button
                 className="p-2 m-2 rounded bg-blue-300"
