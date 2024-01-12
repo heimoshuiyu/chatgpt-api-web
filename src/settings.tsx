@@ -520,12 +520,25 @@ export default (props: {
             />
           </div>
 
-          <Input field="tts_key" help="tts service api key" {...props} />
-          <Input
-            field="tts_api"
-            help="tts api, eg. https://api.openai.com/v1/audio/speech"
-            {...props}
-          />
+          <div className="relative border-slate-300 border rounded mt-1">
+            <div className="flex justify-between">
+              <strong className="p-1 m-1">TTS API</strong>
+              <SetAPIsTemplate
+                label="TTS API"
+                endpoint={props.chatStore.tts_api}
+                APIkey={props.chatStore.tts_key}
+                tmps={props.templateAPIsTTS}
+                setTmps={props.setTemplateAPIsTTS}
+              />
+            </div>
+            <hr />
+            <Input field="tts_key" help="tts service api key" {...props} />
+            <Input
+              field="tts_api"
+              help="tts api, eg. https://api.openai.com/v1/audio/speech"
+              {...props}
+            />
+          </div>
           <Help help="tts voice style">
             <label className="m-2 p-2">TTS Voice</label>
             <select
@@ -591,15 +604,6 @@ export default (props: {
             </button>
           </div>
           <div className="flex justify-evenly flex-wrap">
-            {props.chatStore.tts_api && props.chatStore.tts_key && (
-              <SetAPIsTemplate
-                label="TTS API"
-                endpoint={props.chatStore.tts_api}
-                APIkey={props.chatStore.tts_key}
-                tmps={props.templateAPIsTTS}
-                setTmps={props.setTemplateAPIsTTS}
-              />
-            )}
             {props.chatStore.image_gen_api && props.chatStore.image_gen_key && (
               <SetAPIsTemplate
                 label="Image Gen API"
