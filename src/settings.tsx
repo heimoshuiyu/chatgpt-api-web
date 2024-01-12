@@ -105,7 +105,7 @@ const Input = (props: {
     <Help help={props.help}>
       <label className="m-2 p-2">{props.field}</label>
       <button
-       className="p-2"
+        className="p-2"
         onClick={() => {
           setHideInput(!hideInput);
           console.log("clicked", hideInput);
@@ -164,33 +164,31 @@ const Slicer = (props: {
           }}
         />
       </span>
-      <span>
-        <input
-          disabled={!enabled}
-          className="m-2 p-2 border rounded focus w-28"
-          type="range"
-          min={props.min}
-          max={props.max}
-          step="0.01"
-          value={props.chatStore[props.field]}
-          onChange={(event: any) => {
-            const value = parseFloat(event.target.value);
-            props.chatStore[props.field] = value;
-            props.setChatStore({ ...props.chatStore });
-          }}
-        />
-        <input
-          disabled={!enabled}
-          className="m-2 p-2 border rounded focus w-28"
-          type="number"
-          value={props.chatStore[props.field]}
-          onChange={(event: any) => {
-            const value = parseFloat(event.target.value);
-            props.chatStore[props.field] = value;
-            props.setChatStore({ ...props.chatStore });
-          }}
-        />
-      </span>
+      <input
+        disabled={!enabled}
+        className="m-2 p-2 border rounded focus w-16"
+        type="range"
+        min={props.min}
+        max={props.max}
+        step="0.01"
+        value={props.chatStore[props.field]}
+        onChange={(event: any) => {
+          const value = parseFloat(event.target.value);
+          props.chatStore[props.field] = value;
+          props.setChatStore({ ...props.chatStore });
+        }}
+      />
+      <input
+        disabled={!enabled}
+        className="m-2 p-2 border rounded focus w-28"
+        type="number"
+        value={props.chatStore[props.field]}
+        onChange={(event: any) => {
+          const value = parseFloat(event.target.value);
+          props.chatStore[props.field] = value;
+          props.setChatStore({ ...props.chatStore });
+        }}
+      />
     </Help>
   );
 };
@@ -426,6 +424,17 @@ export default (props: {
               {...props}
             />
           </div>
+          <SelectModel
+            help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
+            {...props}
+          />
+          <Slicer
+            field="temperature"
+            min={0}
+            max={2}
+            help="温度，数值越大模型生成文字的随机性越高。"
+            {...props}
+          />
           <Choice
             field="streamMode"
             help="流模式，使用 stream mode 将可以动态看到生成内容，但无法准确计算 token 数量，在 token 数量过多时可能会裁切过多或过少历史消息"
@@ -434,11 +443,6 @@ export default (props: {
           <Choice
             field="develop_mode"
             help="开发者模式，开启后会显示更多选项及功能"
-            {...props}
-          />
-          <Choice field="json_mode" help="JSON Mode" {...props} />
-          <SelectModel
-            help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
             {...props}
           />
           <Number
@@ -459,6 +463,7 @@ export default (props: {
             readOnly={false}
             {...props}
           />
+          <Choice field="json_mode" help="JSON Mode" {...props} />
           <Number
             field="postBeginIndex"
             help="指示发送 API 请求时要”忘记“多少历史消息"
@@ -469,13 +474,6 @@ export default (props: {
             field="totalTokens"
             help="token总数，每次对话都会更新此参数，stream模式下该参数为估计值"
             readOnly={true}
-            {...props}
-          />
-          <Slicer
-            field="temperature"
-            min={0}
-            max={2}
-            help="温度，数值越大模型生成文字的随机性越高。"
             {...props}
           />
           <Slicer
