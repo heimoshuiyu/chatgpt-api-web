@@ -401,16 +401,29 @@ export default (props: {
             help="function call tools, should be valied json format in list"
             {...props}
           />
-          <Input
-            field="apiKey"
-            help="OPEN AI API 密钥，请勿泄漏此密钥"
-            {...props}
-          />
-          <Input
-            field="apiEndpoint"
-            help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
-            {...props}
-          />
+          <div className="relative border-slate-300 border rounded">
+            <div className="flex justify-between">
+              <strong className="p-1 m-1">Chat API</strong>
+              <SetAPIsTemplate
+                label="Chat API"
+                endpoint={props.chatStore.apiEndpoint}
+                APIkey={props.chatStore.apiKey}
+                tmps={props.templateAPIs}
+                setTmps={props.setTemplateAPIs}
+              />
+            </div>
+            <hr />
+            <Input
+              field="apiKey"
+              help="OPEN AI API 密钥，请勿泄漏此密钥"
+              {...props}
+            />
+            <Input
+              field="apiEndpoint"
+              help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
+              {...props}
+            />
+          </div>
           <Choice
             field="streamMode"
             help="流模式，使用 stream mode 将可以动态看到生成内容，但无法准确计算 token 数量，在 token 数量过多时可能会裁切过多或过少历史消息"
@@ -565,16 +578,6 @@ export default (props: {
             </button>
           </div>
           <div className="flex justify-evenly flex-wrap">
-            {props.chatStore.apiEndpoint && (
-              <SetAPIsTemplate
-                label="Chat API"
-                endpoint={props.chatStore.apiEndpoint}
-                APIkey={props.chatStore.apiKey}
-                tmps={props.templateAPIs}
-                setTmps={props.setTemplateAPIs}
-              />
-            )}
-
             {props.chatStore.whisper_api && props.chatStore.whisper_key && (
               <SetAPIsTemplate
                 label="Whisper API"
