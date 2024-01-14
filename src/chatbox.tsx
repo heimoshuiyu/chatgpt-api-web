@@ -30,6 +30,7 @@ import getDefaultParams from "./getDefaultParam";
 import { AddImage } from "./addImage";
 import { ListAPIs } from "./listAPIs";
 import { ListToolsTempaltes } from "./listToolsTemplates";
+import { autoHeight } from "./textarea";
 
 export interface TemplateChatStore extends ChatStore {
   name: string;
@@ -832,8 +833,7 @@ export default function ChatBOX(props: {
           value={inputMsg}
           onChange={(event: any) => {
             setInputMsg(event.target.value);
-            event.target.style.height = "auto";
-            event.target.style.height = `${event.target.scrollHeight+1}px`;
+            autoHeight(event);
           }}
           onKeyPress={(event: any) => {
             console.log(event);
@@ -842,9 +842,8 @@ export default function ChatBOX(props: {
               setInputMsg("");
               return;
             }
+            autoHeight(event);
             setInputMsg(event.target.value);
-            event.target.style.height = "auto";
-            event.target.style.height = `${event.target.scrollHeight+1}px`;
           }}
           className="rounded grow m-1 p-1 border-2 border-gray-400 w-0"
           placeholder="Type here..."

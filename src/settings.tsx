@@ -13,6 +13,7 @@ import { tr, Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 import p from "preact-markdown";
 import { isVailedJSON } from "./message";
 import { SetAPIsTemplate } from "./setAPIsTemplate";
+import { autoHeight } from "./textarea";
 
 const TTS_VOICES: string[] = [
   "alloy",
@@ -80,12 +81,10 @@ const LongInput = (props: {
         onChange={(event: any) => {
           props.chatStore[props.field] = event.target.value;
           props.setChatStore({ ...props.chatStore });
-          event.target.style.height = "auto";
-          event.target.style.height = `${event.target.scrollHeight + 1}px`;
+          autoHeight(event);
         }}
         onKeyPress={(event: any) => {
-          event.target.style.height = "auto";
-          event.target.style.height = `${event.target.scrollHeight + 1}px`;
+          autoHeight(event);
         }}
       ></textarea>
     </Help>
