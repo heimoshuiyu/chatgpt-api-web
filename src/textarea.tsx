@@ -1,9 +1,9 @@
-export const autoHeight = (event: any) => {
-  event.target.style.height = "auto";
+export const autoHeight = (target: any) => {
+  target.style.height = "auto";
   // max 70% of screen height
-  event.target.style.height = `${Math.min(
-    event.target.scrollHeight,
+  target.style.height = `${Math.min(
+    target.scrollHeight,
     window.innerHeight * 0.7
   )}px`;
-  console.log("set auto height", event.target.style.height);
+  console.log("set auto height", target.style.height);
 };

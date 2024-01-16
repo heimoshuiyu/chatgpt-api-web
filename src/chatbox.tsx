@@ -392,6 +392,7 @@ export default function ChatBOX(props: {
     );
     _setToolsTemplates(templateTools);
   };
+  const userInputRef = createRef();
 
   return (
     <div className="grow flex flex-col p-2 dark:text-black">
@@ -812,9 +813,10 @@ export default function ChatBOX(props: {
         )}
         <textarea
           value={inputMsg}
+          ref={userInputRef}
           onChange={(event: any) => {
             setInputMsg(event.target.value);
-            autoHeight(event);
+            autoHeight(event.target);
           }}
           onKeyPress={(event: any) => {
             console.log(event);
@@ -822,10 +824,10 @@ export default function ChatBOX(props: {
               send(event.target.value, true);
               setInputMsg("");
               event.target.value = "";
-              autoHeight(event);
+              autoHeight(event.target);
               return;
             }
-            autoHeight(event);
+            autoHeight(event.target);
             setInputMsg(event.target.value);
           }}
           className="rounded grow m-1 p-1 border-2 border-gray-400 w-0"
@@ -836,6 +838,8 @@ export default function ChatBOX(props: {
           disabled={showGenerating}
           onClick={() => {
             send(inputMsg, true);
+            userInputRef.current.value = "";
+            autoHeight(userInputRef.current);
           }}
         >
           {Tr("Send")}

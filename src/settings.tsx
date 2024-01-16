@@ -81,10 +81,10 @@ const LongInput = (props: {
         onChange={(event: any) => {
           props.chatStore[props.field] = event.target.value;
           props.setChatStore({ ...props.chatStore });
-          autoHeight(event);
+          autoHeight(event.target);
         }}
         onKeyPress={(event: any) => {
-          autoHeight(event);
+          autoHeight(event.target);
         }}
       ></textarea>
     </Help>
