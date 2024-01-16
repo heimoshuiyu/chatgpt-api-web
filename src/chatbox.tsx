@@ -840,6 +840,8 @@ export default function ChatBOX(props: {
             if (event.ctrlKey && event.code === "Enter") {
               send(event.target.value, true);
               setInputMsg("");
+              event.target.value = "";
+              autoHeight(event);
               return;
             }
             autoHeight(event);

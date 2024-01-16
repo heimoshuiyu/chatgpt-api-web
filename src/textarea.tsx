@@ -5,4 +5,5 @@ export const autoHeight = (event: any) => {
     event.target.scrollHeight,
     window.innerHeight * 0.7
   )}px`;
+  console.log("set auto height", event.target.style.height);
 };
