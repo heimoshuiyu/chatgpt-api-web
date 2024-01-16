@@ -999,7 +999,7 @@ export default function ChatBOX(props: {
               setChatStore({ ...chatStore });
             }}
           >
-            {Tr("Assistant")}
+            {Tr("AI")}
           </button>
         )}
         {chatStore.develop_mode && (
