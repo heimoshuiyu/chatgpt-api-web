@@ -464,81 +464,62 @@ export default function ChatBOX(props: {
             {Tr("Please click above to set")} API Endpoint
           </p>
         )}
-        {templateAPIs.length > 0 &&
-          (chatStore.develop_mode ||
-            chatStore.history.filter((msg) => !msg.example).length == 0 ||
-            !chatStore.apiEndpoint ||
-            !chatStore.apiKey) && (
-            <ListAPIs
-              label="API"
-              tmps={templateAPIs}
-              setTmps={setTemplateAPIs}
-              chatStore={chatStore}
-              setChatStore={setChatStore}
-              apiField="apiEndpoint"
-              keyField="apiKey"
-            />
-          )}
+        {templateAPIs.length > 0 && (
+          <ListAPIs
+            label="API"
+            tmps={templateAPIs}
+            setTmps={setTemplateAPIs}
+            chatStore={chatStore}
+            setChatStore={setChatStore}
+            apiField="apiEndpoint"
+            keyField="apiKey"
+          />
+        )}
 
-        {templateAPIsWhisper.length > 0 &&
-          (chatStore.develop_mode ||
-            chatStore.history.filter((msg) => !msg.example).length == 0 ||
-            !chatStore.whisper_api ||
-            !chatStore.whisper_key) && (
-            <ListAPIs
-              label="Whisper API"
-              tmps={templateAPIsWhisper}
-              setTmps={setTemplateAPIsWhisper}
-              chatStore={chatStore}
-              setChatStore={setChatStore}
-              apiField="whisper_api"
-              keyField="whisper_key"
-            />
-          )}
+        {templateAPIsWhisper.length > 0 && (
+          <ListAPIs
+            label="Whisper API"
+            tmps={templateAPIsWhisper}
+            setTmps={setTemplateAPIsWhisper}
+            chatStore={chatStore}
+            setChatStore={setChatStore}
+            apiField="whisper_api"
+            keyField="whisper_key"
+          />
+        )}
 
-        {templateAPIsTTS.length > 0 &&
-          (chatStore.develop_mode ||
-            chatStore.history.filter((msg) => !msg.example).length == 0 ||
-            !chatStore.tts_api ||
-            !chatStore.tts_key) && (
-            <ListAPIs
-              label="TTS API"
-              tmps={templateAPIsTTS}
-              setTmps={setTemplateAPIsTTS}
-              chatStore={chatStore}
-              setChatStore={setChatStore}
-              apiField="tts_api"
-              keyField="tts_key"
-            />
-          )}
+        {templateAPIsTTS.length > 0 && (
+          <ListAPIs
+            label="TTS API"
+            tmps={templateAPIsTTS}
+            setTmps={setTemplateAPIsTTS}
+            chatStore={chatStore}
+            setChatStore={setChatStore}
+            apiField="tts_api"
+            keyField="tts_key"
+          />
+        )}
 
-        {templateAPIsImageGen.length > 0 &&
-          (chatStore.develop_mode ||
-            chatStore.history.filter((msg) => !msg.example).length == 0 ||
-            !chatStore.image_gen_api ||
-            !chatStore.image_gen_key) && (
-            <ListAPIs
-              label="Image Gen API"
-              tmps={templateAPIsImageGen}
-              setTmps={setTemplateAPIsImageGen}
-              chatStore={chatStore}
-              setChatStore={setChatStore}
-              apiField="image_gen_api"
-              keyField="image_gen_key"
-            />
-          )}
+        {templateAPIsImageGen.length > 0 && (
+          <ListAPIs
+            label="Image Gen API"
+            tmps={templateAPIsImageGen}
+            setTmps={setTemplateAPIsImageGen}
+            chatStore={chatStore}
+            setChatStore={setChatStore}
+            apiField="image_gen_api"
+            keyField="image_gen_key"
+          />
+        )}
 
-        {toolsTemplates.length > 0 &&
-          (chatStore.develop_mode ||
-            chatStore.history.filter((msg) => !msg.example).length == 0 ||
-            !chatStore.toolsString) && (
-            <ListToolsTempaltes
-              templateTools={toolsTemplates}
-              setTemplateTools={setTemplateTools}
-              chatStore={chatStore}
-              setChatStore={setChatStore}
-            />
-          )}
+        {toolsTemplates.length > 0 && (
+          <ListToolsTempaltes
+            templateTools={toolsTemplates}
+            setTemplateTools={setTemplateTools}
+            chatStore={chatStore}
+            setChatStore={setChatStore}
+          />
+        )}
 
         {chatStore.history.filter((msg) => !msg.example).length == 0 && (
           <div className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">

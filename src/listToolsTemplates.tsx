@@ -15,7 +15,18 @@ export function ListToolsTempaltes({
 }: Props) {
   return (
     <div className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
-      <h2>{Tr(`Saved tools templates`)}</h2>
+      <h2>
+        <span>{Tr(`Saved tools templates`)}</span>
+        <button
+          className="mx-2 underline cursor-pointer"
+          onClick={() => {
+            chatStore.toolsString = "";
+            setChatStore({ ...chatStore });
+          }}
+        >
+          {Tr(`Clear`)}
+        </button>
+      </h2>
       <hr className="my-2" />
       <div className="flex flex-wrap">
         {templateTools.map((t, index) => (
