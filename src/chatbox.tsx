@@ -812,6 +812,7 @@ export default function ChatBOX(props: {
           />
         )}
         <textarea
+          autofocus
           value={inputMsg}
           ref={userInputRef}
           onChange={(event: any) => {
