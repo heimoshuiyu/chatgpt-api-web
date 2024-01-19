@@ -14,6 +14,7 @@ import p from "preact-markdown";
 import { isVailedJSON } from "./message";
 import { SetAPIsTemplate } from "./setAPIsTemplate";
 import { autoHeight } from "./textarea";
+import getDefaultParams from "./getDefaultParam";
 
 const TTS_VOICES: string[] = [
   "alloy",
@@ -55,7 +56,7 @@ const SelectModel = (props: {
         onChange={(event: any) => {
           const model = event.target.value as string;
           props.chatStore.model = model;
-          props.chatStore.maxTokens = models[model].maxToken;
+          props.chatStore.maxTokens = getDefaultParams('max', models[model].maxToken);
           props.setChatStore({ ...props.chatStore });
         }}
       >
@@ -95,14 +96,14 @@ const Input = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
   field:
-    | "apiKey"
-    | "apiEndpoint"
-    | "whisper_api"
-    | "whisper_key"
-    | "tts_api"
-    | "tts_key"
-    | "image_gen_api"
-    | "image_gen_key";
+  | "apiKey"
+  | "apiEndpoint"
+  | "whisper_api"
+  | "whisper_key"
+  | "tts_api"
+  | "tts_key"
+  | "image_gen_api"
+  | "image_gen_key";
   help: string;
 }) => {
   const [hideInput, setHideInput] = useState(true);
@@ -202,13 +203,13 @@ const Number = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
   field:
-    | "totalTokens"
-    | "maxTokens"
-    | "maxGenTokens"
-    | "tokenMargin"
-    | "postBeginIndex"
-    | "presence_penalty"
-    | "frequency_penalty";
+  | "totalTokens"
+  | "maxTokens"
+  | "maxGenTokens"
+  | "tokenMargin"
+  | "postBeginIndex"
+  | "presence_penalty"
+  | "frequency_penalty";
   readOnly: boolean;
   help: string;
 }) => {
@@ -296,8 +297,7 @@ export default (props: {
     location.pathname +
     `?key=${encodeURIComponent(
       props.chatStore.apiKey
-    )}&api=${encodeURIComponent(props.chatStore.apiEndpoint)}&mode=${
-      props.chatStore.streamMode ? "stream" : "fetch"
+    )}&api=${encodeURIComponent(props.chatStore.apiEndpoint)}&mode=${props.chatStore.streamMode ? "stream" : "fetch"
     }&model=${props.chatStore.model}&sys=${encodeURIComponent(
       props.chatStore.systemMessageContent
     )}`;
