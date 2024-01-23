@@ -47,23 +47,45 @@ const SelectModel = (props: {
   setChatStore: (cs: ChatStore) => void;
   help: string;
 }) => {
+  let shouldIUseCustomModel: boolean = true
+  for (const model in models) {
+    if (props.chatStore.model === model) {
+      shouldIUseCustomModel = false
+    }
+  }
+  const [useCustomModel, setUseCustomModel] = useState(shouldIUseCustomModel);
   return (
     <Help help={props.help}>
       <label className="m-2 p-2">Model</label>
-      <select
-        className="m-2 p-2"
-        value={props.chatStore.model}
-        onChange={(event: any) => {
-          const model = event.target.value as string;
-          props.chatStore.model = model;
-          props.chatStore.maxTokens = getDefaultParams('max', models[model].maxToken);
-          props.setChatStore({ ...props.chatStore });
-        }}
-      >
-        {Object.keys(models).map((opt) => (
-          <option value={opt}>{opt}</option>
-        ))}
-      </select>
+      <span onClick={() => {
+        setUseCustomModel(!useCustomModel);
+      }} className="m-2 p-2">
+        <label>{Tr("Custom")}</label>
+        <input className="" type="checkbox" checked={useCustomModel} />
+      </span>
+      {
+        useCustomModel ?
+          <input
+            className="m-2 p-2 border rounded focus w-32 md:w-fit"
+            value={props.chatStore.model} onChange={(event: any) => {
+              const model = event.target.value as string;
+              props.chatStore.model = model;
+              props.setChatStore({ ...props.chatStore });
+            }} /> : <select
+              className="m-2 p-2"
+              value={props.chatStore.model}
+              onChange={(event: any) => {
+                const model = event.target.value as string;
+                props.chatStore.model = model;
+                props.chatStore.maxTokens = getDefaultParams('max', models[model].maxToken);
+                props.setChatStore({ ...props.chatStore });
+              }}
+            >
+            {Object.keys(models).map((opt) => (
+              <option value={opt}>{opt}</option>
+            ))}
+          </select>
+      }
     </Help>
   );
 };
