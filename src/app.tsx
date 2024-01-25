@@ -297,7 +297,7 @@ export function App() {
       const sys = getDefaultParams("sys", "");
       const mode = getDefaultParams("mode", "");
       const model = getDefaultParams("model", "");
-      const max = getDefaultParams("max", chatStore.maxTokens || 2048);
+      const max = getDefaultParams("max", 0);
       // only create new chatStore if the params in URL are NOT
       // equal to the current selected chatStore
       if (
