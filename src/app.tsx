@@ -292,12 +292,14 @@ export function App() {
   // if there are any params in URL, create a new chatStore
   useEffect(() => {
     const run = async () => {
+      const chatStore = await getChatStoreByIndex(selectedChatIndex);
       const api = getDefaultParams("api", "");
       const key = getDefaultParams("key", "");
       const sys = getDefaultParams("sys", "");
       const mode = getDefaultParams("mode", "");
       const model = getDefaultParams("model", "");
       const max = getDefaultParams("max", 0);
+      console.log('max is', max, 'chatStore.max is', chatStore.maxTokens)
       // only create new chatStore if the params in URL are NOT
       // equal to the current selected chatStore
       if (
@@ -306,8 +308,9 @@ export function App() {
         (sys && sys !== chatStore.systemMessageContent) ||
         (mode && mode !== (chatStore.streamMode ? "stream" : "fetch")) ||
         (model && model !== chatStore.model) ||
-        (max && max !== chatStore.maxTokens)
+        (max !== 0 && max !== chatStore.maxTokens)
       ) {
+        console.log('create new chatStore because of params in URL')
         handleNewChatStore();
       }
       await db;
