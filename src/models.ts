@@ -31,13 +31,13 @@ const models: Record<string, Model> = {
     maxToken: 4096,
     price: { prompt: 0.0015 / 1000, completion: 0.002 / 1000 },
   },
-  "gpt-4": {
-    maxToken: 8192,
-    price: { prompt: 0.03 / 1000, completion: 0.06 / 1000 },
+  "gpt-4-0125-preview": {
+    maxToken: 128000,
+    price: { prompt: 0.01 / 1000, completion: 0.03 / 1000 },
   },
-  "gpt-4-0613": {
-    maxToken: 8192,
-    price: { prompt: 0.03 / 1000, completion: 0.06 / 1000 },
+  "gpt-4-turbo-preview": {
+    maxToken: 128000,
+    price: { prompt: 0.01 / 1000, completion: 0.03 / 1000 },
   },
   "gpt-4-1106-preview": {
     maxToken: 128000,
@@ -51,19 +51,19 @@ const models: Record<string, Model> = {
     maxToken: 128000,
     price: { prompt: 0.01 / 1000, completion: 0.03 / 1000 },
   },
+  "gpt-4": {
+    maxToken: 8192,
+    price: { prompt: 0.03 / 1000, completion: 0.06 / 1000 },
+  },
+  "gpt-4-0613": {
+    maxToken: 8192,
+    price: { prompt: 0.03 / 1000, completion: 0.06 / 1000 },
+  },
   "gpt-4-32k": {
     maxToken: 8192,
     price: { prompt: 0.06 / 1000, completion: 0.12 / 1000 },
   },
   "gpt-4-32k-0613": {
-    maxToken: 8192,
-    price: { prompt: 0.06 / 1000, completion: 0.12 / 1000 },
-  },
-  "gpt-4-0314": {
-    maxToken: 8192,
-    price: { prompt: 0.03 / 1000, completion: 0.06 / 1000 },
-  },
-  "gpt-4-32k-0314": {
     maxToken: 8192,
     price: { prompt: 0.06 / 1000, completion: 0.12 / 1000 },
   },
