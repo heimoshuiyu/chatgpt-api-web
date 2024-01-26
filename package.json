@@ -9,19 +9,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/ungap__structured-clone": "^0.3.1",
+    "@types/ungap__structured-clone": "^1.2.0",
     "@ungap/structured-clone": "^1.2.0",
-    "autoprefixer": "^10.4.16",
-    "idb": "^7.1.1",
-    "postcss": "^8.4.31",
-    "preact": "^10.18.1",
+    "autoprefixer": "^10.4.17",
+    "idb": "^8.0.0",
+    "postcss": "^8.4.33",
+    "preact": "^10.19.3",
     "preact-markdown": "^2.1.0",
     "sakura.css": "^1.5.0",
-    "tailwindcss": "^3.3.4"
+    "tailwindcss": "^3.4.1"
   },
   "devDependencies": {
-    "@preact/preset-vite": "^2.6.0",
-    "typescript": "^5.2.2",
-    "vite": "^4.5.0"
+    "@preact/preset-vite": "^2.8.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12"
   }
 }
