@@ -79,28 +79,28 @@ export function EditMessageString({
               </button>
             </span>
             <hr className="my-2" />
+            <span className="flex flex-col my-2 justify-between">
+              <button
+                className="bg-blue-300 text-black p-1 rounded"
+                onClick={() => {
+                  if (!chat.tool_calls) return;
+                  chat.tool_calls.push({
+                    type: "function",
+                    index: chat.tool_calls.length,
+                    id: "",
+                    function: {
+                      name: "",
+                      arguments: "",
+                    },
+                  });
+                  setChatStore({ ...chatStore });
+                }}
+              >
+                {Tr("Add a tool call")}
+              </button>
+            </span>
           </div>
         ))}
-      <span className="flex flex-col my-2 justify-between">
-        <button
-          className="bg-blue-300 text-black p-1 rounded"
-          onClick={() => {
-            if (!chat.tool_calls) return;
-            chat.tool_calls.push({
-              type: "function",
-              index: chat.tool_calls.length,
-              id: "",
-              function: {
-                name: "",
-                arguments: "",
-              },
-            });
-            setChatStore({ ...chatStore });
-          }}
-        >
-          {Tr("Add a tool call")}
-        </button>
-      </span>
       <textarea
         className="rounded border border-gray-400 w-full h-32 my-2"
         value={chat.content}
