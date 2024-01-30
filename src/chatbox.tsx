@@ -651,14 +651,7 @@ export default function ChatBOX(props: {
             {Tr(
               "All chat history and settings are stored in the local browser"
             )}
-            <br />⚠{Tr("Documents and source code are avaliable here")}:{" "}
-            <a
-              className="underline"
-              href="https://github.com/heimoshuiyu/chatgpt-api-web"
-              target="_blank"
-            >
-              github.com/heimoshuiyu/chatgpt-api-web
-            </a>
+            <br />
           </p>
         )}
         {chatStore.history.map((_, messageIndex) => (

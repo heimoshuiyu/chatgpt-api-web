@@ -776,6 +776,16 @@ export default (props: {
             chatgpt-api-web ChatStore {Tr("Version")}{" "}
             {props.chatStore.chatgpt_api_web_version}
           </p>
+          <p>
+            ⚠{Tr("Documents and source code are avaliable here")}:{" "}
+            <a
+              className="underline"
+              href="https://github.com/heimoshuiyu/chatgpt-api-web"
+              target="_blank"
+            >
+              github.com/heimoshuiyu/chatgpt-api-web
+            </a>
+          </p>
         </div>
         <hr />
       </div>
