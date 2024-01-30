@@ -4,10 +4,27 @@ import { useState, useEffect } from "preact/hooks";
 import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 
 function Base() {
-  const [langCode, setLangCode] = useState("en-US");
+  const [langCode, _setLangCode] = useState("en-US");
+
+  const setLangCode = (langCode: string) => {
+    _setLangCode(langCode)
+    if (!localStorage) return
+
+    localStorage.setItem('chatgpt-api-web-lang', langCode)
+  }
 
   // select language
   useEffect(() => {
+    // query localStorage
+    if (localStorage) {
+      const lang = localStorage.getItem('chatgpt-api-web-lang')
+      if (lang) {
+        console.log(`query langCode ${lang} from localStorage`)
+        _setLangCode(lang)
+        return
+      }
+    }
+
     const browserCode = window.navigator.language;
     for (const key in LANG_OPTIONS) {
       for (const i in LANG_OPTIONS[key].matches) {
