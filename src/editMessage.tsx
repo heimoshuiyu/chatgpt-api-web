@@ -1,4 +1,4 @@
-import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
+import { Tr, langCodeContext, LANG_OPTIONS, tr } from "./translate";
 import { useState, useEffect, StateUpdater } from "preact/hooks";
 import { ChatStore, ChatStoreMessage } from "./app";
 import { calculate_token_length, getMessageText } from "./chatgpt";
@@ -44,6 +44,17 @@ export function EditMessage(props: EditMessageProps) {
           />
         )}
         <div className={"w-full flex justify-center"}>
+          {chatStore.develop_mode && <button
+            className="w-full m-2 p-1 rounded bg-red-500"
+            onClick={() => {
+              if (typeof chat.content === "string") {
+                chat.content = []
+              } else {
+                chat.content = ''
+              }
+              setChatStore({ ...chatStore })
+            }}
+          >Switch to {typeof chat.content === 'string' ? "media message" : "string message"}</button>}
           <button
             className={"w-full m-2 p-1 rounded bg-purple-500"}
             onClick={() => {

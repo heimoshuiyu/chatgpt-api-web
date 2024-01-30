@@ -31,7 +31,6 @@ export function EditMessageString({
           />
         </span>
       )}
-      <hr className="my-2" />
       {chat.tool_calls &&
         chat.tool_calls.map((tool_call) => (
           <div className="flex flex-col w-full">
