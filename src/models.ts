@@ -7,6 +7,10 @@ interface Model {
 }
 
 const models: Record<string, Model> = {
+  "gpt-3.5-turbo-0125": {
+    maxToken: 16385,
+    price: { prompt: 0.0005 / 1000, completion: 0.0015 / 1000 },
+  },
   "gpt-3.5-turbo-1106": {
     maxToken: 16385,
     price: { prompt: 0.001 / 1000, completion: 0.002 / 1000 },
