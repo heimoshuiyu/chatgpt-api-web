@@ -94,7 +94,10 @@ export const newChatStore = (
     postBeginIndex: 0,
     tokenMargin: 1024,
     totalTokens: 0,
-    maxTokens: getDefaultParams("max", models[getDefaultParams("model", model)]?.maxToken ?? 2048),
+    maxTokens: getDefaultParams(
+      "max",
+      models[getDefaultParams("model", model)]?.maxToken ?? 2048
+    ),
     maxGenTokens: 2048,
     maxGenTokens_enabled: true,
     apiKey: getDefaultParams("key", apiKey),
@@ -259,7 +262,7 @@ export function App() {
     []
   );
 
-  const handleNewChatStore = async () => {
+  const handleNewChatStoreWithOldOne = async (chatStore: ChatStore) => {
     const newKey = await (
       await db
     ).add(
@@ -288,6 +291,9 @@ export function App() {
     setSelectedChatIndex(newKey as number);
     setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
   };
+  const handleNewChatStore = async () => {
+    return handleNewChatStoreWithOldOne(chatStore);
+  };
 
   // if there are any params in URL, create a new chatStore
   useEffect(() => {
@@ -299,7 +305,7 @@ export function App() {
       const mode = getDefaultParams("mode", "");
       const model = getDefaultParams("model", "");
       const max = getDefaultParams("max", 0);
-      console.log('max is', max, 'chatStore.max is', chatStore.maxTokens)
+      console.log("max is", max, "chatStore.max is", chatStore.maxTokens);
       // only create new chatStore if the params in URL are NOT
       // equal to the current selected chatStore
       if (
@@ -310,8 +316,8 @@ export function App() {
         (model && model !== chatStore.model) ||
         (max !== 0 && max !== chatStore.maxTokens)
       ) {
-        console.log('create new chatStore because of params in URL')
-        handleNewChatStore();
+        console.log("create new chatStore because of params in URL");
+        handleNewChatStoreWithOldOne(chatStore);
       }
       await db;
       const allidx = await (await db).getAllKeys(STORAGE_NAME);
@@ -342,8 +348,9 @@ export function App() {
                 return (
                   <li>
                     <button
-                      className={`w-full my-1 p-1 rounded  hover:bg-blue-500 ${i === selectedChatIndex ? "bg-blue-500" : "bg-blue-200"
-                        }`}
+                      className={`w-full my-1 p-1 rounded  hover:bg-blue-500 ${
+                        i === selectedChatIndex ? "bg-blue-500" : "bg-blue-200"
+                      }`}
                       onClick={() => {
                         setSelectedChatIndex(i);
                       }}
