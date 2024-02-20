@@ -73,4 +73,6 @@ const models: Record<string, Model> = {
   },
 };
 
+export const defaultModel = "gpt-3.5-turbo-0125";
+
 export default models;

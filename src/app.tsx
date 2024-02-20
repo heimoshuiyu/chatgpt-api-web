@@ -5,7 +5,7 @@ import "./global.css";
 import { calculate_token_length, Message } from "./chatgpt";
 import getDefaultParams from "./getDefaultParam";
 import ChatBOX from "./chatbox";
-import models from "./models";
+import models, { defaultModel } from "./models";
 import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 
 import CHATGPT_API_WEB_VERSION from "./CHATGPT_API_WEB_VERSION";
@@ -71,7 +71,7 @@ export const newChatStore = (
   systemMessageContent = "",
   apiEndpoint = _defaultAPIEndpoint,
   streamMode = true,
-  model = "gpt-3.5-turbo",
+  model = defaultModel,
   temperature = 0.7,
   dev = false,
   whisper_api = "https://api.openai.com/v1/audio/transcriptions",
@@ -200,7 +200,7 @@ export function App() {
     // handle read from old version chatstore
     if (ret.maxGenTokens === undefined) ret.maxGenTokens = 2048;
     if (ret.maxGenTokens_enabled === undefined) ret.maxGenTokens_enabled = true;
-    if (ret.model === undefined) ret.model = "gpt-3.5-turbo";
+    if (ret.model === undefined) ret.model = defaultModel;
     if (ret.responseModelName === undefined) ret.responseModelName = "";
     if (ret.toolsString === undefined) ret.toolsString = "";
     if (ret.chatgpt_api_web_version === undefined)
