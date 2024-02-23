@@ -246,6 +246,7 @@ export function AddImage({
                         token: 65,
                         example: false,
                         audio: null,
+                        logprobs: null,
                       });
 
                       setChatStore({ ...chatStore });
