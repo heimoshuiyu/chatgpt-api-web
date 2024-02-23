@@ -1,5 +1,3 @@
-import React from "react";
-
 const logprobToColor = (logprob: number) => {
   // 将logprob转换为百分比
   const percent = Math.exp(logprob) * 100;
