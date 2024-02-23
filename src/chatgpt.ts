@@ -35,6 +35,16 @@ interface Choices {
   index: number;
   delta: Delta;
   finish_reason: string | null;
+  logprobs: Logprobs | null;
+}
+
+export interface Logprobs {
+  content: LogprobsContent[];
+}
+
+interface LogprobsContent {
+  token: string;
+  logprob: number;
 }
 
 export interface StreamingResponseChunk {
@@ -85,6 +95,7 @@ export interface FetchResponse {
     message: Message | undefined;
     finish_reason: "stop" | "length";
     index: number | undefined;
+    logprobs: Logprobs | null;
   }[];
 }
 
@@ -174,7 +185,7 @@ class Chat {
     this.json_mode = json_mode;
   }
 
-  _fetch(stream = false) {
+  _fetch(stream = false, logprobs = false) {
     // perform role type check
     let hasNonSystemMessage = false;
     for (const msg of this.messages) {
@@ -208,6 +219,7 @@ class Chat {
       model: this.model,
       messages,
       stream,
+      logprobs,
       presence_penalty: this.presence_penalty,
       frequency_penalty: this.frequency_penalty,
     };
@@ -251,15 +263,6 @@ class Chat {
       headers,
       body: JSON.stringify(body),
     });
-  }
-
-  async fetch(): Promise<FetchResponse> {
-    const resp = await this._fetch();
-    const j = await resp.json();
-    if (j.error !== undefined) {
-      throw JSON.stringify(j.error);
-    }
-    return j;
   }
 
   async *processStreamResponse(resp: Response) {

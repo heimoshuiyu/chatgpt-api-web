@@ -9,6 +9,7 @@ import { MessageDetail } from "./messageDetail";
 import { MessageToolCall } from "./messageToolCall";
 import { MessageToolResp } from "./messageToolResp";
 import { EditMessage } from "./editMessage";
+import logprobToColor from "./logprob";
 
 export const isVailedJSON = (str: string): boolean => {
   try {
@@ -32,6 +33,7 @@ export default function Message(props: Props) {
   const [showEdit, setShowEdit] = useState(false);
   const [showCopiedHint, setShowCopiedHint] = useState(false);
   const [renderMarkdown, setRenderWorkdown] = useState(false);
+  const [renderColor, setRenderColor] = useState(false);
   const DeleteIcon = () => (
     <button
       onClick={() => {
@@ -125,7 +127,21 @@ export default function Message(props: Props) {
                 {
                   // only show when content is string or list of message
                   // this check is used to avoid rendering tool call
-                  chat.content && getMessageText(chat)
+                  chat.content &&
+                    (chat.logprobs && renderColor
+                      ? chat.logprobs.content
+                          .filter((c) => c.token)
+                          .map((c) => (
+                            <div
+                              style={{
+                                color: logprobToColor(c.logprob),
+                                display: "inline",
+                              }}
+                            >
+                              {c.token}
+                            </div>
+                          ))
+                      : getMessageText(chat))
                 }
               </div>
             )}
@@ -199,6 +215,10 @@ export default function Message(props: Props) {
               >
                 <label className="dark:text-white">{Tr("render")}</label>
                 <input type="checkbox" checked={renderMarkdown} />
+              </span>
+              <span onClick={(event: any) => setRenderColor(!renderColor)}>
+                <label className="dark:text-white">{Tr("color")}</label>
+                <input type="checkbox" checked={renderColor} />
               </span>
             </div>
           )}

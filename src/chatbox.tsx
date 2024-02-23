@@ -22,6 +22,7 @@ import ChatGPT, {
   Message as MessageType,
   MessageDetail,
   ToolCall,
+  Logprobs,
 } from "./chatgpt";
 import Message from "./message";
 import models from "./models";
@@ -82,15 +83,29 @@ export default function ChatBOX(props: {
     const allChunkMessage: string[] = [];
     const allChunkTool: ToolCall[] = [];
     setShowGenerating(true);
+    const logprobs: Logprobs = {
+      content: [],
+    };
     for await (const i of client.processStreamResponse(response)) {
       chatStore.responseModelName = i.model;
       responseTokenCount += 1;
 
-      // skip if choice is empty (e.g. azure)
-      if (!i.choices[0]) continue;
+      const c = i.choices[0];
 
-      allChunkMessage.push(i.choices[0].delta.content ?? "");
-      const tool_calls = i.choices[0].delta.tool_calls;
+      // skip if choice is empty (e.g. azure)
+      if (!c) continue;
+
+      const logprob = c?.logprobs?.content[0]?.logprob;
+      if (logprob !== undefined) {
+        logprobs.content.push({
+          token: c.delta.content ?? "",
+          logprob,
+        });
+        console.log(c.delta.content, logprob);
+      }
+
+      allChunkMessage.push(c.delta.content ?? "");
+      const tool_calls = c.delta.tool_calls;
       if (tool_calls) {
         for (const tool_call of tool_calls) {
           // init
@@ -149,6 +164,7 @@ export default function ChatBOX(props: {
     chatStore.cost += cost;
     addTotalCost(cost);
 
+    console.log("save logprobs", logprobs);
     const newMsg: ChatStoreMessage = {
       role: "assistant",
       content,
@@ -156,6 +172,7 @@ export default function ChatBOX(props: {
       token: responseTokenCount,
       example: false,
       audio: null,
+      logprobs,
     };
     if (allChunkTool.length > 0) newMsg.tool_calls = allChunkTool;
 
@@ -210,6 +227,7 @@ export default function ChatBOX(props: {
         data.usage.completion_tokens ?? calculate_token_length(msg.content),
       example: false,
       audio: null,
+      logprobs: data.choices[0]?.logprobs,
     });
     setShowGenerating(false);
   };
@@ -257,7 +275,10 @@ export default function ChatBOX(props: {
 
     try {
       setShowGenerating(true);
-      const response = await client._fetch(chatStore.streamMode);
+      const response = await client._fetch(
+        chatStore.streamMode,
+        chatStore.logprobs
+      );
       const contentType = response.headers.get("content-type");
       if (contentType?.startsWith("text/event-stream")) {
         await _completeWithStreamMode(response);
@@ -306,6 +327,7 @@ export default function ChatBOX(props: {
       token: calculate_token_length(inputMsg.trim()),
       example: false,
       audio: null,
+      logprobs: null,
     });
 
     // manually calculate token length
@@ -972,6 +994,7 @@ export default function ChatBOX(props: {
                 hide: false,
                 example: false,
                 audio: null,
+                logprobs: null,
               });
               update_total_tokens();
               setInputMsg("");
@@ -1066,6 +1089,7 @@ export default function ChatBOX(props: {
                       hide: false,
                       example: false,
                       audio: null,
+                      logprobs: null,
                     });
                     update_total_tokens();
                     setChatStore({ ...chatStore });

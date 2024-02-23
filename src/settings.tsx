@@ -47,45 +47,54 @@ const SelectModel = (props: {
   setChatStore: (cs: ChatStore) => void;
   help: string;
 }) => {
-  let shouldIUseCustomModel: boolean = true
+  let shouldIUseCustomModel: boolean = true;
   for (const model in models) {
     if (props.chatStore.model === model) {
-      shouldIUseCustomModel = false
+      shouldIUseCustomModel = false;
     }
   }
   const [useCustomModel, setUseCustomModel] = useState(shouldIUseCustomModel);
   return (
     <Help help={props.help}>
       <label className="m-2 p-2">Model</label>
-      <span onClick={() => {
-        setUseCustomModel(!useCustomModel);
-      }} className="m-2 p-2">
+      <span
+        onClick={() => {
+          setUseCustomModel(!useCustomModel);
+        }}
+        className="m-2 p-2"
+      >
         <label>{Tr("Custom")}</label>
         <input className="" type="checkbox" checked={useCustomModel} />
       </span>
-      {
-        useCustomModel ?
-          <input
-            className="m-2 p-2 border rounded focus w-32 md:w-fit"
-            value={props.chatStore.model} onChange={(event: any) => {
-              const model = event.target.value as string;
-              props.chatStore.model = model;
-              props.setChatStore({ ...props.chatStore });
-            }} /> : <select
-              className="m-2 p-2"
-              value={props.chatStore.model}
-              onChange={(event: any) => {
-                const model = event.target.value as string;
-                props.chatStore.model = model;
-                props.chatStore.maxTokens = getDefaultParams('max', models[model].maxToken);
-                props.setChatStore({ ...props.chatStore });
-              }}
-            >
-            {Object.keys(models).map((opt) => (
-              <option value={opt}>{opt}</option>
-            ))}
-          </select>
-      }
+      {useCustomModel ? (
+        <input
+          className="m-2 p-2 border rounded focus w-32 md:w-fit"
+          value={props.chatStore.model}
+          onChange={(event: any) => {
+            const model = event.target.value as string;
+            props.chatStore.model = model;
+            props.setChatStore({ ...props.chatStore });
+          }}
+        />
+      ) : (
+        <select
+          className="m-2 p-2"
+          value={props.chatStore.model}
+          onChange={(event: any) => {
+            const model = event.target.value as string;
+            props.chatStore.model = model;
+            props.chatStore.maxTokens = getDefaultParams(
+              "max",
+              models[model].maxToken
+            );
+            props.setChatStore({ ...props.chatStore });
+          }}
+        >
+          {Object.keys(models).map((opt) => (
+            <option value={opt}>{opt}</option>
+          ))}
+        </select>
+      )}
     </Help>
   );
 };
@@ -118,14 +127,14 @@ const Input = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
   field:
-  | "apiKey"
-  | "apiEndpoint"
-  | "whisper_api"
-  | "whisper_key"
-  | "tts_api"
-  | "tts_key"
-  | "image_gen_api"
-  | "image_gen_key";
+    | "apiKey"
+    | "apiEndpoint"
+    | "whisper_api"
+    | "whisper_key"
+    | "tts_api"
+    | "tts_key"
+    | "image_gen_api"
+    | "image_gen_key";
   help: string;
 }) => {
   const [hideInput, setHideInput] = useState(true);
@@ -225,13 +234,13 @@ const Number = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
   field:
-  | "totalTokens"
-  | "maxTokens"
-  | "maxGenTokens"
-  | "tokenMargin"
-  | "postBeginIndex"
-  | "presence_penalty"
-  | "frequency_penalty";
+    | "totalTokens"
+    | "maxTokens"
+    | "maxGenTokens"
+    | "tokenMargin"
+    | "postBeginIndex"
+    | "presence_penalty"
+    | "frequency_penalty";
   readOnly: boolean;
   help: string;
 }) => {
@@ -275,7 +284,7 @@ const Number = (props: {
 const Choice = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  field: "streamMode" | "develop_mode" | "json_mode";
+  field: "streamMode" | "develop_mode" | "json_mode" | "logprobs";
   help: string;
 }) => {
   return (
@@ -319,7 +328,8 @@ export default (props: {
     location.pathname +
     `?key=${encodeURIComponent(
       props.chatStore.apiKey
-    )}&api=${encodeURIComponent(props.chatStore.apiEndpoint)}&mode=${props.chatStore.streamMode ? "stream" : "fetch"
+    )}&api=${encodeURIComponent(props.chatStore.apiEndpoint)}&mode=${
+      props.chatStore.streamMode ? "stream" : "fetch"
     }&model=${props.chatStore.model}&sys=${encodeURIComponent(
       props.chatStore.systemMessageContent
     )}`;
@@ -467,6 +477,7 @@ export default (props: {
             help="流模式，使用 stream mode 将可以动态看到生成内容，但无法准确计算 token 数量，在 token 数量过多时可能会裁切过多或过少历史消息"
             {...props}
           />
+          <Choice field="logprobs" help="返回每个Token的概率" {...props} />
           <Choice
             field="develop_mode"
             help="开发者模式，开启后会显示更多选项及功能"

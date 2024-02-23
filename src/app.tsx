@@ -2,7 +2,7 @@ import { IDBPDatabase, openDB } from "idb";
 import { useEffect, useState } from "preact/hooks";
 import "./global.css";
 
-import { calculate_token_length, Message } from "./chatgpt";
+import { calculate_token_length, Logprobs, Message } from "./chatgpt";
 import getDefaultParams from "./getDefaultParam";
 import ChatBOX from "./chatbox";
 import models, { defaultModel } from "./models";
@@ -15,6 +15,7 @@ export interface ChatStoreMessage extends Message {
   token: number;
   example: boolean;
   audio: Blob | null;
+  logprobs: Logprobs | null;
 }
 
 export interface TemplateAPI {
@@ -63,6 +64,7 @@ export interface ChatStore {
   image_gen_api: string;
   image_gen_key: string;
   json_mode: boolean;
+  logprobs: boolean;
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
@@ -84,7 +86,8 @@ export const newChatStore = (
   toolsString = "",
   image_gen_api = "https://api.openai.com/v1/images/generations",
   image_gen_key = "",
-  json_mode = false
+  json_mode = false,
+  logprobs = true
 ): ChatStore => {
   return {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
@@ -124,6 +127,7 @@ export const newChatStore = (
     image_gen_key: image_gen_key,
     json_mode: json_mode,
     tts_format: tts_format,
+    logprobs,
   };
 };
 
@@ -285,7 +289,8 @@ export function App() {
         chatStore.toolsString,
         chatStore.image_gen_api,
         chatStore.image_gen_key,
-        chatStore.json_mode
+        chatStore.json_mode,
+        chatStore.logprobs
       )
     );
     setSelectedChatIndex(newKey as number);
