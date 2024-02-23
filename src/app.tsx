@@ -217,7 +217,6 @@ export function App() {
         message.token = calculate_token_length(message.content);
     }
     if (ret.cost === undefined) ret.cost = 0;
-    if (ret.logprobs === undefined) ret.logprobs = true;
     return ret;
   };
 
