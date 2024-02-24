@@ -219,7 +219,6 @@ class Chat {
       model: this.model,
       messages,
       stream,
-      logprobs,
       presence_penalty: this.presence_penalty,
       frequency_penalty: this.frequency_penalty,
     };
@@ -236,6 +235,9 @@ class Chat {
       body["response_format"] = {
         type: "json_object",
       };
+    }
+    if (logprobs) {
+      body["logprobs"] = true;
     }
 
     // parse toolsString to function call format
