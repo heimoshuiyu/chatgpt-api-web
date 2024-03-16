@@ -339,7 +339,7 @@ export function App() {
       <div className="flex flex-col h-full p-2 border-r-indigo-500 border-2 dark:border-slate-800 dark:border-r-indigo-500 dark:text-black">
         <div className="grow overflow-scroll">
           <button
-            className="bg-violet-300 p-1 rounded hover:bg-violet-400"
+            className="w-full bg-violet-300 p-1 rounded hover:bg-violet-400"
             onClick={handleNewChatStore}
           >
             {Tr("NEW")}
