@@ -87,7 +87,7 @@ export const newChatStore = (
   image_gen_api = "https://api.openai.com/v1/images/generations",
   image_gen_key = "",
   json_mode = false,
-  logprobs = true
+  logprobs = false
 ): ChatStore => {
   return {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
@@ -290,7 +290,7 @@ export function App() {
         chatStore.image_gen_api,
         chatStore.image_gen_key,
         chatStore.json_mode,
-        chatStore.logprobs
+        false // logprobs default to false
       )
     );
     setSelectedChatIndex(newKey as number);
