@@ -56,8 +56,18 @@ export default function ChatBOX(props: {
   const [showAddToolMsg, setShowAddToolMsg] = useState(false);
   const [newToolCallID, setNewToolCallID] = useState("");
   const [newToolContent, setNewToolContent] = useState("");
-  const [follow, setFollow] = useState(true);
+  let default_follow = localStorage.getItem("follow");
+  if (default_follow === null) {
+    default_follow = "true";
+  }
+  const [follow, _setFollow] = useState(default_follow === "true");
   const mediaRef = createRef();
+
+  const setFollow = (follow: boolean) => {
+    console.log("set follow", follow);
+    localStorage.setItem("follow", follow.toString());
+    _setFollow(follow);
+  };
 
   const messagesEndRef = createRef();
   useEffect(() => {
