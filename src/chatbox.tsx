@@ -56,11 +56,14 @@ export default function ChatBOX(props: {
   const [showAddToolMsg, setShowAddToolMsg] = useState(false);
   const [newToolCallID, setNewToolCallID] = useState("");
   const [newToolContent, setNewToolContent] = useState("");
+  const [follow, setFollow] = useState(true);
   const mediaRef = createRef();
 
   const messagesEndRef = createRef();
   useEffect(() => {
-    messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (follow) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, [showRetry, showGenerating, generatingMessage]);
 
   const client = new ChatGPT(chatStore.apiKey);
@@ -804,6 +807,18 @@ export default function ChatBOX(props: {
         </div>
       )}
 
+      {generatingMessage && (
+        <span
+          class="p-2 m-2 rounded bg-white dark:text-black dark:bg-white dark:bg-opacity-50 dark:text-black dark:bg-opacity-50"
+          style={{ textAlign: "right" }}
+          onClick={() => {
+            setFollow(!follow);
+          }}
+        >
+          <label>Follow</label>
+          <input type="checkbox" checked={follow} />
+        </span>
+      )}
       <div className="flex justify-between">
         {(chatStore.model.match("vision") ||
           (chatStore.image_gen_api && chatStore.image_gen_key)) && (
