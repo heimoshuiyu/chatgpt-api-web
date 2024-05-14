@@ -46,7 +46,17 @@ export function AddImage({
           event.stopPropagation();
         }}
       >
-        <h2 className="strong">Add Images</h2>
+        <div className="flex justify-between p-1">
+          <span>Add Images</span>
+          <button
+            className="m-1 p-1 border-2 bg-red-400"
+            onClick={() => {
+              setShowAddImage(false);
+            }}
+          >
+            Done
+          </button>
+        </div>
         <hr />
         <span>
           <button
