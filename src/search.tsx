@@ -33,7 +33,12 @@ export default function Search(props: {
       >
         <div className="flex justify-between">
           <span className="m-1 p-1 font-bold">Search</span>
-          <button className="m-1 p-1 bg-cyan-400 rounded">Close</button>
+          <button
+            className="m-1 p-1 bg-cyan-400 rounded"
+            onClick={() => props.setShow(false)}
+          >
+            Close
+          </button>
         </div>
         <hr />
         <div>

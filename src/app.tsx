@@ -198,7 +198,7 @@ export function App() {
     localStorage.setItem(STORAGE_NAME_SELECTED, `${selectedChatIndex}`);
   }, [selectedChatIndex]);
 
-  const db = openDB<ChatStore>(STORAGE_NAME, 10, {
+  const db = openDB<ChatStore>(STORAGE_NAME, 11, {
     async upgrade(db, oldVersion, newVersion, transaction) {
       if (oldVersion < 1) {
         const store = db.createObjectStore(STORAGE_NAME, {
@@ -226,7 +226,8 @@ export function App() {
         }
       }
 
-      if (oldVersion < 10) {
+      if (oldVersion < 11) {
+        alert("Start upgrading storage, just a sec... (Click OK to continue)");
         if (
           transaction
             .objectStore(STORAGE_NAME)
