@@ -6,6 +6,8 @@ import { StateUpdater, useRef } from "preact/hooks";
 interface ChatStoreSearchResult {
   key: IDBValidKey;
   cs: ChatStore;
+  query: string;
+  preview: string;
 }
 
 export default function Search(props: {
@@ -80,10 +82,18 @@ export default function Search(props: {
                 if (now !== searchingNow) setSearchingNow(now);
 
                 const value: ChatStore = await db.get("chatgpt-api-web", key);
-                if (value.contents_for_index.join(" ").includes(query)) {
+                const content = value.contents_for_index.join(" ");
+                if (content.includes(query)) {
+                  const beginIndex: number = content.indexOf(query);
+                  const preview = content.slice(
+                    Math.max(0, beginIndex - 100),
+                    Math.min(content.length, beginIndex + 239)
+                  );
                   result.push({
                     key,
                     cs: value,
+                    query: query,
+                    preview: preview,
                   });
                 }
               }
@@ -152,9 +162,7 @@ export default function Search(props: {
                   }}
                 >
                   <div className="m-1 p-1 font-bold">{result.key}</div>
-                  <div className="m-1 p-1">
-                    {result.cs.contents_for_index.join(" ").slice(0, 390)}
-                  </div>
+                  <div className="m-1 p-1">{result.preview}</div>
                 </div>
               );
             })}
