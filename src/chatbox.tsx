@@ -32,12 +32,15 @@ import { AddImage } from "./addImage";
 import { ListAPIs } from "./listAPIs";
 import { ListToolsTempaltes } from "./listToolsTemplates";
 import { autoHeight } from "./textarea";
+import Search from "./search";
+import { IDBPDatabase } from "idb";
 
 export interface TemplateChatStore extends ChatStore {
   name: string;
 }
 
 export default function ChatBOX(props: {
+  db: Promise<IDBPDatabase<ChatStore>>;
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
   selectedChatIndex: number;
@@ -56,6 +59,7 @@ export default function ChatBOX(props: {
   const [showAddToolMsg, setShowAddToolMsg] = useState(false);
   const [newToolCallID, setNewToolCallID] = useState("");
   const [newToolContent, setNewToolContent] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
   let default_follow = localStorage.getItem("follow");
   if (default_follow === null) {
     default_follow = "true";
@@ -451,10 +455,29 @@ export default function ChatBOX(props: {
           setTemplateTools={setTemplateTools}
         />
       )}
+      {showSearch && (
+        <Search
+          setSelectedChatIndex={props.setSelectedChatIndex}
+          db={props.db}
+          chatStore={chatStore}
+          setShow={setShowSearch}
+        />
+      )}
       <div
-        className="cursor-pointer rounded bg-cyan-300 dark:text-white p-1 dark:bg-cyan-800"
+        className="relative cursor-pointer rounded bg-cyan-300 dark:text-white p-1 dark:bg-cyan-800"
         onClick={() => setShowSettings(true)}
       >
+        <button
+          className="absolute right-1 bg-gray-300 rounded p-1 m-1"
+          onClick={(event) => {
+            // stop propagation to parent
+            event.stopPropagation();
+
+            setShowSearch(true);
+          }}
+        >
+          🔍
+        </button>
         <div>
           <button className="underline">
             {chatStore.systemMessageContent.length > 16

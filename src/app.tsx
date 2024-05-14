@@ -65,6 +65,7 @@ export interface ChatStore {
   image_gen_key: string;
   json_mode: boolean;
   logprobs: boolean;
+  contents_for_index: string[];
 }
 
 const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
@@ -128,6 +129,7 @@ export const newChatStore = (
     json_mode: json_mode,
     tts_format: tts_format,
     logprobs,
+    contents_for_index: [],
   };
 };
 
@@ -159,6 +161,32 @@ export function clearTotalCost() {
   localStorage.setItem(STORAGE_NAME_TOTALCOST, `0`);
 }
 
+export function BuildFiledForSearch(chatStore: ChatStore): string[] {
+  const contents_for_index: string[] = [];
+
+  if (chatStore.systemMessageContent.trim()) {
+    contents_for_index.push(chatStore.systemMessageContent.trim());
+  }
+
+  for (const msg of chatStore.history) {
+    if (typeof msg.content === "string") {
+      contents_for_index.push(msg.content);
+      continue;
+    }
+
+    for (const chunk of msg.content) {
+      if (chunk.type === "text") {
+        const text = chunk.text;
+        if (text?.trim()) {
+          contents_for_index.push(text);
+        }
+      }
+    }
+  }
+
+  return contents_for_index;
+}
+
 export function App() {
   // init selected index
   const [selectedChatIndex, setSelectedChatIndex] = useState(
@@ -170,30 +198,62 @@ export function App() {
     localStorage.setItem(STORAGE_NAME_SELECTED, `${selectedChatIndex}`);
   }, [selectedChatIndex]);
 
-  const db = openDB<ChatStore>(STORAGE_NAME, 1, {
-    upgrade(db) {
-      const store = db.createObjectStore(STORAGE_NAME, {
-        autoIncrement: true,
-      });
+  const db = openDB<ChatStore>(STORAGE_NAME, 10, {
+    async upgrade(db, oldVersion, newVersion, transaction) {
+      if (oldVersion < 1) {
+        const store = db.createObjectStore(STORAGE_NAME, {
+          autoIncrement: true,
+        });
 
-      // copy from localStorage to indexedDB
-      const allChatStoreIndexes: number[] = JSON.parse(
-        localStorage.getItem(STORAGE_NAME_INDEXES) ?? "[]"
-      );
-      let keyCount = 0;
-      for (const i of allChatStoreIndexes) {
-        console.log("importing chatStore from localStorage", i);
-        const key = `${STORAGE_NAME}-${i}`;
-        const val = localStorage.getItem(key);
-        if (val === null) continue;
-        store.add(JSON.parse(val));
-        keyCount += 1;
-      }
-      setSelectedChatIndex(keyCount);
-      if (keyCount > 0) {
-        alert(
-          "v2.0.0 Update: Imported chat history from localStorage to indexedDB. 🎉"
+        // copy from localStorage to indexedDB
+        const allChatStoreIndexes: number[] = JSON.parse(
+          localStorage.getItem(STORAGE_NAME_INDEXES) ?? "[]"
         );
+        let keyCount = 0;
+        for (const i of allChatStoreIndexes) {
+          console.log("importing chatStore from localStorage", i);
+          const key = `${STORAGE_NAME}-${i}`;
+          const val = localStorage.getItem(key);
+          if (val === null) continue;
+          store.add(JSON.parse(val));
+          keyCount += 1;
+        }
+        setSelectedChatIndex(keyCount);
+        if (keyCount > 0) {
+          alert(
+            "v2.0.0 Update: Imported chat history from localStorage to indexedDB. 🎉"
+          );
+        }
+      }
+
+      if (oldVersion < 10) {
+        if (
+          transaction
+            .objectStore(STORAGE_NAME)
+            .indexNames.contains("contents_for_index")
+        ) {
+          transaction
+            .objectStore(STORAGE_NAME)
+            .deleteIndex("contents_for_index");
+        }
+        transaction.objectStore(STORAGE_NAME).createIndex(
+          "contents_for_index", // name
+          "contents_for_index", // keyPath
+          {
+            multiEntry: true,
+            unique: false,
+          }
+        );
+
+        // iter through all chatStore and update contents_for_index
+        const store = transaction.objectStore(STORAGE_NAME);
+        const allChatStoreIndexes = await store.getAllKeys();
+        for (const i of allChatStoreIndexes) {
+          const chatStore: ChatStore = await store.get(i);
+
+          chatStore.contents_for_index = BuildFiledForSearch(chatStore);
+          await store.put(chatStore, i);
+        }
       }
     },
   });
@@ -222,6 +282,9 @@ export function App() {
 
   const [chatStore, _setChatStore] = useState(newChatStore());
   const setChatStore = async (chatStore: ChatStore) => {
+    // building field for search
+    chatStore.contents_for_index = BuildFiledForSearch(chatStore);
+
     console.log("recalculate postBeginIndex");
     const max = chatStore.maxTokens - chatStore.tokenMargin;
     let sum = 0;
@@ -415,6 +478,7 @@ export function App() {
         )}
       </div>
       <ChatBOX
+        db={db}
         chatStore={chatStore}
         setChatStore={setChatStore}
         selectedChatIndex={selectedChatIndex}
