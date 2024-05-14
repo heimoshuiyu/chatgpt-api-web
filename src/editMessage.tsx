@@ -44,17 +44,29 @@ export function EditMessage(props: EditMessageProps) {
           />
         )}
         <div className={"w-full flex justify-center"}>
-          {chatStore.develop_mode && <button
-            className="w-full m-2 p-1 rounded bg-red-500"
-            onClick={() => {
-              if (typeof chat.content === "string") {
-                chat.content = []
-              } else {
-                chat.content = ''
-              }
-              setChatStore({ ...chatStore })
-            }}
-          >Switch to {typeof chat.content === 'string' ? "media message" : "string message"}</button>}
+          {chatStore.develop_mode && (
+            <button
+              className="w-full m-2 p-1 rounded bg-red-500"
+              onClick={() => {
+                const confirm = window.confirm(
+                  "Change message type will clear the content, are you sure?"
+                );
+                if (!confirm) return;
+
+                if (typeof chat.content === "string") {
+                  chat.content = [];
+                } else {
+                  chat.content = "";
+                }
+                setChatStore({ ...chatStore });
+              }}
+            >
+              Switch to{" "}
+              {typeof chat.content === "string"
+                ? "media message"
+                : "string message"}
+            </button>
+          )}
           <button
             className={"w-full m-2 p-1 rounded bg-purple-500"}
             onClick={() => {
