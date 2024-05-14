@@ -46,7 +46,8 @@ export function AddImage({
           event.stopPropagation();
         }}
       >
-        <h2>Add Images</h2>
+        <h2 className="strong">Add Images</h2>
+        <hr />
         <span>
           <button
             className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"

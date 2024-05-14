@@ -22,10 +22,10 @@ export function EditMessageDetail({
     >
       {chat.content.map((mdt, index) => (
         <div className={"w-full p-2 px-4"}>
-          <div className="flex justify-between">
+          <div className="flex justify-center">
             {mdt.type === "text" ? (
               <textarea
-                className={"w-full"}
+                className={"w-full border p-1 rounded"}
                 value={mdt.text}
                 onChange={(event: any) => {
                   if (typeof chat.content === "string") return;
@@ -41,16 +41,16 @@ export function EditMessageDetail({
                 }}
               ></textarea>
             ) : (
-              <>
+              <div className="border p-1 rounded">
                 <img
-                  className="max-h-32 max-w-xs cursor-pointer"
+                  className="max-h-32 max-w-xs cursor-pointer m-2"
                   src={mdt.image_url?.url}
                   onClick={() => {
                     window.open(mdt.image_url?.url, "_blank");
                   }}
                 />
                 <button
-                  className="bg-blue-300 p-1 rounded"
+                  className="bg-blue-300 p-1 rounded m-1"
                   onClick={() => {
                     const image_url = prompt("image url", mdt.image_url?.url);
                     if (image_url) {
@@ -65,7 +65,7 @@ export function EditMessageDetail({
                   {Tr("Edit URL")}
                 </button>
                 <button
-                  className="bg-blue-300 p-1 rounded"
+                  className="bg-blue-300 p-1 rounded m-1"
                   onClick={() => {
                     // select file and load it to base64 image URL format
                     const input = document.createElement("input");
@@ -95,7 +95,7 @@ export function EditMessageDetail({
                   {Tr("Upload")}
                 </button>
                 <span
-                  className="bg-blue-300 p-1 rounded"
+                  className="bg-blue-300 p-1 rounded m-1"
                   onClick={() => {
                     if (typeof chat.content === "string") return;
                     const obj = chat.content[index].image_url;
@@ -111,7 +111,7 @@ export function EditMessageDetail({
                     checked={mdt.image_url?.detail === "high"}
                   />
                 </span>
-              </>
+              </div>
             )}
 
             <button
