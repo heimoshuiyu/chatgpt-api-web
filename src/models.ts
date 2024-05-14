@@ -35,6 +35,14 @@ const models: Record<string, Model> = {
     maxToken: 4096,
     price: { prompt: 0.0015 / 1000, completion: 0.002 / 1000 },
   },
+  "gpt-4o": {
+    maxToken: 128000,
+    price: { prompt: 0.005 / 1000, completion: 0.015 / 1000 },
+  },
+  "gpt-4o-2024-05-13": {
+    maxToken: 128000,
+    price: { prompt: 0.005 / 1000, completion: 0.015 / 1000 },
+  },
   "gpt-4-0125-preview": {
     maxToken: 128000,
     price: { prompt: 0.01 / 1000, completion: 0.03 / 1000 },
