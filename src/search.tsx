@@ -1,7 +1,6 @@
 import { IDBPDatabase } from "idb";
 import { ChatStore } from "./app";
-import { useState } from "react";
-import { StateUpdater, useRef } from "preact/hooks";
+import { StateUpdater, useRef, useState } from "preact/hooks";
 
 interface ChatStoreSearchResult {
   key: IDBValidKey;
@@ -151,7 +150,7 @@ export default function Search(props: {
         <div>
           {searchResult
             .slice(pageIndex * 10, (pageIndex + 1) * 10)
-            .map((result) => {
+            .map((result: ChatStoreSearchResult) => {
               return (
                 <div
                   className="flex justify-start p-1 m-1 rounded border bg-slate-300 cursor-pointer"
