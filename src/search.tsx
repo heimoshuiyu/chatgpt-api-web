@@ -44,6 +44,7 @@ export default function Search(props: {
         <hr />
         <div>
           <input
+            autoFocus
             className="m-1 p-1 w-full border"
             type="text"
             onInput={async (event: any) => {
@@ -81,7 +82,9 @@ export default function Search(props: {
                 if (now !== searchingNow) setSearchingNow(now);
 
                 const value: ChatStore = await db.get("chatgpt-api-web", key);
-                const content = value.contents_for_index.join(" ").toLowerCase();
+                const content = value.contents_for_index
+                  .join(" ")
+                  .toLowerCase();
                 if (content.includes(query)) {
                   const beginIndex: number = content.indexOf(query);
                   const preview = content.slice(
