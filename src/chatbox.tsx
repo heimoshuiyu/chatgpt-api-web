@@ -115,14 +115,14 @@ export default function ChatBOX(props: {
       const logprob = c?.logprobs?.content[0]?.logprob;
       if (logprob !== undefined) {
         logprobs.content.push({
-          token: c.delta.content ?? "",
+          token: c?.delta?.content ?? "",
           logprob,
         });
-        console.log(c.delta.content, logprob);
+        console.log(c?.delta?.content, logprob);
       }
 
-      allChunkMessage.push(c.delta.content ?? "");
-      const tool_calls = c.delta.tool_calls;
+      allChunkMessage.push(c?.delta?.content ?? "");
+      const tool_calls = c?.delta?.tool_calls;
       if (tool_calls) {
         for (const tool_call of tool_calls) {
           // init
