@@ -227,7 +227,9 @@ export function App() {
       }
 
       if (oldVersion < 11) {
-        alert("Start upgrading storage, just a sec... (Click OK to continue)");
+        if (oldVersion < 11 && oldVersion >= 1) {
+          alert("Start upgrading storage, just a sec... (Click OK to continue)");
+        }
         if (
           transaction
             .objectStore(STORAGE_NAME)
