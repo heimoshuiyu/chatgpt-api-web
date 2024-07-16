@@ -14,6 +14,7 @@ import {
   TemplateAPI,
   TemplateTools,
   addTotalCost,
+  getTotalCost,
 } from "./app";
 import ChatGPT, {
   calculate_token_length,
@@ -34,7 +35,15 @@ import { ListToolsTempaltes } from "./listToolsTemplates";
 import { autoHeight } from "./textarea";
 import Search from "./search";
 import { IDBPDatabase } from "idb";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import {
+  MagnifyingGlassIcon,
+  CubeIcon,
+  BanknotesIcon,
+  DocumentTextIcon,
+  ChatBubbleLeftEllipsisIcon,
+  ScissorsIcon,
+  SwatchIcon,
+} from "@heroicons/react/24/outline";
 
 export interface TemplateChatStore extends ChatStore {
   name: string;
@@ -465,7 +474,7 @@ export default function ChatBOX(props: {
         />
       )}
       <div
-        className="relative cursor-pointer rounded p-2 bg-base-200"
+        className="relative cursor-pointer rounded p-2"
         onClick={() => setShowSettings(true)}
       >
         <button
@@ -479,38 +488,97 @@ export default function ChatBOX(props: {
         >
           <MagnifyingGlassIcon class="w-5 h-5" />
         </button>
-        <div>
-          <button className="underline">
-            {chatStore.systemMessageContent.length > 16
-              ? chatStore.systemMessageContent.slice(0, 16) + ".."
-              : chatStore.systemMessageContent}
-          </button>{" "}
-          <button className="underline">
-            {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
-          </button>{" "}
-          {chatStore.toolsString.trim() && (
-            <button className="underline">TOOL</button>
-          )}
+        <div class="stats shadow hidden lg:inline-grid">
+          <div class="stat">
+            <div class="stat-figure text-secondary">
+              <CubeIcon class="h-10 w-10" />
+            </div>
+            <div class="stat-title">Model</div>
+            <div class="stat-value">{chatStore.model}</div>
+            <div class="stat-desc">
+              Prompt:{" "}
+              {chatStore.systemMessageContent.length > 30
+                ? chatStore.systemMessageContent.slice(0, 30) + ".."
+                : chatStore.systemMessageContent}
+            </div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-figure text-secondary">
+              <SwatchIcon class="h-10 w-10" />
+            </div>
+            <div class="stat-title">Mode</div>
+            <div class="stat-value">
+              {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
+            </div>
+            <div class="stat-desc">STREAM/FETCH</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-figure text-secondary">
+              <ChatBubbleLeftEllipsisIcon class="h-10 w-10" />
+            </div>
+            <div class="stat-title">Tokens</div>
+            <div class="stat-value">{chatStore.totalTokens}</div>
+            <div class="stat-desc">Max: {chatStore.maxTokens}</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-figure text-secondary">
+              <ScissorsIcon class="h-10 w-10" />
+            </div>
+            <div class="stat-title">Cut</div>
+            <div class="stat-value">{chatStore.postBeginIndex}</div>
+            <div class="stat-desc">
+              Max: {chatStore.history.filter(({ hide }) => !hide).length}
+            </div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-figure text-secondary">
+              <BanknotesIcon class="h-10 w-10" />
+            </div>
+            <div class="stat-title">Cost</div>
+            <div class="stat-value">${chatStore.cost.toFixed(4)}</div>
+            <div class="stat-desc">
+              Accumulated: ${getTotalCost().toFixed(2)}
+            </div>
+          </div>
         </div>
-        <div className="text-xs">
-          <span className="underline">{chatStore.model}</span>{" "}
-          <span>
-            Tokens:{" "}
-            <span className="underline">
-              {chatStore.totalTokens}/{chatStore.maxTokens}
-            </span>
-          </span>{" "}
-          <span>
-            {Tr("Cut")}:{" "}
-            <span className="underline">
-              {chatStore.postBeginIndex}/
-              {chatStore.history.filter(({ hide }) => !hide).length}
+        <div class="lg:hidden">
+          <div>
+            <button className="underline">
+              {chatStore.systemMessageContent.length > 16
+                ? chatStore.systemMessageContent.slice(0, 16) + ".."
+                : chatStore.systemMessageContent}
+            </button>{" "}
+            <button className="underline">
+              {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
+            </button>{" "}
+            {chatStore.toolsString.trim() && (
+              <button className="underline">TOOL</button>
+            )}
+          </div>
+          <div className="text-xs">
+            <span class="underline">{chatStore.model}</span>{" "}
+            <span>
+              Tokens:{" "}
+              <span class="underline">
+                {chatStore.totalTokens}/{chatStore.maxTokens}
+              </span>
             </span>{" "}
-          </span>{" "}
-          <span>
-            {Tr("Cost")}:{" "}
-            <span className="underline">${chatStore.cost.toFixed(4)}</span>
-          </span>
+            <span>
+              {Tr("Cut")}:{" "}
+              <span class="underline">
+                {chatStore.postBeginIndex}/
+                {chatStore.history.filter(({ hide }) => !hide).length}
+              </span>{" "}
+            </span>{" "}
+            <span>
+              {Tr("Cost")}:{" "}
+              <span className="underline">${chatStore.cost.toFixed(4)}</span>
+            </span>
+          </div>
         </div>
       </div>
       <div className="grow overflow-scroll">
@@ -730,7 +798,7 @@ export default function ChatBOX(props: {
         <p className="text-center">
           {chatStore.history.length > 0 && (
             <button
-              className="btn btn-warning disabled:line-through disabled:btn-neutral disabled:text-white m-2 p-2"
+              className="btn btn-outline btn-sm btn-warning disabled:line-through disabled:btn-neutral disabled:text-white m-2 p-2"
               disabled={showGenerating}
               onClick={async () => {
                 const messageIndex = chatStore.history.length - 1;
@@ -1110,7 +1178,7 @@ export default function ChatBOX(props: {
               </span>
               <span className={`flex justify-between p-2`}>
                 <button
-                  className="rounded m-1 p-1 border-2 bg-red-400 hover:bg-red-600"
+                  className="btn btn-info m-1 p-1"
                   onClick={() => setShowAddToolMsg(false)}
                 >
                   {Tr("Cancle")}

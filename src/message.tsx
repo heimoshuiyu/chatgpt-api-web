@@ -121,7 +121,9 @@ export default function Message(props: Props) {
             <div
               className={`chat-bubble ${
                 chat.role === "assistant"
-                  ? "chat-bubble-secondary"
+                  ? renderColor
+                    ? "chat-bubble-neutral"
+                    : "chat-bubble-secondary"
                   : "chat-bubble-primary"
               }`}
             >
