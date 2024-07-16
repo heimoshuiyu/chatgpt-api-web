@@ -30,23 +30,23 @@ export default function Search(props: {
         onClick={(event: any) => {
           event.stopPropagation();
         }}
-        className="m-2 p-2 bg-white rounded-lg h-fit w-2/3 z-20"
+        className="m-2 p-2 bg-base-300 rounded-lg h-fit w-2/3 z-20"
       >
         <div className="flex justify-between">
           <span className="m-1 p-1 font-bold">Search</span>
           <button
-            className="m-1 p-1 bg-cyan-400 rounded"
+            className="m-1 p-1 btn btn-sm btn-secondary"
             onClick={() => props.setShow(false)}
           >
             Close
           </button>
         </div>
-        <hr />
         <div>
           <input
             autoFocus
-            className="m-1 p-1 w-full border"
+            className="input input-bordered w-full w-full border"
             type="text"
+            placeholder="Type Something..."
             onInput={async (event: any) => {
               const query = event.target.value.trim().toLowerCase();
               if (!query) {
@@ -119,44 +119,14 @@ export default function Search(props: {
           />
         </div>
         {searching && <div>Searching {searchingNow}%...</div>}
-        {searchResult.length > 0 && (
-          <div className="flex justify-between">
-            <button
-              className="m-1 p-1 rounded bg-green-300 disabled:bg-slate-400"
-              disabled={pageIndex === 0}
-              onClick={() => {
-                if (pageIndex === 0) {
-                  return;
-                }
-                setPageIndex(pageIndex - 1);
-              }}
-            >
-              Last page
-            </button>
-            <div className="m-1 p-1">
-              Page: {pageIndex + 1} / {Math.floor(searchResult.length / 10) + 1}
-            </div>
-            <button
-              className="m-1 p-1 rounded bg-green-300 disabled:bg-slate-400"
-              disabled={pageIndex === Math.floor(searchResult.length / 10)}
-              onClick={() => {
-                if (pageIndex === Math.floor(searchResult.length / 10)) {
-                  return;
-                }
-                setPageIndex(pageIndex + 1);
-              }}
-            >
-              Next page
-            </button>
-          </div>
-        )}
+
         <div>
           {searchResult
             .slice(pageIndex * 10, (pageIndex + 1) * 10)
             .map((result: ChatStoreSearchResult) => {
               return (
                 <div
-                  className="flex justify-start p-1 m-1 rounded border bg-slate-300 cursor-pointer"
+                  className="flex justify-start p-1 m-1 rounded border bg-base-200 cursor-pointer"
                   key={result.key}
                   onClick={() => {
                     props.setSelectedChatIndex(parseInt(result.key.toString()));
@@ -169,6 +139,40 @@ export default function Search(props: {
               );
             })}
         </div>
+        {searchResult.length > 0 && (
+          <div className="flex justify-center my-2">
+            <div class="join">
+              <button
+                class="join-item btn btn-sm"
+                disabled={pageIndex === 0}
+                onClick={() => {
+                  if (pageIndex === 0) {
+                    return;
+                  }
+                  setPageIndex(pageIndex - 1);
+                }}
+              >
+                «
+              </button>
+              <button class="join-item btn btn-sm">
+                Page {pageIndex + 1} /{" "}
+                {Math.floor(searchResult.length / 10) + 1}
+              </button>
+              <button
+                class="join-item btn btn-sm"
+                disabled={pageIndex === Math.floor(searchResult.length / 10)}
+                onClick={() => {
+                  if (pageIndex === Math.floor(searchResult.length / 10)) {
+                    return;
+                  }
+                  setPageIndex(pageIndex + 1);
+                }}
+              >
+                »
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
