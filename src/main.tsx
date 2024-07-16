@@ -3,25 +3,28 @@ import { App } from "./app";
 import { useState, useEffect } from "preact/hooks";
 import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 
+import { themeChange } from "theme-change";
+
 function Base() {
   const [langCode, _setLangCode] = useState("en-US");
 
   const setLangCode = (langCode: string) => {
-    _setLangCode(langCode)
-    if (!localStorage) return
+    _setLangCode(langCode);
+    if (!localStorage) return;
 
-    localStorage.setItem('chatgpt-api-web-lang', langCode)
-  }
+    localStorage.setItem("chatgpt-api-web-lang", langCode);
+  };
 
   // select language
   useEffect(() => {
+    themeChange(false);
     // query localStorage
     if (localStorage) {
-      const lang = localStorage.getItem('chatgpt-api-web-lang')
+      const lang = localStorage.getItem("chatgpt-api-web-lang");
       if (lang) {
-        console.log(`query langCode ${lang} from localStorage`)
-        _setLangCode(lang)
-        return
+        console.log(`query langCode ${lang} from localStorage`);
+        _setLangCode(lang);
+        return;
       }
     }
 

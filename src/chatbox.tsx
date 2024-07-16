@@ -34,6 +34,7 @@ import { ListToolsTempaltes } from "./listToolsTemplates";
 import { autoHeight } from "./textarea";
 import Search from "./search";
 import { IDBPDatabase } from "idb";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 export interface TemplateChatStore extends ChatStore {
   name: string;
@@ -434,7 +435,7 @@ export default function ChatBOX(props: {
   const userInputRef = createRef();
 
   return (
-    <div className="grow flex flex-col p-2 dark:text-black">
+    <div className="grow flex flex-col p-2">
       {showSettings && (
         <Settings
           chatStore={chatStore}
@@ -464,11 +465,11 @@ export default function ChatBOX(props: {
         />
       )}
       <div
-        className="relative cursor-pointer rounded bg-cyan-300 dark:text-white p-1 dark:bg-cyan-800"
+        className="relative cursor-pointer rounded p-2 bg-base-200"
         onClick={() => setShowSettings(true)}
       >
         <button
-          className="absolute right-1 bg-gray-300 rounded p-1 m-1"
+          className="absolute right-1 rounded p-1 m-1"
           onClick={(event) => {
             // stop propagation to parent
             event.stopPropagation();
@@ -476,7 +477,7 @@ export default function ChatBOX(props: {
             setShowSearch(true);
           }}
         >
-          🔍
+          <MagnifyingGlassIcon class="w-5 h-5" />
         </button>
         <div>
           <button className="underline">
@@ -514,12 +515,12 @@ export default function ChatBOX(props: {
       </div>
       <div className="grow overflow-scroll">
         {!chatStore.apiKey && (
-          <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
+          <p className="bg-base-200 p-6 rounded my-3 text-left">
             {Tr("Please click above to set")} (OpenAI) API KEY
           </p>
         )}
         {!chatStore.apiEndpoint && (
-          <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
+          <p className="bg-base-200 p-6 rounded my-3 text-left">
             {Tr("Please click above to set")} API Endpoint
           </p>
         )}
@@ -581,7 +582,7 @@ export default function ChatBOX(props: {
         )}
 
         {chatStore.history.filter((msg) => !msg.example).length == 0 && (
-          <div className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
+          <div className="bg-base-200 break-all p-3 my-3 text-left">
             <h2>
               <span>{Tr("Saved prompt templates")}</span>
               <button
@@ -596,7 +597,7 @@ export default function ChatBOX(props: {
                 {Tr("Reset Current")}
               </button>
             </h2>
-            <hr className="my-2" />
+            <div class="divider"></div>
             <div className="flex flex-wrap">
               {templates.map((t, index) => (
                 <div
@@ -729,7 +730,7 @@ export default function ChatBOX(props: {
         <p className="text-center">
           {chatStore.history.length > 0 && (
             <button
-              className="disabled:line-through disabled:bg-slate-500 rounded m-2 p-2 border-2 bg-teal-500 hover:bg-teal-600"
+              className="btn btn-warning disabled:line-through disabled:btn-neutral disabled:text-white m-2 p-2"
               disabled={showGenerating}
               onClick={async () => {
                 const messageIndex = chatStore.history.length - 1;
@@ -749,7 +750,7 @@ export default function ChatBOX(props: {
           )}
           {chatStore.develop_mode && chatStore.history.length > 0 && (
             <button
-              className="disabled:line-through disabled:bg-slate-500 rounded m-2 p-2 border-2 bg-yellow-500 hover:bg-yellow-600"
+              className="btn btn-warning disabled:line-through disabled:bg-neural m-2 p-2"
               disabled={showGenerating}
               onClick={async () => {
                 await complete();
@@ -852,15 +853,16 @@ export default function ChatBOX(props: {
           <input type="checkbox" checked={follow} />
         </span>
       )}
+
       <div className="flex justify-between">
         <button
-          className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+          className="btn btn-primary disabled:line-through disabled:text-white disabled:bg-neutral m-1 p-1"
           disabled={showGenerating || !chatStore.apiKey}
           onClick={() => {
             setShowAddImage(!showAddImage);
           }}
         >
-          Img
+          Image
         </button>
         {showAddImage && (
           <AddImage
@@ -891,11 +893,11 @@ export default function ChatBOX(props: {
             autoHeight(event.target);
             setInputMsg(event.target.value);
           }}
-          className="rounded grow m-1 p-1 border-2 border-gray-400 w-0"
+          className="textarea textarea-bordered textarea-xs grow m-1 p-1 w-0"
           placeholder="Type here..."
         ></textarea>
         <button
-          className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+          className="btn btn-primary disabled:btn-neutral disabled:line-through m-1 p-1"
           disabled={showGenerating}
           onClick={() => {
             send(inputMsg, true);
@@ -909,10 +911,8 @@ export default function ChatBOX(props: {
           chatStore.whisper_key &&
           (chatStore.whisper_key || chatStore.apiKey) && (
             <button
-              className={`disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 ${
-                isRecording === "Recording"
-                  ? "bg-red-400 hover:bg-red-600"
-                  : "bg-cyan-400 hover:bg-cyan-600"
+              className={`btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1 ${
+                isRecording === "Recording" ? "btn-error" : "btn-success"
               } ${isRecording !== "Mic" ? "animate-pulse" : ""}`}
               disabled={isRecording === "Transcribing"}
               ref={mediaRef}
@@ -1027,7 +1027,7 @@ export default function ChatBOX(props: {
           )}
         {chatStore.develop_mode && (
           <button
-            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
               chatStore.history.push({
@@ -1051,7 +1051,7 @@ export default function ChatBOX(props: {
         )}
         {chatStore.develop_mode && (
           <button
-            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
               send(inputMsg, false);
@@ -1062,7 +1062,7 @@ export default function ChatBOX(props: {
         )}
         {chatStore.develop_mode && (
           <button
-            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
               setShowAddToolMsg(true);
