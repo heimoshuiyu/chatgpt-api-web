@@ -10,6 +10,7 @@ import { MessageToolCall } from "./messageToolCall";
 import { MessageToolResp } from "./messageToolResp";
 import { EditMessage } from "./editMessage";
 import logprobToColor from "./logprob";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 export const isVailedJSON = (str: string): boolean => {
   try {
@@ -101,8 +102,8 @@ export default function Message(props: Props) {
           chatStore.history.slice(0, messageIndex).filter(({ hide }) => !hide)
             .length && (
           <div className="flex items-center relative justify-center">
-            <hr className="w-full h-px my-4 border-0 bg-slate-800 dark:bg-white" />
-            <span className="absolute px-3 bg-slate-800 text-white rounded p-1 dark:bg-white dark:text-black">
+            <hr className="w-full h-px my-4 border-0" />
+            <span className="absolute px-3 rounded p-1">
               Above messages are "forgotten"
             </span>
           </div>
@@ -192,11 +193,11 @@ export default function Message(props: Props) {
           )}
           {showCopiedHint && <CopiedHint />}
           {chatStore.develop_mode && (
-            <div>
-              <span className="dark:text-white">token</span>
+            <div class="flex items-center gap-1">
+              <span className="">token</span>
               <input
                 value={chat.token}
-                className="w-20"
+                className="input input-bordered input-xs w-16"
                 onChange={(event: any) => {
                   chat.token = parseInt(event.target.value);
                   props.update_total_tokens();
@@ -221,7 +222,7 @@ export default function Message(props: Props) {
                   setChatStore({ ...chatStore });
                 }}
               >
-                ❌
+                <XMarkIcon class="w-4 h-4" />
               </button>
               <span
                 onClick={(event: any) => {
@@ -229,17 +230,17 @@ export default function Message(props: Props) {
                   setChatStore({ ...chatStore });
                 }}
               >
-                <label className="dark:text-white">{Tr("example")}</label>
+                <label className="">{Tr("example")}</label>
                 <input type="checkbox" checked={chat.example} />
               </span>
               <span
                 onClick={(event: any) => setRenderWorkdown(!renderMarkdown)}
               >
-                <label className="dark:text-white">{Tr("render")}</label>
+                <label className="">{Tr("render")}</label>
                 <input type="checkbox" checked={renderMarkdown} />
               </span>
               <span onClick={(event: any) => setRenderColor(!renderColor)}>
-                <label className="dark:text-white">{Tr("color")}</label>
+                <label className="">{Tr("color")}</label>
                 <input type="checkbox" checked={renderColor} />
               </span>
             </div>

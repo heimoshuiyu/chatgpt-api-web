@@ -20,6 +20,14 @@ import {
   InformationCircleIcon,
   CheckIcon,
   NoSymbolIcon,
+  CogIcon,
+  KeyIcon,
+  EyeIcon,
+  EllipsisHorizontalCircleIcon,
+  HandRaisedIcon,
+  AdjustmentsHorizontalIcon,
+  Cog6ToothIcon,
+  ListBulletIcon,
 } from "@heroicons/react/24/outline";
 
 import { themeChange } from "theme-change";
@@ -34,10 +42,10 @@ const TTS_VOICES: string[] = [
 ];
 const TTS_FORMAT: string[] = ["mp3", "opus", "aac", "flac"];
 
-const Help = (props: { children: any; help: string }) => {
+const Help = (props: { children: any; help: string; field: string }) => {
   return (
-    <div>
-      <p className="flex justify-between">{props.children}</p>
+    <div class="b-2">
+      <label class="form-control w-full">{props.children}</label>
     </div>
   );
 };
@@ -55,46 +63,64 @@ const SelectModel = (props: {
   }
   const [useCustomModel, setUseCustomModel] = useState(shouldIUseCustomModel);
   return (
-    <Help help={props.help}>
-      <label className="m-2 p-2">Model</label>
-      <span
-        onClick={() => {
-          setUseCustomModel(!useCustomModel);
-        }}
-        className="m-2 p-2"
-      >
-        <label>{Tr("Custom")}</label>
-        <input className="" type="checkbox" checked={useCustomModel} />
-      </span>
-      {useCustomModel ? (
-        <input
-          className="m-2 p-2 border rounded focus w-32 md:w-fit"
-          value={props.chatStore.model}
-          onChange={(event: any) => {
-            const model = event.target.value as string;
-            props.chatStore.model = model;
-            props.setChatStore({ ...props.chatStore });
-          }}
-        />
-      ) : (
-        <select
-          className="m-2 p-2"
-          value={props.chatStore.model}
-          onChange={(event: any) => {
-            const model = event.target.value as string;
-            props.chatStore.model = model;
-            props.chatStore.maxTokens = getDefaultParams(
-              "max",
-              models[model].maxToken
-            );
-            props.setChatStore({ ...props.chatStore });
-          }}
-        >
-          {Object.keys(models).map((opt) => (
-            <option value={opt}>{opt}</option>
-          ))}
-        </select>
-      )}
+    <Help help={props.help} field="">
+      <div class="label">
+        <span class="flex gap-2 items-center">
+          <ListBulletIcon class="w-4 h-4" />
+          Model
+        </span>{" "}
+        <div class="flex gap-3">
+          <span class="label-text">
+            <span class="label-text flex gap-2 items-center">
+              <Cog6ToothIcon class="w-4 h-4" />
+              {Tr("Custom")}
+            </span>
+          </span>
+          <span class="label-text-alt">
+            <input
+              type="checkbox"
+              checked={useCustomModel}
+              class="checkbox"
+              onClick={() => {
+                setUseCustomModel(!useCustomModel);
+              }}
+            />
+          </span>
+        </div>
+        {/* <span class="label-text-alt">Top Right label</span> */}
+      </div>
+      <label class="form-control w-full">
+        {useCustomModel ? (
+          <input
+            className="input input-bordered"
+            value={props.chatStore.model}
+            onChange={(event: any) => {
+              const model = event.target.value as string;
+              props.chatStore.model = model;
+              props.setChatStore({ ...props.chatStore });
+            }}
+          />
+        ) : (
+          <select
+            className="select select-bordered"
+            value={props.chatStore.model}
+            onChange={(event: any) => {
+              const model = event.target.value as string;
+              props.chatStore.model = model;
+              props.chatStore.maxTokens = getDefaultParams(
+                "max",
+                models[model].maxToken
+              );
+              props.setChatStore({ ...props.chatStore });
+            }}
+          >
+            {Object.keys(models).map((opt) => (
+              <option value={opt}>{opt}</option>
+            ))}
+          </select>
+        )}
+      </label>
+      <div class="pb-5"></div>
     </Help>
   );
 };
@@ -152,25 +178,50 @@ const Input = (props: {
 }) => {
   const [hideInput, setHideInput] = useState(true);
   return (
-    <Help help={props.help}>
-      <label className="m-2 p-2">{props.field}</label>
-      <button
-        onClick={() => {
-          setHideInput(!hideInput);
-          console.log("clicked", hideInput);
-        }}
-      >
-        {hideInput ? "👀" : "🙈"}
-      </button>
-      <input
-        type={hideInput ? "password" : "text"}
-        className="m-2 p-2 border rounded focus w-32 md:w-fit"
-        value={props.chatStore[props.field]}
-        onChange={(event: any) => {
-          props.chatStore[props.field] = event.target.value;
-          props.setChatStore({ ...props.chatStore });
-        }}
-      ></input>
+    <Help field={props.field} help={props.help}>
+      <div class="label">
+        <span class="label-text">{props.field}</span>
+        <span class="label-text-alt">
+          <button
+            onClick={() => {
+              alert(props.help);
+            }}
+          >
+            <InformationCircleIcon className="w-4 h-4" />
+          </button>
+        </span>
+      </div>
+      <div class="join">
+        <label class="input input-bordered flex items-center gap-2 join-item grow">
+          {hideInput ? (
+            <EyeIcon
+              class="w-4 h-4"
+              onClick={() => {
+                setHideInput(!hideInput);
+                console.log("clicked", hideInput);
+              }}
+            />
+          ) : (
+            <KeyIcon
+              class="w-4 h-4"
+              onClick={() => {
+                setHideInput(!hideInput);
+                console.log("clicked", hideInput);
+              }}
+            />
+          )}
+
+          <input
+            type={hideInput ? "password" : "text"}
+            class="grow"
+            value={props.chatStore[props.field]}
+            onChange={(event: any) => {
+              props.chatStore[props.field] = event.target.value;
+              props.setChatStore({ ...props.chatStore });
+            }}
+          />
+        </label>
+      </div>
     </Help>
   );
 };
@@ -202,42 +253,63 @@ const Slicer = (props: {
     props.setChatStore({ ...props.chatStore });
   };
   return (
-    <Help help={props.help}>
+    <Help help={props.help} field={props.field}>
       <span>
-        <label className="m-2 p-2">{props.field}</label>
-        <input
-          type="checkbox"
-          checked={props.chatStore[enable_filed_name]}
-          onClick={() => {
-            setEnabled(!enabled);
-          }}
-        />
+        <div class="form-control">
+          <label class="flex gap-2">
+            <span class="label-text flex items-center gap-2">
+              <AdjustmentsHorizontalIcon className="w-4 h-4" />
+              {props.field}{" "}
+              <button
+                onClick={() => {
+                  alert(props.help);
+                }}
+              >
+                <InformationCircleIcon className="w-4 h-4" />
+              </button>
+            </span>
+            <input
+              type="checkbox"
+              checked={props.chatStore[enable_filed_name]}
+              class="checkbox"
+              onClick={() => {
+                setEnabled(!enabled);
+              }}
+            />
+          </label>
+        </div>
       </span>
-      <input
-        disabled={!enabled}
-        className="m-2 p-2 border rounded focus w-16"
-        type="range"
-        min={props.min}
-        max={props.max}
-        step="0.01"
-        value={props.chatStore[props.field]}
-        onChange={(event: any) => {
-          const value = parseFloat(event.target.value);
-          props.chatStore[props.field] = value;
-          props.setChatStore({ ...props.chatStore });
-        }}
-      />
-      <input
-        disabled={!enabled}
-        className="m-2 p-2 border rounded focus w-28"
-        type="number"
-        value={props.chatStore[props.field]}
-        onChange={(event: any) => {
-          const value = parseFloat(event.target.value);
-          props.chatStore[props.field] = value;
-          props.setChatStore({ ...props.chatStore });
-        }}
-      />
+      {enabled ? (
+        <div class="flex items-center">
+          <input
+            disabled={!enabled}
+            className="range"
+            type="range"
+            min={props.min}
+            max={props.max}
+            step="0.01"
+            value={props.chatStore[props.field]}
+            onChange={(event: any) => {
+              const value = parseFloat(event.target.value);
+              props.chatStore[props.field] = value;
+              props.setChatStore({ ...props.chatStore });
+            }}
+          />
+          <input
+            disabled={!enabled}
+            className="m-2 p-2 border rounded focus w-28"
+            type="number"
+            value={props.chatStore[props.field]}
+            onChange={(event: any) => {
+              const value = parseFloat(event.target.value);
+              props.chatStore[props.field] = value;
+              props.setChatStore({ ...props.chatStore });
+            }}
+          />
+        </div>
+      ) : (
+        ""
+      )}
     </Help>
   );
 };
@@ -257,21 +329,35 @@ const Number = (props: {
   help: string;
 }) => {
   return (
-    <Help help={props.help}>
+    <Help help={props.help} field="">
       <span>
-        <label className="m-2 p-2">{props.field}</label>
-        {props.field === "maxGenTokens" && (
-          <input
-            type="checkbox"
-            checked={props.chatStore.maxGenTokens_enabled}
-            onChange={() => {
-              const newChatStore = { ...props.chatStore };
-              newChatStore.maxGenTokens_enabled =
-                !newChatStore.maxGenTokens_enabled;
-              props.setChatStore({ ...newChatStore });
+        <label className="py-2 flex items-center gap-1">
+          <EllipsisHorizontalCircleIcon class="h-4 w-4" /> {props.field}{" "}
+          <button
+            onClick={() => {
+              alert(props.help);
             }}
-          />
-        )}
+          >
+            <InformationCircleIcon className="w-4 h-4" />
+          </button>
+          {props.field === "maxGenTokens" && (
+            <div class="form-control">
+              <label class="label cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={props.chatStore.maxGenTokens_enabled}
+                  onChange={() => {
+                    const newChatStore = { ...props.chatStore };
+                    newChatStore.maxGenTokens_enabled =
+                      !newChatStore.maxGenTokens_enabled;
+                    props.setChatStore({ ...newChatStore });
+                  }}
+                  class="checkbox"
+                />
+              </label>
+            </div>
+          )}
+        </label>
       </span>
       <input
         readOnly={props.readOnly}
@@ -280,7 +366,7 @@ const Number = (props: {
           !props.chatStore.maxGenTokens_enabled
         }
         type="number"
-        className="m-2 p-2 border rounded focus w-28"
+        className="input input-bordered input-sm w-full max-w-xs"
         value={props.chatStore[props.field]}
         onChange={(event: any) => {
           console.log("type", typeof event.target.value);
@@ -300,17 +386,29 @@ const Choice = (props: {
   help: string;
 }) => {
   return (
-    <Help help={props.help}>
-      <label className="m-2 p-2">{props.field}</label>
-      <input
-        type="checkbox"
-        className="m-2 p-2 border rounded focus"
-        checked={props.chatStore[props.field]}
-        onChange={(event: any) => {
-          props.chatStore[props.field] = event.target.checked;
-          props.setChatStore({ ...props.chatStore });
-        }}
-      ></input>
+    <Help help={props.help} field={props.field}>
+      <div class="form-control">
+        <label class="py-2 flex items-center gap-1">
+          <CheckIcon class="h-4 w-4" />
+          <span class="label-text">{props.field}</span>
+          <button
+            onClick={() => {
+              alert(props.help);
+            }}
+          >
+            <InformationCircleIcon className="w-4 h-4" />
+          </button>
+          <input
+            type="checkbox"
+            checked={props.chatStore[props.field]}
+            class="checkbox"
+            onChange={(event: any) => {
+              props.chatStore[props.field] = event.target.checked;
+              props.setChatStore({ ...props.chatStore });
+            }}
+          />
+        </label>
+      </div>
     </Help>
   );
 };
@@ -394,9 +492,7 @@ export default (props: {
             {Tr("Close")}
           </button>
         </div>
-
-        <hr className="pt-2" />
-        <div role="tablist" class="tabs tabs-bordered pt-2 w-full">
+        <div role="tablist" class="tabs tabs-lifted pt-2 w-full">
           <input
             type="radio"
             name="setting_tab"
@@ -472,17 +568,21 @@ export default (props: {
             class="tab-content bg-base-100 border-base-300 rounded-box p-6"
           >
             <div className="flex justify-between">
-              <p>
-                {Tr("Accumulated cost in all sessions")} ${totalCost.toFixed(4)}
-              </p>
-              <button
-                onClick={() => {
-                  clearTotalCost();
-                  setTotalCost(getTotalCost());
-                }}
-              >
-                {Tr("Reset")}
-              </button>
+              <div class="join join-vertical lg:join-horizontal">
+                <p class="btn no-animation join-item">
+                  {Tr("Accumulated cost in all sessions")} $
+                  {totalCost.toFixed(4)}
+                </p>
+                <button
+                  class="btn join-item"
+                  onClick={() => {
+                    clearTotalCost();
+                    setTotalCost(getTotalCost());
+                  }}
+                >
+                  Reset
+                </button>
+              </div>
             </div>
             <label class="form-control w-full max-w-xs">
               <div class="label">
@@ -521,6 +621,9 @@ export default (props: {
               </select>
             </label>
             <div class="join pt-2">
+              <button class="btn btn-info join-item no-animation">
+                <CogIcon class="w-6 h-6" />
+              </button>
               <button
                 class="btn join-item"
                 onClick={() => {
@@ -654,7 +757,6 @@ export default (props: {
               />
             </div>
           </div>
-
           <input
             type="radio"
             name="setting_tab"
@@ -666,28 +768,31 @@ export default (props: {
             role="tabpanel"
             class="tab-content bg-base-100 border-base-300 rounded-box p-6"
           >
-            <div className="relative border-slate-300 border rounded">
-              <div className="flex justify-between">
-                <strong className="p-1 m-1">Chat API</strong>
-                <SetAPIsTemplate
-                  label="Chat API"
-                  endpoint={props.chatStore.apiEndpoint}
-                  APIkey={props.chatStore.apiKey}
-                  tmps={props.templateAPIs}
-                  setTmps={props.setTemplateAPIs}
-                />
+            <div class="card bg-base-100 w-full shadow-xl">
+              <div class="card-body">
+                <h2 class="card-title">Chat API</h2>
+                <p>
+                  <Input
+                    field="apiKey"
+                    help="OPEN AI API 密钥，请勿泄漏此密钥"
+                    {...props}
+                  />
+                  <Input
+                    field="apiEndpoint"
+                    help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
+                    {...props}
+                  />
+                </p>
+                <div class="card-actions justify-end">
+                  <SetAPIsTemplate
+                    label="Chat API"
+                    endpoint={props.chatStore.apiEndpoint}
+                    APIkey={props.chatStore.apiKey}
+                    tmps={props.templateAPIs}
+                    setTmps={props.setTemplateAPIs}
+                  />
+                </div>
               </div>
-              <hr />
-              <Input
-                field="apiKey"
-                help="OPEN AI API 密钥，请勿泄漏此密钥"
-                {...props}
-              />
-              <Input
-                field="apiEndpoint"
-                help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
-                {...props}
-              />
             </div>
             <SelectModel
               help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
@@ -768,59 +873,80 @@ export default (props: {
             name="setting_tab"
             role="tab"
             class="tab"
+            aria-label="Speech Recognition"
+          />
+          <div
+            role="tabpanel"
+            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
+          >
+            <div class="card bg-base-100 w-full shadow-xl">
+              <div class="card-body">
+                <h2 class="card-title">Whisper API</h2>
+                <p>
+                  <Input
+                    field="whisper_key"
+                    help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
+                    {...props}
+                  />
+                  <Input
+                    field="whisper_api"
+                    help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
+                    {...props}
+                  />
+                </p>
+                <div class="card-actions justify-end">
+                  <SetAPIsTemplate
+                    label="Whisper API"
+                    endpoint={props.chatStore.whisper_api}
+                    APIkey={props.chatStore.whisper_key}
+                    tmps={props.templateAPIsWhisper}
+                    setTmps={props.setTemplateAPIsWhisper}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <input
+            type="radio"
+            name="setting_tab"
+            role="tab"
+            class="tab"
             aria-label="TTS"
           />
           <div
             role="tabpanel"
             class="tab-content bg-base-100 border-base-300 rounded-box p-6"
           >
-            <div className="relative border-slate-300 border rounded">
-              <div className="flex justify-between">
-                <strong className="p-1 m-1">Whisper API</strong>
-                <SetAPIsTemplate
-                  label="Whisper API"
-                  endpoint={props.chatStore.whisper_api}
-                  APIkey={props.chatStore.whisper_key}
-                  tmps={props.templateAPIsWhisper}
-                  setTmps={props.setTemplateAPIsWhisper}
-                />
+            <div class="card bg-base-100 w-full shadow-xl">
+              <div class="card-body">
+                <h2 class="card-title">TTS API</h2>
+                <p>
+                  <Input
+                    field="tts_key"
+                    help="tts service api key"
+                    {...props}
+                  />
+                  <Input
+                    field="tts_api"
+                    help="tts api, eg. https://api.openai.com/v1/audio/speech"
+                    {...props}
+                  />
+                </p>
+                <div class="card-actions justify-end">
+                  <SetAPIsTemplate
+                    label="TTS API"
+                    endpoint={props.chatStore.tts_api}
+                    APIkey={props.chatStore.tts_key}
+                    tmps={props.templateAPIsTTS}
+                    setTmps={props.setTemplateAPIsTTS}
+                  />
+                </div>
               </div>
-              <hr />
-              <Input
-                field="whisper_key"
-                help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
-                {...props}
-              />
-              <Input
-                field="whisper_api"
-                help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
-                {...props}
-              />
             </div>
-
-            <div className="relative border-slate-300 border rounded mt-1">
-              <div className="flex justify-between">
-                <strong className="p-1 m-1">TTS API</strong>
-                <SetAPIsTemplate
-                  label="TTS API"
-                  endpoint={props.chatStore.tts_api}
-                  APIkey={props.chatStore.tts_key}
-                  tmps={props.templateAPIsTTS}
-                  setTmps={props.setTemplateAPIsTTS}
-                />
-              </div>
-              <hr />
-              <Input field="tts_key" help="tts service api key" {...props} />
-              <Input
-                field="tts_api"
-                help="tts api, eg. https://api.openai.com/v1/audio/speech"
-                {...props}
-              />
-            </div>
-            <Help help="tts voice style">
-              <label className="m-2 p-2">TTS Voice</label>
+            <Help help="tts voice style" field="AAAAA">
+              <label className="">TTS Voice</label>
               <select
-                className="m-2 p-2"
+                className="select select-bordered"
                 value={props.chatStore.tts_voice}
                 onChange={(event: any) => {
                   const voice = event.target.value as string;
@@ -840,10 +966,10 @@ export default (props: {
               help={"TTS Speed"}
               {...props}
             />
-            <Help help="tts response format">
-              <label className="m-2 p-2">TTS Format</label>
+            <Help help="tts response format" field="AAAAA">
+              <label className="">TTS Format</label>
               <select
-                className="m-2 p-2"
+                className="select select-bordered"
                 value={props.chatStore.tts_format}
                 onChange={(event: any) => {
                   const format = event.target.value as string;
@@ -868,28 +994,31 @@ export default (props: {
             role="tabpanel"
             class="tab-content bg-base-100 border-base-300 rounded-box p-6"
           >
-            <div className="relative border-slate-300 border rounded">
-              <div className="flex justify-between">
-                <strong className="p-1 m-1">Image Gen API</strong>
-                <SetAPIsTemplate
-                  label="Image Gen API"
-                  endpoint={props.chatStore.image_gen_api}
-                  APIkey={props.chatStore.image_gen_key}
-                  tmps={props.templateAPIsImageGen}
-                  setTmps={props.setTemplateAPIsImageGen}
-                />
+            <div class="card bg-base-100 w-full shadow-xl">
+              <div class="card-body">
+                <h2 class="card-title">Image Gen API</h2>
+                <p>
+                  <Input
+                    field="image_gen_key"
+                    help="image generation service api key"
+                    {...props}
+                  />
+                  <Input
+                    field="image_gen_api"
+                    help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
+                    {...props}
+                  />
+                </p>
+                <div class="card-actions justify-end">
+                  <SetAPIsTemplate
+                    label="Image Gen API"
+                    endpoint={props.chatStore.image_gen_api}
+                    APIkey={props.chatStore.image_gen_key}
+                    tmps={props.templateAPIsImageGen}
+                    setTmps={props.setTemplateAPIsImageGen}
+                  />
+                </div>
               </div>
-              <hr />
-              <Input
-                field="image_gen_key"
-                help="image generation service api key"
-                {...props}
-              />
-              <Input
-                field="image_gen_api"
-                help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
-                {...props}
-              />
             </div>
           </div>
         </div>

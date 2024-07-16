@@ -798,7 +798,7 @@ export default function ChatBOX(props: {
         <p className="text-center">
           {chatStore.history.length > 0 && (
             <button
-              className="btn btn-outline btn-sm btn-warning disabled:line-through disabled:btn-neutral disabled:text-white m-2 p-2"
+              className="btn btn-sm btn-warning disabled:line-through disabled:btn-neutral disabled:text-white m-2 p-2"
               disabled={showGenerating}
               onClick={async () => {
                 const messageIndex = chatStore.history.length - 1;
@@ -818,7 +818,7 @@ export default function ChatBOX(props: {
           )}
           {chatStore.develop_mode && chatStore.history.length > 0 && (
             <button
-              className="btn btn-warning disabled:line-through disabled:bg-neural m-2 p-2"
+              className="btn btn-outline  btn-sm btn-warning disabled:line-through disabled:bg-neural"
               disabled={showGenerating}
               onClick={async () => {
                 await complete();
