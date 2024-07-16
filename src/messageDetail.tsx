@@ -13,7 +13,7 @@ export function MessageDetail({ chat, renderMarkdown }: Props) {
       {chat.content.map((mdt) =>
         mdt.type === "text" ? (
           chat.hide ? (
-            mdt.text?.split("\n")[0].slice(0, 16) + "... (deleted)"
+            mdt.text?.split("\n")[0].slice(0, 16) + " ..."
           ) : renderMarkdown ? (
             // @ts-ignore
             <Markdown markdown={mdt.text} />

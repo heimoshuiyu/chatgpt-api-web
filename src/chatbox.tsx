@@ -722,7 +722,7 @@ export default function ChatBOX(props: {
           />
         ))}
         {showGenerating && (
-          <p className="p-2 my-2 animate-pulse dark:text-white message-content">
+          <p className="p-2 my-2 animate-pulse message-content">
             {generatingMessage || Tr("Generating...")}
             ...
           </p>

@@ -6,7 +6,7 @@ const logprobToColor = (logprob: number) => {
   // 绿色的RGB值为(0, 255, 0)，红色的RGB值为(255, 0, 0)
   const red = Math.round(255 * (1 - percent / 100));
   const green = Math.round(255 * (percent / 100));
-  const color = `rgb(${red}, ${green}, 0)`;
+  const color = `rgba(${red}, ${green}, 0, 0.5)`;
 
   return color;
 };

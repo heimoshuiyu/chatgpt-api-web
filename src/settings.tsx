@@ -491,6 +491,12 @@ export default (props: {
               <select data-choose-theme class="select select-bordered">
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
+                <option value="cupcake">Cupcake</option>
+                <option value="halloween">Halloween</option>
+                <option value="wireframe">Wireframe</option>
+                <option value="sunset">Sunset</option>
+                <option value="lemonade">Lemonade</option>
+                <option value="luxury">Luxury</option>
                 <option value="cyberpunk">Cyberpunk</option>
                 <option value="black">Black</option>
               </select>

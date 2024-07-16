@@ -51,17 +51,26 @@ export default function Message(props: Props) {
         setChatStore({ ...chatStore });
       }}
     >
-      🗑️
+      Delete
     </button>
   );
   const CopiedHint = () => (
-    <span
-      className={
-        "bg-purple-400 p-1 rounded shadow-md absolute z-20 left-1/2 top-3/4 transform -translate-x-1/2 -translate-y-1/2"
-      }
-    >
-      {Tr("Message copied to clipboard!")}
-    </span>
+    <div role="alert" class="alert">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        class="stroke-info h-6 w-6 shrink-0"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        ></path>
+      </svg>
+      <span>{Tr("Message copied to clipboard!")}</span>
+    </div>
   );
 
   const copyToClipboard = (text: string) => {
@@ -78,7 +87,7 @@ export default function Message(props: Props) {
             copyToClipboard(textToCopy);
           }}
         >
-          📋
+          Copy
         </button>
       </>
     );
@@ -105,51 +114,62 @@ export default function Message(props: Props) {
       >
         <div>
           <div
-            className={`w-fit p-2 rounded my-2 ${
-              chat.role === "assistant"
-                ? "bg-white dark:bg-gray-700 dark:text-white"
-                : "bg-green-400"
+            className={`chat min-w-16 w-fit p-2 my-2 ${
+              chat.role === "assistant" ? "chat-start" : "chat-end"
             } ${chat.hide ? "opacity-50" : ""}`}
           >
-            {chat.hide ? (
-              <MessageHide chat={chat} />
-            ) : typeof chat.content !== "string" ? (
-              <MessageDetail chat={chat} renderMarkdown={renderMarkdown} />
-            ) : chat.tool_calls ? (
-              <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
-            ) : chat.role === "tool" ? (
-              <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
-            ) : renderMarkdown ? (
-              // @ts-ignore
-              <Markdown markdown={getMessageText(chat)} />
-            ) : (
-              <div className="message-content">
-                {
-                  // only show when content is string or list of message
-                  // this check is used to avoid rendering tool call
-                  chat.content &&
-                    (chat.logprobs && renderColor
-                      ? chat.logprobs.content
-                          .filter((c) => c.token)
-                          .map((c) => (
-                            <div
-                              style={{
-                                color: logprobToColor(c.logprob),
-                                display: "inline",
-                              }}
-                            >
-                              {c.token}
-                            </div>
-                          ))
-                      : getMessageText(chat))
-                }
-              </div>
-            )}
-            <hr className="mt-2" />
-            <TTSPlay chat={chat} />
-            <div className="w-full flex justify-between">
+            <div
+              className={`chat-bubble ${
+                chat.role === "assistant"
+                  ? "chat-bubble-secondary"
+                  : "chat-bubble-primary"
+              }`}
+            >
+              {chat.hide ? (
+                <MessageHide chat={chat} />
+              ) : typeof chat.content !== "string" ? (
+                <MessageDetail chat={chat} renderMarkdown={renderMarkdown} />
+              ) : chat.tool_calls ? (
+                <MessageToolCall
+                  chat={chat}
+                  copyToClipboard={copyToClipboard}
+                />
+              ) : chat.role === "tool" ? (
+                <MessageToolResp
+                  chat={chat}
+                  copyToClipboard={copyToClipboard}
+                />
+              ) : renderMarkdown ? (
+                // @ts-ignore
+                <Markdown markdown={getMessageText(chat)} />
+              ) : (
+                <div className="message-content">
+                  {
+                    // only show when content is string or list of message
+                    // this check is used to avoid rendering tool call
+                    chat.content &&
+                      (chat.logprobs && renderColor
+                        ? chat.logprobs.content
+                            .filter((c) => c.token)
+                            .map((c) => (
+                              <div
+                                style={{
+                                  backgroundColor: logprobToColor(c.logprob),
+                                  display: "inline",
+                                }}
+                              >
+                                {c.token}
+                              </div>
+                            ))
+                        : getMessageText(chat))
+                  }
+                </div>
+              )}
+            </div>
+            <div class="chat-footer opacity-50 flex gap-x-2">
+              <TTSPlay chat={chat} />
               <DeleteIcon />
-              <button onClick={() => setShowEdit(true)}>🖋</button>
+              <button onClick={() => setShowEdit(true)}>Edit</button>
               {chatStore.tts_api && chatStore.tts_key && (
                 <TTSButton
                   chatStore={chatStore}
