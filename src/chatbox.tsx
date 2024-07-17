@@ -477,7 +477,7 @@ export default function ChatBOX(props: {
       <div class="navbar bg-base-100">
         <div class="navbar-start">
           <div class="dropdown">
-            <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+            <div tabindex={0} role="button" class="btn btn-ghost btn-circle">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-6 w-6"
@@ -494,7 +494,7 @@ export default function ChatBOX(props: {
               </svg>
             </div>
             <ul
-              tabindex="0"
+              tabindex={0}
               class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
             >
               <li>
