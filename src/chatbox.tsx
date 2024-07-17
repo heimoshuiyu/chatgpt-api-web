@@ -818,7 +818,7 @@ export default function ChatBOX(props: {
           )}
           {chatStore.develop_mode && chatStore.history.length > 0 && (
             <button
-              className="btn btn-outline  btn-sm btn-warning disabled:line-through disabled:bg-neural"
+              className="btn btn-outline btn-sm btn-warning disabled:line-through disabled:bg-neural"
               disabled={showGenerating}
               onClick={async () => {
                 await complete();

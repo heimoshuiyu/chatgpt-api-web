@@ -41,15 +41,15 @@ export function AddImage({
       }}
     >
       <div
-        className="bg-white rounded p-2 z-20"
+        className="bg-base-200 p-2 z-20"
         onClick={(event) => {
           event.stopPropagation();
         }}
       >
-        <div className="flex justify-between p-1">
-          <span>Add Images</span>
+        <div className="flex justify-between items-center p-1">
+          <h3>Add Images</h3>
           <button
-            className="m-1 p-1 border-2 bg-red-400"
+            className="btn btn-sm btn-neutral"
             onClick={() => {
               setShowAddImage(false);
             }}
@@ -57,10 +57,9 @@ export function AddImage({
             Done
           </button>
         </div>
-        <hr />
-        <span>
+        <span class="">
           <button
-            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            className="btn btn-secondary btn-sm disabled:btn-disabled"
             onClick={() => {
               const image_url = prompt("Image URL");
               if (!image_url) {
@@ -81,7 +80,7 @@ export function AddImage({
             Add from URL
           </button>
           <button
-            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            className="btn btn-primary btn-sm disabled:btn-disabled"
             onClick={() => {
               // select file and load it to base64 image URL format
               const input = document.createElement("input");
@@ -122,23 +121,24 @@ export function AddImage({
             <input type="checkbox" checked={enableHighResolution} />
           </span>
         </span>
+        <div class="divider"></div>
         {chatStore.image_gen_api && chatStore.image_gen_key && (
           <div className="flex flex-col">
-            <hr className="my-2" />
             <h3>Generate Image</h3>
-            <span className="flex flex-row justify-between m-1 p-1">
+            <span className="flex flex-col justify-between m-1 p-1">
               <label>Prompt: </label>
               <textarea
-                className="border rounded border-gray-400"
+                className="textarea textarea-sm textarea-bordered"
                 value={imageGenPrompt}
                 onChange={(e: any) => {
                   setImageGenPrompt(e.target.value);
                 }}
               />
             </span>
-            <span className="flex flex-row justify-between m-1 p-1">
+            <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>Model: </label>
               <select
+                class="select select-sm select-bordered"
                 value={imageGenModel}
                 onChange={(e: any) => {
                   setImageGenModel(e.target.value);
@@ -148,9 +148,10 @@ export function AddImage({
                 <option value="dall-e-2">DALL-E 2</option>
               </select>
             </span>
-            <span className="flex flex-row justify-between m-1 p-1">
+            <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>n: </label>
               <input
+                class="input input-sm input-bordered"
                 value={imageGenN}
                 type="number"
                 min={1}
@@ -158,9 +159,10 @@ export function AddImage({
                 onChange={(e: any) => setImageGenN(parseInt(e.target.value))}
               />
             </span>
-            <span className="flex flex-row justify-between m-1 p-1">
+            <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>Quality: </label>
               <select
+                class="select select-sm select-bordered"
                 value={imageGenQuality}
                 onChange={(e: any) => setImageGEnQuality(e.target.value)}
               >
@@ -168,9 +170,10 @@ export function AddImage({
                 <option value="standard">Standard</option>
               </select>
             </span>
-            <span className="flex flex-row justify-between m-1 p-1">
+            <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>Response Format: </label>
               <select
+                class="select select-sm select-bordered"
                 value={imageGenResponseFormat}
                 onChange={(e: any) => setImageGenResponseFormat(e.target.value)}
               >
@@ -178,9 +181,10 @@ export function AddImage({
                 <option value="url">url</option>
               </select>
             </span>
-            <span className="flex flex-row justify-between m-1 p-1">
+            <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>Size: </label>
               <select
+                class="select select-sm select-bordered"
                 value={imageGenSize}
                 onChange={(e: any) => setImageGenSize(e.target.value)}
               >
@@ -191,9 +195,10 @@ export function AddImage({
                 <option value="1024x1792">1024x1792 (dall-e-3)</option>
               </select>
             </span>
-            <span className="flex flex-row justify-between m-1 p-1">
+            <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>Style (only dall-e-3): </label>
               <select
+                class="select select-sm select-bordered"
                 value={imageGenStyle}
                 onChange={(e: any) => setImageGenStyle(e.target.value)}
               >
@@ -201,9 +206,9 @@ export function AddImage({
                 <option value="natural">natural</option>
               </select>
             </span>
-            <span className="flex flex-row justify-between m-1 p-1">
+            <span className="flex flex-row justify-between items-center m-1 p-1">
               <button
-                className="bg-sky-400 m-1 p-1 rounded disabled:bg-slate-500"
+                className="btn btn-primary btn-sm"
                 disabled={imageGenGenerating}
                 onClick={async () => {
                   try {

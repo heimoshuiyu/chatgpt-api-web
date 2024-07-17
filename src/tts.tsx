@@ -1,6 +1,7 @@
 import { useMemo, useState } from "preact/hooks";
 import { ChatStore, ChatStoreMessage, addTotalCost } from "./app";
 import { Message, getMessageText } from "./chatgpt";
+import { SpeakerWaveIcon } from "@heroicons/react/24/outline";
 
 interface TTSProps {
   chatStore: ChatStore;
@@ -78,7 +79,11 @@ export default function TTSButton(props: TTSProps) {
           });
       }}
     >
-      {generating ? "🤔" : "🔈"}
+      {generating ? (
+        <span class="loading loading-dots loading-xs"></span>
+      ) : (
+        <SpeakerWaveIcon class="h-4 w-4" />
+      )}
     </button>
   );
 }

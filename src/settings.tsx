@@ -191,37 +191,35 @@ const Input = (props: {
           </button>
         </span>
       </div>
-      <div class="join">
-        <label class="input input-bordered flex items-center gap-2 join-item grow">
-          {hideInput ? (
-            <EyeIcon
-              class="w-4 h-4"
-              onClick={() => {
-                setHideInput(!hideInput);
-                console.log("clicked", hideInput);
-              }}
-            />
-          ) : (
-            <KeyIcon
-              class="w-4 h-4"
-              onClick={() => {
-                setHideInput(!hideInput);
-                console.log("clicked", hideInput);
-              }}
-            />
-          )}
-
-          <input
-            type={hideInput ? "password" : "text"}
-            class="grow"
-            value={props.chatStore[props.field]}
-            onChange={(event: any) => {
-              props.chatStore[props.field] = event.target.value;
-              props.setChatStore({ ...props.chatStore });
+      <label class="input input-bordered flex items-center gap-2 grow">
+        {hideInput ? (
+          <EyeIcon
+            class="w-4 h-4"
+            onClick={() => {
+              setHideInput(!hideInput);
+              console.log("clicked", hideInput);
             }}
           />
-        </label>
-      </div>
+        ) : (
+          <KeyIcon
+            class="w-4 h-4"
+            onClick={() => {
+              setHideInput(!hideInput);
+              console.log("clicked", hideInput);
+            }}
+          />
+        )}
+
+        <input
+          type={hideInput ? "password" : "text"}
+          class="grow"
+          value={props.chatStore[props.field]}
+          onChange={(event: any) => {
+            props.chatStore[props.field] = event.target.value;
+            props.setChatStore({ ...props.chatStore });
+          }}
+        />
+      </label>
     </Help>
   );
 };
@@ -254,7 +252,7 @@ const Slicer = (props: {
   };
   return (
     <Help help={props.help} field={props.field}>
-      <span>
+      <span class="py-3">
         <div class="form-control">
           <label class="flex gap-2">
             <span class="label-text flex items-center gap-2">
@@ -342,7 +340,7 @@ const Number = (props: {
           </button>
           {props.field === "maxGenTokens" && (
             <div class="form-control">
-              <label class="label cursor-pointer">
+              <label class="label grow">
                 <input
                   type="checkbox"
                   checked={props.chatStore.maxGenTokens_enabled}
@@ -366,7 +364,7 @@ const Number = (props: {
           !props.chatStore.maxGenTokens_enabled
         }
         type="number"
-        className="input input-bordered input-sm w-full max-w-xs"
+        className="input input-bordered input-sm w-full"
         value={props.chatStore[props.field]}
         onChange={(event: any) => {
           console.log("type", typeof event.target.value);
@@ -477,14 +475,12 @@ export default (props: {
         onClick={(event: any) => {
           event.stopPropagation();
         }}
-        className="px-6 pt-2 pb-4 rounded-lg h-fit lg:w-2/3 z-20 shadow-2xl bg-base-200"
+        className="modal-box"
       >
-        <div className="flex justify-between items-center">
-          <h3 className="text-xl">
-            <span>{Tr("Settings")}</span>
-          </h3>
+        <div className="flex justify-between items-center mb-2">
+          <h3 class="text-lg font-bold">{Tr("Settings")}</h3>
           <button
-            className="btn"
+            class="btn btn-secondary btn-sm"
             onClick={() => {
               props.setShow(false);
             }}
@@ -492,531 +488,507 @@ export default (props: {
             {Tr("Close")}
           </button>
         </div>
-        <div role="tablist" class="tabs tabs-lifted pt-2 w-full">
-          <input
-            type="radio"
-            name="setting_tab"
-            role="tab"
-            class="tab"
-            aria-label="Session"
-          />
-          <div
-            role="tabpanel"
-            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
-          >
-            <p>
-              {Tr("Total cost in this session")} $
-              {props.chatStore.cost.toFixed(4)}
-            </p>
-            <LongInput
-              label="System Prompt"
-              field="systemMessageContent"
-              help="系统消息，用于指示ChatGPT的角色和一些前置条件，例如“你是一个有帮助的人工智能助理”，或者“你是一个专业英语翻译，把我的话全部翻译成英语”，详情参考 OPEAN AI API 文档"
-              {...props}
-            />
+        <div class="join join-vertical w-full">
+          <div class="join-item collapse collapse-plus bg-base-200">
+            <input type="radio" name="setting-accordion" />
+            <div class="collapse-title text-xl font-medium">Session</div>
+            <div class="collapse-content">
+              <div class="stats shadow">
+                <div class="stat">
+                  <div class="stat-title">Session cost</div>
+                  <div class="stat-value">
+                    {props.chatStore.cost.toFixed(4)} $
+                  </div>
+                </div>
+              </div>
+              <LongInput
+                label="System Prompt"
+                field="systemMessageContent"
+                help="系统消息，用于指示ChatGPT的角色和一些前置条件，例如“你是一个有帮助的人工智能助理”，或者“你是一个专业英语翻译，把我的话全部翻译成英语”，详情参考 OPEAN AI API 文档"
+                {...props}
+              />
 
-            <LongInput
-              label="Tools String"
-              field="toolsString"
-              help="function call tools, should be valid json format in list"
-              {...props}
-            />
-            <span className="pt-1">
-              JSON Check:{" "}
-              {isVailedJSON(props.chatStore.toolsString) ? (
-                <CheckIcon className="inline w-4 h-4" />
-              ) : (
-                <NoSymbolIcon className="inline w-4 h-4" />
-              )}
-            </span>
-            <div className="box">
-              <div className="flex justify-evenly flex-wrap">
-                {props.chatStore.toolsString.trim() && (
-                  <button
-                    className="btn"
-                    onClick={() => {
-                      const name = prompt(
-                        `Give this **Tools** template a name:`
-                      );
-                      if (!name) {
-                        alert("No template name specified");
-                        return;
-                      }
-                      const newToolsTmp: TemplateTools = {
-                        name,
-                        toolsString: props.chatStore.toolsString,
-                      };
-                      props.templateTools.push(newToolsTmp);
-                      props.setTemplateTools([...props.templateTools]);
-                    }}
-                  >
-                    {Tr(`Save Tools`)}
-                  </button>
+              <LongInput
+                label="Tools String"
+                field="toolsString"
+                help="function call tools, should be valid json format in list"
+                {...props}
+              />
+              <span className="pt-1">
+                JSON Check:{" "}
+                {isVailedJSON(props.chatStore.toolsString) ? (
+                  <CheckIcon className="inline w-4 h-4" />
+                ) : (
+                  <NoSymbolIcon className="inline w-4 h-4" />
                 )}
+              </span>
+              <div className="box">
+                <div className="flex justify-evenly flex-wrap">
+                  {props.chatStore.toolsString.trim() && (
+                    <button
+                      className="btn"
+                      onClick={() => {
+                        const name = prompt(
+                          `Give this **Tools** template a name:`
+                        );
+                        if (!name) {
+                          alert("No template name specified");
+                          return;
+                        }
+                        const newToolsTmp: TemplateTools = {
+                          name,
+                          toolsString: props.chatStore.toolsString,
+                        };
+                        props.templateTools.push(newToolsTmp);
+                        props.setTemplateTools([...props.templateTools]);
+                      }}
+                    >
+                      {Tr(`Save Tools`)}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-          <input
-            type="radio"
-            name="setting_tab"
-            role="tab"
-            class="tab"
-            aria-label="System"
-          />
-          <div
-            role="tabpanel"
-            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
-          >
-            <div className="flex justify-between">
-              <div class="join join-vertical lg:join-horizontal">
-                <p class="btn no-animation join-item">
-                  {Tr("Accumulated cost in all sessions")} $
-                  {totalCost.toFixed(4)}
-                </p>
-                <button
-                  class="btn join-item"
-                  onClick={() => {
-                    clearTotalCost();
-                    setTotalCost(getTotalCost());
-                  }}
-                >
-                  Reset
-                </button>
+          <div class="join-item collapse collapse-plus bg-base-200">
+            <input type="radio" name="setting-accordion" />
+            <div class="collapse-title text-xl font-medium">System</div>
+            <div class="collapse-content">
+              <div class="stats shadow">
+                <div class="stat">
+                  <div class="stat-title">Accumulated cost</div>
+                  <div class="stat-value">{totalCost.toFixed(4)} $</div>
+                  <div class="stat-desc">
+                    in all sessions -{" "}
+                    <a
+                      class="btn btn-xs btn-primary"
+                      onClick={() => {
+                        clearTotalCost();
+                        setTotalCost(getTotalCost());
+                      }}
+                    >
+                      Reset
+                    </a>
+                  </div>
+                </div>
               </div>
-            </div>
-            <label class="form-control w-full max-w-xs">
-              <div class="label">
-                <span class="label-text">Theme Switch</span>
-              </div>
-              <select data-choose-theme class="select select-bordered">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="cupcake">Cupcake</option>
-                <option value="halloween">Halloween</option>
-                <option value="wireframe">Wireframe</option>
-                <option value="sunset">Sunset</option>
-                <option value="lemonade">Lemonade</option>
-                <option value="luxury">Luxury</option>
-                <option value="cyberpunk">Cyberpunk</option>
-                <option value="black">Black</option>
-              </select>
-            </label>
-            <label class="form-control w-full max-w-xs">
-              <div class="label">
-                <span class="label-text">Language</span>
-              </div>
-              <select class="select select-bordered">
-                {Object.keys(LANG_OPTIONS).map((opt) => (
-                  <option
-                    value={opt}
-                    selected={opt === (langCodeContext as any).langCode}
-                    onClick={(event: any) => {
-                      console.log("set lang code", event.target.value);
-                      setLangCode(event.target.value);
+              <Choice
+                field="develop_mode"
+                help="开发者模式，开启后会显示更多选项及功能"
+                {...props}
+              />
+              <label class="form-control w-full">
+                <div class="label">
+                  <span class="label-text">Theme Switch</span>
+                </div>
+                <select data-choose-theme class="select select-bordered">
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                  <option value="cupcake">Cupcake</option>
+                  <option value="halloween">Halloween</option>
+                  <option value="wireframe">Wireframe</option>
+                  <option value="sunset">Sunset</option>
+                  <option value="lemonade">Lemonade</option>
+                  <option value="luxury">Luxury</option>
+                  <option value="cyberpunk">Cyberpunk</option>
+                  <option value="black">Black</option>
+                </select>
+              </label>
+              <label class="form-control w-full">
+                <div class="label">
+                  <span class="label-text">Language</span>
+                </div>
+                <select class="select select-bordered">
+                  {Object.keys(LANG_OPTIONS).map((opt) => (
+                    <option
+                      value={opt}
+                      selected={opt === (langCodeContext as any).langCode}
+                      onClick={(event: any) => {
+                        console.log("set lang code", event.target.value);
+                        setLangCode(event.target.value);
+                      }}
+                    >
+                      {LANG_OPTIONS[opt].name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label class="form-control w-full">
+                <div class="label">
+                  <span class="label-text">Quick Actions</span>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <button
+                    class="btn btn-sm btn-outline btn-neural"
+                    onClick={() => {
+                      navigator.clipboard.writeText(link);
+                      alert(tr(`Copied link:`, langCode) + `${link}`);
                     }}
                   >
-                    {LANG_OPTIONS[opt].name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div class="join pt-2">
-              <button class="btn btn-info join-item no-animation">
-                <CogIcon class="w-6 h-6" />
-              </button>
-              <button
-                class="btn join-item"
-                onClick={() => {
-                  navigator.clipboard.writeText(link);
-                  alert(tr(`Copied link:`, langCode) + `${link}`);
-                }}
-              >
-                {Tr("Copy Setting Link")}
-              </button>
-              <button
-                class="btn join-item"
-                onClick={() => {
-                  if (
-                    !confirm(tr("Are you sure to clear all history?", langCode))
-                  )
-                    return;
-                  props.chatStore.history = props.chatStore.history.filter(
-                    (msg) => msg.example && !msg.hide
-                  );
-                  props.chatStore.postBeginIndex = 0;
-                  props.setChatStore({ ...props.chatStore });
-                }}
-              >
-                {Tr("Clear History")}
-              </button>
-              <button
-                class="btn join-item"
-                onClick={() => {
-                  let dataStr =
-                    "data:text/json;charset=utf-8," +
-                    encodeURIComponent(
-                      JSON.stringify(props.chatStore, null, "\t")
-                    );
-                  let downloadAnchorNode = document.createElement("a");
-                  downloadAnchorNode.setAttribute("href", dataStr);
-                  downloadAnchorNode.setAttribute(
-                    "download",
-                    `chatgpt-api-web-${props.selectedChatStoreIndex}.json`
-                  );
-                  document.body.appendChild(downloadAnchorNode); // required for firefox
-                  downloadAnchorNode.click();
-                  downloadAnchorNode.remove();
-                }}
-              >
-                {Tr("Export")}
-              </button>
-              <button
-                class="btn join-item"
-                onClick={() => {
-                  const name = prompt(
-                    tr("Give this template a name:", langCode)
-                  );
-                  if (!name) {
-                    alert(tr("No template name specified", langCode));
-                    return;
-                  }
-                  const tmp: ChatStore = structuredClone(props.chatStore);
-                  tmp.history = tmp.history.filter((h) => h.example);
-                  // clear api because it is stored in the API template
-                  tmp.apiEndpoint = "";
-                  tmp.apiKey = "";
-                  tmp.whisper_api = "";
-                  tmp.whisper_key = "";
-                  tmp.tts_api = "";
-                  tmp.tts_key = "";
-                  tmp.image_gen_api = "";
-                  tmp.image_gen_key = "";
-                  // @ts-ignore
-                  tmp.name = name;
-                  props.templates.push(tmp as TemplateChatStore);
-                  props.setTemplates([...props.templates]);
-                }}
-              >
-                {Tr("As template")}
-              </button>
-              <button
-                class="btn join-item"
-                onClick={() => {
-                  if (
-                    !confirm(
-                      tr(
-                        "This will OVERWRITE the current chat history! Continue?",
-                        langCode
+                    {Tr("Copy Setting Link")}
+                  </button>
+                  <button
+                    class="btn btn-sm btn-outline btn-neural"
+                    onClick={() => {
+                      if (
+                        !confirm(
+                          tr("Are you sure to clear all history?", langCode)
+                        )
                       )
-                    )
-                  )
-                    return;
-                  console.log("importFileRef", importFileRef);
-                  importFileRef.current.click();
-                }}
-              >
-                Import
-              </button>
-              <input
-                className="hidden"
-                ref={importFileRef}
-                type="file"
-                onChange={() => {
-                  const file = importFileRef.current.files[0];
-                  console.log("file to import", file);
-                  if (!file || file.type !== "application/json") {
-                    alert(tr("Please select a json file", langCode));
-                    return;
-                  }
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    console.log("import content", reader.result);
-                    if (!reader) {
-                      alert(tr("Empty file", langCode));
+                        return;
+                      props.chatStore.history = props.chatStore.history.filter(
+                        (msg) => msg.example && !msg.hide
+                      );
+                      props.chatStore.postBeginIndex = 0;
+                      props.setChatStore({ ...props.chatStore });
+                    }}
+                  >
+                    {Tr("Clear History")}
+                  </button>
+                  <button
+                    class="btn btn-sm btn-outline btn-neural"
+                    onClick={() => {
+                      let dataStr =
+                        "data:text/json;charset=utf-8," +
+                        encodeURIComponent(
+                          JSON.stringify(props.chatStore, null, "\t")
+                        );
+                      let downloadAnchorNode = document.createElement("a");
+                      downloadAnchorNode.setAttribute("href", dataStr);
+                      downloadAnchorNode.setAttribute(
+                        "download",
+                        `chatgpt-api-web-${props.selectedChatStoreIndex}.json`
+                      );
+                      document.body.appendChild(downloadAnchorNode); // required for firefox
+                      downloadAnchorNode.click();
+                      downloadAnchorNode.remove();
+                    }}
+                  >
+                    {Tr("Export")}
+                  </button>
+                  <button
+                    class="btn btn-sm btn-outline btn-neural"
+                    onClick={() => {
+                      const name = prompt(
+                        tr("Give this template a name:", langCode)
+                      );
+                      if (!name) {
+                        alert(tr("No template name specified", langCode));
+                        return;
+                      }
+                      const tmp: ChatStore = structuredClone(props.chatStore);
+                      tmp.history = tmp.history.filter((h) => h.example);
+                      // clear api because it is stored in the API template
+                      tmp.apiEndpoint = "";
+                      tmp.apiKey = "";
+                      tmp.whisper_api = "";
+                      tmp.whisper_key = "";
+                      tmp.tts_api = "";
+                      tmp.tts_key = "";
+                      tmp.image_gen_api = "";
+                      tmp.image_gen_key = "";
+                      // @ts-ignore
+                      tmp.name = name;
+                      props.templates.push(tmp as TemplateChatStore);
+                      props.setTemplates([...props.templates]);
+                    }}
+                  >
+                    {Tr("As template")}
+                  </button>
+                  <button
+                    class="btn btn-sm btn-outline btn-neural"
+                    onClick={() => {
+                      if (
+                        !confirm(
+                          tr(
+                            "This will OVERWRITE the current chat history! Continue?",
+                            langCode
+                          )
+                        )
+                      )
+                        return;
+                      console.log("importFileRef", importFileRef);
+                      importFileRef.current.click();
+                    }}
+                  >
+                    Import
+                  </button>
+                </div>
+                <input
+                  className="hidden"
+                  ref={importFileRef}
+                  type="file"
+                  onChange={() => {
+                    const file = importFileRef.current.files[0];
+                    console.log("file to import", file);
+                    if (!file || file.type !== "application/json") {
+                      alert(tr("Please select a json file", langCode));
                       return;
                     }
-                    try {
-                      const newChatStore: ChatStore = JSON.parse(
-                        reader.result as string
-                      );
-                      if (!newChatStore.chatgpt_api_web_version) {
-                        throw tr(
-                          "This is not an exported chatgpt-api-web chatstore file. The key 'chatgpt_api_web_version' is missing!",
-                          langCode
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      console.log("import content", reader.result);
+                      if (!reader) {
+                        alert(tr("Empty file", langCode));
+                        return;
+                      }
+                      try {
+                        const newChatStore: ChatStore = JSON.parse(
+                          reader.result as string
+                        );
+                        if (!newChatStore.chatgpt_api_web_version) {
+                          throw tr(
+                            "This is not an exported chatgpt-api-web chatstore file. The key 'chatgpt_api_web_version' is missing!",
+                            langCode
+                          );
+                        }
+                        props.setChatStore({ ...newChatStore });
+                      } catch (e) {
+                        alert(
+                          tr(`Import error on parsing json:`, langCode) + `${e}`
                         );
                       }
-                      props.setChatStore({ ...newChatStore });
-                    } catch (e) {
-                      alert(
-                        tr(`Import error on parsing json:`, langCode) + `${e}`
-                      );
-                    }
-                  };
-                  reader.readAsText(file);
-                }}
+                    };
+                    reader.readAsText(file);
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+          <div class="join-item collapse collapse-plus bg-base-200">
+            <input type="radio" name="setting-accordion" />
+            <div class="collapse-title text-xl font-medium">Chat</div>
+            <div class="collapse-content">
+              <div class="card bg-base-100 w-full shadow-xl">
+                <div class="card-body">
+                  <h2 class="card-title">Chat API</h2>
+                  <p>
+                    <Input
+                      field="apiKey"
+                      help="OPEN AI API 密钥，请勿泄漏此密钥"
+                      {...props}
+                    />
+                    <Input
+                      field="apiEndpoint"
+                      help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
+                      {...props}
+                    />
+                  </p>
+                  <div class="card-actions justify-end">
+                    <SetAPIsTemplate
+                      label="Chat API"
+                      endpoint={props.chatStore.apiEndpoint}
+                      APIkey={props.chatStore.apiKey}
+                      tmps={props.templateAPIs}
+                      setTmps={props.setTemplateAPIs}
+                    />
+                  </div>
+                </div>
+              </div>
+              <SelectModel
+                help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
+                {...props}
+              />
+              <Slicer
+                field="temperature"
+                min={0}
+                max={2}
+                help="温度，数值越大模型生成文字的随机性越高。"
+                {...props}
+              />
+              <Choice
+                field="streamMode"
+                help="流模式，使用 stream mode 将可以动态看到生成内容，但无法准确计算 token 数量，在 token 数量过多时可能会裁切过多或过少历史消息"
+                {...props}
+              />
+              <Choice field="logprobs" help="返回每个Token的概率" {...props} />
+              <Number
+                field="maxTokens"
+                help="最大上下文 token 数量。此值会根据选择的模型自动设置。"
+                readOnly={false}
+                {...props}
+              />
+              <Number
+                field="maxGenTokens"
+                help="最大生成 Tokens 数量，可选值。"
+                readOnly={false}
+                {...props}
+              />
+              <Number
+                field="tokenMargin"
+                help="当 totalTokens > maxTokens - tokenMargin 时会触发历史消息裁切，chatgpt会“忘记”一部分对话中的消息（但所有历史消息仍然保存在本地）"
+                readOnly={false}
+                {...props}
+              />
+              <Choice field="json_mode" help="JSON Mode" {...props} />
+              <Number
+                field="postBeginIndex"
+                help="指示发送 API 请求时要”忘记“多少历史消息"
+                readOnly={true}
+                {...props}
+              />
+              <Number
+                field="totalTokens"
+                help="token总数，每次对话都会更新此参数，stream模式下该参数为估计值"
+                readOnly={true}
+                {...props}
+              />
+              <Slicer
+                field="top_p"
+                min={0}
+                max={1}
+                help="Top P 采样方法。建议与温度采样方法二选一，不要同时开启。"
+                {...props}
+              />
+              <Number
+                field="presence_penalty"
+                help="存在惩罚度"
+                readOnly={false}
+                {...props}
+              />
+              <Number
+                field="frequency_penalty"
+                help="频率惩罚度"
+                readOnly={false}
+                {...props}
               />
             </div>
           </div>
-          <input
-            type="radio"
-            name="setting_tab"
-            role="tab"
-            class="tab"
-            aria-label="Chat"
-          />
-          <div
-            role="tabpanel"
-            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
-          >
-            <div class="card bg-base-100 w-full shadow-xl">
-              <div class="card-body">
-                <h2 class="card-title">Chat API</h2>
-                <p>
-                  <Input
-                    field="apiKey"
-                    help="OPEN AI API 密钥，请勿泄漏此密钥"
-                    {...props}
-                  />
-                  <Input
-                    field="apiEndpoint"
-                    help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
-                    {...props}
-                  />
-                </p>
-                <div class="card-actions justify-end">
-                  <SetAPIsTemplate
-                    label="Chat API"
-                    endpoint={props.chatStore.apiEndpoint}
-                    APIkey={props.chatStore.apiKey}
-                    tmps={props.templateAPIs}
-                    setTmps={props.setTemplateAPIs}
-                  />
-                </div>
-              </div>
+          <div class="join-item collapse collapse-plus bg-base-200">
+            <input type="radio" name="setting-accordion" />
+            <div class="collapse-title text-xl font-medium">
+              Speech Recognition
             </div>
-            <SelectModel
-              help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
-              {...props}
-            />
-            <Slicer
-              field="temperature"
-              min={0}
-              max={2}
-              help="温度，数值越大模型生成文字的随机性越高。"
-              {...props}
-            />
-            <Choice
-              field="streamMode"
-              help="流模式，使用 stream mode 将可以动态看到生成内容，但无法准确计算 token 数量，在 token 数量过多时可能会裁切过多或过少历史消息"
-              {...props}
-            />
-            <Choice field="logprobs" help="返回每个Token的概率" {...props} />
-            <Choice
-              field="develop_mode"
-              help="开发者模式，开启后会显示更多选项及功能"
-              {...props}
-            />
-            <Number
-              field="maxTokens"
-              help="最大上下文 token 数量。此值会根据选择的模型自动设置。"
-              readOnly={false}
-              {...props}
-            />
-            <Number
-              field="maxGenTokens"
-              help="最大生成 Tokens 数量，可选值。"
-              readOnly={false}
-              {...props}
-            />
-            <Number
-              field="tokenMargin"
-              help="当 totalTokens > maxTokens - tokenMargin 时会触发历史消息裁切，chatgpt会“忘记”一部分对话中的消息（但所有历史消息仍然保存在本地）"
-              readOnly={false}
-              {...props}
-            />
-            <Choice field="json_mode" help="JSON Mode" {...props} />
-            <Number
-              field="postBeginIndex"
-              help="指示发送 API 请求时要”忘记“多少历史消息"
-              readOnly={true}
-              {...props}
-            />
-            <Number
-              field="totalTokens"
-              help="token总数，每次对话都会更新此参数，stream模式下该参数为估计值"
-              readOnly={true}
-              {...props}
-            />
-            <Slicer
-              field="top_p"
-              min={0}
-              max={1}
-              help="Top P 采样方法。建议与温度采样方法二选一，不要同时开启。"
-              {...props}
-            />
-            <Number
-              field="presence_penalty"
-              help="存在惩罚度"
-              readOnly={false}
-              {...props}
-            />
-            <Number
-              field="frequency_penalty"
-              help="频率惩罚度"
-              readOnly={false}
-              {...props}
-            />
-          </div>
-
-          <input
-            type="radio"
-            name="setting_tab"
-            role="tab"
-            class="tab"
-            aria-label="Speech Recognition"
-          />
-          <div
-            role="tabpanel"
-            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
-          >
-            <div class="card bg-base-100 w-full shadow-xl">
-              <div class="card-body">
-                <h2 class="card-title">Whisper API</h2>
-                <p>
-                  <Input
-                    field="whisper_key"
-                    help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
-                    {...props}
-                  />
-                  <Input
-                    field="whisper_api"
-                    help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
-                    {...props}
-                  />
-                </p>
-                <div class="card-actions justify-end">
-                  <SetAPIsTemplate
-                    label="Whisper API"
-                    endpoint={props.chatStore.whisper_api}
-                    APIkey={props.chatStore.whisper_key}
-                    tmps={props.templateAPIsWhisper}
-                    setTmps={props.setTemplateAPIsWhisper}
-                  />
+            <div class="collapse-content">
+              <div class="card bg-base-100 w-full shadow-xl">
+                <div class="card-body">
+                  <h2 class="card-title">Whisper API</h2>
+                  <p>
+                    <Input
+                      field="whisper_key"
+                      help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
+                      {...props}
+                    />
+                    <Input
+                      field="whisper_api"
+                      help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
+                      {...props}
+                    />
+                  </p>
+                  <div class="card-actions justify-end">
+                    <SetAPIsTemplate
+                      label="Whisper API"
+                      endpoint={props.chatStore.whisper_api}
+                      APIkey={props.chatStore.whisper_key}
+                      tmps={props.templateAPIsWhisper}
+                      setTmps={props.setTemplateAPIsWhisper}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <input
-            type="radio"
-            name="setting_tab"
-            role="tab"
-            class="tab"
-            aria-label="TTS"
-          />
-          <div
-            role="tabpanel"
-            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
-          >
-            <div class="card bg-base-100 w-full shadow-xl">
-              <div class="card-body">
-                <h2 class="card-title">TTS API</h2>
-                <p>
-                  <Input
-                    field="tts_key"
-                    help="tts service api key"
-                    {...props}
-                  />
-                  <Input
-                    field="tts_api"
-                    help="tts api, eg. https://api.openai.com/v1/audio/speech"
-                    {...props}
-                  />
-                </p>
-                <div class="card-actions justify-end">
-                  <SetAPIsTemplate
-                    label="TTS API"
-                    endpoint={props.chatStore.tts_api}
-                    APIkey={props.chatStore.tts_key}
-                    tmps={props.templateAPIsTTS}
-                    setTmps={props.setTemplateAPIsTTS}
-                  />
+          <div class="join-item collapse collapse-plus bg-base-200">
+            <input type="radio" name="setting-accordion" />
+            <div class="collapse-title text-xl font-medium">TTS</div>
+            <div class="collapse-content">
+              <div class="card bg-base-100 w-full shadow-xl">
+                <div class="card-body">
+                  <h2 class="card-title">TTS API</h2>
+                  <p>
+                    <Input
+                      field="tts_key"
+                      help="tts service api key"
+                      {...props}
+                    />
+                    <Input
+                      field="tts_api"
+                      help="tts api, eg. https://api.openai.com/v1/audio/speech"
+                      {...props}
+                    />
+                  </p>
+                  <div class="card-actions justify-end">
+                    <SetAPIsTemplate
+                      label="TTS API"
+                      endpoint={props.chatStore.tts_api}
+                      APIkey={props.chatStore.tts_key}
+                      tmps={props.templateAPIsTTS}
+                      setTmps={props.setTemplateAPIsTTS}
+                    />
+                  </div>
                 </div>
               </div>
+              <Help help="tts voice style" field="AAAAA">
+                <label className="">TTS Voice</label>
+                <select
+                  className="select select-bordered"
+                  value={props.chatStore.tts_voice}
+                  onChange={(event: any) => {
+                    const voice = event.target.value as string;
+                    props.chatStore.tts_voice = voice;
+                    props.setChatStore({ ...props.chatStore });
+                  }}
+                >
+                  {TTS_VOICES.map((opt) => (
+                    <option value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </Help>
+              <Slicer
+                min={0.25}
+                max={4.0}
+                field="tts_speed"
+                help={"TTS Speed"}
+                {...props}
+              />
+              <Help help="tts response format" field="AAAAA">
+                <label className="">TTS Format</label>
+                <select
+                  className="select select-bordered"
+                  value={props.chatStore.tts_format}
+                  onChange={(event: any) => {
+                    const format = event.target.value as string;
+                    props.chatStore.tts_format = format;
+                    props.setChatStore({ ...props.chatStore });
+                  }}
+                >
+                  {TTS_FORMAT.map((opt) => (
+                    <option value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </Help>
             </div>
-            <Help help="tts voice style" field="AAAAA">
-              <label className="">TTS Voice</label>
-              <select
-                className="select select-bordered"
-                value={props.chatStore.tts_voice}
-                onChange={(event: any) => {
-                  const voice = event.target.value as string;
-                  props.chatStore.tts_voice = voice;
-                  props.setChatStore({ ...props.chatStore });
-                }}
-              >
-                {TTS_VOICES.map((opt) => (
-                  <option value={opt}>{opt}</option>
-                ))}
-              </select>
-            </Help>
-            <Slicer
-              min={0.25}
-              max={4.0}
-              field="tts_speed"
-              help={"TTS Speed"}
-              {...props}
-            />
-            <Help help="tts response format" field="AAAAA">
-              <label className="">TTS Format</label>
-              <select
-                className="select select-bordered"
-                value={props.chatStore.tts_format}
-                onChange={(event: any) => {
-                  const format = event.target.value as string;
-                  props.chatStore.tts_format = format;
-                  props.setChatStore({ ...props.chatStore });
-                }}
-              >
-                {TTS_FORMAT.map((opt) => (
-                  <option value={opt}>{opt}</option>
-                ))}
-              </select>
-            </Help>
           </div>
-          <input
-            type="radio"
-            name="setting_tab"
-            role="tab"
-            class="tab"
-            aria-label="Image Gen"
-          />
-          <div
-            role="tabpanel"
-            class="tab-content bg-base-100 border-base-300 rounded-box p-6"
-          >
-            <div class="card bg-base-100 w-full shadow-xl">
-              <div class="card-body">
-                <h2 class="card-title">Image Gen API</h2>
-                <p>
-                  <Input
-                    field="image_gen_key"
-                    help="image generation service api key"
-                    {...props}
-                  />
-                  <Input
-                    field="image_gen_api"
-                    help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
-                    {...props}
-                  />
-                </p>
-                <div class="card-actions justify-end">
-                  <SetAPIsTemplate
-                    label="Image Gen API"
-                    endpoint={props.chatStore.image_gen_api}
-                    APIkey={props.chatStore.image_gen_key}
-                    tmps={props.templateAPIsImageGen}
-                    setTmps={props.setTemplateAPIsImageGen}
-                  />
+          <div class="join-item collapse collapse-plus bg-base-200">
+            <input type="radio" name="setting-accordion" />
+            <div class="collapse-title text-xl font-medium">
+              Image Generation
+            </div>
+            <div class="collapse-content">
+              <div class="card bg-base-100 w-full shadow-xl">
+                <div class="card-body">
+                  <h2 class="card-title">Image Gen API</h2>
+                  <p>
+                    <Input
+                      field="image_gen_key"
+                      help="image generation service api key"
+                      {...props}
+                    />
+                    <Input
+                      field="image_gen_api"
+                      help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
+                      {...props}
+                    />
+                  </p>
+                  <div class="card-actions justify-end">
+                    <SetAPIsTemplate
+                      label="Image Gen API"
+                      endpoint={props.chatStore.image_gen_api}
+                      APIkey={props.chatStore.image_gen_key}
+                      tmps={props.templateAPIsImageGen}
+                      setTmps={props.setTemplateAPIsImageGen}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

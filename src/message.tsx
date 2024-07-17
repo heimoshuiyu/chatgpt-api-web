@@ -170,9 +170,9 @@ export default function Message(props: Props) {
               )}
             </div>
             <div class="chat-footer opacity-50 flex gap-x-2">
-              <TTSPlay chat={chat} />
               <DeleteIcon />
               <button onClick={() => setShowEdit(true)}>Edit</button>
+              <CopyIcon textToCopy={getMessageText(chat)} />
               {chatStore.tts_api && chatStore.tts_key && (
                 <TTSButton
                   chatStore={chatStore}
@@ -180,7 +180,7 @@ export default function Message(props: Props) {
                   setChatStore={setChatStore}
                 />
               )}
-              <CopyIcon textToCopy={getMessageText(chat)} />
+              <TTSPlay chat={chat} />
             </div>
           </div>
           {showEdit && (

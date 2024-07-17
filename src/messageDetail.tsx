@@ -22,7 +22,7 @@ export function MessageDetail({ chat, renderMarkdown }: Props) {
           )
         ) : (
           <img
-            className="cursor-pointer max-w-xs max-h-32 p-1"
+            className="my-2 rounded-md max-w-64 max-h-64"
             src={mdt.image_url?.url}
             onClick={() => {
               window.open(mdt.image_url?.url, "_blank");
