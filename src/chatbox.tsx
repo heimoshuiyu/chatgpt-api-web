@@ -961,7 +961,7 @@ export default function ChatBOX(props: {
             autoHeight(event.target);
             setInputMsg(event.target.value);
           }}
-          className="textarea textarea-bordered textarea-xs grow m-1 p-1 w-0"
+          className="textarea textarea-bordered textarea-sm grow"
           placeholder="Type here..."
         ></textarea>
         <button
