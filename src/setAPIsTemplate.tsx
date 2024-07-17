@@ -17,7 +17,7 @@ export function SetAPIsTemplate({
 }: Props) {
   return (
     <button
-      className="btn btn-primary btn-sm"
+      className="btn btn-primary btn-sm mt-3"
       onClick={() => {
         const name = prompt(`Give this **${label}** template a name:`);
         if (!name) {

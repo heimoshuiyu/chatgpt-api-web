@@ -759,31 +759,28 @@ export default (props: {
             <input type="radio" name="setting-accordion" />
             <div class="collapse-title text-xl font-medium">Chat</div>
             <div class="collapse-content">
-              <div class="card bg-base-100 w-full shadow-xl">
-                <div class="card-body">
-                  <h2 class="card-title">Chat API</h2>
-                  <p>
-                    <Input
-                      field="apiKey"
-                      help="OPEN AI API 密钥，请勿泄漏此密钥"
-                      {...props}
-                    />
-                    <Input
-                      field="apiEndpoint"
-                      help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
-                      {...props}
-                    />
-                  </p>
-                  <div class="card-actions justify-end">
-                    <SetAPIsTemplate
-                      label="Chat API"
-                      endpoint={props.chatStore.apiEndpoint}
-                      APIkey={props.chatStore.apiKey}
-                      tmps={props.templateAPIs}
-                      setTmps={props.setTemplateAPIs}
-                    />
-                  </div>
-                </div>
+              <div>
+                <h2 class="card-title">Chat API</h2>
+                <p>
+                  <Input
+                    field="apiKey"
+                    help="OPEN AI API 密钥，请勿泄漏此密钥"
+                    {...props}
+                  />
+                  <Input
+                    field="apiEndpoint"
+                    help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
+                    {...props}
+                  />
+                </p>
+                <SetAPIsTemplate
+                  label="Chat API"
+                  endpoint={props.chatStore.apiEndpoint}
+                  APIkey={props.chatStore.apiKey}
+                  tmps={props.templateAPIs}
+                  setTmps={props.setTemplateAPIs}
+                />
+                <div class="divider" />
               </div>
               <SelectModel
                 help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
@@ -860,31 +857,28 @@ export default (props: {
               Speech Recognition
             </div>
             <div class="collapse-content">
-              <div class="card bg-base-100 w-full shadow-xl">
-                <div class="card-body">
-                  <h2 class="card-title">Whisper API</h2>
-                  <p>
-                    <Input
-                      field="whisper_key"
-                      help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
-                      {...props}
-                    />
-                    <Input
-                      field="whisper_api"
-                      help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
-                      {...props}
-                    />
-                  </p>
-                  <div class="card-actions justify-end">
-                    <SetAPIsTemplate
-                      label="Whisper API"
-                      endpoint={props.chatStore.whisper_api}
-                      APIkey={props.chatStore.whisper_key}
-                      tmps={props.templateAPIsWhisper}
-                      setTmps={props.setTemplateAPIsWhisper}
-                    />
-                  </div>
-                </div>
+              <div>
+                <h2 class="card-title">Whisper API</h2>
+                <p>
+                  <Input
+                    field="whisper_key"
+                    help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
+                    {...props}
+                  />
+                  <Input
+                    field="whisper_api"
+                    help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
+                    {...props}
+                  />
+                </p>
+                <SetAPIsTemplate
+                  label="Whisper API"
+                  endpoint={props.chatStore.whisper_api}
+                  APIkey={props.chatStore.whisper_key}
+                  tmps={props.templateAPIsWhisper}
+                  setTmps={props.setTemplateAPIsWhisper}
+                />
+                <div class="divider" />
               </div>
             </div>
           </div>
@@ -892,31 +886,28 @@ export default (props: {
             <input type="radio" name="setting-accordion" />
             <div class="collapse-title text-xl font-medium">TTS</div>
             <div class="collapse-content">
-              <div class="card bg-base-100 w-full shadow-xl">
-                <div class="card-body">
-                  <h2 class="card-title">TTS API</h2>
-                  <p>
-                    <Input
-                      field="tts_key"
-                      help="tts service api key"
-                      {...props}
-                    />
-                    <Input
-                      field="tts_api"
-                      help="tts api, eg. https://api.openai.com/v1/audio/speech"
-                      {...props}
-                    />
-                  </p>
-                  <div class="card-actions justify-end">
-                    <SetAPIsTemplate
-                      label="TTS API"
-                      endpoint={props.chatStore.tts_api}
-                      APIkey={props.chatStore.tts_key}
-                      tmps={props.templateAPIsTTS}
-                      setTmps={props.setTemplateAPIsTTS}
-                    />
-                  </div>
-                </div>
+              <div>
+                <h2 class="card-title">TTS API</h2>
+                <p>
+                  <Input
+                    field="tts_key"
+                    help="tts service api key"
+                    {...props}
+                  />
+                  <Input
+                    field="tts_api"
+                    help="tts api, eg. https://api.openai.com/v1/audio/speech"
+                    {...props}
+                  />
+                </p>
+                <SetAPIsTemplate
+                  label="TTS API"
+                  endpoint={props.chatStore.tts_api}
+                  APIkey={props.chatStore.tts_key}
+                  tmps={props.templateAPIsTTS}
+                  setTmps={props.setTemplateAPIsTTS}
+                />
+                <div class="divider" />
               </div>
               <Help help="tts voice style" field="AAAAA">
                 <label className="">TTS Voice</label>
@@ -965,31 +956,28 @@ export default (props: {
               Image Generation
             </div>
             <div class="collapse-content">
-              <div class="card bg-base-100 w-full shadow-xl">
-                <div class="card-body">
-                  <h2 class="card-title">Image Gen API</h2>
-                  <p>
-                    <Input
-                      field="image_gen_key"
-                      help="image generation service api key"
-                      {...props}
-                    />
-                    <Input
-                      field="image_gen_api"
-                      help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
-                      {...props}
-                    />
-                  </p>
-                  <div class="card-actions justify-end">
-                    <SetAPIsTemplate
-                      label="Image Gen API"
-                      endpoint={props.chatStore.image_gen_api}
-                      APIkey={props.chatStore.image_gen_key}
-                      tmps={props.templateAPIsImageGen}
-                      setTmps={props.setTemplateAPIsImageGen}
-                    />
-                  </div>
-                </div>
+              <div>
+                <h2 class="card-title">Image Gen API</h2>
+                <p>
+                  <Input
+                    field="image_gen_key"
+                    help="image generation service api key"
+                    {...props}
+                  />
+                  <Input
+                    field="image_gen_api"
+                    help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
+                    {...props}
+                  />
+                </p>
+                <SetAPIsTemplate
+                  label="Image Gen API"
+                  endpoint={props.chatStore.image_gen_api}
+                  APIkey={props.chatStore.image_gen_key}
+                  tmps={props.templateAPIsImageGen}
+                  setTmps={props.setTemplateAPIsImageGen}
+                />
+                <div class="divider" />
               </div>
             </div>
           </div>
