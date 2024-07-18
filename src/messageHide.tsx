@@ -6,7 +6,5 @@ interface Props {
 }
 
 export function MessageHide({ chat }: Props) {
-  return (
-    <div>{getMessageText(chat).split("\n")[0].slice(0, 18)} ... (deleted)</div>
-  );
+  return <div>{getMessageText(chat).split("\n")[0].slice(0, 18)} ...</div>;
 }

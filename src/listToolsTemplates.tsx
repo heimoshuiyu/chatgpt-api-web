@@ -33,8 +33,8 @@ export function ListToolsTempaltes({
           <div
             className={`cursor-pointer rounded ${
               chatStore.toolsString === t.toolsString
-                ? "bg-red-600"
-                : "bg-red-400"
+                ? "bg-info"
+                : "bg-base-300"
             } w-fit p-2 m-1 flex flex-col`}
             onClick={() => {
               chatStore.toolsString = t.toolsString;
@@ -42,9 +42,9 @@ export function ListToolsTempaltes({
             }}
           >
             <span className="w-full text-center">{t.name}</span>
-            <hr className="mt-2" />
-            <span className="flex justify-between">
+            <span className="flex justify-between gap-x-2">
               <button
+                class="link"
                 onClick={() => {
                   const name = prompt(`Give **tools** template a name`);
                   if (!name) {
@@ -54,9 +54,10 @@ export function ListToolsTempaltes({
                   setTemplateTools(structuredClone(templateTools));
                 }}
               >
-                🖋
+                Edit
               </button>
               <button
+                class="link"
                 onClick={() => {
                   if (
                     !confirm(`Are you sure to delete this **tools** template?`)
@@ -67,7 +68,7 @@ export function ListToolsTempaltes({
                   setTemplateTools(structuredClone(templateTools));
                 }}
               >
-                ❌
+                Delete
               </button>
             </span>
           </div>

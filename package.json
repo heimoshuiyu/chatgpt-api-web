@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroicons/react": "^2.1.5",
     "@types/ungap__structured-clone": "^0.3.1",
     "@ungap/structured-clone": "^1.2.0",
     "autoprefixer": "^10.4.16",
@@ -21,6 +22,8 @@
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.6.0",
+    "daisyui": "^4.12.10",
+    "theme-change": "^2.5.0",
     "typescript": "^5.2.2",
     "vite": "^4.5.0"
   }

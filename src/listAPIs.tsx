@@ -20,7 +20,7 @@ export function ListAPIs({
   keyField,
 }: Props) {
   return (
-    <div className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
+    <div className="break-all opacity-80 p-3 rounded base-200 my-3 text-left">
       <h2>{Tr(`Saved ${label} templates`)}</h2>
       <hr className="my-2" />
       <div className="flex flex-wrap">
@@ -31,8 +31,8 @@ export function ListAPIs({
               chatStore[apiField] === t.endpoint &&
               // @ts-ignore
               chatStore[keyField] === t.key
-                ? "bg-red-600"
-                : "bg-red-400"
+                ? "bg-info"
+                : "bg-base-300"
             } w-fit p-2 m-1 flex flex-col`}
             onClick={() => {
               // @ts-ignore
@@ -43,9 +43,9 @@ export function ListAPIs({
             }}
           >
             <span className="w-full text-center">{t.name}</span>
-            <hr className="mt-2" />
-            <span className="flex justify-between">
+            <span className="flex justify-between gap-x-2">
               <button
+                class="link"
                 onClick={() => {
                   const name = prompt(`Give **${label}** template a name`);
                   if (!name) {
@@ -55,9 +55,10 @@ export function ListAPIs({
                   setTmps(structuredClone(tmps));
                 }}
               >
-                🖋
+                Edit
               </button>
               <button
+                class="link"
                 onClick={() => {
                   if (
                     !confirm(
@@ -70,7 +71,7 @@ export function ListAPIs({
                   setTmps(structuredClone(tmps));
                 }}
               >
-                ❌
+                Delete
               </button>
             </span>
           </div>

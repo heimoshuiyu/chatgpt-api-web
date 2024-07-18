@@ -14,6 +14,7 @@ import {
   TemplateAPI,
   TemplateTools,
   addTotalCost,
+  getTotalCost,
 } from "./app";
 import ChatGPT, {
   calculate_token_length,
@@ -34,6 +35,16 @@ import { ListToolsTempaltes } from "./listToolsTemplates";
 import { autoHeight } from "./textarea";
 import Search from "./search";
 import { IDBPDatabase } from "idb";
+import {
+  MagnifyingGlassIcon,
+  CubeIcon,
+  BanknotesIcon,
+  DocumentTextIcon,
+  ChatBubbleLeftEllipsisIcon,
+  ScissorsIcon,
+  SwatchIcon,
+  SparklesIcon,
+} from "@heroicons/react/24/outline";
 
 export interface TemplateChatStore extends ChatStore {
   name: string;
@@ -434,7 +445,7 @@ export default function ChatBOX(props: {
   const userInputRef = createRef();
 
   return (
-    <div className="grow flex flex-col p-2 dark:text-black">
+    <div className="grow flex flex-col p-2">
       {showSettings && (
         <Settings
           chatStore={chatStore}
@@ -463,12 +474,124 @@ export default function ChatBOX(props: {
           setShow={setShowSearch}
         />
       )}
-      <div
-        className="relative cursor-pointer rounded bg-cyan-300 dark:text-white p-1 dark:bg-cyan-800"
+      <div class="navbar bg-base-100">
+        <div class="navbar-start">
+          <div class="dropdown">
+            <div tabindex={0} role="button" class="btn btn-ghost btn-circle">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h7"
+                />
+              </svg>
+            </div>
+            <ul
+              tabindex={0}
+              class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+            >
+              <li>
+                <p>
+                  <ChatBubbleLeftEllipsisIcon class="h-4 w-4" />
+                  Tokens: {chatStore.totalTokens}/{chatStore.maxTokens}
+                </p>
+              </li>
+              <li>
+                <p>
+                  <ScissorsIcon class="h-4 w-4" />
+                  Cut:
+                  {chatStore.postBeginIndex}/
+                  {chatStore.history.filter(({ hide }) => !hide).length}
+                </p>
+              </li>
+              <li>
+                <p>
+                  <BanknotesIcon class="h-4 w-4" />
+                  Cost: ${chatStore.cost.toFixed(4)}
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="navbar-center">
+          <div class="indicator">
+            <span class="indicator-item badge badge-primary">
+              {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
+            </span>
+            <a class="btn btn-ghost text-xl">
+              <SparklesIcon class="h-4 w-4" />
+              {chatStore.model}
+            </a>
+          </div>
+        </div>
+        <div class="navbar-end">
+          <button
+            class="btn btn-ghost btn-circle"
+            onClick={(event) => {
+              // stop propagation to parent
+              event.stopPropagation();
+
+              setShowSearch(true);
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </button>
+          <button
+            class="btn btn-ghost btn-circle"
+            onClick={() => setShowSettings(true)}
+          >
+            <div class="indicator">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="h-6 w-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                />
+              </svg>
+
+              <span class="badge badge-xs badge-primary indicator-item"></span>
+            </div>
+          </button>
+        </div>
+      </div>
+      {/* <div
+        className="relative cursor-pointer rounded p-2"
         onClick={() => setShowSettings(true)}
       >
         <button
-          className="absolute right-1 bg-gray-300 rounded p-1 m-1"
+          className="absolute right-1 rounded p-1 m-1"
           onClick={(event) => {
             // stop propagation to parent
             event.stopPropagation();
@@ -476,50 +599,53 @@ export default function ChatBOX(props: {
             setShowSearch(true);
           }}
         >
-          🔍
+          <MagnifyingGlassIcon class="w-5 h-5" />
         </button>
-        <div>
-          <button className="underline">
-            {chatStore.systemMessageContent.length > 16
-              ? chatStore.systemMessageContent.slice(0, 16) + ".."
-              : chatStore.systemMessageContent}
-          </button>{" "}
-          <button className="underline">
-            {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
-          </button>{" "}
-          {chatStore.toolsString.trim() && (
-            <button className="underline">TOOL</button>
-          )}
-        </div>
-        <div className="text-xs">
-          <span className="underline">{chatStore.model}</span>{" "}
-          <span>
-            Tokens:{" "}
-            <span className="underline">
-              {chatStore.totalTokens}/{chatStore.maxTokens}
-            </span>
-          </span>{" "}
-          <span>
-            {Tr("Cut")}:{" "}
-            <span className="underline">
-              {chatStore.postBeginIndex}/
-              {chatStore.history.filter(({ hide }) => !hide).length}
+        <div class="hidden lg:inline-grid"></div>
+        <div class="lg:hidden">
+          <div>
+            <button className="underline">
+              {chatStore.systemMessageContent.length > 16
+                ? chatStore.systemMessageContent.slice(0, 16) + ".."
+                : chatStore.systemMessageContent}
+            </button>{" "}
+            <button className="underline">
+              {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
+            </button>{" "}
+            {chatStore.toolsString.trim() && (
+              <button className="underline">TOOL</button>
+            )}
+          </div>
+          <div className="text-xs">
+            <span class="underline">{chatStore.model}</span>{" "}
+            <span>
+              Tokens:{" "}
+              <span class="underline">
+                {chatStore.totalTokens}/{chatStore.maxTokens}
+              </span>
             </span>{" "}
-          </span>{" "}
-          <span>
-            {Tr("Cost")}:{" "}
-            <span className="underline">${chatStore.cost.toFixed(4)}</span>
-          </span>
+            <span>
+              {Tr("Cut")}:{" "}
+              <span class="underline">
+                {chatStore.postBeginIndex}/
+                {chatStore.history.filter(({ hide }) => !hide).length}
+              </span>{" "}
+            </span>{" "}
+            <span>
+              {Tr("Cost")}:{" "}
+              <span className="underline">${chatStore.cost.toFixed(4)}</span>
+            </span>
+          </div>
         </div>
-      </div>
+      </div> */}
       <div className="grow overflow-scroll">
         {!chatStore.apiKey && (
-          <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
+          <p className="bg-base-200 p-6 rounded my-3 text-left">
             {Tr("Please click above to set")} (OpenAI) API KEY
           </p>
         )}
         {!chatStore.apiEndpoint && (
-          <p className="opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
+          <p className="bg-base-200 p-6 rounded my-3 text-left">
             {Tr("Please click above to set")} API Endpoint
           </p>
         )}
@@ -581,7 +707,7 @@ export default function ChatBOX(props: {
         )}
 
         {chatStore.history.filter((msg) => !msg.example).length == 0 && (
-          <div className="break-all opacity-80 p-3 rounded bg-white my-3 text-left dark:text-black">
+          <div className="bg-base-200 break-all p-3 my-3 text-left">
             <h2>
               <span>{Tr("Saved prompt templates")}</span>
               <button
@@ -596,7 +722,7 @@ export default function ChatBOX(props: {
                 {Tr("Reset Current")}
               </button>
             </h2>
-            <hr className="my-2" />
+            <div class="divider"></div>
             <div className="flex flex-wrap">
               {templates.map((t, index) => (
                 <div
@@ -712,6 +838,13 @@ export default function ChatBOX(props: {
             <br />
           </p>
         )}
+        <div class="chat chat-start">
+          <div class="chat-header">Prompt</div>
+          <div class="chat-bubble chat-bubble-accent">
+            {chatStore.systemMessageContent}
+          </div>
+        </div>
+
         {chatStore.history.map((_, messageIndex) => (
           <Message
             chatStore={chatStore}
@@ -721,7 +854,7 @@ export default function ChatBOX(props: {
           />
         ))}
         {showGenerating && (
-          <p className="p-2 my-2 animate-pulse dark:text-white message-content">
+          <p className="p-2 my-2 animate-pulse message-content">
             {generatingMessage || Tr("Generating...")}
             ...
           </p>
@@ -729,7 +862,7 @@ export default function ChatBOX(props: {
         <p className="text-center">
           {chatStore.history.length > 0 && (
             <button
-              className="disabled:line-through disabled:bg-slate-500 rounded m-2 p-2 border-2 bg-teal-500 hover:bg-teal-600"
+              className="btn btn-sm btn-warning disabled:line-through disabled:btn-neutral disabled:text-white m-2 p-2"
               disabled={showGenerating}
               onClick={async () => {
                 const messageIndex = chatStore.history.length - 1;
@@ -749,7 +882,7 @@ export default function ChatBOX(props: {
           )}
           {chatStore.develop_mode && chatStore.history.length > 0 && (
             <button
-              className="disabled:line-through disabled:bg-slate-500 rounded m-2 p-2 border-2 bg-yellow-500 hover:bg-yellow-600"
+              className="btn btn-outline btn-sm btn-warning disabled:line-through disabled:bg-neural"
               disabled={showGenerating}
               onClick={async () => {
                 await complete();
@@ -852,15 +985,16 @@ export default function ChatBOX(props: {
           <input type="checkbox" checked={follow} />
         </span>
       )}
+
       <div className="flex justify-between">
         <button
-          className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+          className="btn btn-primary disabled:line-through disabled:text-white disabled:bg-neutral m-1 p-1"
           disabled={showGenerating || !chatStore.apiKey}
           onClick={() => {
             setShowAddImage(!showAddImage);
           }}
         >
-          Img
+          Image
         </button>
         {showAddImage && (
           <AddImage
@@ -891,11 +1025,11 @@ export default function ChatBOX(props: {
             autoHeight(event.target);
             setInputMsg(event.target.value);
           }}
-          className="rounded grow m-1 p-1 border-2 border-gray-400 w-0"
+          className="textarea textarea-bordered textarea-sm grow"
           placeholder="Type here..."
         ></textarea>
         <button
-          className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+          className="btn btn-primary disabled:btn-neutral disabled:line-through m-1 p-1"
           disabled={showGenerating}
           onClick={() => {
             send(inputMsg, true);
@@ -909,10 +1043,8 @@ export default function ChatBOX(props: {
           chatStore.whisper_key &&
           (chatStore.whisper_key || chatStore.apiKey) && (
             <button
-              className={`disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 ${
-                isRecording === "Recording"
-                  ? "bg-red-400 hover:bg-red-600"
-                  : "bg-cyan-400 hover:bg-cyan-600"
+              className={`btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1 ${
+                isRecording === "Recording" ? "btn-error" : "btn-success"
               } ${isRecording !== "Mic" ? "animate-pulse" : ""}`}
               disabled={isRecording === "Transcribing"}
               ref={mediaRef}
@@ -1027,7 +1159,7 @@ export default function ChatBOX(props: {
           )}
         {chatStore.develop_mode && (
           <button
-            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
               chatStore.history.push({
@@ -1051,7 +1183,7 @@ export default function ChatBOX(props: {
         )}
         {chatStore.develop_mode && (
           <button
-            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
               send(inputMsg, false);
@@ -1062,7 +1194,7 @@ export default function ChatBOX(props: {
         )}
         {chatStore.develop_mode && (
           <button
-            className="disabled:line-through disabled:bg-slate-500 rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
+            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
               setShowAddToolMsg(true);
@@ -1110,7 +1242,7 @@ export default function ChatBOX(props: {
               </span>
               <span className={`flex justify-between p-2`}>
                 <button
-                  className="rounded m-1 p-1 border-2 bg-red-400 hover:bg-red-600"
+                  className="btn btn-info m-1 p-1"
                   onClick={() => setShowAddToolMsg(false)}
                 >
                   {Tr("Cancle")}
