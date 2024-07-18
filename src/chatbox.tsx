@@ -445,7 +445,7 @@ export default function ChatBOX(props: {
   const userInputRef = createRef();
 
   return (
-    <div className="grow flex flex-col p-2">
+    <div className="grow flex flex-col p-2 w-full">
       {showSettings && (
         <Settings
           chatStore={chatStore}
