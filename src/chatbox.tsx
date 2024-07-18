@@ -838,12 +838,14 @@ export default function ChatBOX(props: {
             <br />
           </p>
         )}
-        <div class="chat chat-start">
-          <div class="chat-header">Prompt</div>
-          <div class="chat-bubble chat-bubble-accent">
-            {chatStore.systemMessageContent}
+        {chatStore.systemMessageContent.trim() && (
+          <div class="chat chat-start">
+            <div class="chat-header">Prompt</div>
+            <div class="chat-bubble chat-bubble-accent">
+              {chatStore.systemMessageContent}
+            </div>
           </div>
-        </div>
+        )}
 
         {chatStore.history.map((_, messageIndex) => (
           <Message
