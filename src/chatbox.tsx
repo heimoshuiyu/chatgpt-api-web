@@ -520,7 +520,12 @@ export default function ChatBOX(props: {
             </ul>
           </div>
         </div>
-        <div class="navbar-center">
+        <div
+          class="navbar-center"
+          onClick={() => {
+            setShowSettings(true);
+          }}
+        >
           <div class="indicator">
             <span class="indicator-item badge badge-primary">
               {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
