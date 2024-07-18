@@ -113,9 +113,9 @@ export default function Message(props: Props) {
           chat.role === "assistant" ? "justify-start" : "justify-end"
         }`}
       >
-        <div>
+        <div className={`w-full`}>
           <div
-            className={`chat min-w-16 w-fit p-2 my-2 ${
+            className={`chat min-w-16 p-2 my-2 ${
               chat.role === "assistant" ? "chat-start" : "chat-end"
             } ${chat.hide ? "opacity-50" : ""}`}
           >
@@ -193,7 +193,11 @@ export default function Message(props: Props) {
           )}
           {showCopiedHint && <CopiedHint />}
           {chatStore.develop_mode && (
-            <div class="flex items-center gap-1">
+            <div
+              class={`gap-1 chat-end flex ${
+                chat.role === "assistant" ? "justify-start" : "justify-end"
+              }`}
+            >
               <span className="">token</span>
               <input
                 value={chat.token}
