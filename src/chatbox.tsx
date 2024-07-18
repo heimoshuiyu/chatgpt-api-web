@@ -847,7 +847,7 @@ export default function ChatBOX(props: {
           <div class="chat chat-start">
             <div class="chat-header">Prompt</div>
             <div
-              class="chat-bubble chat-bubble-accent cursor-pointer"
+              class="chat-bubble chat-bubble-accent cursor-pointer message-content"
               onClick={() => setShowSettings(true)}
             >
               {chatStore.systemMessageContent}
