@@ -1,3 +1,5 @@
+import { defaultModel } from "./models";
+
 export interface ImageURL {
   url: string;
   detail: "low" | "high";
@@ -155,7 +157,7 @@ class Chat {
       enable_max_gen_tokens = true,
       tokens_margin = 1024,
       apiEndPoint = "https://api.openai.com/v1/chat/completions",
-      model = "gpt-3.5-turbo",
+      model = defaultModel,
       temperature = 0.7,
       enable_temperature = true,
       top_p = 1,
