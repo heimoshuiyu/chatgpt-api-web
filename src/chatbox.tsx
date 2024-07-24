@@ -996,7 +996,7 @@ export default function ChatBOX(props: {
         </span>
       )}
 
-      <div className="flex justify-between">
+      <div className="flex justify-between my-1">
         <button
           className="btn btn-primary disabled:line-through disabled:text-white disabled:bg-neutral m-1 p-1"
           disabled={showGenerating || !chatStore.apiKey}
@@ -1036,6 +1036,9 @@ export default function ChatBOX(props: {
             setInputMsg(event.target.value);
           }}
           className="textarea textarea-bordered textarea-sm grow"
+          style={{
+            "lineHeight": "1.39",
+          }}
           placeholder="Type here..."
         ></textarea>
         <button
