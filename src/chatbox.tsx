@@ -499,13 +499,13 @@ export default function ChatBOX(props: {
             >
               <li>
                 <p>
-                  <ChatBubbleLeftEllipsisIcon class="h-4 w-4" />
+                  <ChatBubbleLeftEllipsisIcon className="h-4 w-4" />
                   Tokens: {chatStore.totalTokens}/{chatStore.maxTokens}
                 </p>
               </li>
               <li>
                 <p>
-                  <ScissorsIcon class="h-4 w-4" />
+                  <ScissorsIcon className="h-4 w-4" />
                   Cut:
                   {chatStore.postBeginIndex}/
                   {chatStore.history.filter(({ hide }) => !hide).length}
@@ -513,7 +513,7 @@ export default function ChatBOX(props: {
               </li>
               <li>
                 <p>
-                  <BanknotesIcon class="h-4 w-4" />
+                  <BanknotesIcon className="h-4 w-4" />
                   Cost: ${chatStore.cost.toFixed(4)}
                 </p>
               </li>
@@ -985,7 +985,7 @@ export default function ChatBOX(props: {
 
       {generatingMessage && (
         <span
-          class="p-2 m-2 rounded bg-white dark:text-black dark:bg-white dark:bg-opacity-50 dark:text-black dark:bg-opacity-50"
+          class="p-2 m-2 rounded bg-white dark:text-black dark:bg-white dark:bg-opacity-50"
           style={{ textAlign: "right" }}
           onClick={() => {
             setFollow(!follow);

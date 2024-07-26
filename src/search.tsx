@@ -44,7 +44,7 @@ export default function Search(props: {
         <div>
           <input
             autoFocus
-            className="input input-bordered w-full w-full border"
+            className="input input-bordered w-full border"
             type="text"
             placeholder="Type Something..."
             onInput={async (event: any) => {

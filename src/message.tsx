@@ -226,7 +226,7 @@ export default function Message(props: Props) {
                   setChatStore({ ...chatStore });
                 }}
               >
-                <XMarkIcon class="w-4 h-4" />
+                <XMarkIcon className="w-4 h-4" />
               </button>
               <span
                 onClick={(event: any) => {
