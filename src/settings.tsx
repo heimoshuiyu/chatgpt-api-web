@@ -469,7 +469,7 @@ export default (props: {
   return (
     <div
       onClick={() => props.setShow(false)}
-      className="left-0 top-0 overflow-scroll flex justify-center absolute mt-6 w-screen h-full z-10"
+      className="left-0 top-0 overflow-scroll flex justify-center absolute w-full h-full z-10"
     >
       <div
         onClick={(event: any) => {
