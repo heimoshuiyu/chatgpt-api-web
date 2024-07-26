@@ -530,7 +530,7 @@ export default function ChatBOX(props: {
             <span class="indicator-item badge badge-primary">
               {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
             </span>
-            <a class="btn btn-ghost text-xl p-0">
+            <a class="btn btn-ghost text-base sm:text-xl p-0">
               <SparklesIcon className="h-4 w-4 hidden sm:block" />
               {chatStore.model}
             </a>
@@ -1035,7 +1035,7 @@ export default function ChatBOX(props: {
             autoHeight(event.target);
             setInputMsg(event.target.value);
           }}
-          className="textarea textarea-bordered textarea-sm grow"
+          className="textarea textarea-bordered textarea-sm grow w-0"
           style={{
             "lineHeight": "1.39",
           }}
