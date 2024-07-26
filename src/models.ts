@@ -39,14 +39,6 @@ const models: Record<string, Model> = {
     maxToken: 16385,
     price: { prompt: 0.003 / 1000, completion: 0.004 / 1000 },
   },
-  "gpt-3.5-turbo-0613": {
-    maxToken: 4096,
-    price: { prompt: 0.0015 / 1000, completion: 0.002 / 1000 },
-  },
-  "gpt-3.5-turbo-16k-0613": {
-    maxToken: 16385,
-    price: { prompt: 0.003 / 1000, completion: 0.004 / 1000 },
-  },
   "gpt-4-turbo": {
     maxToken: 128000,
     price: { prompt: 0.01 / 1000, completion: 0.03 / 1000 },
