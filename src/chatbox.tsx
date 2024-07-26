@@ -474,7 +474,7 @@ export default function ChatBOX(props: {
           setShow={setShowSearch}
         />
       )}
-      <div class="navbar bg-base-100">
+      <div class="navbar bg-base-100 p-0">
         <div class="navbar-start">
           <div class="dropdown">
             <div tabindex={0} role="button" class="btn btn-ghost btn-circle">
@@ -530,8 +530,8 @@ export default function ChatBOX(props: {
             <span class="indicator-item badge badge-primary">
               {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
             </span>
-            <a class="btn btn-ghost text-xl">
-              <SparklesIcon class="h-4 w-4" />
+            <a class="btn btn-ghost text-xl p-0">
+              <SparklesIcon className="h-4 w-4 hidden sm:block" />
               {chatStore.model}
             </a>
           </div>
@@ -562,7 +562,7 @@ export default function ChatBOX(props: {
             </svg>
           </button>
           <button
-            class="btn btn-ghost btn-circle"
+            class="btn btn-ghost btn-circle hidden sm:block"
             onClick={() => setShowSettings(true)}
           >
             <div class="indicator">
