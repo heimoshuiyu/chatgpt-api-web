@@ -120,7 +120,7 @@ export default function Message(props: Props) {
             } ${chat.hide ? "opacity-50" : ""}`}
           >
             <div
-              className={`chat-bubble ${
+              className={`chat-bubble max-w-full ${
                 chat.role === "assistant"
                   ? renderColor
                     ? "chat-bubble-neutral"
