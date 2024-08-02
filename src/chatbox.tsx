@@ -536,10 +536,8 @@ export default function ChatBOX(props: {
               <div class="stat-title">Model</div>
               <div class="stat-value text-base">{chatStore.model}</div>
               <div class="stat-desc">
-                Prompt:{" "}
-                {chatStore.systemMessageContent.length > 30
-                  ? chatStore.systemMessageContent.slice(0, 30) + ".."
-                  : chatStore.systemMessageContent}
+                {models[chatStore.model]?.price?.prompt * 1000 * 1000} $/M
+                tokens
               </div>
             </div>
             <div class="stat">
@@ -597,7 +595,6 @@ export default function ChatBOX(props: {
               {chatStore.model}
             </a>
           </div>
-
         </div>
         <div class="navbar-end">
           <button
