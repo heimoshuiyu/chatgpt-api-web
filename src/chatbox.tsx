@@ -522,7 +522,7 @@ export default function ChatBOX(props: {
           </div>
         </div>
         <div
-          class="navbar-center cursor-pointer"
+          class="navbar-center cursor-pointer py-1"
           onClick={() => {
             setShowSettings(true);
           }}
@@ -587,9 +587,11 @@ export default function ChatBOX(props: {
 
           {/* the short status bar */}
           <div class="indicator lg:hidden">
-            <span class="indicator-item badge badge-primary">
-              {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
-            </span>
+            {chatStore.totalTokens !== 0 && (
+              <span class="indicator-item badge badge-primary">
+                Tokens: {chatStore.totalTokens}
+              </span>
+            )}
             <a class="btn btn-ghost text-base sm:text-xl p-0">
               <SparklesIcon className="h-4 w-4 hidden sm:block" />
               {chatStore.model}
