@@ -138,3 +138,7 @@ body::-webkit-scrollbar {
   background-color: #f5f5f5;
   z-index: -1;
 }
+
+.stat {
+  padding: 0.39rem;
+}

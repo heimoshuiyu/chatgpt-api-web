@@ -474,9 +474,10 @@ export default function ChatBOX(props: {
           setShow={setShowSearch}
         />
       )}
-      <div class="navbar bg-base-100 p-0">
+
+      <div class="navbar bg-base-100 p-0 overflow-hidden">
         <div class="navbar-start">
-          <div class="dropdown">
+          <div class="dropdown lg:hidden">
             <div tabindex={0} role="button" class="btn btn-ghost btn-circle">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -521,12 +522,73 @@ export default function ChatBOX(props: {
           </div>
         </div>
         <div
-          class="navbar-center"
+          class="navbar-center cursor-pointer"
           onClick={() => {
             setShowSettings(true);
           }}
         >
-          <div class="indicator">
+          {/* the long staus bar */}
+          <div class="stats shadow hidden lg:inline-grid">
+            <div class="stat">
+              <div class="stat-figure text-secondary">
+                <CubeIcon className="h-10 w-10" />
+              </div>
+              <div class="stat-title">Model</div>
+              <div class="stat-value text-base">{chatStore.model}</div>
+              <div class="stat-desc">
+                Prompt:{" "}
+                {chatStore.systemMessageContent.length > 30
+                  ? chatStore.systemMessageContent.slice(0, 30) + ".."
+                  : chatStore.systemMessageContent}
+              </div>
+            </div>
+            <div class="stat">
+              <div class="stat-figure text-secondary">
+                <SwatchIcon className="h-10 w-10" />
+              </div>
+              <div class="stat-title">Mode</div>
+              <div class="stat-value text-base">
+                {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
+              </div>
+              <div class="stat-desc">STREAM/FETCH</div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-figure text-secondary">
+                <ChatBubbleLeftEllipsisIcon className="h-10 w-10" />
+              </div>
+              <div class="stat-title">Tokens</div>
+              <div class="stat-value text-base">{chatStore.totalTokens}</div>
+              <div class="stat-desc">Max: {chatStore.maxTokens}</div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-figure text-secondary">
+                <ScissorsIcon className="h-10 w-10" />
+              </div>
+              <div class="stat-title">Cut</div>
+              <div class="stat-value text-base">{chatStore.postBeginIndex}</div>
+              <div class="stat-desc">
+                Max: {chatStore.history.filter(({ hide }) => !hide).length}
+              </div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-figure text-secondary">
+                <BanknotesIcon className="h-10 w-10" />
+              </div>
+              <div class="stat-title">Cost</div>
+              <div class="stat-value text-base">
+                ${chatStore.cost.toFixed(4)}
+              </div>
+              <div class="stat-desc">
+                Accumulated: ${getTotalCost().toFixed(2)}
+              </div>
+            </div>
+          </div>
+
+          {/* the short status bar */}
+          <div class="indicator lg:hidden">
             <span class="indicator-item badge badge-primary">
               {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
             </span>
@@ -535,6 +597,7 @@ export default function ChatBOX(props: {
               {chatStore.model}
             </a>
           </div>
+
         </div>
         <div class="navbar-end">
           <button
@@ -1037,7 +1100,7 @@ export default function ChatBOX(props: {
           }}
           className="textarea textarea-bordered textarea-sm grow w-0"
           style={{
-            "lineHeight": "1.39",
+            lineHeight: "1.39",
           }}
           placeholder="Type here..."
         ></textarea>
