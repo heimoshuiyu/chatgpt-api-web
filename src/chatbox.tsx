@@ -475,7 +475,7 @@ export default function ChatBOX(props: {
         />
       )}
 
-      <div class="navbar bg-base-100 p-0 overflow-hidden">
+      <div class="navbar bg-base-100 p-0">
         <div class="navbar-start">
           <div class="dropdown lg:hidden">
             <div tabindex={0} role="button" class="btn btn-ghost btn-circle">
