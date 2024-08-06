@@ -30,6 +30,7 @@ body::-webkit-scrollbar {
 
 .message-content {
   white-space: pre-wrap;
+  word-wrap: anywhere;
 }
 
 .markup > h2 {
