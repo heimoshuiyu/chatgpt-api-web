@@ -103,7 +103,7 @@ export const newChatStore = (
       models[getDefaultParams("model", model)]?.maxToken ?? 2048
     ),
     maxGenTokens: 2048,
-    maxGenTokens_enabled: true,
+    maxGenTokens_enabled: false,
     apiKey: getDefaultParams("key", apiKey),
     apiEndpoint: getDefaultParams("api", apiEndpoint),
     streamMode: getDefaultParams("mode", streamMode),
