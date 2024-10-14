@@ -1,5 +1,5 @@
 import { Tr, langCodeContext, LANG_OPTIONS, tr } from "./translate";
-import { useState, useEffect, StateUpdater } from "preact/hooks";
+import { useState, useEffect, StateUpdater,Dispatch } from "preact/hooks";
 import { ChatStore, ChatStoreMessage } from "./app";
 import { calculate_token_length, getMessageText } from "./chatgpt";
 import { isVailedJSON } from "./message";
@@ -9,7 +9,7 @@ import { EditMessageDetail } from "./editMessageDetail";
 interface EditMessageProps {
   chat: ChatStoreMessage;
   chatStore: ChatStore;
-  setShowEdit: StateUpdater<boolean>;
+  setShowEdit: Dispatch<StateUpdater<boolean>>;
   setChatStore: (cs: ChatStore) => void;
 }
 export function EditMessage(props: EditMessageProps) {

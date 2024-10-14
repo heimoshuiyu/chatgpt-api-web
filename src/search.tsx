@@ -1,6 +1,6 @@
 import { IDBPDatabase } from "idb";
 import { ChatStore } from "./app";
-import { StateUpdater, useRef, useState } from "preact/hooks";
+import { StateUpdater, useRef, useState, Dispatch } from "preact/hooks";
 
 interface ChatStoreSearchResult {
   key: IDBValidKey;
@@ -11,7 +11,7 @@ interface ChatStoreSearchResult {
 
 export default function Search(props: {
   db: Promise<IDBPDatabase<ChatStore>>;
-  setSelectedChatIndex: StateUpdater<number>;
+  setSelectedChatIndex: Dispatch<StateUpdater<number>>;
   chatStore: ChatStore;
   setShow: (show: boolean) => void;
 }) {

@@ -1,7 +1,7 @@
 import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
 import structuredClone from "@ungap/structured-clone";
 import { createRef } from "preact";
-import { StateUpdater, useEffect, useState } from "preact/hooks";
+import { StateUpdater, useEffect, useState, Dispatch } from "preact/hooks";
 import {
   ChatStore,
   ChatStoreMessage,
@@ -55,7 +55,7 @@ export default function ChatBOX(props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
   selectedChatIndex: number;
-  setSelectedChatIndex: StateUpdater<number>;
+  setSelectedChatIndex: Dispatch<StateUpdater<number>>;
 }) {
   const { chatStore, setChatStore } = props;
   // prevent error

@@ -1,5 +1,5 @@
 import { createRef } from "preact";
-import { StateUpdater, useContext, useEffect, useState } from "preact/hooks";
+import { StateUpdater, useContext, useEffect, useState, Dispatch } from "preact/hooks";
 import {
   ChatStore,
   TemplateAPI,
@@ -414,7 +414,7 @@ const Choice = (props: {
 export default (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  setShow: StateUpdater<boolean>;
+  setShow: Dispatch<StateUpdater<boolean>>;
   selectedChatStoreIndex: number;
   templates: TemplateChatStore[];
   setTemplates: (templates: TemplateChatStore[]) => void;
