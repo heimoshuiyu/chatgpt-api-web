@@ -56,12 +56,12 @@ export default function Message(props: Props) {
     </button>
   );
   const CopiedHint = () => (
-    <div role="alert" class="alert">
+    <div role="alert" className="alert">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
-        class="stroke-info h-6 w-6 shrink-0"
+        className="stroke-info h-6 w-6 shrink-0"
       >
         <path
           stroke-linecap="round"
@@ -169,7 +169,7 @@ export default function Message(props: Props) {
                 </div>
               )}
             </div>
-            <div class="chat-footer opacity-50 flex gap-x-2">
+            <div className="chat-footer opacity-50 flex gap-x-2">
               <DeleteIcon />
               <button onClick={() => setShowEdit(true)}>Edit</button>
               <CopyIcon textToCopy={getMessageText(chat)} />
@@ -194,7 +194,7 @@ export default function Message(props: Props) {
           {showCopiedHint && <CopiedHint />}
           {chatStore.develop_mode && (
             <div
-              class={`gap-1 chat-end flex ${
+              className={`gap-1 chat-end flex ${
                 chat.role === "assistant" ? "justify-start" : "justify-end"
               }`}
             >

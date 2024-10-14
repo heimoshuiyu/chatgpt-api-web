@@ -45,7 +45,7 @@ export function ListAPIs({
             <span className="w-full text-center">{t.name}</span>
             <span className="flex justify-between gap-x-2">
               <button
-                class="link"
+                className="link"
                 onClick={() => {
                   const name = prompt(`Give **${label}** template a name`);
                   if (!name) {
@@ -58,7 +58,7 @@ export function ListAPIs({
                 Edit
               </button>
               <button
-                class="link"
+                className="link"
                 onClick={() => {
                   if (
                     !confirm(

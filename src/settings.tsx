@@ -44,8 +44,8 @@ const TTS_FORMAT: string[] = ["mp3", "opus", "aac", "flac"];
 
 const Help = (props: { children: any; help: string; field: string }) => {
   return (
-    <div class="b-2">
-      <label class="form-control w-full">{props.children}</label>
+    <div className="b-2">
+      <label className="form-control w-full">{props.children}</label>
     </div>
   );
 };
@@ -64,32 +64,32 @@ const SelectModel = (props: {
   const [useCustomModel, setUseCustomModel] = useState(shouldIUseCustomModel);
   return (
     <Help help={props.help} field="">
-      <div class="label">
-        <span class="flex gap-2 items-center">
-          <ListBulletIcon class="w-4 h-4" />
+      <div className="label">
+        <span className="flex gap-2 items-center">
+          <ListBulletIcon className="w-4 h-4" />
           Model
         </span>{" "}
-        <div class="flex gap-3">
-          <span class="label-text">
-            <span class="label-text flex gap-2 items-center">
-              <Cog6ToothIcon class="w-4 h-4" />
+        <div className="flex gap-3">
+          <span className="label-text">
+            <span className="label-text flex gap-2 items-center">
+              <Cog6ToothIcon className="w-4 h-4" />
               {Tr("Custom")}
             </span>
           </span>
-          <span class="label-text-alt">
+          <span className="label-text-alt">
             <input
               type="checkbox"
               checked={useCustomModel}
-              class="checkbox"
+              className="checkbox"
               onClick={() => {
                 setUseCustomModel(!useCustomModel);
               }}
             />
           </span>
         </div>
-        {/* <span class="label-text-alt">Top Right label</span> */}
+        {/* <span className="label-text-alt">Top Right label</span> */}
       </div>
-      <label class="form-control w-full">
+      <label className="form-control w-full">
         {useCustomModel ? (
           <input
             className="input input-bordered"
@@ -120,7 +120,7 @@ const SelectModel = (props: {
           </select>
         )}
       </label>
-      <div class="pb-5"></div>
+      <div className="pb-5"></div>
     </Help>
   );
 };
@@ -133,10 +133,10 @@ const LongInput = (props: {
   help: string;
 }) => {
   return (
-    <label class="form-control">
-      <div class="label">
-        <span class="label-text">{props.label}</span>
-        <span class="label-text-alt">
+    <label className="form-control">
+      <div className="label">
+        <span className="label-text">{props.label}</span>
+        <span className="label-text-alt">
           <button
             onClick={() => {
               alert(props.help);
@@ -179,9 +179,9 @@ const Input = (props: {
   const [hideInput, setHideInput] = useState(true);
   return (
     <Help field={props.field} help={props.help}>
-      <div class="label">
-        <span class="label-text">{props.field}</span>
-        <span class="label-text-alt">
+      <div className="label">
+        <span className="label-text">{props.field}</span>
+        <span className="label-text-alt">
           <button
             onClick={() => {
               alert(props.help);
@@ -191,10 +191,10 @@ const Input = (props: {
           </button>
         </span>
       </div>
-      <label class="input input-bordered flex items-center gap-2 grow">
+      <label className="input input-bordered flex items-center gap-2 grow">
         {hideInput ? (
           <EyeIcon
-            class="w-4 h-4"
+            className="w-4 h-4"
             onClick={() => {
               setHideInput(!hideInput);
               console.log("clicked", hideInput);
@@ -202,7 +202,7 @@ const Input = (props: {
           />
         ) : (
           <KeyIcon
-            class="w-4 h-4"
+            className="w-4 h-4"
             onClick={() => {
               setHideInput(!hideInput);
               console.log("clicked", hideInput);
@@ -212,7 +212,7 @@ const Input = (props: {
 
         <input
           type={hideInput ? "password" : "text"}
-          class="grow"
+          className="grow"
           value={props.chatStore[props.field]}
           onChange={(event: any) => {
             props.chatStore[props.field] = event.target.value;
@@ -252,10 +252,10 @@ const Slicer = (props: {
   };
   return (
     <Help help={props.help} field={props.field}>
-      <span class="py-3">
-        <div class="form-control">
-          <label class="flex gap-2">
-            <span class="label-text flex items-center gap-2">
+      <span className="py-3">
+        <div className="form-control">
+          <label className="flex gap-2">
+            <span className="label-text flex items-center gap-2">
               <AdjustmentsHorizontalIcon className="w-4 h-4" />
               {props.field}{" "}
               <button
@@ -269,7 +269,7 @@ const Slicer = (props: {
             <input
               type="checkbox"
               checked={props.chatStore[enable_filed_name]}
-              class="checkbox"
+              className="checkbox"
               onClick={() => {
                 setEnabled(!enabled);
               }}
@@ -278,7 +278,7 @@ const Slicer = (props: {
         </div>
       </span>
       {enabled ? (
-        <div class="flex items-center">
+        <div className="flex items-center">
           <input
             disabled={!enabled}
             className="range"
@@ -330,7 +330,7 @@ const Number = (props: {
     <Help help={props.help} field="">
       <span>
         <label className="py-2 flex items-center gap-1">
-          <EllipsisHorizontalCircleIcon class="h-4 w-4" /> {props.field}{" "}
+          <EllipsisHorizontalCircleIcon className="h-4 w-4" /> {props.field}{" "}
           <button
             onClick={() => {
               alert(props.help);
@@ -339,8 +339,8 @@ const Number = (props: {
             <InformationCircleIcon className="w-4 h-4" />
           </button>
           {props.field === "maxGenTokens" && (
-            <div class="form-control">
-              <label class="label grow">
+            <div className="form-control">
+              <label className="label grow">
                 <input
                   type="checkbox"
                   checked={props.chatStore.maxGenTokens_enabled}
@@ -350,7 +350,7 @@ const Number = (props: {
                       !newChatStore.maxGenTokens_enabled;
                     props.setChatStore({ ...newChatStore });
                   }}
-                  class="checkbox"
+                  className="checkbox"
                 />
               </label>
             </div>
@@ -385,10 +385,10 @@ const Choice = (props: {
 }) => {
   return (
     <Help help={props.help} field={props.field}>
-      <div class="form-control">
-        <label class="py-2 flex items-center gap-1">
-          <CheckIcon class="h-4 w-4" />
-          <span class="label-text">{props.field}</span>
+      <div className="form-control">
+        <label className="py-2 flex items-center gap-1">
+          <CheckIcon className="h-4 w-4" />
+          <span className="label-text">{props.field}</span>
           <button
             onClick={() => {
               alert(props.help);
@@ -399,7 +399,7 @@ const Choice = (props: {
           <input
             type="checkbox"
             checked={props.chatStore[props.field]}
-            class="checkbox"
+            className="checkbox"
             onChange={(event: any) => {
               props.chatStore[props.field] = event.target.checked;
               props.setChatStore({ ...props.chatStore });
@@ -478,9 +478,9 @@ export default (props: {
         className="modal-box"
       >
         <div className="flex justify-between items-center mb-2">
-          <h3 class="text-lg font-bold">{Tr("Settings")}</h3>
+          <h3 className="text-lg font-bold">{Tr("Settings")}</h3>
           <button
-            class="btn btn-secondary btn-sm"
+            className="btn btn-secondary btn-sm"
             onClick={() => {
               props.setShow(false);
             }}
@@ -488,15 +488,15 @@ export default (props: {
             {Tr("Close")}
           </button>
         </div>
-        <div class="join join-vertical w-full">
-          <div class="join-item collapse collapse-plus bg-base-200">
+        <div className="join join-vertical w-full">
+          <div className="join-item collapse collapse-plus bg-base-200">
             <input type="radio" name="setting-accordion" />
-            <div class="collapse-title text-xl font-medium">Session</div>
-            <div class="collapse-content">
-              <div class="stats shadow">
-                <div class="stat">
-                  <div class="stat-title">Session cost</div>
-                  <div class="stat-value">
+            <div className="collapse-title text-xl font-medium">Session</div>
+            <div className="collapse-content">
+              <div className="stats shadow">
+                <div className="stat">
+                  <div className="stat-title">Session cost</div>
+                  <div className="stat-value">
                     {props.chatStore.cost.toFixed(4)} $
                   </div>
                 </div>
@@ -550,18 +550,18 @@ export default (props: {
               </div>
             </div>
           </div>
-          <div class="join-item collapse collapse-plus bg-base-200">
+          <div className="join-item collapse collapse-plus bg-base-200">
             <input type="radio" name="setting-accordion" />
-            <div class="collapse-title text-xl font-medium">System</div>
-            <div class="collapse-content">
-              <div class="stats shadow">
-                <div class="stat">
-                  <div class="stat-title">Accumulated cost</div>
-                  <div class="stat-value">{totalCost.toFixed(4)} $</div>
-                  <div class="stat-desc">
+            <div className="collapse-title text-xl font-medium">System</div>
+            <div className="collapse-content">
+              <div className="stats shadow">
+                <div className="stat">
+                  <div className="stat-title">Accumulated cost</div>
+                  <div className="stat-value">{totalCost.toFixed(4)} $</div>
+                  <div className="stat-desc">
                     in all sessions -{" "}
                     <a
-                      class="btn btn-xs btn-primary"
+                      className="btn btn-xs btn-primary"
                       onClick={() => {
                         clearTotalCost();
                         setTotalCost(getTotalCost());
@@ -577,11 +577,11 @@ export default (props: {
                 help="开发者模式，开启后会显示更多选项及功能"
                 {...props}
               />
-              <label class="form-control w-full">
-                <div class="label">
-                  <span class="label-text">Theme Switch</span>
+              <label className="form-control w-full">
+                <div className="label">
+                  <span className="label-text">Theme Switch</span>
                 </div>
-                <select data-choose-theme class="select select-bordered">
+                <select data-choose-theme className="select select-bordered">
                   <option value="light">Light</option>
                   <option value="dark">Dark</option>
                   <option value="cupcake">Cupcake</option>
@@ -594,11 +594,11 @@ export default (props: {
                   <option value="black">Black</option>
                 </select>
               </label>
-              <label class="form-control w-full">
-                <div class="label">
-                  <span class="label-text">Language</span>
+              <label className="form-control w-full">
+                <div className="label">
+                  <span className="label-text">Language</span>
                 </div>
-                <select class="select select-bordered">
+                <select className="select select-bordered">
                   {Object.keys(LANG_OPTIONS).map((opt) => (
                     <option
                       value={opt}
@@ -613,13 +613,13 @@ export default (props: {
                   ))}
                 </select>
               </label>
-              <label class="form-control w-full">
-                <div class="label">
-                  <span class="label-text">Quick Actions</span>
+              <label className="form-control w-full">
+                <div className="label">
+                  <span className="label-text">Quick Actions</span>
                 </div>
-                <div class="flex flex-col gap-2">
+                <div className="flex flex-col gap-2">
                   <button
-                    class="btn btn-sm btn-outline btn-neural"
+                    className="btn btn-sm btn-outline btn-neural"
                     onClick={() => {
                       navigator.clipboard.writeText(link);
                       alert(tr(`Copied link:`, langCode) + `${link}`);
@@ -628,7 +628,7 @@ export default (props: {
                     {Tr("Copy Setting Link")}
                   </button>
                   <button
-                    class="btn btn-sm btn-outline btn-neural"
+                    className="btn btn-sm btn-outline btn-neural"
                     onClick={() => {
                       if (
                         !confirm(
@@ -646,7 +646,7 @@ export default (props: {
                     {Tr("Clear History")}
                   </button>
                   <button
-                    class="btn btn-sm btn-outline btn-neural"
+                    className="btn btn-sm btn-outline btn-neural"
                     onClick={() => {
                       let dataStr =
                         "data:text/json;charset=utf-8," +
@@ -667,7 +667,7 @@ export default (props: {
                     {Tr("Export")}
                   </button>
                   <button
-                    class="btn btn-sm btn-outline btn-neural"
+                    className="btn btn-sm btn-outline btn-neural"
                     onClick={() => {
                       const name = prompt(
                         tr("Give this template a name:", langCode)
@@ -696,7 +696,7 @@ export default (props: {
                     {Tr("As template")}
                   </button>
                   <button
-                    class="btn btn-sm btn-outline btn-neural"
+                    className="btn btn-sm btn-outline btn-neural"
                     onClick={() => {
                       if (
                         !confirm(
@@ -755,12 +755,12 @@ export default (props: {
               </label>
             </div>
           </div>
-          <div class="join-item collapse collapse-plus bg-base-200">
+          <div className="join-item collapse collapse-plus bg-base-200">
             <input type="radio" name="setting-accordion" />
-            <div class="collapse-title text-xl font-medium">Chat</div>
-            <div class="collapse-content">
+            <div className="collapse-title text-xl font-medium">Chat</div>
+            <div className="collapse-content">
               <div>
-                <h2 class="card-title">Chat API</h2>
+                <h2 className="card-title">Chat API</h2>
                 <p>
                   <Input
                     field="apiKey"
@@ -780,7 +780,7 @@ export default (props: {
                   tmps={props.templateAPIs}
                   setTmps={props.setTemplateAPIs}
                 />
-                <div class="divider" />
+                <div className="divider" />
               </div>
               <SelectModel
                 help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
@@ -851,14 +851,14 @@ export default (props: {
               />
             </div>
           </div>
-          <div class="join-item collapse collapse-plus bg-base-200">
+          <div className="join-item collapse collapse-plus bg-base-200">
             <input type="radio" name="setting-accordion" />
-            <div class="collapse-title text-xl font-medium">
+            <div className="collapse-title text-xl font-medium">
               Speech Recognition
             </div>
-            <div class="collapse-content">
+            <div className="collapse-content">
               <div>
-                <h2 class="card-title">Whisper API</h2>
+                <h2 className="card-title">Whisper API</h2>
                 <p>
                   <Input
                     field="whisper_key"
@@ -878,16 +878,16 @@ export default (props: {
                   tmps={props.templateAPIsWhisper}
                   setTmps={props.setTemplateAPIsWhisper}
                 />
-                <div class="divider" />
+                <div className="divider" />
               </div>
             </div>
           </div>
-          <div class="join-item collapse collapse-plus bg-base-200">
+          <div className="join-item collapse collapse-plus bg-base-200">
             <input type="radio" name="setting-accordion" />
-            <div class="collapse-title text-xl font-medium">TTS</div>
-            <div class="collapse-content">
+            <div className="collapse-title text-xl font-medium">TTS</div>
+            <div className="collapse-content">
               <div>
-                <h2 class="card-title">TTS API</h2>
+                <h2 className="card-title">TTS API</h2>
                 <p>
                   <Input
                     field="tts_key"
@@ -907,7 +907,7 @@ export default (props: {
                   tmps={props.templateAPIsTTS}
                   setTmps={props.setTemplateAPIsTTS}
                 />
-                <div class="divider" />
+                <div className="divider" />
               </div>
               <Help help="tts voice style" field="AAAAA">
                 <label className="">TTS Voice</label>
@@ -950,14 +950,14 @@ export default (props: {
               </Help>
             </div>
           </div>
-          <div class="join-item collapse collapse-plus bg-base-200">
+          <div className="join-item collapse collapse-plus bg-base-200">
             <input type="radio" name="setting-accordion" />
-            <div class="collapse-title text-xl font-medium">
+            <div className="collapse-title text-xl font-medium">
               Image Generation
             </div>
-            <div class="collapse-content">
+            <div className="collapse-content">
               <div>
-                <h2 class="card-title">Image Gen API</h2>
+                <h2 className="card-title">Image Gen API</h2>
                 <p>
                   <Input
                     field="image_gen_key"
@@ -977,7 +977,7 @@ export default (props: {
                   tmps={props.templateAPIsImageGen}
                   setTmps={props.setTemplateAPIsImageGen}
                 />
-                <div class="divider" />
+                <div className="divider" />
               </div>
             </div>
           </div>

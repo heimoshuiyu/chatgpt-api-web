@@ -80,9 +80,9 @@ export default function TTSButton(props: TTSProps) {
       }}
     >
       {generating ? (
-        <span class="loading loading-dots loading-xs"></span>
+        <span className="loading loading-dots loading-xs"></span>
       ) : (
-        <SpeakerWaveIcon class="h-4 w-4" />
+        <SpeakerWaveIcon className="h-4 w-4" />
       )}
     </button>
   );

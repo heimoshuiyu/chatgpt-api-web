@@ -412,7 +412,7 @@ export function App() {
           >
             {Tr("NEW")}
           </button>
-          <ul class="pt-2">
+          <ul className="pt-2">
             {(allChatStoreIndexes as number[])
               .slice()
               .reverse()

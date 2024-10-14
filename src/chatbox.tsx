@@ -475,13 +475,13 @@ export default function ChatBOX(props: {
         />
       )}
 
-      <div class="navbar bg-base-100 p-0">
-        <div class="navbar-start">
-          <div class="dropdown lg:hidden">
-            <div tabindex={0} role="button" class="btn btn-ghost btn-circle">
+      <div className="navbar bg-base-100 p-0">
+        <div className="navbar-start">
+          <div className="dropdown lg:hidden">
+            <div tabindex={0} role="button" className="btn btn-ghost btn-circle">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
+                className="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -496,7 +496,7 @@ export default function ChatBOX(props: {
             </div>
             <ul
               tabindex={0}
-              class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
             >
               <li>
                 <p>
@@ -522,85 +522,85 @@ export default function ChatBOX(props: {
           </div>
         </div>
         <div
-          class="navbar-center cursor-pointer py-1"
+          className="navbar-center cursor-pointer py-1"
           onClick={() => {
             setShowSettings(true);
           }}
         >
           {/* the long staus bar */}
-          <div class="stats shadow hidden lg:inline-grid">
-            <div class="stat">
-              <div class="stat-figure text-secondary">
+          <div className="stats shadow hidden lg:inline-grid">
+            <div className="stat">
+              <div className="stat-figure text-secondary">
                 <CubeIcon className="h-10 w-10" />
               </div>
-              <div class="stat-title">Model</div>
-              <div class="stat-value text-base">{chatStore.model}</div>
-              <div class="stat-desc">
+              <div className="stat-title">Model</div>
+              <div className="stat-value text-base">{chatStore.model}</div>
+              <div className="stat-desc">
                 {models[chatStore.model]?.price?.prompt * 1000 * 1000} $/M
                 tokens
               </div>
             </div>
-            <div class="stat">
-              <div class="stat-figure text-secondary">
+            <div className="stat">
+              <div className="stat-figure text-secondary">
                 <SwatchIcon className="h-10 w-10" />
               </div>
-              <div class="stat-title">Mode</div>
-              <div class="stat-value text-base">
+              <div className="stat-title">Mode</div>
+              <div className="stat-value text-base">
                 {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
               </div>
-              <div class="stat-desc">STREAM/FETCH</div>
+              <div className="stat-desc">STREAM/FETCH</div>
             </div>
 
-            <div class="stat">
-              <div class="stat-figure text-secondary">
+            <div className="stat">
+              <div className="stat-figure text-secondary">
                 <ChatBubbleLeftEllipsisIcon className="h-10 w-10" />
               </div>
-              <div class="stat-title">Tokens</div>
-              <div class="stat-value text-base">{chatStore.totalTokens}</div>
-              <div class="stat-desc">Max: {chatStore.maxTokens}</div>
+              <div className="stat-title">Tokens</div>
+              <div className="stat-value text-base">{chatStore.totalTokens}</div>
+              <div className="stat-desc">Max: {chatStore.maxTokens}</div>
             </div>
 
-            <div class="stat">
-              <div class="stat-figure text-secondary">
+            <div className="stat">
+              <div className="stat-figure text-secondary">
                 <ScissorsIcon className="h-10 w-10" />
               </div>
-              <div class="stat-title">Cut</div>
-              <div class="stat-value text-base">{chatStore.postBeginIndex}</div>
-              <div class="stat-desc">
+              <div className="stat-title">Cut</div>
+              <div className="stat-value text-base">{chatStore.postBeginIndex}</div>
+              <div className="stat-desc">
                 Max: {chatStore.history.filter(({ hide }) => !hide).length}
               </div>
             </div>
 
-            <div class="stat">
-              <div class="stat-figure text-secondary">
+            <div className="stat">
+              <div className="stat-figure text-secondary">
                 <BanknotesIcon className="h-10 w-10" />
               </div>
-              <div class="stat-title">Cost</div>
-              <div class="stat-value text-base">
+              <div className="stat-title">Cost</div>
+              <div className="stat-value text-base">
                 ${chatStore.cost.toFixed(4)}
               </div>
-              <div class="stat-desc">
+              <div className="stat-desc">
                 Accumulated: ${getTotalCost().toFixed(2)}
               </div>
             </div>
           </div>
 
           {/* the short status bar */}
-          <div class="indicator lg:hidden">
+          <div className="indicator lg:hidden">
             {chatStore.totalTokens !== 0 && (
-              <span class="indicator-item badge badge-primary">
+              <span className="indicator-item badge badge-primary">
                 Tokens: {chatStore.totalTokens}
               </span>
             )}
-            <a class="btn btn-ghost text-base sm:text-xl p-0">
+            <a className="btn btn-ghost text-base sm:text-xl p-0">
               <SparklesIcon className="h-4 w-4 hidden sm:block" />
               {chatStore.model}
             </a>
           </div>
         </div>
-        <div class="navbar-end">
+        <div className="navbar-end">
           <button
-            class="btn btn-ghost btn-circle"
+            className="btn btn-ghost btn-circle"
             onClick={(event) => {
               // stop propagation to parent
               event.stopPropagation();
@@ -610,7 +610,7 @@ export default function ChatBOX(props: {
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
+              className="h-6 w-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -624,17 +624,17 @@ export default function ChatBOX(props: {
             </svg>
           </button>
           <button
-            class="btn btn-ghost btn-circle hidden sm:block"
+            className="btn btn-ghost btn-circle hidden sm:block"
             onClick={() => setShowSettings(true)}
           >
-            <div class="indicator">
+            <div className="indicator">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke-width="1.5"
                 stroke="currentColor"
-                class="h-6 w-6"
+                className="h-6 w-6"
               >
                 <path
                   stroke-linecap="round"
@@ -648,7 +648,7 @@ export default function ChatBOX(props: {
                 />
               </svg>
 
-              <span class="badge badge-xs badge-primary indicator-item"></span>
+              <span className="badge badge-xs badge-primary indicator-item"></span>
             </div>
           </button>
         </div>
@@ -666,10 +666,10 @@ export default function ChatBOX(props: {
             setShowSearch(true);
           }}
         >
-          <MagnifyingGlassIcon class="w-5 h-5" />
+          <MagnifyingGlassIcon className="w-5 h-5" />
         </button>
-        <div class="hidden lg:inline-grid"></div>
-        <div class="lg:hidden">
+        <div className="hidden lg:inline-grid"></div>
+        <div className="lg:hidden">
           <div>
             <button className="underline">
               {chatStore.systemMessageContent.length > 16
@@ -684,16 +684,16 @@ export default function ChatBOX(props: {
             )}
           </div>
           <div className="text-xs">
-            <span class="underline">{chatStore.model}</span>{" "}
+            <span className="underline">{chatStore.model}</span>{" "}
             <span>
               Tokens:{" "}
-              <span class="underline">
+              <span className="underline">
                 {chatStore.totalTokens}/{chatStore.maxTokens}
               </span>
             </span>{" "}
             <span>
               {Tr("Cut")}:{" "}
-              <span class="underline">
+              <span className="underline">
                 {chatStore.postBeginIndex}/
                 {chatStore.history.filter(({ hide }) => !hide).length}
               </span>{" "}
@@ -789,7 +789,7 @@ export default function ChatBOX(props: {
                 {Tr("Reset Current")}
               </button>
             </h2>
-            <div class="divider"></div>
+            <div className="divider"></div>
             <div className="flex flex-wrap">
               {templates.map((t, index) => (
                 <div
@@ -906,10 +906,10 @@ export default function ChatBOX(props: {
           </p>
         )}
         {chatStore.systemMessageContent.trim() && (
-          <div class="chat chat-start">
-            <div class="chat-header">Prompt</div>
+          <div className="chat chat-start">
+            <div className="chat-header">Prompt</div>
             <div
-              class="chat-bubble chat-bubble-accent cursor-pointer message-content"
+              className="chat-bubble chat-bubble-accent cursor-pointer message-content"
               onClick={() => setShowSettings(true)}
             >
               {chatStore.systemMessageContent}
@@ -1047,7 +1047,7 @@ export default function ChatBOX(props: {
 
       {generatingMessage && (
         <span
-          class="p-2 m-2 rounded bg-white dark:text-black dark:bg-white dark:bg-opacity-50"
+          className="p-2 m-2 rounded bg-white dark:text-black dark:bg-white dark:bg-opacity-50"
           style={{ textAlign: "right" }}
           onClick={() => {
             setFollow(!follow);

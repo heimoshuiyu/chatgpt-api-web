@@ -141,9 +141,9 @@ export default function Search(props: {
         </div>
         {searchResult.length > 0 && (
           <div className="flex justify-center my-2">
-            <div class="join">
+            <div className="join">
               <button
-                class="join-item btn btn-sm"
+                className="join-item btn btn-sm"
                 disabled={pageIndex === 0}
                 onClick={() => {
                   if (pageIndex === 0) {
@@ -154,12 +154,12 @@ export default function Search(props: {
               >
                 «
               </button>
-              <button class="join-item btn btn-sm">
+              <button className="join-item btn btn-sm">
                 Page {pageIndex + 1} /{" "}
                 {Math.floor(searchResult.length / 10) + 1}
               </button>
               <button
-                class="join-item btn btn-sm"
+                className="join-item btn btn-sm"
                 disabled={pageIndex === Math.floor(searchResult.length / 10)}
                 onClick={() => {
                   if (pageIndex === Math.floor(searchResult.length / 10)) {

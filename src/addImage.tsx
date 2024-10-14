@@ -57,7 +57,7 @@ export function AddImage({
             Done
           </button>
         </div>
-        <span class="">
+        <span className="">
           <button
             className="btn btn-secondary btn-sm disabled:btn-disabled"
             onClick={() => {
@@ -121,7 +121,7 @@ export function AddImage({
             <input type="checkbox" checked={enableHighResolution} />
           </span>
         </span>
-        <div class="divider"></div>
+        <div className="divider"></div>
         {chatStore.image_gen_api && chatStore.image_gen_key && (
           <div className="flex flex-col">
             <h3>Generate Image</h3>
@@ -138,7 +138,7 @@ export function AddImage({
             <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>Model: </label>
               <select
-                class="select select-sm select-bordered"
+                className="select select-sm select-bordered"
                 value={imageGenModel}
                 onChange={(e: any) => {
                   setImageGenModel(e.target.value);
@@ -151,7 +151,7 @@ export function AddImage({
             <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>n: </label>
               <input
-                class="input input-sm input-bordered"
+                className="input input-sm input-bordered"
                 value={imageGenN}
                 type="number"
                 min={1}
@@ -162,7 +162,7 @@ export function AddImage({
             <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>Quality: </label>
               <select
-                class="select select-sm select-bordered"
+                className="select select-sm select-bordered"
                 value={imageGenQuality}
                 onChange={(e: any) => setImageGEnQuality(e.target.value)}
               >
@@ -173,7 +173,7 @@ export function AddImage({
             <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>Response Format: </label>
               <select
-                class="select select-sm select-bordered"
+                className="select select-sm select-bordered"
                 value={imageGenResponseFormat}
                 onChange={(e: any) => setImageGenResponseFormat(e.target.value)}
               >
@@ -184,7 +184,7 @@ export function AddImage({
             <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>Size: </label>
               <select
-                class="select select-sm select-bordered"
+                className="select select-sm select-bordered"
                 value={imageGenSize}
                 onChange={(e: any) => setImageGenSize(e.target.value)}
               >
@@ -198,7 +198,7 @@ export function AddImage({
             <span className="flex flex-row justify-between items-center m-1 p-1">
               <label>Style (only dall-e-3): </label>
               <select
-                class="select select-sm select-bordered"
+                className="select select-sm select-bordered"
                 value={imageGenStyle}
                 onChange={(e: any) => setImageGenStyle(e.target.value)}
               >

@@ -44,7 +44,7 @@ export function ListToolsTempaltes({
             <span className="w-full text-center">{t.name}</span>
             <span className="flex justify-between gap-x-2">
               <button
-                class="link"
+                className="link"
                 onClick={() => {
                   const name = prompt(`Give **tools** template a name`);
                   if (!name) {
@@ -57,7 +57,7 @@ export function ListToolsTempaltes({
                 Edit
               </button>
               <button
-                class="link"
+                className="link"
                 onClick={() => {
                   if (
                     !confirm(`Are you sure to delete this **tools** template?`)
