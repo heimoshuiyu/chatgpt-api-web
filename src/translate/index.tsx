@@ -1,5 +1,5 @@
 import { createContext } from "preact";
-import MAP_zh_CN from "./zh_CN";
+import MAP_zh_CN from "@/translate/zh_CN";
 
 interface LangOption {
   name: string;

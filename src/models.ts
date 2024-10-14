@@ -13,7 +13,7 @@ const models: Record<string, Model> = {
   },
   "gpt-4o-2024-08-06": {
     maxToken: 128000,
-    price: { prompt: 0.0025 / 1000, completion: 0.010 / 1000 },
+    price: { prompt: 0.0025 / 1000, completion: 0.01 / 1000 },
   },
   "gpt-4o-2024-05-13": {
     maxToken: 128000,

@@ -1,10 +1,8 @@
-import { Tr, langCodeContext, LANG_OPTIONS, tr } from "./translate";
-import { useState, useEffect, StateUpdater,Dispatch } from "preact/hooks";
-import { ChatStore, ChatStoreMessage } from "./app";
-import { calculate_token_length, getMessageText } from "./chatgpt";
-import { isVailedJSON } from "./message";
-import { EditMessageString } from "./editMessageString";
-import { EditMessageDetail } from "./editMessageDetail";
+import { useState, useEffect, StateUpdater, Dispatch } from "preact/hooks";
+import { Tr, langCodeContext, LANG_OPTIONS, tr } from "@/translate";
+import { ChatStore, ChatStoreMessage } from "@/app";
+import { EditMessageString } from "@/editMessageString";
+import { EditMessageDetail } from "@/editMessageDetail";
 
 interface EditMessageProps {
   chat: ChatStoreMessage;
@@ -49,7 +47,7 @@ export function EditMessage(props: EditMessageProps) {
               className="w-full m-2 p-1 rounded bg-red-500"
               onClick={() => {
                 const confirm = window.confirm(
-                  "Change message type will clear the content, are you sure?"
+                  "Change message type will clear the content, are you sure?",
                 );
                 if (!confirm) return;
 

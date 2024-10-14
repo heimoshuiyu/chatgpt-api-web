@@ -3,7 +3,7 @@ export const autoHeight = (target: any) => {
   // max 70% of screen height
   target.style.height = `${Math.min(
     target.scrollHeight,
-    window.innerHeight * 0.7
+    window.innerHeight * 0.7,
   )}px`;
   console.log("set auto height", target.style.height);
 };

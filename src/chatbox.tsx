@@ -1,7 +1,19 @@
-import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
+import {
+  MagnifyingGlassIcon,
+  CubeIcon,
+  BanknotesIcon,
+  DocumentTextIcon,
+  ChatBubbleLeftEllipsisIcon,
+  ScissorsIcon,
+  SwatchIcon,
+  SparklesIcon,
+} from "@heroicons/react/24/outline";
+
+import { IDBPDatabase } from "idb";
 import structuredClone from "@ungap/structured-clone";
 import { createRef } from "preact";
 import { StateUpdater, useEffect, useState, Dispatch } from "preact/hooks";
+import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import {
   ChatStore,
   ChatStoreMessage,
@@ -15,7 +27,7 @@ import {
   TemplateTools,
   addTotalCost,
   getTotalCost,
-} from "./app";
+} from "@/app";
 import ChatGPT, {
   calculate_token_length,
   ChunkMessage,
@@ -24,28 +36,16 @@ import ChatGPT, {
   MessageDetail,
   ToolCall,
   Logprobs,
-} from "./chatgpt";
-import Message from "./message";
-import models from "./models";
-import Settings from "./settings";
-import getDefaultParams from "./getDefaultParam";
-import { AddImage } from "./addImage";
-import { ListAPIs } from "./listAPIs";
-import { ListToolsTempaltes } from "./listToolsTemplates";
-import { autoHeight } from "./textarea";
-import Search from "./search";
-import { IDBPDatabase } from "idb";
-import {
-  MagnifyingGlassIcon,
-  CubeIcon,
-  BanknotesIcon,
-  DocumentTextIcon,
-  ChatBubbleLeftEllipsisIcon,
-  ScissorsIcon,
-  SwatchIcon,
-  SparklesIcon,
-} from "@heroicons/react/24/outline";
-
+} from "@/chatgpt";
+import Message from "@/message";
+import models from "@/models";
+import Settings from "@/settings";
+import getDefaultParams from "@/getDefaultParam";
+import { AddImage } from "@/addImage";
+import { ListAPIs } from "@/listAPIs";
+import { ListToolsTempaltes } from "@/listToolsTemplates";
+import { autoHeight } from "@/textarea";
+import Search from "@/search";
 export interface TemplateChatStore extends ChatStore {
   name: string;
 }
@@ -96,7 +96,7 @@ export default function ChatBOX(props: {
   const update_total_tokens = () => {
     // manually estimate token
     client.total_tokens = calculate_token_length(
-      chatStore.systemMessageContent
+      chatStore.systemMessageContent,
     );
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -152,7 +152,7 @@ export default function ChatBOX(props: {
 
           // update tool call arguments
           const tool = allChunkTool.find(
-            (tool) => tool.index === tool_call.index
+            (tool) => tool.index === tool_call.index,
           );
 
           if (!tool) {
@@ -167,7 +167,7 @@ export default function ChatBOX(props: {
         allChunkMessage.join("") +
           allChunkTool.map((tool) => {
             return `Tool Call ID: ${tool.id}\nType: ${tool.type}\nFunction: ${tool.function.name}\nArguments: ${tool.function.arguments}`;
-          })
+          }),
       );
     }
     setShowGenerating(false);
@@ -305,7 +305,7 @@ export default function ChatBOX(props: {
       setShowGenerating(true);
       const response = await client._fetch(
         chatStore.streamMode,
-        chatStore.logprobs
+        chatStore.logprobs,
       );
       const contentType = response.headers.get("content-type");
       if (contentType?.startsWith("text/event-stream")) {
@@ -375,33 +375,33 @@ export default function ChatBOX(props: {
 
   const [templates, _setTemplates] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE) || "[]"
-    ) as TemplateChatStore[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE) || "[]",
+    ) as TemplateChatStore[],
   );
   const [templateAPIs, _setTemplateAPIs] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API) || "[]"
-    ) as TemplateAPI[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API) || "[]",
+    ) as TemplateAPI[],
   );
   const [templateAPIsWhisper, _setTemplateAPIsWhisper] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_WHISPER) || "[]"
-    ) as TemplateAPI[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_WHISPER) || "[]",
+    ) as TemplateAPI[],
   );
   const [templateAPIsTTS, _setTemplateAPIsTTS] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_TTS) || "[]"
-    ) as TemplateAPI[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_TTS) || "[]",
+    ) as TemplateAPI[],
   );
   const [templateAPIsImageGen, _setTemplateAPIsImageGen] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_IMAGE_GEN) || "[]"
-    ) as TemplateAPI[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_IMAGE_GEN) || "[]",
+    ) as TemplateAPI[],
   );
   const [toolsTemplates, _setToolsTemplates] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_TOOLS) || "[]"
-    ) as TemplateTools[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_TOOLS) || "[]",
+    ) as TemplateTools[],
   );
   const setTemplates = (templates: TemplateChatStore[]) => {
     localStorage.setItem(STORAGE_NAME_TEMPLATE, JSON.stringify(templates));
@@ -410,35 +410,35 @@ export default function ChatBOX(props: {
   const setTemplateAPIs = (templateAPIs: TemplateAPI[]) => {
     localStorage.setItem(
       STORAGE_NAME_TEMPLATE_API,
-      JSON.stringify(templateAPIs)
+      JSON.stringify(templateAPIs),
     );
     _setTemplateAPIs(templateAPIs);
   };
   const setTemplateAPIsWhisper = (templateAPIWhisper: TemplateAPI[]) => {
     localStorage.setItem(
       STORAGE_NAME_TEMPLATE_API_WHISPER,
-      JSON.stringify(templateAPIWhisper)
+      JSON.stringify(templateAPIWhisper),
     );
     _setTemplateAPIsWhisper(templateAPIWhisper);
   };
   const setTemplateAPIsTTS = (templateAPITTS: TemplateAPI[]) => {
     localStorage.setItem(
       STORAGE_NAME_TEMPLATE_API_TTS,
-      JSON.stringify(templateAPITTS)
+      JSON.stringify(templateAPITTS),
     );
     _setTemplateAPIsTTS(templateAPITTS);
   };
   const setTemplateAPIsImageGen = (templateAPIImageGen: TemplateAPI[]) => {
     localStorage.setItem(
       STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
-      JSON.stringify(templateAPIImageGen)
+      JSON.stringify(templateAPIImageGen),
     );
     _setTemplateAPIsImageGen(templateAPIImageGen);
   };
   const setTemplateTools = (templateTools: TemplateTools[]) => {
     localStorage.setItem(
       STORAGE_NAME_TEMPLATE_TOOLS,
-      JSON.stringify(templateTools)
+      JSON.stringify(templateTools),
     );
     _setToolsTemplates(templateTools);
   };
@@ -478,7 +478,11 @@ export default function ChatBOX(props: {
       <div className="navbar bg-base-100 p-0">
         <div className="navbar-start">
           <div className="dropdown lg:hidden">
-            <div tabindex={0} role="button" className="btn btn-ghost btn-circle">
+            <div
+              tabindex={0}
+              role="button"
+              className="btn btn-ghost btn-circle"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
@@ -556,7 +560,9 @@ export default function ChatBOX(props: {
                 <ChatBubbleLeftEllipsisIcon className="h-10 w-10" />
               </div>
               <div className="stat-title">Tokens</div>
-              <div className="stat-value text-base">{chatStore.totalTokens}</div>
+              <div className="stat-value text-base">
+                {chatStore.totalTokens}
+              </div>
               <div className="stat-desc">Max: {chatStore.maxTokens}</div>
             </div>
 
@@ -565,7 +571,9 @@ export default function ChatBOX(props: {
                 <ScissorsIcon className="h-10 w-10" />
               </div>
               <div className="stat-title">Cut</div>
-              <div className="stat-value text-base">{chatStore.postBeginIndex}</div>
+              <div className="stat-value text-base">
+                {chatStore.postBeginIndex}
+              </div>
               <div className="stat-desc">
                 Max: {chatStore.history.filter(({ hide }) => !hide).length}
               </div>
@@ -801,49 +809,49 @@ export default function ChatBOX(props: {
                     if (!newChatStore.apiEndpoint) {
                       newChatStore.apiEndpoint = getDefaultParams(
                         "api",
-                        chatStore.apiEndpoint
+                        chatStore.apiEndpoint,
                       );
                     }
                     if (!newChatStore.apiKey) {
                       newChatStore.apiKey = getDefaultParams(
                         "key",
-                        chatStore.apiKey
+                        chatStore.apiKey,
                       );
                     }
                     if (!newChatStore.whisper_api) {
                       newChatStore.whisper_api = getDefaultParams(
                         "whisper-api",
-                        chatStore.whisper_api
+                        chatStore.whisper_api,
                       );
                     }
                     if (!newChatStore.whisper_key) {
                       newChatStore.whisper_key = getDefaultParams(
                         "whisper-key",
-                        chatStore.whisper_key
+                        chatStore.whisper_key,
                       );
                     }
                     if (!newChatStore.tts_api) {
                       newChatStore.tts_api = getDefaultParams(
                         "tts-api",
-                        chatStore.tts_api
+                        chatStore.tts_api,
                       );
                     }
                     if (!newChatStore.tts_key) {
                       newChatStore.tts_key = getDefaultParams(
                         "tts-key",
-                        chatStore.tts_key
+                        chatStore.tts_key,
                       );
                     }
                     if (!newChatStore.image_gen_api) {
                       newChatStore.image_gen_api = getDefaultParams(
                         "image-gen-api",
-                        chatStore.image_gen_api
+                        chatStore.image_gen_api,
                       );
                     }
                     if (!newChatStore.image_gen_key) {
                       newChatStore.image_gen_key = getDefaultParams(
                         "image-gen-key",
-                        chatStore.image_gen_key
+                        chatStore.image_gen_key,
                       );
                     }
                     newChatStore.cost = 0;
@@ -900,7 +908,7 @@ export default function ChatBOX(props: {
             <br />↖{Tr("Click the conor to create a new chat")}
             <br />⚠
             {Tr(
-              "All chat history and settings are stored in the local browser"
+              "All chat history and settings are stored in the local browser",
             )}
             <br />
           </p>
@@ -1143,7 +1151,7 @@ export default function ChatBOX(props: {
                         } else {
                           return content.map((c) => c?.text).join(" ");
                         }
-                      })
+                      }),
                   )
                   .concat([inputMsg])
                   .join(" ");
@@ -1157,7 +1165,7 @@ export default function ChatBOX(props: {
                     await navigator.mediaDevices.getUserMedia({
                       audio: true,
                     }),
-                    { audioBitsPerSecond: 64 * 1000 }
+                    { audioBitsPerSecond: 64 * 1000 },
                   );
 
                   // mount mediaRecorder to ref

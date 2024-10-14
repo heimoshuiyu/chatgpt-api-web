@@ -1,9 +1,8 @@
-import { render } from "preact";
-import { App } from "./app";
-import { useState, useEffect } from "preact/hooks";
-import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
-
 import { themeChange } from "theme-change";
+import { render } from "preact";
+import { useState, useEffect } from "preact/hooks";
+import { App } from "@/app";
+import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 
 function Base() {
   const [langCode, _setLangCode] = useState("en-US");

@@ -1,6 +1,7 @@
 import { IDBPDatabase } from "idb";
-import { ChatStore } from "./app";
 import { StateUpdater, useRef, useState, Dispatch } from "preact/hooks";
+
+import { ChatStore } from "@/app";
 
 interface ChatStoreSearchResult {
   key: IDBValidKey;
@@ -77,7 +78,7 @@ export default function Search(props: {
                 }
 
                 const now = Math.floor(
-                  (result.length / resultKeys.length) * 100
+                  (result.length / resultKeys.length) * 100,
                 );
                 if (now !== searchingNow) setSearchingNow(now);
 
@@ -89,7 +90,7 @@ export default function Search(props: {
                   const beginIndex: number = content.indexOf(query);
                   const preview = content.slice(
                     Math.max(0, beginIndex - 100),
-                    Math.min(content.length, beginIndex + 239)
+                    Math.min(content.length, beginIndex + 239),
                   );
                   result.push({
                     key,

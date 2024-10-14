@@ -1,4 +1,4 @@
-import { ChatStoreMessage } from "./app";
+import { ChatStoreMessage } from "@/app";
 
 interface Props {
   chat: ChatStoreMessage;

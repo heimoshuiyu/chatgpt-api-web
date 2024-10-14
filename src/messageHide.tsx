@@ -1,5 +1,5 @@
-import { ChatStoreMessage } from "./app";
-import { getMessageText } from "./chatgpt";
+import { ChatStoreMessage } from "@/app";
+import { getMessageText } from "@/chatgpt";
 
 interface Props {
   chat: ChatStoreMessage;

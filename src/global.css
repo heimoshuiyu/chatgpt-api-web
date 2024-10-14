@@ -79,8 +79,14 @@ body::-webkit-scrollbar {
   white-space: break-space;
   background-color: rgba(175, 184, 193, 0.2);
   border-radius: 6px;
-  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
-    Liberation Mono, monospace;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    SF Mono,
+    Menlo,
+    Consolas,
+    Liberation Mono,
+    monospace;
 }
 
 .markup > pre {

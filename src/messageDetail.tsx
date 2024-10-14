@@ -1,4 +1,4 @@
-import { ChatStoreMessage } from "./app";
+import { ChatStoreMessage } from "@/app";
 
 interface Props {
   chat: ChatStoreMessage;
@@ -28,7 +28,7 @@ export function MessageDetail({ chat, renderMarkdown }: Props) {
               window.open(mdt.image_url?.url, "_blank");
             }}
           />
-        )
+        ),
       )}
     </div>
   );

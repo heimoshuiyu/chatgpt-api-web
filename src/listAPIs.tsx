@@ -1,5 +1,5 @@
-import { ChatStore, TemplateAPI } from "./app";
-import { Tr } from "./translate";
+import { ChatStore, TemplateAPI } from "@/app";
+import { Tr } from "@/translate";
 
 interface Props {
   chatStore: ChatStore;
@@ -62,7 +62,7 @@ export function ListAPIs({
                 onClick={() => {
                   if (
                     !confirm(
-                      `Are you sure to delete this **${label}** template?`
+                      `Are you sure to delete this **${label}** template?`,
                     )
                   ) {
                     return;

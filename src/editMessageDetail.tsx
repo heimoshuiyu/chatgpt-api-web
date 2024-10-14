@@ -1,6 +1,6 @@
-import { ChatStore, ChatStoreMessage } from "./app";
-import { calculate_token_length } from "./chatgpt";
-import { Tr } from "./translate";
+import { ChatStore, ChatStoreMessage } from "@/app";
+import { calculate_token_length } from "@/chatgpt";
+import { Tr } from "@/translate";
 
 interface Props {
   chat: ChatStoreMessage;

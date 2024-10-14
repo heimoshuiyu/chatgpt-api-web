@@ -1,16 +1,17 @@
-import { Tr, langCodeContext, LANG_OPTIONS } from "./translate";
-import { useState, useEffect, StateUpdater } from "preact/hooks";
-import { ChatStore, ChatStoreMessage } from "./app";
-import { calculate_token_length, getMessageText } from "./chatgpt";
-import Markdown from "preact-markdown";
-import TTSButton, { TTSPlay } from "./tts";
-import { MessageHide } from "./messageHide";
-import { MessageDetail } from "./messageDetail";
-import { MessageToolCall } from "./messageToolCall";
-import { MessageToolResp } from "./messageToolResp";
-import { EditMessage } from "./editMessage";
-import logprobToColor from "./logprob";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import Markdown from "preact-markdown";
+import { useState, useEffect, StateUpdater } from "preact/hooks";
+
+import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
+import { ChatStore, ChatStoreMessage } from "@/app";
+import { calculate_token_length, getMessageText } from "@/chatgpt";
+import TTSButton, { TTSPlay } from "@/tts";
+import { MessageHide } from "@/messageHide";
+import { MessageDetail } from "@/messageDetail";
+import { MessageToolCall } from "@/messageToolCall";
+import { MessageToolResp } from "@/messageToolResp";
+import { EditMessage } from "@/editMessage";
+import logprobToColor from "@/logprob";
 
 export const isVailedJSON = (str: string): boolean => {
   try {
@@ -213,7 +214,7 @@ export default function Message(props: Props) {
                   chatStore.history.splice(messageIndex, 1);
                   chatStore.postBeginIndex = Math.max(
                     chatStore.postBeginIndex - 1,
-                    0
+                    0,
                   );
                   //chatStore.totalTokens =
                   chatStore.totalTokens = 0;

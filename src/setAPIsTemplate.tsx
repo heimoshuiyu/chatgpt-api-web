@@ -1,5 +1,5 @@
-import { TemplateAPI } from "./app";
-import { Tr } from "./translate";
+import { TemplateAPI } from "@/app";
+import { Tr } from "@/translate";
 
 interface Props {
   tmps: TemplateAPI[];

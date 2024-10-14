@@ -1,5 +1,5 @@
-import { ChatStore, TemplateTools } from "./app";
-import { Tr } from "./translate";
+import { ChatStore, TemplateTools } from "@/app";
+import { Tr } from "@/translate";
 
 interface Props {
   templateTools: TemplateTools[];

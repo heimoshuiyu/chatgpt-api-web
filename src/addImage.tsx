@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
-import { ChatStore } from "./app";
-import { MessageDetail } from "./chatgpt";
-import { Tr } from "./translate";
+import { ChatStore } from "@/app";
+import { MessageDetail } from "@/chatgpt";
+import { Tr } from "@/translate";
 
 interface Props {
   chatStore: ChatStore;

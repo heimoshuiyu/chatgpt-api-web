@@ -1,7 +1,7 @@
-import { ChatStore, ChatStoreMessage } from "./app";
-import { isVailedJSON } from "./message";
-import { calculate_token_length } from "./chatgpt";
-import { Tr } from "./translate";
+import { ChatStore, ChatStoreMessage } from "@/app";
+import { isVailedJSON } from "@/message";
+import { calculate_token_length } from "@/chatgpt";
+import { Tr } from "@/translate";
 
 interface Props {
   chat: ChatStoreMessage;
@@ -69,7 +69,7 @@ export function EditMessageString({
                 onClick={() => {
                   if (!chat.tool_calls) return;
                   chat.tool_calls = chat.tool_calls.filter(
-                    (tc) => tc.id !== tool_call.id
+                    (tc) => tc.id !== tool_call.id,
                   );
                   setChatStore({ ...chatStore });
                 }}

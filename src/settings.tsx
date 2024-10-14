@@ -1,21 +1,4 @@
-import { createRef } from "preact";
-import { StateUpdater, useContext, useEffect, useState, Dispatch } from "preact/hooks";
-import {
-  ChatStore,
-  TemplateAPI,
-  TemplateTools,
-  clearTotalCost,
-  getTotalCost,
-} from "./app";
-import models from "./models";
-import { TemplateChatStore } from "./chatbox";
-import { tr, Tr, langCodeContext, LANG_OPTIONS } from "./translate";
-import p from "preact-markdown";
-import { isVailedJSON } from "./message";
-import { SetAPIsTemplate } from "./setAPIsTemplate";
-import { autoHeight } from "./textarea";
-import getDefaultParams from "./getDefaultParam";
-
+import { themeChange } from "theme-change";
 import {
   InformationCircleIcon,
   CheckIcon,
@@ -30,7 +13,28 @@ import {
   ListBulletIcon,
 } from "@heroicons/react/24/outline";
 
-import { themeChange } from "theme-change";
+import { createRef } from "preact";
+import {
+  StateUpdater,
+  useContext,
+  useEffect,
+  useState,
+  Dispatch,
+} from "preact/hooks";
+import {
+  ChatStore,
+  TemplateAPI,
+  TemplateTools,
+  clearTotalCost,
+  getTotalCost,
+} from "@/app";
+import models from "@/models";
+import { TemplateChatStore } from "@/chatbox";
+import { tr, Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
+import { isVailedJSON } from "@/message";
+import { SetAPIsTemplate } from "@/setAPIsTemplate";
+import { autoHeight } from "@/textarea";
+import getDefaultParams from "@/getDefaultParam";
 
 const TTS_VOICES: string[] = [
   "alloy",
@@ -109,7 +113,7 @@ const SelectModel = (props: {
               props.chatStore.model = model;
               props.chatStore.maxTokens = getDefaultParams(
                 "max",
-                models[model].maxToken
+                models[model].maxToken,
               );
               props.setChatStore({ ...props.chatStore });
             }}
@@ -435,11 +439,11 @@ export default (props: {
     location.host +
     location.pathname +
     `?key=${encodeURIComponent(
-      props.chatStore.apiKey
+      props.chatStore.apiKey,
     )}&api=${encodeURIComponent(props.chatStore.apiEndpoint)}&mode=${
       props.chatStore.streamMode ? "stream" : "fetch"
     }&model=${props.chatStore.model}&sys=${encodeURIComponent(
-      props.chatStore.systemMessageContent
+      props.chatStore.systemMessageContent,
     )}`;
   if (props.chatStore.develop_mode) {
     link = link + `&dev=true`;
@@ -529,7 +533,7 @@ export default (props: {
                       className="btn"
                       onClick={() => {
                         const name = prompt(
-                          `Give this **Tools** template a name:`
+                          `Give this **Tools** template a name:`,
                         );
                         if (!name) {
                           alert("No template name specified");
@@ -632,12 +636,12 @@ export default (props: {
                     onClick={() => {
                       if (
                         !confirm(
-                          tr("Are you sure to clear all history?", langCode)
+                          tr("Are you sure to clear all history?", langCode),
                         )
                       )
                         return;
                       props.chatStore.history = props.chatStore.history.filter(
-                        (msg) => msg.example && !msg.hide
+                        (msg) => msg.example && !msg.hide,
                       );
                       props.chatStore.postBeginIndex = 0;
                       props.setChatStore({ ...props.chatStore });
@@ -651,13 +655,13 @@ export default (props: {
                       let dataStr =
                         "data:text/json;charset=utf-8," +
                         encodeURIComponent(
-                          JSON.stringify(props.chatStore, null, "\t")
+                          JSON.stringify(props.chatStore, null, "\t"),
                         );
                       let downloadAnchorNode = document.createElement("a");
                       downloadAnchorNode.setAttribute("href", dataStr);
                       downloadAnchorNode.setAttribute(
                         "download",
-                        `chatgpt-api-web-${props.selectedChatStoreIndex}.json`
+                        `chatgpt-api-web-${props.selectedChatStoreIndex}.json`,
                       );
                       document.body.appendChild(downloadAnchorNode); // required for firefox
                       downloadAnchorNode.click();
@@ -670,7 +674,7 @@ export default (props: {
                     className="btn btn-sm btn-outline btn-neural"
                     onClick={() => {
                       const name = prompt(
-                        tr("Give this template a name:", langCode)
+                        tr("Give this template a name:", langCode),
                       );
                       if (!name) {
                         alert(tr("No template name specified", langCode));
@@ -702,8 +706,8 @@ export default (props: {
                         !confirm(
                           tr(
                             "This will OVERWRITE the current chat history! Continue?",
-                            langCode
-                          )
+                            langCode,
+                          ),
                         )
                       )
                         return;
@@ -734,18 +738,19 @@ export default (props: {
                       }
                       try {
                         const newChatStore: ChatStore = JSON.parse(
-                          reader.result as string
+                          reader.result as string,
                         );
                         if (!newChatStore.chatgpt_api_web_version) {
                           throw tr(
                             "This is not an exported chatgpt-api-web chatstore file. The key 'chatgpt_api_web_version' is missing!",
-                            langCode
+                            langCode,
                           );
                         }
                         props.setChatStore({ ...newChatStore });
                       } catch (e) {
                         alert(
-                          tr(`Import error on parsing json:`, langCode) + `${e}`
+                          tr(`Import error on parsing json:`, langCode) +
+                            `${e}`,
                         );
                       }
                     };
