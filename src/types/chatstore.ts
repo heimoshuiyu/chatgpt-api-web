@@ -1,6 +1,4 @@
 import { Logprobs, Message } from "@/chatgpt";
-import { DefaultModel, CHATGPT_API_WEB_VERSION } from "@/const";
-import getDefaultParams from "@/utils/getDefaultParam";
 
 /**
  * ChatStore is the main object of the chatgpt-api-web,

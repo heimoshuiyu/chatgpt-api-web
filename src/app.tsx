@@ -3,7 +3,7 @@ import { useEffect, useState } from "preact/hooks";
 import "@/global.css";
 
 import { calculate_token_length } from "@/chatgpt";
-import getDefaultParams from "@/utils/getDefaultParam";
+import { getDefaultParams } from "@/utils/getDefaultParam";
 import ChatBOX from "@/chatbox";
 import { DefaultModel } from "@/const";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";

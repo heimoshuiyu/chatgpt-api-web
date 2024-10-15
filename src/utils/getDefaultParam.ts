@@ -1,8 +1,8 @@
-function getDefaultParams(param: string, val: string): string;
-function getDefaultParams(param: string, val: number): number;
-function getDefaultParams(param: string, val: boolean): boolean;
+export function getDefaultParams(param: string, val: string): string;
+export function getDefaultParams(param: string, val: number): number;
+export function getDefaultParams(param: string, val: boolean): boolean;
 
-function getDefaultParams(param: any, val: any) {
+export function getDefaultParams(param: any, val: any) {
   const queryParameters = new URLSearchParams(window.location.search);
   const get = queryParameters.get(param);
   if (typeof val === "string") {
@@ -17,5 +17,3 @@ function getDefaultParams(param: any, val: any) {
     return val;
   }
 }
-
-export default getDefaultParams;

@@ -43,7 +43,7 @@ import {
 import Message from "@/message";
 import { models } from "@/types/models";
 import Settings from "@/settings";
-import getDefaultParams from "@/utils/getDefaultParam";
+import { getDefaultParams } from "@/utils/getDefaultParam";
 import { AddImage } from "@/addImage";
 import { ListAPIs } from "@/listAPIs";
 import { ListToolsTempaltes } from "@/listToolsTemplates";

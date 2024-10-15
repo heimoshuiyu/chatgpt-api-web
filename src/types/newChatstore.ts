@@ -3,7 +3,7 @@ import {
   DefaultModel,
   CHATGPT_API_WEB_VERSION,
 } from "@/const";
-import getDefaultParams from "@/utils/getDefaultParam";
+import { getDefaultParams } from "@/utils/getDefaultParam";
 import { ChatStore } from "@/types/chatstore";
 import { models } from "@/types/models";
 

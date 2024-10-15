@@ -33,7 +33,7 @@ import { tr, Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { isVailedJSON } from "@/message";
 import { SetAPIsTemplate } from "@/setAPIsTemplate";
 import { autoHeight } from "@/textarea";
-import getDefaultParams from "@/utils/getDefaultParam";
+import { getDefaultParams } from "@/utils/getDefaultParam";
 
 const TTS_VOICES: string[] = [
   "alloy",
