@@ -1,4 +1,4 @@
-import { IDBPDatabase, openDB } from "idb";
+import { openDB } from "idb";
 import { useEffect, useState } from "preact/hooks";
 import "@/global.css";
 
@@ -9,12 +9,9 @@ import { DefaultModel } from "@/const";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { ChatStore } from "@/types/chatstore";
 import { newChatStore } from "@/types/newChatstore";
-import {
-  STORAGE_NAME,
-  STORAGE_NAME_INDEXES,
-  STORAGE_NAME_SELECTED,
-} from "@/const";
+import { STORAGE_NAME, STORAGE_NAME_SELECTED } from "@/const";
 import { BuildFiledForSearch } from "@/utils/buildForSearch";
+import { upgrade } from "@/indexedDB/upgrade";
 
 export function App() {
   // init selected index
@@ -28,68 +25,7 @@ export function App() {
   }, [selectedChatIndex]);
 
   const db = openDB<ChatStore>(STORAGE_NAME, 11, {
-    async upgrade(db, oldVersion, newVersion, transaction) {
-      if (oldVersion < 1) {
-        const store = db.createObjectStore(STORAGE_NAME, {
-          autoIncrement: true,
-        });
-
-        // copy from localStorage to indexedDB
-        const allChatStoreIndexes: number[] = JSON.parse(
-          localStorage.getItem(STORAGE_NAME_INDEXES) ?? "[]",
-        );
-        let keyCount = 0;
-        for (const i of allChatStoreIndexes) {
-          console.log("importing chatStore from localStorage", i);
-          const key = `${STORAGE_NAME}-${i}`;
-          const val = localStorage.getItem(key);
-          if (val === null) continue;
-          store.add(JSON.parse(val));
-          keyCount += 1;
-        }
-        setSelectedChatIndex(keyCount);
-        if (keyCount > 0) {
-          alert(
-            "v2.0.0 Update: Imported chat history from localStorage to indexedDB. 🎉",
-          );
-        }
-      }
-
-      if (oldVersion < 11) {
-        if (oldVersion < 11 && oldVersion >= 1) {
-          alert(
-            "Start upgrading storage, just a sec... (Click OK to continue)",
-          );
-        }
-        if (
-          transaction
-            .objectStore(STORAGE_NAME)
-            .indexNames.contains("contents_for_index")
-        ) {
-          transaction
-            .objectStore(STORAGE_NAME)
-            .deleteIndex("contents_for_index");
-        }
-        transaction.objectStore(STORAGE_NAME).createIndex(
-          "contents_for_index", // name
-          "contents_for_index", // keyPath
-          {
-            multiEntry: true,
-            unique: false,
-          },
-        );
-
-        // iter through all chatStore and update contents_for_index
-        const store = transaction.objectStore(STORAGE_NAME);
-        const allChatStoreIndexes = await store.getAllKeys();
-        for (const i of allChatStoreIndexes) {
-          const chatStore: ChatStore = await store.get(i);
-
-          chatStore.contents_for_index = BuildFiledForSearch(chatStore);
-          await store.put(chatStore, i);
-        }
-      }
-    },
+    upgrade,
   });
 
   const getChatStoreByIndex = async (index: number): Promise<ChatStore> => {
