@@ -1,7 +1,7 @@
 import { SpeakerWaveIcon } from "@heroicons/react/24/outline";
 import { useMemo, useState } from "preact/hooks";
 
-import { addTotalCost } from "@/app";
+import { addTotalCost } from "@/utils/totalCost";
 import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
 import { Message, getMessageText } from "@/chatgpt";
 

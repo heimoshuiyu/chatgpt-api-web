@@ -21,7 +21,7 @@ import {
   useState,
   Dispatch,
 } from "preact/hooks";
-import { clearTotalCost, getTotalCost } from "@/app";
+import { clearTotalCost, getTotalCost } from "@/utils/totalCost";
 import {
   ChatStore,
   TemplateChatStore,
