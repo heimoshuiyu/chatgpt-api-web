@@ -6,7 +6,7 @@ interface Model {
   };
 }
 
-const models: Record<string, Model> = {
+export const models: Record<string, Model> = {
   "gpt-4o": {
     maxToken: 128000,
     price: { prompt: 0.005 / 1000, completion: 0.015 / 1000 },
@@ -80,7 +80,3 @@ const models: Record<string, Model> = {
     price: { prompt: 0.06 / 1000, completion: 0.12 / 1000 },
   },
 };
-
-export const defaultModel = "gpt-4o-mini";
-
-export default models;

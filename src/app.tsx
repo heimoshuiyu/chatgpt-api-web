@@ -5,9 +5,10 @@ import "@/global.css";
 import { calculate_token_length } from "@/chatgpt";
 import getDefaultParams from "@/utils/getDefaultParam";
 import ChatBOX from "@/chatbox";
-import models, { defaultModel } from "@/models";
+import { DefaultModel } from "@/const";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
-import { ChatStore, newChatStore } from "@/types/chatstore";
+import { ChatStore } from "@/types/chatstore";
+import { newChatStore } from "@/types/newChatstore";
 
 export const STORAGE_NAME = "chatgpt-api-web";
 const STORAGE_NAME_SELECTED = `${STORAGE_NAME}-selected`;
@@ -145,7 +146,7 @@ export function App() {
     // handle read from old version chatstore
     if (ret.maxGenTokens === undefined) ret.maxGenTokens = 2048;
     if (ret.maxGenTokens_enabled === undefined) ret.maxGenTokens_enabled = true;
-    if (ret.model === undefined) ret.model = defaultModel;
+    if (ret.model === undefined) ret.model = DefaultModel;
     if (ret.responseModelName === undefined) ret.responseModelName = "";
     if (ret.toolsString === undefined) ret.toolsString = "";
     if (ret.chatgpt_api_web_version === undefined)

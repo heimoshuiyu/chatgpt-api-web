@@ -28,7 +28,7 @@ import {
   TemplateAPI,
   TemplateTools,
 } from "@/types/chatstore";
-import models from "@/models";
+import { models } from "@/types/models";
 import { tr, Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { isVailedJSON } from "@/message";
 import { SetAPIsTemplate } from "@/setAPIsTemplate";

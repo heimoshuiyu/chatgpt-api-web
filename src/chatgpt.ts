@@ -1,4 +1,4 @@
-import { defaultModel } from "@/models";
+import { DefaultModel } from "@/const";
 
 export interface ImageURL {
   url: string;
@@ -157,7 +157,7 @@ class Chat {
       enable_max_gen_tokens = true,
       tokens_margin = 1024,
       apiEndPoint = "https://api.openai.com/v1/chat/completions",
-      model = defaultModel,
+      model = DefaultModel,
       temperature = 0.7,
       enable_temperature = true,
       top_p = 1,

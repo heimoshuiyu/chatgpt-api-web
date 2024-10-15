@@ -41,7 +41,7 @@ import {
   TemplateTools,
 } from "./types/chatstore";
 import Message from "@/message";
-import models from "@/models";
+import { models } from "@/types/models";
 import Settings from "@/settings";
 import getDefaultParams from "@/utils/getDefaultParam";
 import { AddImage } from "@/addImage";
