@@ -142,7 +142,7 @@ export function App() {
 
   const getChatStoreByIndex = async (index: number): Promise<ChatStore> => {
     const ret: ChatStore = await (await db).get(STORAGE_NAME, index);
-    if (ret === null || ret === undefined) return newChatStore();
+    if (ret === null || ret === undefined) return newChatStore({});
     // handle read from old version chatstore
     if (ret.maxGenTokens === undefined) ret.maxGenTokens = 2048;
     if (ret.maxGenTokens_enabled === undefined) ret.maxGenTokens_enabled = true;
@@ -162,7 +162,7 @@ export function App() {
     return ret;
   };
 
-  const [chatStore, _setChatStore] = useState(newChatStore());
+  const [chatStore, _setChatStore] = useState(newChatStore({}));
   const setChatStore = async (chatStore: ChatStore) => {
     // building field for search
     chatStore.contents_for_index = BuildFiledForSearch(chatStore);
@@ -212,32 +212,7 @@ export function App() {
   );
 
   const handleNewChatStoreWithOldOne = async (chatStore: ChatStore) => {
-    const newKey = await (
-      await db
-    ).add(
-      STORAGE_NAME,
-      newChatStore(
-        chatStore.apiKey,
-        chatStore.systemMessageContent,
-        chatStore.apiEndpoint,
-        chatStore.streamMode,
-        chatStore.model,
-        chatStore.temperature,
-        !!chatStore.develop_mode,
-        chatStore.whisper_api,
-        chatStore.whisper_key,
-        chatStore.tts_api,
-        chatStore.tts_key,
-        chatStore.tts_speed,
-        chatStore.tts_speed_enabled,
-        chatStore.tts_format,
-        chatStore.toolsString,
-        chatStore.image_gen_api,
-        chatStore.image_gen_key,
-        chatStore.json_mode,
-        false, // logprobs default to false
-      ),
-    );
+    const newKey = await (await db).add(STORAGE_NAME, newChatStore(chatStore));
     setSelectedChatIndex(newKey as number);
     setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
   };

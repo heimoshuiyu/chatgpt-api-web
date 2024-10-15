@@ -1,6 +1,7 @@
 function getDefaultParams(param: string, val: string): string;
 function getDefaultParams(param: string, val: number): number;
 function getDefaultParams(param: string, val: boolean): boolean;
+
 function getDefaultParams(param: any, val: any) {
   const queryParameters = new URLSearchParams(window.location.search);
   const get = queryParameters.get(param);
