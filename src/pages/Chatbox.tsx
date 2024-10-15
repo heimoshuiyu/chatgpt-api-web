@@ -79,19 +79,6 @@ export default function ChatBOX(props: {
 
   const client = new ChatGPT(chatStore.apiKey);
 
-  const update_total_tokens = () => {
-    // manually estimate token
-    client.total_tokens = calculate_token_length(
-      chatStore.systemMessageContent,
-    );
-    for (const msg of chatStore.history
-      .filter(({ hide }) => !hide)
-      .slice(chatStore.postBeginIndex)) {
-      client.total_tokens += msg.token;
-    }
-    chatStore.totalTokens = client.total_tokens;
-  };
-
   const _completeWithStreamMode = async (response: Response) => {
     let responseTokenCount = 0;
     const allChunkMessage: string[] = [];
@@ -194,7 +181,6 @@ export default function ChatBOX(props: {
     // manually copy status from client to chatStore
     chatStore.maxTokens = client.max_tokens;
     chatStore.tokenMargin = client.tokens_margin;
-    update_total_tokens();
     setChatStore({ ...chatStore });
     setGeneratingMessage("");
     setShowGenerating(false);
@@ -592,7 +578,6 @@ export default function ChatBOX(props: {
             chatStore={chatStore}
             setChatStore={setChatStore}
             messageIndex={messageIndex}
-            update_total_tokens={update_total_tokens}
           />
         ))}
         {showGenerating && (
@@ -613,7 +598,6 @@ export default function ChatBOX(props: {
                 }
 
                 //chatStore.totalTokens =
-                update_total_tokens();
                 setChatStore({ ...chatStore });
 
                 await complete();
@@ -771,7 +755,6 @@ export default function ChatBOX(props: {
                 audio: null,
                 logprobs: null,
               });
-              update_total_tokens();
               setInputMsg("");
               setChatStore({ ...chatStore });
             }}
@@ -806,7 +789,6 @@ export default function ChatBOX(props: {
             chatStore={chatStore}
             setChatStore={setChatStore}
             setShowAddToolMsg={setShowAddToolMsg}
-            update_total_tokens={update_total_tokens}
           />
         )}
       </div>

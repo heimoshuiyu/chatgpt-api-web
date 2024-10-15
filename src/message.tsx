@@ -26,7 +26,6 @@ interface Props {
   messageIndex: number;
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  update_total_tokens: () => void;
 }
 
 export default function Message(props: Props) {
@@ -205,7 +204,6 @@ export default function Message(props: Props) {
                 className="input input-bordered input-xs w-16"
                 onChange={(event: any) => {
                   chat.token = parseInt(event.target.value);
-                  props.update_total_tokens();
                   setChatStore({ ...chatStore });
                 }}
               />

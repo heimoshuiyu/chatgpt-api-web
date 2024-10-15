@@ -9,10 +9,8 @@ const AddToolMsg = (props: {
   setShowAddToolMsg: Dispatch<StateUpdater<boolean>>;
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  update_total_tokens: () => void;
 }) => {
-  const { setShowAddToolMsg, chatStore, update_total_tokens, setChatStore } =
-    props;
+  const { setShowAddToolMsg, chatStore, setChatStore } = props;
 
   const [newToolCallID, setNewToolCallID] = useState("");
   const [newToolContent, setNewToolContent] = useState("");
@@ -77,7 +75,6 @@ const AddToolMsg = (props: {
                 audio: null,
                 logprobs: null,
               });
-              update_total_tokens();
               setChatStore({ ...chatStore });
               setNewToolCallID("");
               setNewToolContent("");

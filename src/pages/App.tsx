@@ -81,6 +81,16 @@ export function App() {
     console.log("saved chat", selectedChatIndex, chatStore);
     (await db).put(STORAGE_NAME, chatStore, selectedChatIndex);
 
+    // update total tokens
+    chatStore.totalTokens = calculate_token_length(
+      chatStore.systemMessageContent,
+    );
+    for (const msg of chatStore.history
+      .filter(({ hide }) => !hide)
+      .slice(chatStore.postBeginIndex)) {
+      chatStore.totalTokens += msg.token;
+    }
+
     _setChatStore(chatStore);
   };
   useEffect(() => {
