@@ -10,7 +10,6 @@ import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { ChatStore } from "@/types/chatstore";
 import { newChatStore } from "@/types/newChatstore";
 import { STORAGE_NAME, STORAGE_NAME_SELECTED } from "@/const";
-import { BuildFiledForSearch } from "@/utils/buildForSearch";
 import { upgrade } from "@/indexedDB/upgrade";
 
 export function App() {
@@ -52,9 +51,6 @@ export function App() {
 
   const [chatStore, _setChatStore] = useState(newChatStore({}));
   const setChatStore = async (chatStore: ChatStore) => {
-    // building field for search
-    chatStore.contents_for_index = BuildFiledForSearch(chatStore);
-
     console.log("recalculate postBeginIndex");
     const max = chatStore.maxTokens - chatStore.tokenMargin;
     let sum = 0;
