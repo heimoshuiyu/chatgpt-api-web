@@ -1,6 +1,6 @@
 import { useState, useEffect, StateUpdater, Dispatch } from "preact/hooks";
 import { Tr, langCodeContext, LANG_OPTIONS, tr } from "@/translate";
-import { ChatStore, ChatStoreMessage } from "@/app";
+import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
 import { EditMessageString } from "@/editMessageString";
 import { EditMessageDetail } from "@/editMessageDetail";
 

@@ -1,4 +1,4 @@
-import { TemplateAPI } from "@/app";
+import { TemplateAPI } from "@/types/chatstore";
 import { Tr } from "@/translate";
 
 interface Props {

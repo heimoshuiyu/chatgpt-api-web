@@ -1,4 +1,4 @@
-import { ChatStoreMessage } from "@/app";
+import { ChatStoreMessage } from "@/types/chatstore";
 import { getMessageText } from "@/chatgpt";
 
 interface Props {

@@ -1,7 +1,7 @@
 import { IDBPDatabase } from "idb";
 import { StateUpdater, useRef, useState, Dispatch } from "preact/hooks";
 
-import { ChatStore } from "@/app";
+import { ChatStore } from "@/types/chatstore";
 
 interface ChatStoreSearchResult {
   key: IDBValidKey;

@@ -15,16 +15,12 @@ import { createRef } from "preact";
 import { StateUpdater, useEffect, useState, Dispatch } from "preact/hooks";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import {
-  ChatStore,
-  ChatStoreMessage,
   STORAGE_NAME_TEMPLATE,
   STORAGE_NAME_TEMPLATE_API,
   STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
   STORAGE_NAME_TEMPLATE_API_TTS,
   STORAGE_NAME_TEMPLATE_API_WHISPER,
   STORAGE_NAME_TEMPLATE_TOOLS,
-  TemplateAPI,
-  TemplateTools,
   addTotalCost,
   getTotalCost,
 } from "@/app";
@@ -37,18 +33,22 @@ import ChatGPT, {
   ToolCall,
   Logprobs,
 } from "@/chatgpt";
+import {
+  ChatStore,
+  ChatStoreMessage,
+  TemplateChatStore,
+  TemplateAPI,
+  TemplateTools,
+} from "./types/chatstore";
 import Message from "@/message";
 import models from "@/models";
 import Settings from "@/settings";
-import getDefaultParams from "@/getDefaultParam";
+import getDefaultParams from "@/utils/getDefaultParam";
 import { AddImage } from "@/addImage";
 import { ListAPIs } from "@/listAPIs";
 import { ListToolsTempaltes } from "@/listToolsTemplates";
 import { autoHeight } from "@/textarea";
 import Search from "@/search";
-export interface TemplateChatStore extends ChatStore {
-  name: string;
-}
 
 export default function ChatBOX(props: {
   db: Promise<IDBPDatabase<ChatStore>>;

@@ -3,7 +3,7 @@ import Markdown from "preact-markdown";
 import { useState, useEffect, StateUpdater } from "preact/hooks";
 
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
-import { ChatStore, ChatStoreMessage } from "@/app";
+import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
 import { calculate_token_length, getMessageText } from "@/chatgpt";
 import TTSButton, { TTSPlay } from "@/tts";
 import { MessageHide } from "@/messageHide";

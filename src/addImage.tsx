@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { ChatStore } from "@/app";
+import { ChatStore } from "@/types/chatstore";
 import { MessageDetail } from "@/chatgpt";
 import { Tr } from "@/translate";
 

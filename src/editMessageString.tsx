@@ -1,4 +1,4 @@
-import { ChatStore, ChatStoreMessage } from "@/app";
+import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
 import { isVailedJSON } from "@/message";
 import { calculate_token_length } from "@/chatgpt";
 import { Tr } from "@/translate";

@@ -21,20 +21,19 @@ import {
   useState,
   Dispatch,
 } from "preact/hooks";
+import { clearTotalCost, getTotalCost } from "@/app";
 import {
   ChatStore,
+  TemplateChatStore,
   TemplateAPI,
   TemplateTools,
-  clearTotalCost,
-  getTotalCost,
-} from "@/app";
+} from "@/types/chatstore";
 import models from "@/models";
-import { TemplateChatStore } from "@/chatbox";
 import { tr, Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { isVailedJSON } from "@/message";
 import { SetAPIsTemplate } from "@/setAPIsTemplate";
 import { autoHeight } from "@/textarea";
-import getDefaultParams from "@/getDefaultParam";
+import getDefaultParams from "@/utils/getDefaultParam";
 
 const TTS_VOICES: string[] = [
   "alloy",

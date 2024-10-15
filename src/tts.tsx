@@ -1,7 +1,8 @@
 import { SpeakerWaveIcon } from "@heroicons/react/24/outline";
 import { useMemo, useState } from "preact/hooks";
 
-import { ChatStore, ChatStoreMessage, addTotalCost } from "@/app";
+import { addTotalCost } from "@/app";
+import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
 import { Message, getMessageText } from "@/chatgpt";
 
 interface TTSProps {

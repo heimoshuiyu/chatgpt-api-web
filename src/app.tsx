@@ -3,89 +3,11 @@ import { useEffect, useState } from "preact/hooks";
 import "@/global.css";
 
 import { calculate_token_length } from "@/chatgpt";
-import getDefaultParams from "@/getDefaultParam";
+import getDefaultParams from "@/utils/getDefaultParam";
 import ChatBOX from "@/chatbox";
 import models, { defaultModel } from "@/models";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
-import { ChatStore } from "@/types/chatstore";
-
-import CHATGPT_API_WEB_VERSION from "@/CHATGPT_API_WEB_VERSION";
-
-export interface TemplateAPI {
-  name: string;
-  key: string;
-  endpoint: string;
-}
-
-export interface TemplateTools {
-  name: string;
-  toolsString: string;
-}
-
-const _defaultAPIEndpoint = "https://api.openai.com/v1/chat/completions";
-export const newChatStore = (
-  apiKey = "",
-  systemMessageContent = "",
-  apiEndpoint = _defaultAPIEndpoint,
-  streamMode = true,
-  model = defaultModel,
-  temperature = 0.7,
-  dev = false,
-  whisper_api = "https://api.openai.com/v1/audio/transcriptions",
-  whisper_key = "",
-  tts_api = "https://api.openai.com/v1/audio/speech",
-  tts_key = "",
-  tts_speed = 1.0,
-  tts_speed_enabled = false,
-  tts_format = "mp3",
-  toolsString = "",
-  image_gen_api = "https://api.openai.com/v1/images/generations",
-  image_gen_key = "",
-  json_mode = false,
-  logprobs = false
-): ChatStore => {
-  return {
-    chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
-    systemMessageContent: getDefaultParams("sys", systemMessageContent),
-    toolsString,
-    history: [],
-    postBeginIndex: 0,
-    tokenMargin: 1024,
-    totalTokens: 0,
-    maxTokens: getDefaultParams(
-      "max",
-      models[getDefaultParams("model", model)]?.maxToken ?? 2048
-    ),
-    maxGenTokens: 2048,
-    maxGenTokens_enabled: false,
-    apiKey: getDefaultParams("key", apiKey),
-    apiEndpoint: getDefaultParams("api", apiEndpoint),
-    streamMode: getDefaultParams("mode", streamMode),
-    model: getDefaultParams("model", model),
-    responseModelName: "",
-    cost: 0,
-    temperature: getDefaultParams("temp", temperature),
-    temperature_enabled: true,
-    top_p: 1,
-    top_p_enabled: false,
-    presence_penalty: 0,
-    frequency_penalty: 0,
-    develop_mode: getDefaultParams("dev", dev),
-    whisper_api: getDefaultParams("whisper-api", whisper_api),
-    whisper_key: getDefaultParams("whisper-key", whisper_key),
-    tts_api: getDefaultParams("tts-api", tts_api),
-    tts_key: getDefaultParams("tts-key", tts_key),
-    tts_voice: "alloy",
-    tts_speed: tts_speed,
-    tts_speed_enabled: tts_speed_enabled,
-    image_gen_api: image_gen_api,
-    image_gen_key: image_gen_key,
-    json_mode: json_mode,
-    tts_format: tts_format,
-    logprobs,
-    contents_for_index: [],
-  };
-};
+import { ChatStore, newChatStore } from "@/types/chatstore";
 
 export const STORAGE_NAME = "chatgpt-api-web";
 const STORAGE_NAME_SELECTED = `${STORAGE_NAME}-selected`;
@@ -106,7 +28,7 @@ export function addTotalCost(cost: number) {
 
 export function getTotalCost(): number {
   let totalCost = parseFloat(
-    localStorage.getItem(STORAGE_NAME_TOTALCOST) ?? "0"
+    localStorage.getItem(STORAGE_NAME_TOTALCOST) ?? "0",
   );
   return totalCost;
 }
@@ -144,7 +66,7 @@ export function BuildFiledForSearch(chatStore: ChatStore): string[] {
 export function App() {
   // init selected index
   const [selectedChatIndex, setSelectedChatIndex] = useState(
-    parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "1")
+    parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "1"),
   );
   console.log("selectedChatIndex", selectedChatIndex);
   useEffect(() => {
@@ -161,7 +83,7 @@ export function App() {
 
         // copy from localStorage to indexedDB
         const allChatStoreIndexes: number[] = JSON.parse(
-          localStorage.getItem(STORAGE_NAME_INDEXES) ?? "[]"
+          localStorage.getItem(STORAGE_NAME_INDEXES) ?? "[]",
         );
         let keyCount = 0;
         for (const i of allChatStoreIndexes) {
@@ -175,7 +97,7 @@ export function App() {
         setSelectedChatIndex(keyCount);
         if (keyCount > 0) {
           alert(
-            "v2.0.0 Update: Imported chat history from localStorage to indexedDB. 🎉"
+            "v2.0.0 Update: Imported chat history from localStorage to indexedDB. 🎉",
           );
         }
       }
@@ -183,7 +105,7 @@ export function App() {
       if (oldVersion < 11) {
         if (oldVersion < 11 && oldVersion >= 1) {
           alert(
-            "Start upgrading storage, just a sec... (Click OK to continue)"
+            "Start upgrading storage, just a sec... (Click OK to continue)",
           );
         }
         if (
@@ -201,7 +123,7 @@ export function App() {
           {
             multiEntry: true,
             unique: false,
-          }
+          },
         );
 
         // iter through all chatStore and update contents_for_index
@@ -248,7 +170,7 @@ export function App() {
     const max = chatStore.maxTokens - chatStore.tokenMargin;
     let sum = 0;
     chatStore.postBeginIndex = chatStore.history.filter(
-      ({ hide }) => !hide
+      ({ hide }) => !hide,
     ).length;
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -263,7 +185,7 @@ export function App() {
 
     // manually estimate token
     chatStore.totalTokens = calculate_token_length(
-      chatStore.systemMessageContent
+      chatStore.systemMessageContent,
     );
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -285,7 +207,7 @@ export function App() {
 
   // all chat store indexes
   const [allChatStoreIndexes, setAllChatStoreIndexes] = useState<IDBValidKey>(
-    []
+    [],
   );
 
   const handleNewChatStoreWithOldOne = async (chatStore: ChatStore) => {
@@ -312,8 +234,8 @@ export function App() {
         chatStore.image_gen_api,
         chatStore.image_gen_key,
         chatStore.json_mode,
-        false // logprobs default to false
-      )
+        false, // logprobs default to false
+      ),
     );
     setSelectedChatIndex(newKey as number);
     setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
@@ -399,7 +321,7 @@ export function App() {
                 return;
               console.log(
                 "remove item",
-                `${STORAGE_NAME}-${selectedChatIndex}`
+                `${STORAGE_NAME}-${selectedChatIndex}`,
               );
               (await db).delete(STORAGE_NAME, selectedChatIndex);
               const newAllChatStoreIndexes = await (
@@ -427,7 +349,7 @@ export function App() {
               onClick={async () => {
                 if (
                   !confirm(
-                    "Are you sure you want to delete **ALL** chat history?"
+                    "Are you sure you want to delete **ALL** chat history?",
                   )
                 )
                   return;
