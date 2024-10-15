@@ -15,7 +15,7 @@ import { upgrade } from "@/indexedDB/upgrade";
 export function App() {
   // init selected index
   const [selectedChatIndex, setSelectedChatIndex] = useState(
-    parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "1"),
+    parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "1")
   );
   console.log("selectedChatIndex", selectedChatIndex);
   useEffect(() => {
@@ -55,7 +55,7 @@ export function App() {
     const max = chatStore.maxTokens - chatStore.tokenMargin;
     let sum = 0;
     chatStore.postBeginIndex = chatStore.history.filter(
-      ({ hide }) => !hide,
+      ({ hide }) => !hide
     ).length;
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -70,7 +70,7 @@ export function App() {
 
     // manually estimate token
     chatStore.totalTokens = calculate_token_length(
-      chatStore.systemMessageContent,
+      chatStore.systemMessageContent
     );
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -92,7 +92,7 @@ export function App() {
 
   // all chat store indexes
   const [allChatStoreIndexes, setAllChatStoreIndexes] = useState<IDBValidKey>(
-    [],
+    []
   );
 
   const handleNewChatStoreWithOldOne = async (chatStore: ChatStore) => {
@@ -102,6 +102,34 @@ export function App() {
   };
   const handleNewChatStore = async () => {
     return handleNewChatStoreWithOldOne(chatStore);
+  };
+
+  const handleDEL = async () => {
+    if (!confirm("Are you sure you want to delete this chat history?")) return;
+    console.log("remove item", `${STORAGE_NAME}-${selectedChatIndex}`);
+    (await db).delete(STORAGE_NAME, selectedChatIndex);
+    const newAllChatStoreIndexes = await (await db).getAllKeys(STORAGE_NAME);
+
+    if (newAllChatStoreIndexes.length === 0) {
+      handleNewChatStore();
+      return;
+    }
+
+    // find nex selected chat index
+    const next = newAllChatStoreIndexes[newAllChatStoreIndexes.length - 1];
+    console.log("next is", next);
+    setSelectedChatIndex(next as number);
+    setAllChatStoreIndexes(newAllChatStoreIndexes);
+  };
+
+  const handleCLS = async () => {
+    if (!confirm("Are you sure you want to delete **ALL** chat history?"))
+      return;
+
+    await (await db).clear(STORAGE_NAME);
+    setAllChatStoreIndexes([]);
+    setSelectedChatIndex(1);
+    window.location.reload();
   };
 
   // if there are any params in URL, create a new chatStore
@@ -160,9 +188,7 @@ export function App() {
                       className={`w-full my-1 p-1 btn btn-sm ${
                         i === selectedChatIndex ? "btn-accent" : "btn-secondary"
                       }`}
-                      onClick={() => {
-                        setSelectedChatIndex(i);
-                      }}
+                      onClick={() => setSelectedChatIndex(i)}
                     >
                       {i}
                     </button>
@@ -174,51 +200,14 @@ export function App() {
         <div>
           <button
             className="btn btn-warning btn-sm p-1 my-1 w-full"
-            onClick={async () => {
-              if (
-                !confirm("Are you sure you want to delete this chat history?")
-              )
-                return;
-              console.log(
-                "remove item",
-                `${STORAGE_NAME}-${selectedChatIndex}`,
-              );
-              (await db).delete(STORAGE_NAME, selectedChatIndex);
-              const newAllChatStoreIndexes = await (
-                await db
-              ).getAllKeys(STORAGE_NAME);
-
-              if (newAllChatStoreIndexes.length === 0) {
-                handleNewChatStore();
-                return;
-              }
-
-              // find nex selected chat index
-              const next =
-                newAllChatStoreIndexes[newAllChatStoreIndexes.length - 1];
-              console.log("next is", next);
-              setSelectedChatIndex(next as number);
-              setAllChatStoreIndexes(newAllChatStoreIndexes);
-            }}
+            onClick={async () => handleDEL()}
           >
             {Tr("DEL")}
           </button>
           {chatStore.develop_mode && (
             <button
               className="btn btn-sm btn-warning p-1 my-1 w-full"
-              onClick={async () => {
-                if (
-                  !confirm(
-                    "Are you sure you want to delete **ALL** chat history?",
-                  )
-                )
-                  return;
-
-                await (await db).clear(STORAGE_NAME);
-                setAllChatStoreIndexes([]);
-                setSelectedChatIndex(1);
-                window.location.reload();
-              }}
+              onClick={async () => handleCLS()}
             >
               {Tr("CLS")}
             </button>
