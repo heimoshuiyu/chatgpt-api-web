@@ -4,7 +4,7 @@ import "@/global.css";
 
 import { calculate_token_length } from "@/chatgpt";
 import { getDefaultParams } from "@/utils/getDefaultParam";
-import ChatBOX from "@/chatbox";
+import ChatBOX from "@/pages/chatbox";
 import { DefaultModel } from "@/const";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { ChatStore } from "@/types/chatstore";
