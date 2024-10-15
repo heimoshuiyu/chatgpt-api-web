@@ -9,17 +9,13 @@ import { DefaultModel } from "@/const";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { ChatStore } from "@/types/chatstore";
 import { newChatStore } from "@/types/newChatstore";
+import {
+  STORAGE_NAME,
+  STORAGE_NAME_INDEXES,
+  STORAGE_NAME_TOTALCOST,
+  STORAGE_NAME_SELECTED
+} from '@/const';
 
-export const STORAGE_NAME = "chatgpt-api-web";
-const STORAGE_NAME_SELECTED = `${STORAGE_NAME}-selected`;
-const STORAGE_NAME_INDEXES = `${STORAGE_NAME}-indexes`;
-const STORAGE_NAME_TOTALCOST = `${STORAGE_NAME}-totalcost`;
-export const STORAGE_NAME_TEMPLATE = `${STORAGE_NAME}-template`;
-export const STORAGE_NAME_TEMPLATE_API = `${STORAGE_NAME_TEMPLATE}-api`;
-export const STORAGE_NAME_TEMPLATE_API_WHISPER = `${STORAGE_NAME_TEMPLATE}-api-whisper`;
-export const STORAGE_NAME_TEMPLATE_API_TTS = `${STORAGE_NAME_TEMPLATE}-api-tts`;
-export const STORAGE_NAME_TEMPLATE_API_IMAGE_GEN = `${STORAGE_NAME_TEMPLATE}-api-image-gen`;
-export const STORAGE_NAME_TEMPLATE_TOOLS = `${STORAGE_NAME_TEMPLATE}-tools`;
 
 export function addTotalCost(cost: number) {
   let totalCost = getTotalCost();
