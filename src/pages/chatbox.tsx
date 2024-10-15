@@ -8,7 +8,6 @@ import {
 } from "@heroicons/react/24/outline";
 
 import { IDBPDatabase } from "idb";
-import structuredClone from "@ungap/structured-clone";
 import { createRef } from "preact";
 import { StateUpdater, useEffect, useState, Dispatch } from "preact/hooks";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
@@ -39,14 +38,13 @@ import {
 import Message from "@/message";
 import { models } from "@/types/models";
 import Settings from "@/settings";
-import { getDefaultParams } from "@/utils/getDefaultParam";
 import { AddImage } from "@/addImage";
 import { ListAPIs } from "@/listAPIs";
 import { ListToolsTempaltes } from "@/listToolsTemplates";
 import { autoHeight } from "@/textarea";
 import Search from "@/search";
-import Templates from "@/components/templates";
-import VersionHint from "@/components/versionHint";
+import Templates from "@/components/Templates";
+import VersionHint from "@/components/VersionHint";
 
 export default function ChatBOX(props: {
   db: Promise<IDBPDatabase<ChatStore>>;
@@ -94,7 +92,7 @@ export default function ChatBOX(props: {
   const update_total_tokens = () => {
     // manually estimate token
     client.total_tokens = calculate_token_length(
-      chatStore.systemMessageContent
+      chatStore.systemMessageContent,
     );
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -150,7 +148,7 @@ export default function ChatBOX(props: {
 
           // update tool call arguments
           const tool = allChunkTool.find(
-            (tool) => tool.index === tool_call.index
+            (tool) => tool.index === tool_call.index,
           );
 
           if (!tool) {
@@ -165,7 +163,7 @@ export default function ChatBOX(props: {
         allChunkMessage.join("") +
           allChunkTool.map((tool) => {
             return `Tool Call ID: ${tool.id}\nType: ${tool.type}\nFunction: ${tool.function.name}\nArguments: ${tool.function.arguments}`;
-          })
+          }),
       );
     }
     setShowGenerating(false);
@@ -303,7 +301,7 @@ export default function ChatBOX(props: {
       setShowGenerating(true);
       const response = await client._fetch(
         chatStore.streamMode,
-        chatStore.logprobs
+        chatStore.logprobs,
       );
       const contentType = response.headers.get("content-type");
       if (contentType?.startsWith("text/event-stream")) {
@@ -373,33 +371,33 @@ export default function ChatBOX(props: {
 
   const [templates, _setTemplates] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE) || "[]"
-    ) as TemplateChatStore[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE) || "[]",
+    ) as TemplateChatStore[],
   );
   const [templateAPIs, _setTemplateAPIs] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API) || "[]"
-    ) as TemplateAPI[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API) || "[]",
+    ) as TemplateAPI[],
   );
   const [templateAPIsWhisper, _setTemplateAPIsWhisper] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_WHISPER) || "[]"
-    ) as TemplateAPI[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_WHISPER) || "[]",
+    ) as TemplateAPI[],
   );
   const [templateAPIsTTS, _setTemplateAPIsTTS] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_TTS) || "[]"
-    ) as TemplateAPI[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_TTS) || "[]",
+    ) as TemplateAPI[],
   );
   const [templateAPIsImageGen, _setTemplateAPIsImageGen] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_IMAGE_GEN) || "[]"
-    ) as TemplateAPI[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_IMAGE_GEN) || "[]",
+    ) as TemplateAPI[],
   );
   const [toolsTemplates, _setToolsTemplates] = useState(
     JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_TOOLS) || "[]"
-    ) as TemplateTools[]
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_TOOLS) || "[]",
+    ) as TemplateTools[],
   );
   const setTemplates = (templates: TemplateChatStore[]) => {
     localStorage.setItem(STORAGE_NAME_TEMPLATE, JSON.stringify(templates));
@@ -408,35 +406,35 @@ export default function ChatBOX(props: {
   const setTemplateAPIs = (templateAPIs: TemplateAPI[]) => {
     localStorage.setItem(
       STORAGE_NAME_TEMPLATE_API,
-      JSON.stringify(templateAPIs)
+      JSON.stringify(templateAPIs),
     );
     _setTemplateAPIs(templateAPIs);
   };
   const setTemplateAPIsWhisper = (templateAPIWhisper: TemplateAPI[]) => {
     localStorage.setItem(
       STORAGE_NAME_TEMPLATE_API_WHISPER,
-      JSON.stringify(templateAPIWhisper)
+      JSON.stringify(templateAPIWhisper),
     );
     _setTemplateAPIsWhisper(templateAPIWhisper);
   };
   const setTemplateAPIsTTS = (templateAPITTS: TemplateAPI[]) => {
     localStorage.setItem(
       STORAGE_NAME_TEMPLATE_API_TTS,
-      JSON.stringify(templateAPITTS)
+      JSON.stringify(templateAPITTS),
     );
     _setTemplateAPIsTTS(templateAPITTS);
   };
   const setTemplateAPIsImageGen = (templateAPIImageGen: TemplateAPI[]) => {
     localStorage.setItem(
       STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
-      JSON.stringify(templateAPIImageGen)
+      JSON.stringify(templateAPIImageGen),
     );
     _setTemplateAPIsImageGen(templateAPIImageGen);
   };
   const setTemplateTools = (templateTools: TemplateTools[]) => {
     localStorage.setItem(
       STORAGE_NAME_TEMPLATE_TOOLS,
-      JSON.stringify(templateTools)
+      JSON.stringify(templateTools),
     );
     _setToolsTemplates(templateTools);
   };
@@ -762,7 +760,7 @@ export default function ChatBOX(props: {
             <br />↖{Tr("Click the conor to create a new chat")}
             <br />⚠
             {Tr(
-              "All chat history and settings are stored in the local browser"
+              "All chat history and settings are stored in the local browser",
             )}
             <br />
           </p>
@@ -969,7 +967,7 @@ export default function ChatBOX(props: {
                         } else {
                           return content.map((c) => c?.text).join(" ");
                         }
-                      })
+                      }),
                   )
                   .concat([inputMsg])
                   .join(" ");
@@ -983,7 +981,7 @@ export default function ChatBOX(props: {
                     await navigator.mediaDevices.getUserMedia({
                       audio: true,
                     }),
-                    { audioBitsPerSecond: 64 * 1000 }
+                    { audioBitsPerSecond: 64 * 1000 },
                   );
 
                   // mount mediaRecorder to ref
