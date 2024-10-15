@@ -1,7 +1,7 @@
 import { themeChange } from "theme-change";
 import { render } from "preact";
 import { useState, useEffect } from "preact/hooks";
-import { App } from "@/pages/app";
+import { App } from "@/pages/App";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 
 function Base() {

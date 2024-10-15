@@ -38,7 +38,7 @@ import Templates from "@/components/Templates";
 import VersionHint from "@/components/VersionHint";
 import StatusBar from "@/components/StatusBar";
 import WhisperButton from "@/components/WhisperButton";
-import AddToolMsg from "./addToolMsg";
+import AddToolMsg from "./AddToolMsg";
 
 export default function ChatBOX(props: {
   db: Promise<IDBPDatabase<ChatStore>>;
