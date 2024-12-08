@@ -55,7 +55,7 @@ ChatGPT API WEB 是为 ChatGPT 的日常用户和 Prompt 工程师设计的项�
 - `api`: API Endpoint 默认为 `https://api.openai.com/v1/chat/completions`
 - `mode`: `fetch` 或 `stream` 模式，stream 模式下可以动态看到 api 返回的数据，但无法得知 token 数量，只能进行估算，在 token 数量过多时可能会裁切过多或过少历史消息
 - `dev`: true / false 开发模式，这个模式下可以看到并调整更多参数
-- `temp`: 温度，默认 0.7
+- `temp`: 温度，默认 1
 - `whisper-api`: Whisper 语音转文字服务 API, 只有设置了此值后才会显示语音转文字按钮
 - `whisper-key`: 用于 Whisper 服务的 key，如果留空则默认使用上方的 OPENAI API KEY
 

@@ -62,7 +62,7 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     streamMode: getDefaultParams("mode", options.streamMode ?? true),
     model: getDefaultParams("model", options.model ?? DefaultModel),
     cost: 0,
-    temperature: getDefaultParams("temp", options.temperature ?? 0.7),
+    temperature: getDefaultParams("temp", options.temperature ?? 1),
     temperature_enabled: options.temperature_enabled ?? true,
     top_p: options.top_p ?? 1,
     top_p_enabled: options.top_p_enabled ?? false,

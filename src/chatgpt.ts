@@ -158,7 +158,7 @@ class Chat {
       tokens_margin = 1024,
       apiEndPoint = "https://api.openai.com/v1/chat/completions",
       model = DefaultModel,
-      temperature = 0.7,
+      temperature = 1,
       enable_temperature = true,
       top_p = 1,
       enable_top_p = false,
