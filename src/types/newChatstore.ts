@@ -40,7 +40,7 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
     systemMessageContent: getDefaultParams(
       "sys",
-      options.systemMessageContent ?? ""
+      options.systemMessageContent ?? "",
     ),
     toolsString: options.toolsString ?? "",
     history: [],
@@ -50,14 +50,14 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     maxTokens: getDefaultParams(
       "max",
       models[getDefaultParams("model", options.model ?? DefaultModel)]
-        ?.maxToken ?? 2048
+        ?.maxToken ?? 2048,
     ),
     maxGenTokens: 2048,
     maxGenTokens_enabled: false,
     apiKey: getDefaultParams("key", options.apiKey ?? ""),
     apiEndpoint: getDefaultParams(
       "api",
-      options.apiEndpoint ?? DefaultAPIEndpoint
+      options.apiEndpoint ?? DefaultAPIEndpoint,
     ),
     streamMode: getDefaultParams("mode", options.streamMode ?? true),
     model: getDefaultParams("model", options.model ?? DefaultModel),
@@ -71,12 +71,12 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     develop_mode: getDefaultParams("dev", options.dev ?? false),
     whisper_api: getDefaultParams(
       "whisper-api",
-      options.whisper_api ?? "https://api.openai.com/v1/audio/transcriptions"
+      options.whisper_api ?? "https://api.openai.com/v1/audio/transcriptions",
     ),
     whisper_key: getDefaultParams("whisper-key", options.whisper_key ?? ""),
     tts_api: getDefaultParams(
       "tts-api",
-      options.tts_api ?? "https://api.openai.com/v1/audio/speech"
+      options.tts_api ?? "https://api.openai.com/v1/audio/speech",
     ),
     tts_key: getDefaultParams("tts-key", options.tts_key ?? ""),
     tts_voice: options.tts_voice ?? "alloy",

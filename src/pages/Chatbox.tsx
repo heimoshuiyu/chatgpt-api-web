@@ -18,6 +18,7 @@ import ChatGPT, {
   MessageDetail,
   ToolCall,
   Logprobs,
+  StreamingUsage,
 } from "@/chatgpt";
 import {
   ChatStore,
@@ -88,9 +89,13 @@ export default function ChatBOX(props: {
       content: [],
     };
     let response_model_name: string | null = null;
+    let usage: StreamingUsage | null = null;
     for await (const i of client.processStreamResponse(response)) {
       response_model_name = i.model;
       responseTokenCount += 1;
+      if (i.usage) {
+        usage = i.usage;
+      }
 
       const c = i.choices[0];
 
@@ -160,6 +165,17 @@ export default function ChatBOX(props: {
         sum += msg.token;
       }
       cost += sum * (models[response_model_name]?.price?.prompt ?? 0);
+      if (usage) {
+        // use the response usage if exists
+        cost = 0;
+        cost +=
+          (usage.prompt_tokens ?? 0) *
+          (models[response_model_name]?.price?.prompt ?? 0);
+        cost +=
+          (usage.completion_tokens ?? 0) *
+          models[response_model_name]?.price?.completion;
+        console.log("usage", usage, "cost", cost);
+      }
     }
 
     console.log("cost", cost);

@@ -49,6 +49,12 @@ interface LogprobsContent {
   logprob: number;
 }
 
+export interface StreamingUsage {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+}
+
 export interface StreamingResponseChunk {
   id: string;
   object: string;
@@ -56,6 +62,7 @@ export interface StreamingResponseChunk {
   model: string;
   system_fingerprint: string;
   choices: Choices[];
+  usage: null | StreamingUsage;
 }
 export const getMessageText = (message: Message): string => {
   if (typeof message.content === "string") {
@@ -224,6 +231,11 @@ class Chat {
       presence_penalty: this.presence_penalty,
       frequency_penalty: this.frequency_penalty,
     };
+    if (stream) {
+      body["stream_options"] = {
+        include_usage: true,
+      };
+    }
     if (this.enable_temperature) {
       body["temperature"] = this.temperature;
     }
