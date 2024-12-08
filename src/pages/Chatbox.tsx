@@ -87,7 +87,7 @@ export default function ChatBOX(props: {
     const logprobs: Logprobs = {
       content: [],
     };
-    let response_model_name : string | null = null;
+    let response_model_name: string | null = null;
     for await (const i of client.processStreamResponse(response)) {
       response_model_name = i.model;
       responseTokenCount += 1;
