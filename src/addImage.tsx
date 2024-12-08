@@ -263,6 +263,7 @@ export function AddImage({
                         example: false,
                         audio: null,
                         logprobs: null,
+                        response_model_name: imageGenModel,
                       });
 
                       setChatStore({ ...chatStore });

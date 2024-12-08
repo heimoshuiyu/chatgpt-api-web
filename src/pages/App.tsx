@@ -34,7 +34,6 @@ export function App() {
     if (ret.maxGenTokens === undefined) ret.maxGenTokens = 2048;
     if (ret.maxGenTokens_enabled === undefined) ret.maxGenTokens_enabled = true;
     if (ret.model === undefined) ret.model = DefaultModel;
-    if (ret.responseModelName === undefined) ret.responseModelName = "";
     if (ret.toolsString === undefined) ret.toolsString = "";
     if (ret.chatgpt_api_web_version === undefined)
       // this is from old version becasue it is undefined,

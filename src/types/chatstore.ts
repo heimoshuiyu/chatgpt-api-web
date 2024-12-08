@@ -20,7 +20,6 @@ export interface ChatStore {
   apiEndpoint: string;
   streamMode: boolean;
   model: string;
-  responseModelName: string;
   cost: number;
   temperature: number;
   temperature_enabled: boolean;
@@ -69,4 +68,5 @@ export interface ChatStoreMessage extends Message {
   example: boolean;
   audio: Blob | null;
   logprobs: Logprobs | null;
+  response_model_name: string | null;
 }

@@ -181,6 +181,14 @@ export default function Message(props: Props) {
                 />
               )}
               <TTSPlay chat={chat} />
+              {chat.response_model_name && (
+                <>
+                  <span className="opacity-50">
+                    {chat.response_model_name}
+                  </span>
+                  <hr />
+                </>
+              )}
             </div>
           </div>
           {showEdit && (
