@@ -231,7 +231,7 @@ class Chat {
       body["top_p"] = this.top_p;
     }
     if (this.enable_max_gen_tokens) {
-      body["max_tokens"] = this.max_gen_tokens;
+      body["max_completion_tokens"] = this.max_gen_tokens;
     }
     if (this.json_mode) {
       body["response_format"] = {
