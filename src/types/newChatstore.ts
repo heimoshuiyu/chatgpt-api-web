@@ -14,11 +14,17 @@ interface NewChatStoreOptions {
   streamMode?: boolean;
   model?: string;
   temperature?: number;
+  temperature_enabled?: boolean;
+  top_p?: number;
+  top_p_enabled?: boolean;
+  presence_penalty?: number;
+  frequency_penalty?: number;
   dev?: boolean;
   whisper_api?: string;
   whisper_key?: string;
   tts_api?: string;
   tts_key?: string;
+  tts_voice?: string;
   tts_speed?: number;
   tts_speed_enabled?: boolean;
   tts_format?: string;
@@ -34,7 +40,7 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
     systemMessageContent: getDefaultParams(
       "sys",
-      options.systemMessageContent ?? "",
+      options.systemMessageContent ?? ""
     ),
     toolsString: options.toolsString ?? "",
     history: [],
@@ -44,36 +50,36 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     maxTokens: getDefaultParams(
       "max",
       models[getDefaultParams("model", options.model ?? DefaultModel)]
-        ?.maxToken ?? 2048,
+        ?.maxToken ?? 2048
     ),
     maxGenTokens: 2048,
     maxGenTokens_enabled: false,
     apiKey: getDefaultParams("key", options.apiKey ?? ""),
     apiEndpoint: getDefaultParams(
       "api",
-      options.apiEndpoint ?? DefaultAPIEndpoint,
+      options.apiEndpoint ?? DefaultAPIEndpoint
     ),
     streamMode: getDefaultParams("mode", options.streamMode ?? true),
     model: getDefaultParams("model", options.model ?? DefaultModel),
     cost: 0,
     temperature: getDefaultParams("temp", options.temperature ?? 0.7),
-    temperature_enabled: true,
-    top_p: 1,
-    top_p_enabled: false,
-    presence_penalty: 0,
-    frequency_penalty: 0,
+    temperature_enabled: options.temperature_enabled ?? true,
+    top_p: options.top_p ?? 1,
+    top_p_enabled: options.top_p_enabled ?? false,
+    presence_penalty: options.presence_penalty ?? 0,
+    frequency_penalty: options.frequency_penalty ?? 0,
     develop_mode: getDefaultParams("dev", options.dev ?? false),
     whisper_api: getDefaultParams(
       "whisper-api",
-      options.whisper_api ?? "https://api.openai.com/v1/audio/transcriptions",
+      options.whisper_api ?? "https://api.openai.com/v1/audio/transcriptions"
     ),
     whisper_key: getDefaultParams("whisper-key", options.whisper_key ?? ""),
     tts_api: getDefaultParams(
       "tts-api",
-      options.tts_api ?? "https://api.openai.com/v1/audio/speech",
+      options.tts_api ?? "https://api.openai.com/v1/audio/speech"
     ),
     tts_key: getDefaultParams("tts-key", options.tts_key ?? ""),
-    tts_voice: "alloy",
+    tts_voice: options.tts_voice ?? "alloy",
     tts_speed: options.tts_speed ?? 1.0,
     tts_speed_enabled: options.tts_speed_enabled ?? false,
     image_gen_api:
