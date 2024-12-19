@@ -2,6 +2,7 @@ import { IDBPDatabase } from "idb";
 import { StateUpdater, useRef, useState, Dispatch } from "preact/hooks";
 
 import { ChatStore } from "@/types/chatstore";
+import { MessageDetail } from "./chatgpt";
 
 interface ChatStoreSearchResult {
   key: IDBValidKey;
@@ -83,22 +84,40 @@ export default function Search(props: {
                 if (now !== searchingNow) setSearchingNow(now);
 
                 const value: ChatStore = await db.get("chatgpt-api-web", key);
-                const content = value.contents_for_index
-                  .join(" ")
-                  .toLowerCase();
-                if (content.includes(query)) {
-                  const beginIndex: number = content.indexOf(query);
-                  const preview = content.slice(
-                    Math.max(0, beginIndex - 100),
-                    Math.min(content.length, beginIndex + 239),
-                  );
-                  result.push({
-                    key,
-                    cs: value,
-                    query: query,
-                    preview: preview,
-                  });
+
+                let preview: string = "";
+                for (const msg of value.history) {
+                  const contentType = typeof msg.content;
+                  if (contentType === "string") {
+                    if (!msg.content.includes(query)) continue;
+
+                    const beginIndex = msg.content.indexOf(query);
+                    preview = msg.content.slice(
+                      Math.max(0, beginIndex - 100),
+                      Math.min(msg.content.length, beginIndex + 239),
+                    ) as string;
+                    break;
+                  } else if (contentType === "object") {
+                    const details = msg.content as MessageDetail[];
+                    for (const detail of details) {
+                      if (detail.type !== "text") continue;
+                      if (!detail.text?.includes(query)) continue;
+                      const beginIndex = detail.text.indexOf(query);
+                      preview = detail.text.slice(
+                        Math.max(0, beginIndex - 100),
+                        Math.min(detail.text.length, beginIndex + 239),
+                      ) as string;
+                      break;
+                    }
+                  }
                 }
+                if (preview === "") continue;
+                result.push({
+                  key,
+                  cs: value,
+                  query: query,
+                  preview: preview,
+                });
               }
 
               // sort by key desc
