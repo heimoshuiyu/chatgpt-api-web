@@ -218,7 +218,7 @@ export default function Message(props: Props) {
                   chatStore.history.splice(messageIndex, 1);
                   chatStore.postBeginIndex = Math.max(
                     chatStore.postBeginIndex - 1,
-                    0,
+                    0
                   );
                   //chatStore.totalTokens =
                   chatStore.totalTokens = 0;

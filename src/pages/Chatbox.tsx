@@ -465,12 +465,6 @@ export default function ChatBOX(props: {
         />
       )}
 
-      <StatusBar
-        chatStore={chatStore}
-        setShowSettings={setShowSettings}
-        setShowSearch={setShowSearch}
-      />
-
       <div className="grow overflow-scroll">
         {!chatStore.apiKey && (
           <p className="bg-base-200 p-6 rounded my-3 text-left">
