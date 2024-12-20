@@ -470,8 +470,7 @@ export default function ChatBOX(props: {
           setShow={setShowSearch}
         />
       )}
-
-      <div className="grow overflow-scroll">
+      <ChatMessageList>
         {!chatStore.apiKey && (
           <p className="bg-base-200 p-6 rounded my-3 text-left">
             {Tr("Please click above to set")} (OpenAI) API KEY
@@ -538,132 +537,131 @@ export default function ChatBOX(props: {
             setChatStore={setChatStore}
           />
         )}
-        <ChatMessageList>
-          {chatStore.history.filter((msg) => !msg.example).length == 0 && (
-            <div className="bg-base-200 break-all p-3 my-3 text-left">
-              <h2>
-                <span>{Tr("Saved prompt templates")}</span>
-                <Button
-                  variant="link"
-                  className="mx-2"
-                  onClick={() => {
-                    chatStore.systemMessageContent = "";
-                    chatStore.toolsString = "";
-                    chatStore.history = [];
-                    setChatStore({ ...chatStore });
-                  }}
-                >
-                  {Tr("Reset Current")}
-                </Button>
-              </h2>
-              <div className="divider"></div>
-              <div className="flex flex-wrap">
-                <Templates
-                  templates={templates}
-                  setTemplates={setTemplates}
-                  chatStore={chatStore}
-                  setChatStore={setChatStore}
-                />
-              </div>
-            </div>
-          )}
-          {chatStore.history.length === 0 && (
-            <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
-              {Tr("No chat history here")}
-              <br />⚙{Tr("Model")}: {chatStore.model}
-              <br />⬆{Tr("Click above to change the settings of this chat")}
-              <br />↖{Tr("Click the conor to create a new chat")}
-              <br />⚠
-              {Tr(
-                "All chat history and settings are stored in the local browser"
-              )}
-              <br />
-            </p>
-          )}
-          {chatStore.systemMessageContent.trim() && (
-            <div className="chat chat-start">
-              <div className="chat-header">Prompt</div>
-              <div
-                className="chat-bubble chat-bubble-accent cursor-pointer message-content"
-                onClick={() => setShowSettings(true)}
-              >
-                {chatStore.systemMessageContent}
-              </div>
-            </div>
-          )}
 
-          {chatStore.history.map((_, messageIndex) => (
-            <Message
-              chatStore={chatStore}
-              setChatStore={setChatStore}
-              messageIndex={messageIndex}
-            />
-          ))}
-          {showGenerating && (
-            <p className="p-2 my-2 animate-pulse message-content">
-              {generatingMessage || Tr("Generating...")}
-              ...
-            </p>
-          )}
-          <p className="text-center">
-            {chatStore.history.length > 0 && (
+        {chatStore.history.filter((msg) => !msg.example).length == 0 && (
+          <div className="bg-base-200 break-all p-3 my-3 text-left">
+            <h2>
+              <span>{Tr("Saved prompt templates")}</span>
               <Button
-                variant="secondary"
-                size="sm"
-                className="m-2"
-                disabled={showGenerating}
-                onClick={async () => {
-                  const messageIndex = chatStore.history.length - 1;
-                  if (chatStore.history[messageIndex].role === "assistant") {
-                    chatStore.history[messageIndex].hide = true;
-                  }
-
+                variant="link"
+                className="mx-2"
+                onClick={() => {
+                  chatStore.systemMessageContent = "";
+                  chatStore.toolsString = "";
+                  chatStore.history = [];
                   setChatStore({ ...chatStore });
-                  await complete();
                 }}
               >
-                {Tr("Re-Generate")}
+                {Tr("Reset Current")}
               </Button>
+            </h2>
+            <div className="divider"></div>
+            <div className="flex flex-wrap">
+              <Templates
+                templates={templates}
+                setTemplates={setTemplates}
+                chatStore={chatStore}
+                setChatStore={setChatStore}
+              />
+            </div>
+          </div>
+        )}
+        {chatStore.history.length === 0 && (
+          <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
+            {Tr("No chat history here")}
+            <br />⚙{Tr("Model")}: {chatStore.model}
+            <br />⬆{Tr("Click above to change the settings of this chat")}
+            <br />↖{Tr("Click the conor to create a new chat")}
+            <br />⚠
+            {Tr(
+              "All chat history and settings are stored in the local browser"
             )}
-            {chatStore.develop_mode && chatStore.history.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={showGenerating}
-                onClick={async () => {
-                  await complete();
-                }}
-              >
-                {Tr("Completion")}
-              </Button>
-            )}
+            <br />
           </p>
-          <p className="p-2 my-2 text-center opacity-50 dark:text-white">
-            {chatStore.postBeginIndex !== 0 && (
-              <>
-                <br />
-                {Tr("Info: chat history is too long, forget messages")}:{" "}
-                {chatStore.postBeginIndex}
-              </>
-            )}
+        )}
+        {chatStore.systemMessageContent.trim() && (
+          <div className="chat chat-start">
+            <div className="chat-header">Prompt</div>
+            <div
+              className="chat-bubble chat-bubble-accent cursor-pointer message-content"
+              onClick={() => setShowSettings(true)}
+            >
+              {chatStore.systemMessageContent}
+            </div>
+          </div>
+        )}
+
+        {chatStore.history.map((_, messageIndex) => (
+          <Message
+            chatStore={chatStore}
+            setChatStore={setChatStore}
+            messageIndex={messageIndex}
+          />
+        ))}
+        {showGenerating && (
+          <p className="p-2 my-2 animate-pulse message-content">
+            {generatingMessage || Tr("Generating...")}
+            ...
           </p>
-          <VersionHint chatStore={chatStore} />
-          {showRetry && (
-            <p className="text-right p-2 my-2 dark:text-white">
-              <Button
-                variant="destructive"
-                onClick={async () => {
-                  setShowRetry(false);
-                  await complete();
-                }}
-              >
-                {Tr("Retry")}
-              </Button>
-            </p>
+        )}
+        <p className="text-center">
+          {chatStore.history.length > 0 && (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="m-2"
+              disabled={showGenerating}
+              onClick={async () => {
+                const messageIndex = chatStore.history.length - 1;
+                if (chatStore.history[messageIndex].role === "assistant") {
+                  chatStore.history[messageIndex].hide = true;
+                }
+
+                setChatStore({ ...chatStore });
+                await complete();
+              }}
+            >
+              {Tr("Re-Generate")}
+            </Button>
           )}
-          <div ref={messagesEndRef}></div>
-        </ChatMessageList>
-      </div>
+          {chatStore.develop_mode && chatStore.history.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={showGenerating}
+              onClick={async () => {
+                await complete();
+              }}
+            >
+              {Tr("Completion")}
+            </Button>
+          )}
+        </p>
+        <p className="p-2 my-2 text-center opacity-50 dark:text-white">
+          {chatStore.postBeginIndex !== 0 && (
+            <>
+              <br />
+              {Tr("Info: chat history is too long, forget messages")}:{" "}
+              {chatStore.postBeginIndex}
+            </>
+          )}
+        </p>
+        <VersionHint chatStore={chatStore} />
+        {showRetry && (
+          <p className="text-right p-2 my-2 dark:text-white">
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                setShowRetry(false);
+                await complete();
+              }}
+            >
+              {Tr("Retry")}
+            </Button>
+          </p>
+        )}
+        <div ref={messagesEndRef}></div>
+      </ChatMessageList>
       {images.length > 0 && (
         <div className="flex flex-wrap">
           {images.map((image, index) => (
@@ -727,14 +725,14 @@ export default function ChatBOX(props: {
             </Button>
 
             {chatStore.whisper_api && chatStore.whisper_key && (
-              <Button variant="ghost" size="icon">
+              <>
                 <WhisperButton
                   chatStore={chatStore}
                   inputMsg={inputMsg}
                   setInputMsg={setInputMsg}
                 />
                 <span className="sr-only">Use Microphone</span>
-              </Button>
+              </>
             )}
 
             <Button

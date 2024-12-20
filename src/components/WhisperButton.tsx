@@ -2,6 +2,7 @@ import { createRef } from "preact";
 
 import { ChatStore } from "@/types/chatstore";
 import { StateUpdater, useEffect, useState, Dispatch } from "preact/hooks";
+import { Button } from "@/components/ui/button";
 
 const WhisperButton = (props: {
   chatStore: ChatStore;
@@ -12,10 +13,9 @@ const WhisperButton = (props: {
   const mediaRef = createRef();
   const [isRecording, setIsRecording] = useState("Mic");
   return (
-    <button
-      className={`btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1 ${
-        isRecording === "Recording" ? "btn-error" : "btn-success"
-      } ${isRecording !== "Mic" ? "animate-pulse" : ""}`}
+    <Button
+      variant={isRecording === "Recording" ? "destructive" : "default"}
+      className={`m-1 p-1 ${isRecording !== "Mic" ? "animate-pulse" : ""}`}
       disabled={isRecording === "Transcribing"}
       ref={mediaRef}
       onClick={async () => {
@@ -38,7 +38,7 @@ const WhisperButton = (props: {
                 } else {
                   return content.map((c) => c?.text).join(" ");
                 }
-              }),
+              })
           )
           .concat([inputMsg])
           .join(" ");
@@ -52,7 +52,7 @@ const WhisperButton = (props: {
             await navigator.mediaDevices.getUserMedia({
               audio: true,
             }),
-            { audioBitsPerSecond: 64 * 1000 },
+            { audioBitsPerSecond: 64 * 1000 }
           );
 
           // mount mediaRecorder to ref
@@ -125,7 +125,7 @@ const WhisperButton = (props: {
       }}
     >
       {isRecording}
-    </button>
+    </Button>
   );
 };
 
