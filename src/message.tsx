@@ -198,7 +198,6 @@ export default function Message(props: Props) {
           setChatStore={setChatStore}
         />
       )}
-      {showCopiedHint && <CopiedHint />}
       {chatStore.develop_mode && (
         <div
           className={`flex flex-wrap items-center gap-2 mt-2 ${
@@ -214,7 +213,8 @@ export default function Message(props: Props) {
               readOnly
             />
             <button
-              className="inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-accent hover:text-accent-foreground"
+              type="button"
+              className="inline-flex items-center justify-center rounded-sm opacity-70 hover:opacity-100 h-8 w-8"
               onClick={() => {
                 chatStore.history.splice(messageIndex, 1);
                 chatStore.postBeginIndex = Math.max(
@@ -231,7 +231,7 @@ export default function Message(props: Props) {
                 setChatStore({ ...chatStore });
               }}
             >
-              <XMarkIcon className="h-4 w-4" />
+              <XMarkIcon className="size-4" />
             </button>
           </div>
           <div className="flex items-center gap-4">
@@ -265,6 +265,11 @@ export default function Message(props: Props) {
               />
               <span className="text-sm font-medium">{Tr("color")}</span>
             </label>
+            {chat.response_model_name && (
+              <>
+                <span className="opacity-50">{chat.response_model_name}</span>
+              </>
+            )}
           </div>
         </div>
       )}
