@@ -20,7 +20,7 @@ import {
   ChatBubbleActionWrapper,
 } from "@/components/ui/chat/chat-bubble";
 import { useToast } from "@/hooks/use-toast";
-import { ClipboardIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { ClipboardIcon, PencilIcon, MessageSquareOffIcon } from "lucide-react";
 
 export const isVailedJSON = (str: string): boolean => {
   try {
@@ -158,7 +158,7 @@ export default function Message(props: Props) {
         </ChatBubbleMessage>
         <ChatBubbleActionWrapper>
           <ChatBubbleAction
-            icon={<TrashIcon className="size-4" />}
+            icon={<MessageSquareOffIcon className="size-4" />}
             onClick={() => {
               chatStore.history[messageIndex].hide =
                 !chatStore.history[messageIndex].hide;
