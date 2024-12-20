@@ -42,14 +42,10 @@ import WhisperButton from "@/components/WhisperButton";
 import AddToolMsg from "./AddToolMsg";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  ChatBubble,
-  ChatBubbleAvatar,
-  ChatBubbleMessage,
-  ChatBubbleAction,
-  ChatBubbleActionWrapper,
-} from "@/components/ui/chat/chat-bubble";
+import { ChatInput } from "@/components/ui/chat/chat-input";
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
+import { CornerDownLeftIcon, ImageIcon } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 export default function ChatBOX(props: {
   db: Promise<IDBPDatabase<ChatStore>>;
@@ -684,29 +680,79 @@ export default function ChatBOX(props: {
       )}
 
       {generatingMessage && (
-        <span
-          className="p-2 m-2 rounded bg-white dark:text-black dark:bg-white dark:bg-opacity-50"
-          style={{ textAlign: "right" }}
-          onClick={() => {
-            setFollow(!follow);
-          }}
-        >
-          <label>Follow</label>
-          <input type="checkbox" checked={follow} />
-        </span>
+        <div className="flex items-center justify-end gap-2 p-2 m-2 rounded bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Follow
+          </label>
+          <Switch
+            checked={follow}
+            onCheckedChange={setFollow}
+            aria-label="Toggle auto-scroll"
+          />
+        </div>
       )}
 
-      <div className="sticky top-0 z-10 bg-background flex justify-between my-1 gap-2 p-2">
-        <Button
-          variant="default"
-          size="sm"
-          disabled={showGenerating || !chatStore.apiKey}
-          onClick={() => {
-            setShowAddImage(!showAddImage);
-          }}
-        >
-          Image
-        </Button>
+      <div className="sticky top-0 z-10 bg-background">
+        <form className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1">
+          <ChatInput
+            value={inputMsg}
+            ref={userInputRef}
+            placeholder="Type your message here..."
+            onChange={(event: any) => {
+              setInputMsg(event.target.value);
+              autoHeight(event.target);
+            }}
+            onKeyPress={(event: any) => {
+              if (event.ctrlKey && event.code === "Enter") {
+                send(event.target.value, true);
+                setInputMsg("");
+                event.target.value = "";
+                autoHeight(event.target);
+                return;
+              }
+              autoHeight(event.target);
+              setInputMsg(event.target.value);
+            }}
+            className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
+          />
+          <div className="flex items-center p-3 pt-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowAddImage(!showAddImage)}
+              disabled={showGenerating || !chatStore.apiKey}
+            >
+              <ImageIcon className="size-4" />
+              <span className="sr-only">Add Image</span>
+            </Button>
+
+            {chatStore.whisper_api && chatStore.whisper_key && (
+              <Button variant="ghost" size="icon">
+                <WhisperButton
+                  chatStore={chatStore}
+                  inputMsg={inputMsg}
+                  setInputMsg={setInputMsg}
+                />
+                <span className="sr-only">Use Microphone</span>
+              </Button>
+            )}
+
+            <Button
+              size="sm"
+              className="ml-auto gap-1.5"
+              disabled={showGenerating}
+              onClick={() => {
+                send(inputMsg, true);
+                userInputRef.current.value = "";
+                autoHeight(userInputRef.current);
+              }}
+            >
+              Send Message
+              <CornerDownLeftIcon className="size-3.5" />
+            </Button>
+          </div>
+        </form>
+
         {showAddImage && (
           <AddImage
             chatStore={chatStore}
@@ -714,106 +760,6 @@ export default function ChatBOX(props: {
             setShowAddImage={setShowAddImage}
             images={images}
             setImages={setImages}
-          />
-        )}
-        <Textarea
-          autoFocus
-          value={inputMsg}
-          ref={userInputRef}
-          onChange={(event: any) => {
-            setInputMsg(event.target.value);
-            autoHeight(event.target);
-          }}
-          onKeyPress={(event: any) => {
-            if (event.ctrlKey && event.code === "Enter") {
-              send(event.target.value, true);
-              setInputMsg("");
-              event.target.value = "";
-              autoHeight(event.target);
-              return;
-            }
-            autoHeight(event.target);
-            setInputMsg(event.target.value);
-          }}
-          className="min-h-[40px] flex-grow resize-none"
-          placeholder="Type here..."
-          style={{
-            lineHeight: "1.39",
-          }}
-        />
-        <Button
-          variant="default"
-          size="sm"
-          disabled={showGenerating}
-          onClick={() => {
-            send(inputMsg, true);
-            userInputRef.current.value = "";
-            autoHeight(userInputRef.current);
-          }}
-        >
-          {Tr("Send")}
-        </Button>
-        {chatStore.whisper_api && chatStore.whisper_key && (
-          <WhisperButton
-            chatStore={chatStore}
-            inputMsg={inputMsg}
-            setInputMsg={setInputMsg}
-          />
-        )}
-        {chatStore.develop_mode && (
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={showGenerating || !chatStore.apiKey}
-            onClick={() => {
-              chatStore.history.push({
-                role: "assistant",
-                content: inputMsg,
-                token:
-                  calculate_token_length(inputMsg) +
-                  calculate_token_length(images),
-                hide: false,
-                example: false,
-                audio: null,
-                logprobs: null,
-                response_model_name: null,
-              });
-              setInputMsg("");
-              setChatStore({ ...chatStore });
-            }}
-          >
-            {Tr("AI")}
-          </Button>
-        )}
-        {chatStore.develop_mode && (
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={showGenerating || !chatStore.apiKey}
-            onClick={() => {
-              send(inputMsg, false);
-            }}
-          >
-            {Tr("User")}
-          </Button>
-        )}
-        {chatStore.develop_mode && (
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={showGenerating || !chatStore.apiKey}
-            onClick={() => {
-              setShowAddToolMsg(true);
-            }}
-          >
-            {Tr("Tool")}
-          </Button>
-        )}
-        {showAddToolMsg && (
-          <AddToolMsg
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            setShowAddToolMsg={setShowAddToolMsg}
           />
         )}
       </div>
