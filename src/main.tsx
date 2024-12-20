@@ -5,6 +5,7 @@ import { App } from "@/pages/App";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/theme-provider";
 
 function Base() {
   const [langCode, _setLangCode] = useState("en-US");
@@ -47,11 +48,14 @@ function Base() {
 
   return (
     /* @ts-ignore */
+
     <langCodeContext.Provider value={{ langCode, setLangCode }}>
-      <SidebarProvider>
-        <App />
-        <Toaster />
-      </SidebarProvider>
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <SidebarProvider>
+          <App />
+          <Toaster />
+        </SidebarProvider>
+      </ThemeProvider>
     </langCodeContext.Provider>
   );
 }

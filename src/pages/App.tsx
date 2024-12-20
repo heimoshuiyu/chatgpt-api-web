@@ -71,6 +71,7 @@ import {
   CogIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export function App() {
   // init selected index
@@ -396,7 +397,7 @@ export function App() {
                   </Menubar>
                 </div>
               </div>
-              <CogIcon />
+              <ModeToggle />
             </div>
           </div>
         </header>
