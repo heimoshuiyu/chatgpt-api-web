@@ -40,6 +40,16 @@ import VersionHint from "@/components/VersionHint";
 import StatusBar from "@/components/StatusBar";
 import WhisperButton from "@/components/WhisperButton";
 import AddToolMsg from "./AddToolMsg";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  ChatBubble,
+  ChatBubbleAvatar,
+  ChatBubbleMessage,
+  ChatBubbleAction,
+  ChatBubbleActionWrapper,
+} from "@/components/ui/chat/chat-bubble";
+import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
 
 export default function ChatBOX(props: {
   db: Promise<IDBPDatabase<ChatStore>>;
@@ -436,7 +446,7 @@ export default function ChatBOX(props: {
 
   return (
     <div className="grow flex flex-col p-2 w-full">
-      {showSettings && (
+      {true && (
         <Settings
           chatStore={chatStore}
           setChatStore={setChatStore}
@@ -532,128 +542,131 @@ export default function ChatBOX(props: {
             setChatStore={setChatStore}
           />
         )}
+        <ChatMessageList>
+          {chatStore.history.filter((msg) => !msg.example).length == 0 && (
+            <div className="bg-base-200 break-all p-3 my-3 text-left">
+              <h2>
+                <span>{Tr("Saved prompt templates")}</span>
+                <Button
+                  variant="link"
+                  className="mx-2"
+                  onClick={() => {
+                    chatStore.systemMessageContent = "";
+                    chatStore.toolsString = "";
+                    chatStore.history = [];
+                    setChatStore({ ...chatStore });
+                  }}
+                >
+                  {Tr("Reset Current")}
+                </Button>
+              </h2>
+              <div className="divider"></div>
+              <div className="flex flex-wrap">
+                <Templates
+                  templates={templates}
+                  setTemplates={setTemplates}
+                  chatStore={chatStore}
+                  setChatStore={setChatStore}
+                />
+              </div>
+            </div>
+          )}
+          {chatStore.history.length === 0 && (
+            <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
+              {Tr("No chat history here")}
+              <br />⚙{Tr("Model")}: {chatStore.model}
+              <br />⬆{Tr("Click above to change the settings of this chat")}
+              <br />↖{Tr("Click the conor to create a new chat")}
+              <br />⚠
+              {Tr(
+                "All chat history and settings are stored in the local browser"
+              )}
+              <br />
+            </p>
+          )}
+          {chatStore.systemMessageContent.trim() && (
+            <div className="chat chat-start">
+              <div className="chat-header">Prompt</div>
+              <div
+                className="chat-bubble chat-bubble-accent cursor-pointer message-content"
+                onClick={() => setShowSettings(true)}
+              >
+                {chatStore.systemMessageContent}
+              </div>
+            </div>
+          )}
 
-        {chatStore.history.filter((msg) => !msg.example).length == 0 && (
-          <div className="bg-base-200 break-all p-3 my-3 text-left">
-            <h2>
-              <span>{Tr("Saved prompt templates")}</span>
-              <button
-                className="mx-2 underline cursor-pointer"
-                onClick={() => {
-                  chatStore.systemMessageContent = "";
-                  chatStore.toolsString = "";
-                  chatStore.history = [];
+          {chatStore.history.map((_, messageIndex) => (
+            <Message
+              chatStore={chatStore}
+              setChatStore={setChatStore}
+              messageIndex={messageIndex}
+            />
+          ))}
+          {showGenerating && (
+            <p className="p-2 my-2 animate-pulse message-content">
+              {generatingMessage || Tr("Generating...")}
+              ...
+            </p>
+          )}
+          <p className="text-center">
+            {chatStore.history.length > 0 && (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="m-2"
+                disabled={showGenerating}
+                onClick={async () => {
+                  const messageIndex = chatStore.history.length - 1;
+                  if (chatStore.history[messageIndex].role === "assistant") {
+                    chatStore.history[messageIndex].hide = true;
+                  }
+
                   setChatStore({ ...chatStore });
+                  await complete();
                 }}
               >
-                {Tr("Reset Current")}
-              </button>
-            </h2>
-            <div className="divider"></div>
-            <div className="flex flex-wrap">
-              <Templates
-                templates={templates}
-                setTemplates={setTemplates}
-                chatStore={chatStore}
-                setChatStore={setChatStore}
-              />
-            </div>
-          </div>
-        )}
-        {chatStore.history.length === 0 && (
-          <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
-            {Tr("No chat history here")}
-            <br />⚙{Tr("Model")}: {chatStore.model}
-            <br />⬆{Tr("Click above to change the settings of this chat")}
-            <br />↖{Tr("Click the conor to create a new chat")}
-            <br />⚠
-            {Tr(
-              "All chat history and settings are stored in the local browser"
+                {Tr("Re-Generate")}
+              </Button>
             )}
-            <br />
+            {chatStore.develop_mode && chatStore.history.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={showGenerating}
+                onClick={async () => {
+                  await complete();
+                }}
+              >
+                {Tr("Completion")}
+              </Button>
+            )}
           </p>
-        )}
-        {chatStore.systemMessageContent.trim() && (
-          <div className="chat chat-start">
-            <div className="chat-header">Prompt</div>
-            <div
-              className="chat-bubble chat-bubble-accent cursor-pointer message-content"
-              onClick={() => setShowSettings(true)}
-            >
-              {chatStore.systemMessageContent}
-            </div>
-          </div>
-        )}
-
-        {chatStore.history.map((_, messageIndex) => (
-          <Message
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            messageIndex={messageIndex}
-          />
-        ))}
-        {showGenerating && (
-          <p className="p-2 my-2 animate-pulse message-content">
-            {generatingMessage || Tr("Generating...")}
-            ...
+          <p className="p-2 my-2 text-center opacity-50 dark:text-white">
+            {chatStore.postBeginIndex !== 0 && (
+              <>
+                <br />
+                {Tr("Info: chat history is too long, forget messages")}:{" "}
+                {chatStore.postBeginIndex}
+              </>
+            )}
           </p>
-        )}
-        <p className="text-center">
-          {chatStore.history.length > 0 && (
-            <button
-              className="btn btn-sm btn-warning disabled:line-through disabled:btn-neutral disabled:text-white m-2 p-2"
-              disabled={showGenerating}
-              onClick={async () => {
-                const messageIndex = chatStore.history.length - 1;
-                if (chatStore.history[messageIndex].role === "assistant") {
-                  chatStore.history[messageIndex].hide = true;
-                }
-
-                //chatStore.totalTokens =
-                setChatStore({ ...chatStore });
-
-                await complete();
-              }}
-            >
-              {Tr("Re-Generate")}
-            </button>
+          <VersionHint chatStore={chatStore} />
+          {showRetry && (
+            <p className="text-right p-2 my-2 dark:text-white">
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  setShowRetry(false);
+                  await complete();
+                }}
+              >
+                {Tr("Retry")}
+              </Button>
+            </p>
           )}
-          {chatStore.develop_mode && chatStore.history.length > 0 && (
-            <button
-              className="btn btn-outline btn-sm btn-warning disabled:line-through disabled:bg-neural"
-              disabled={showGenerating}
-              onClick={async () => {
-                await complete();
-              }}
-            >
-              {Tr("Completion")}
-            </button>
-          )}
-        </p>
-        <p className="p-2 my-2 text-center opacity-50 dark:text-white">
-          {chatStore.postBeginIndex !== 0 && (
-            <>
-              <br />
-              {Tr("Info: chat history is too long, forget messages")}:{" "}
-              {chatStore.postBeginIndex}
-            </>
-          )}
-        </p>
-        <VersionHint chatStore={chatStore} />
-        {showRetry && (
-          <p className="text-right p-2 my-2 dark:text-white">
-            <button
-              className="p-1 rounded bg-rose-500"
-              onClick={async () => {
-                setShowRetry(false);
-                await complete();
-              }}
-            >
-              {Tr("Retry")}
-            </button>
-          </p>
-        )}
-        <div ref={messagesEndRef}></div>
+          <div ref={messagesEndRef}></div>
+        </ChatMessageList>
       </div>
       {images.length > 0 && (
         <div className="flex flex-wrap">
@@ -683,16 +696,17 @@ export default function ChatBOX(props: {
         </span>
       )}
 
-      <div className="flex justify-between my-1">
-        <button
-          className="btn btn-primary disabled:line-through disabled:text-white disabled:bg-neutral m-1 p-1"
+      <div className="sticky top-0 z-10 bg-background flex justify-between my-1 gap-2 p-2">
+        <Button
+          variant="default"
+          size="sm"
           disabled={showGenerating || !chatStore.apiKey}
           onClick={() => {
             setShowAddImage(!showAddImage);
           }}
         >
           Image
-        </button>
+        </Button>
         {showAddImage && (
           <AddImage
             chatStore={chatStore}
@@ -702,8 +716,8 @@ export default function ChatBOX(props: {
             setImages={setImages}
           />
         )}
-        <textarea
-          autofocus
+        <Textarea
+          autoFocus
           value={inputMsg}
           ref={userInputRef}
           onChange={(event: any) => {
@@ -711,7 +725,6 @@ export default function ChatBOX(props: {
             autoHeight(event.target);
           }}
           onKeyPress={(event: any) => {
-            console.log(event);
             if (event.ctrlKey && event.code === "Enter") {
               send(event.target.value, true);
               setInputMsg("");
@@ -722,14 +735,15 @@ export default function ChatBOX(props: {
             autoHeight(event.target);
             setInputMsg(event.target.value);
           }}
-          className="textarea textarea-bordered textarea-sm grow w-0"
+          className="min-h-[40px] flex-grow resize-none"
+          placeholder="Type here..."
           style={{
             lineHeight: "1.39",
           }}
-          placeholder="Type here..."
-        ></textarea>
-        <button
-          className="btn btn-primary disabled:btn-neutral disabled:line-through m-1 p-1"
+        />
+        <Button
+          variant="default"
+          size="sm"
           disabled={showGenerating}
           onClick={() => {
             send(inputMsg, true);
@@ -738,7 +752,7 @@ export default function ChatBOX(props: {
           }}
         >
           {Tr("Send")}
-        </button>
+        </Button>
         {chatStore.whisper_api && chatStore.whisper_key && (
           <WhisperButton
             chatStore={chatStore}
@@ -747,8 +761,9 @@ export default function ChatBOX(props: {
           />
         )}
         {chatStore.develop_mode && (
-          <button
-            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
+          <Button
+            variant="outline"
+            size="sm"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
               chatStore.history.push({
@@ -768,29 +783,31 @@ export default function ChatBOX(props: {
             }}
           >
             {Tr("AI")}
-          </button>
+          </Button>
         )}
         {chatStore.develop_mode && (
-          <button
-            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
+          <Button
+            variant="outline"
+            size="sm"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
               send(inputMsg, false);
             }}
           >
             {Tr("User")}
-          </button>
+          </Button>
         )}
         {chatStore.develop_mode && (
-          <button
-            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
+          <Button
+            variant="outline"
+            size="sm"
             disabled={showGenerating || !chatStore.apiKey}
             onClick={() => {
               setShowAddToolMsg(true);
             }}
           >
             {Tr("Tool")}
-          </button>
+          </Button>
         )}
         {showAddToolMsg && (
           <AddToolMsg

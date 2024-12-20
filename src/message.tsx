@@ -12,6 +12,15 @@ import { MessageToolCall } from "@/messageToolCall";
 import { MessageToolResp } from "@/messageToolResp";
 import { EditMessage } from "@/editMessage";
 import logprobToColor from "@/logprob";
+import {
+  ChatBubble,
+  ChatBubbleAvatar,
+  ChatBubbleMessage,
+  ChatBubbleAction,
+  ChatBubbleActionWrapper,
+} from "@/components/ui/chat/chat-bubble";
+import { useToast } from "@/hooks/use-toast";
+import { ClipboardIcon, PencilIcon, TrashIcon } from "lucide-react";
 
 export const isVailedJSON = (str: string): boolean => {
   try {
@@ -74,10 +83,13 @@ export default function Message(props: Props) {
     </div>
   );
 
+  const { toast } = useToast();
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    setShowCopiedHint(true);
-    setTimeout(() => setShowCopiedHint(false), 1000);
+    // TODO: Remove show copied hint
+    toast({
+      description: Tr("Message copied to clipboard!"),
+    });
   };
 
   const CopyIcon = ({ textToCopy }: { textToCopy: string }) => {
@@ -108,154 +120,154 @@ export default function Message(props: Props) {
             </span>
           </div>
         )}
-      <div
-        className={`flex ${
-          chat.role === "assistant" ? "justify-start" : "justify-end"
-        }`}
+      <ChatBubble
+        variant={chat.role === "assistant" ? "received" : "sent"}
+        className={chat.role !== "assistant" ? "flex-row-reverse" : ""}
       >
-        <div className={`w-full`}>
-          <div
-            className={`chat min-w-16 p-2 my-2 ${
-              chat.role === "assistant" ? "chat-start" : "chat-end"
-            } ${chat.hide ? "opacity-50" : ""}`}
-          >
-            <div
-              className={`chat-bubble max-w-full ${
-                chat.role === "assistant"
-                  ? renderColor
-                    ? "chat-bubble-neutral"
-                    : "chat-bubble-secondary"
-                  : "chat-bubble-primary"
-              }`}
-            >
-              {chat.hide ? (
-                <MessageHide chat={chat} />
-              ) : typeof chat.content !== "string" ? (
-                <MessageDetail chat={chat} renderMarkdown={renderMarkdown} />
-              ) : chat.tool_calls ? (
-                <MessageToolCall
-                  chat={chat}
-                  copyToClipboard={copyToClipboard}
-                />
-              ) : chat.role === "tool" ? (
-                <MessageToolResp
-                  chat={chat}
-                  copyToClipboard={copyToClipboard}
-                />
-              ) : renderMarkdown ? (
-                // @ts-ignore
-                <Markdown markdown={getMessageText(chat)} />
-              ) : (
-                <div className="message-content">
-                  {
-                    // only show when content is string or list of message
-                    // this check is used to avoid rendering tool call
-                    chat.content &&
-                      (chat.logprobs && renderColor
-                        ? chat.logprobs.content
-                            .filter((c) => c.token)
-                            .map((c) => (
-                              <div
-                                style={{
-                                  backgroundColor: logprobToColor(c.logprob),
-                                  display: "inline",
-                                }}
-                              >
-                                {c.token}
-                              </div>
-                            ))
-                        : getMessageText(chat))
-                  }
-                </div>
-              )}
+        <ChatBubbleAvatar fallback={chat.role === "assistant" ? "AI" : "US"} />
+        <ChatBubbleMessage isLoading={false}>
+          {chat.hide ? (
+            <MessageHide chat={chat} />
+          ) : typeof chat.content !== "string" ? (
+            <MessageDetail chat={chat} renderMarkdown={renderMarkdown} />
+          ) : chat.tool_calls ? (
+            <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
+          ) : chat.role === "tool" ? (
+            <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
+          ) : renderMarkdown ? (
+            <Markdown markdown={getMessageText(chat)} />
+          ) : (
+            <div className="message-content">
+              {chat.content &&
+                (chat.logprobs && renderColor
+                  ? chat.logprobs.content
+                      .filter((c) => c.token)
+                      .map((c) => (
+                        <div
+                          style={{
+                            backgroundColor: logprobToColor(c.logprob),
+                            display: "inline",
+                          }}
+                        >
+                          {c.token}
+                        </div>
+                      ))
+                  : getMessageText(chat))}
             </div>
-            <div className="chat-footer opacity-50 flex gap-x-2">
-              <DeleteIcon />
-              <button onClick={() => setShowEdit(true)}>Edit</button>
-              <CopyIcon textToCopy={getMessageText(chat)} />
-              {chatStore.tts_api && chatStore.tts_key && (
-                <TTSButton
-                  chatStore={chatStore}
-                  chat={chat}
-                  setChatStore={setChatStore}
-                />
-              )}
-              <TTSPlay chat={chat} />
-              {chat.response_model_name && (
-                <>
-                  <span className="opacity-50">{chat.response_model_name}</span>
-                  <hr />
-                </>
-              )}
-            </div>
-          </div>
-          {showEdit && (
-            <EditMessage
-              setShowEdit={setShowEdit}
-              chat={chat}
+          )}
+        </ChatBubbleMessage>
+        <ChatBubbleActionWrapper>
+          <ChatBubbleAction
+            icon={<TrashIcon className="size-4" />}
+            onClick={() => {
+              chatStore.history[messageIndex].hide =
+                !chatStore.history[messageIndex].hide;
+              chatStore.totalTokens = 0;
+              for (const i of chatStore.history
+                .filter(({ hide }) => !hide)
+                .slice(chatStore.postBeginIndex)
+                .map(({ token }) => token)) {
+                chatStore.totalTokens += i;
+              }
+              setChatStore({ ...chatStore });
+            }}
+          />
+          <ChatBubbleAction
+            icon={<PencilIcon className="size-4" />}
+            onClick={() => setShowEdit(true)}
+          />
+          <ChatBubbleAction
+            icon={<ClipboardIcon className="size-4" />}
+            onClick={() => copyToClipboard(getMessageText(chat))}
+          />
+          {chatStore.tts_api && chatStore.tts_key && (
+            <TTSButton
               chatStore={chatStore}
+              chat={chat}
               setChatStore={setChatStore}
             />
           )}
-          {showCopiedHint && <CopiedHint />}
-          {chatStore.develop_mode && (
-            <div
-              className={`gap-1 chat-end flex ${
-                chat.role === "assistant" ? "justify-start" : "justify-end"
-              }`}
+          <TTSPlay chat={chat} />
+        </ChatBubbleActionWrapper>
+      </ChatBubble>
+      {showEdit && (
+        <EditMessage
+          setShowEdit={setShowEdit}
+          chat={chat}
+          chatStore={chatStore}
+          setChatStore={setChatStore}
+        />
+      )}
+      {showCopiedHint && <CopiedHint />}
+      {chatStore.develop_mode && (
+        <div
+          className={`flex flex-wrap items-center gap-2 mt-2 ${
+            chat.role !== "assistant" ? "justify-end" : ""
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm">token</span>
+            <input
+              type="number"
+              value={chat.token}
+              className="h-8 w-16 rounded-md border border-input bg-background px-2 text-sm"
+              readOnly
+            />
+            <button
+              className="inline-flex items-center justify-center rounded-md h-8 w-8 hover:bg-accent hover:text-accent-foreground"
+              onClick={() => {
+                chatStore.history.splice(messageIndex, 1);
+                chatStore.postBeginIndex = Math.max(
+                  chatStore.postBeginIndex - 1,
+                  0
+                );
+                chatStore.totalTokens = 0;
+                for (const i of chatStore.history
+                  .filter(({ hide }) => !hide)
+                  .slice(chatStore.postBeginIndex)
+                  .map(({ token }) => token)) {
+                  chatStore.totalTokens += i;
+                }
+                setChatStore({ ...chatStore });
+              }}
             >
-              <span className="">token</span>
+              <XMarkIcon className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2">
               <input
-                value={chat.token}
-                className="input input-bordered input-xs w-16"
-                onChange={(event: any) => {
-                  chat.token = parseInt(event.target.value);
-                  setChatStore({ ...chatStore });
-                }}
-              />
-              <button
-                onClick={() => {
-                  chatStore.history.splice(messageIndex, 1);
-                  chatStore.postBeginIndex = Math.max(
-                    chatStore.postBeginIndex - 1,
-                    0
-                  );
-                  //chatStore.totalTokens =
-                  chatStore.totalTokens = 0;
-                  for (const i of chatStore.history
-                    .filter(({ hide }) => !hide)
-                    .slice(chatStore.postBeginIndex)
-                    .map(({ token }) => token)) {
-                    chatStore.totalTokens += i;
-                  }
-                  setChatStore({ ...chatStore });
-                }}
-              >
-                <XMarkIcon className="w-4 h-4" />
-              </button>
-              <span
-                onClick={(event: any) => {
+                type="checkbox"
+                className="h-4 w-4 rounded border-primary"
+                checked={chat.example}
+                onChange={() => {
                   chat.example = !chat.example;
                   setChatStore({ ...chatStore });
                 }}
-              >
-                <label className="">{Tr("example")}</label>
-                <input type="checkbox" checked={chat.example} />
-              </span>
-              <span
-                onClick={(event: any) => setRenderWorkdown(!renderMarkdown)}
-              >
-                <label className="">{Tr("render")}</label>
-                <input type="checkbox" checked={renderMarkdown} />
-              </span>
-              <span onClick={(event: any) => setRenderColor(!renderColor)}>
-                <label className="">{Tr("color")}</label>
-                <input type="checkbox" checked={renderColor} />
-              </span>
-            </div>
-          )}
+              />
+              <span className="text-sm font-medium">{Tr("example")}</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-primary"
+                checked={renderMarkdown}
+                onChange={() => setRenderWorkdown(!renderMarkdown)}
+              />
+              <span className="text-sm font-medium">{Tr("render")}</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-primary"
+                checked={renderColor}
+                onChange={() => setRenderColor(!renderColor)}
+              />
+              <span className="text-sm font-medium">{Tr("color")}</span>
+            </label>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

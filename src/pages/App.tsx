@@ -68,6 +68,7 @@ import {
   ScissorsIcon,
   WholeWordIcon,
   EllipsisIcon,
+  CogIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -307,90 +308,95 @@ export function App() {
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b">
+        <header className="flex sticky top-0 bg-background h-16 shrink-0 items-center gap-2 border-b z-50">
           <div className="flex items-center gap-2 px-3">
             <SidebarTrigger />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            <div className="dropdown lg:hidden flex items-center gap-2">
-              <h1 className="text-lg font-bold">{chatStore.model}</h1>{" "}
-              <Badge variant="outline">
-                {chatStore.totalTokens.toString()}
-              </Badge>
-              <Popover>
-                <PopoverTrigger>
-                  <EllipsisIcon />
-                </PopoverTrigger>
-                <PopoverContent>
-                  <p>
-                    Tokens: {chatStore.totalTokens}/{chatStore.maxTokens}
-                  </p>
-                  <p>
-                    Cut(s): {chatStore.postBeginIndex}/
-                    {chatStore.history.filter(({ hide }) => !hide).length}
-                  </p>
-                  <p>
-                    Cost: ${chatStore.cost.toFixed(4)} / $
-                    {getTotalCost().toFixed(2)}
-                  </p>
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="hidden lg:inline-grid">
-              <Menubar>
-                <MenubarMenu>
-                  <MenubarTrigger>
-                    <BoxesIcon className="w-4 h-4 mr-2" />
-                    {chatStore.model}
-                  </MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem>
-                      {models[chatStore.model]?.price?.prompt * 1000 * 1000}$ /
-                      1M input tokens
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-                <MenubarMenu>
-                  <MenubarTrigger>
-                    <ArrowUpDownIcon className="w-4 h-4 mr-2" />
-                    {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
-                  </MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem>STREAM/FETCH</MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-                <MenubarMenu>
-                  <MenubarTrigger>
-                    <WholeWordIcon className="w-4 h-4 mr-2" />{" "}
-                    {chatStore.totalTokens}
-                  </MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem>Max: {chatStore.maxTokens}</MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-                <MenubarMenu>
-                  <MenubarTrigger>
-                    <ScissorsIcon className="w-4 h-4 mr-2" />
-                    {chatStore.postBeginIndex}
-                  </MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem>
-                      Max:{" "}
-                      {chatStore.history.filter(({ hide }) => !hide).length}
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-                <MenubarMenu>
-                  <MenubarTrigger>
-                    <CircleDollarSignIcon className="w-4 h-4 mr-2" />
-                    {chatStore.cost.toFixed(4)}
-                  </MenubarTrigger>
-                  <MenubarContent>
-                    <MenubarItem>
-                      Accumulated: ${getTotalCost().toFixed(2)}
-                    </MenubarItem>
-                  </MenubarContent>
-                </MenubarMenu>
-              </Menubar>
+            <div className="flex justify-between items-center gap-2">
+              <div>
+                <div className="dropdown lg:hidden flex items-center gap-2">
+                  <h1 className="text-lg font-bold">{chatStore.model}</h1>{" "}
+                  <Badge variant="outline">
+                    {chatStore.totalTokens.toString()}
+                  </Badge>
+                  <Popover>
+                    <PopoverTrigger>
+                      <EllipsisIcon />
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <p>
+                        Tokens: {chatStore.totalTokens}/{chatStore.maxTokens}
+                      </p>
+                      <p>
+                        Cut(s): {chatStore.postBeginIndex}/
+                        {chatStore.history.filter(({ hide }) => !hide).length}
+                      </p>
+                      <p>
+                        Cost: ${chatStore.cost.toFixed(4)} / $
+                        {getTotalCost().toFixed(2)}
+                      </p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="hidden lg:inline-grid">
+                  <Menubar>
+                    <MenubarMenu>
+                      <MenubarTrigger>
+                        <BoxesIcon className="w-4 h-4 mr-2" />
+                        {chatStore.model}
+                      </MenubarTrigger>
+                      <MenubarContent>
+                        <MenubarItem>
+                          {models[chatStore.model]?.price?.prompt * 1000 * 1000}
+                          $ / 1M input tokens
+                        </MenubarItem>
+                      </MenubarContent>
+                    </MenubarMenu>
+                    <MenubarMenu>
+                      <MenubarTrigger>
+                        <ArrowUpDownIcon className="w-4 h-4 mr-2" />
+                        {chatStore.streamMode ? Tr("STREAM") : Tr("FETCH")}
+                      </MenubarTrigger>
+                      <MenubarContent>
+                        <MenubarItem>STREAM/FETCH</MenubarItem>
+                      </MenubarContent>
+                    </MenubarMenu>
+                    <MenubarMenu>
+                      <MenubarTrigger>
+                        <WholeWordIcon className="w-4 h-4 mr-2" />{" "}
+                        {chatStore.totalTokens}
+                      </MenubarTrigger>
+                      <MenubarContent>
+                        <MenubarItem>Max: {chatStore.maxTokens}</MenubarItem>
+                      </MenubarContent>
+                    </MenubarMenu>
+                    <MenubarMenu>
+                      <MenubarTrigger>
+                        <ScissorsIcon className="w-4 h-4 mr-2" />
+                        {chatStore.postBeginIndex}
+                      </MenubarTrigger>
+                      <MenubarContent>
+                        <MenubarItem>
+                          Max:{" "}
+                          {chatStore.history.filter(({ hide }) => !hide).length}
+                        </MenubarItem>
+                      </MenubarContent>
+                    </MenubarMenu>
+                    <MenubarMenu>
+                      <MenubarTrigger>
+                        <CircleDollarSignIcon className="w-4 h-4 mr-2" />
+                        {chatStore.cost.toFixed(4)}
+                      </MenubarTrigger>
+                      <MenubarContent>
+                        <MenubarItem>
+                          Accumulated: ${getTotalCost().toFixed(2)}
+                        </MenubarItem>
+                      </MenubarContent>
+                    </MenubarMenu>
+                  </Menubar>
+                </div>
+              </div>
+              <CogIcon />
             </div>
           </div>
         </header>
