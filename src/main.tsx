@@ -4,6 +4,7 @@ import { useState, useEffect } from "preact/hooks";
 import { App } from "@/pages/App";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/toaster";
 
 function Base() {
   const [langCode, _setLangCode] = useState("en-US");
@@ -49,6 +50,7 @@ function Base() {
     <langCodeContext.Provider value={{ langCode, setLangCode }}>
       <SidebarProvider>
         <App />
+        <Toaster />
       </SidebarProvider>
     </langCodeContext.Provider>
   );

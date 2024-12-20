@@ -12,10 +12,42 @@ import { newChatStore } from "@/types/newChatstore";
 import { STORAGE_NAME, STORAGE_NAME_SELECTED } from "@/const";
 import { upgrade } from "@/indexedDB/upgrade";
 
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
+
 export function App() {
   // init selected index
   const [selectedChatIndex, setSelectedChatIndex] = useState(
-    parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "1"),
+    parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "1")
   );
   console.log("selectedChatIndex", selectedChatIndex);
   useEffect(() => {
@@ -26,6 +58,8 @@ export function App() {
   const db = openDB<ChatStore>(STORAGE_NAME, 11, {
     upgrade,
   });
+
+  const { toast } = useToast();
 
   const getChatStoreByIndex = async (index: number): Promise<ChatStore> => {
     const ret: ChatStore = await (await db).get(STORAGE_NAME, index);
@@ -54,7 +88,7 @@ export function App() {
     const max = chatStore.maxTokens - chatStore.tokenMargin;
     let sum = 0;
     chatStore.postBeginIndex = chatStore.history.filter(
-      ({ hide }) => !hide,
+      ({ hide }) => !hide
     ).length;
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -69,7 +103,7 @@ export function App() {
 
     // manually estimate token
     chatStore.totalTokens = calculate_token_length(
-      chatStore.systemMessageContent,
+      chatStore.systemMessageContent
     );
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -82,7 +116,7 @@ export function App() {
 
     // update total tokens
     chatStore.totalTokens = calculate_token_length(
-      chatStore.systemMessageContent,
+      chatStore.systemMessageContent
     );
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -101,7 +135,7 @@ export function App() {
 
   // all chat store indexes
   const [allChatStoreIndexes, setAllChatStoreIndexes] = useState<IDBValidKey>(
-    [],
+    []
   );
 
   const handleNewChatStoreWithOldOne = async (chatStore: ChatStore) => {
@@ -114,7 +148,6 @@ export function App() {
   };
 
   const handleDEL = async () => {
-    if (!confirm("Are you sure you want to delete this chat history?")) return;
     console.log("remove item", `${STORAGE_NAME}-${selectedChatIndex}`);
     (await db).delete(STORAGE_NAME, selectedChatIndex);
     const newAllChatStoreIndexes = await (await db).getAllKeys(STORAGE_NAME);
@@ -129,6 +162,11 @@ export function App() {
     console.log("next is", next);
     setSelectedChatIndex(next as number);
     setAllChatStoreIndexes(newAllChatStoreIndexes);
+
+    toast({
+      title: "Chat history deleted",
+      description: `Chat history ${selectedChatIndex} has been deleted.`,
+    });
   };
 
   const handleCLS = async () => {
@@ -176,60 +214,87 @@ export function App() {
   }, []);
 
   return (
-    <div className="flex text-sm h-full">
-      <div className="flex flex-col h-full p-2 bg-primary">
-        <div className="grow overflow-scroll">
-          <button
-            className="btn btn-sm btn-info p-1 my-1 w-full"
-            onClick={handleNewChatStore}
-          >
-            {Tr("NEW")}
-          </button>
-          <ul className="pt-2">
-            {(allChatStoreIndexes as number[])
-              .slice()
-              .reverse()
-              .map((i) => {
-                // reverse
-                return (
-                  <li>
-                    <button
-                      className={`w-full my-1 p-1 btn btn-sm ${
-                        i === selectedChatIndex ? "btn-accent" : "btn-secondary"
-                      }`}
-                      onClick={() => setSelectedChatIndex(i)}
-                    >
-                      {i}
-                    </button>
-                  </li>
-                );
-              })}
-          </ul>
-        </div>
-        <div>
-          <button
-            className="btn btn-warning btn-sm p-1 my-1 w-full"
-            onClick={async () => handleDEL()}
-          >
-            {Tr("DEL")}
-          </button>
+    <>
+      <Sidebar>
+        <SidebarHeader>
+          <Button onClick={handleNewChatStore}>
+            <span>{Tr("New")}</span>
+          </Button>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Conversation</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {(allChatStoreIndexes as number[])
+                  .slice()
+                  .reverse()
+                  .map((i) => {
+                    // reverse
+                    return (
+                      <SidebarMenuItem
+                        key={i}
+                        onClick={() => setSelectedChatIndex(i)}
+                      >
+                        <SidebarMenuButton
+                          asChild
+                          isActive={i === selectedChatIndex}
+                        >
+                          <span>{i}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">{Tr("DEL")}</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the
+                  chat history.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDEL}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
           {chatStore.develop_mode && (
-            <button
-              className="btn btn-sm btn-warning p-1 my-1 w-full"
-              onClick={async () => handleCLS()}
-            >
-              {Tr("CLS")}
-            </button>
+            <Button onClick={handleCLS} variant="destructive">
+              <span>{Tr("CLS")}</span>
+            </Button>
           )}
-        </div>
-      </div>
-      <ChatBOX
-        db={db}
-        chatStore={chatStore}
-        setChatStore={setChatStore}
-        selectedChatIndex={selectedChatIndex}
-        setSelectedChatIndex={setSelectedChatIndex}
-      />
-    </div>
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b">
+          <div className="flex items-center gap-2 px-3">
+            <SidebarTrigger />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <h1 className="text-lg font-bold">MikuChat</h1>
+          </div>
+        </header>
+        <ChatBOX
+          db={db}
+          chatStore={chatStore}
+          setChatStore={setChatStore}
+          selectedChatIndex={selectedChatIndex}
+          setSelectedChatIndex={setSelectedChatIndex}
+        />
+      </SidebarInset>
+    </>
   );
 }

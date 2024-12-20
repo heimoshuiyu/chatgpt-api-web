@@ -1,17 +1,4 @@
 import { themeChange } from "theme-change";
-import {
-  InformationCircleIcon,
-  CheckIcon,
-  NoSymbolIcon,
-  CogIcon,
-  KeyIcon,
-  EyeIcon,
-  EllipsisHorizontalCircleIcon,
-  HandRaisedIcon,
-  AdjustmentsHorizontalIcon,
-  Cog6ToothIcon,
-  ListBulletIcon,
-} from "@heroicons/react/24/outline";
 
 import { createRef } from "preact";
 import {
@@ -34,6 +21,64 @@ import { isVailedJSON } from "@/message";
 import { SetAPIsTemplate } from "@/setAPIsTemplate";
 import { autoHeight } from "@/textarea";
 import { getDefaultParams } from "@/utils/getDefaultParam";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  BanIcon,
+  CheckIcon,
+  CircleEllipsisIcon,
+  CogIcon,
+  Ellipsis,
+  EyeIcon,
+  InfoIcon,
+  KeyIcon,
+  ListIcon,
+  MoveHorizontalIcon,
+} from "lucide-react";
+import { Separator } from "./components/ui/separator";
+import { Slider } from "./components/ui/slider";
 
 const TTS_VOICES: string[] = [
   "alloy",
@@ -66,65 +111,68 @@ const SelectModel = (props: {
   }
   const [useCustomModel, setUseCustomModel] = useState(shouldIUseCustomModel);
   return (
-    <Help help={props.help} field="">
-      <div className="label">
-        <span className="flex gap-2 items-center">
-          <ListBulletIcon className="w-4 h-4" />
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label className="flex items-center gap-2">
+          <ListIcon className="w-4 h-4" />
           Model
-        </span>{" "}
-        <div className="flex gap-3">
-          <span className="label-text">
-            <span className="label-text flex gap-2 items-center">
-              <Cog6ToothIcon className="w-4 h-4" />
-              {Tr("Custom")}
-            </span>
-          </span>
-          <span className="label-text-alt">
-            <input
-              type="checkbox"
-              checked={useCustomModel}
-              className="checkbox"
-              onClick={() => {
-                setUseCustomModel(!useCustomModel);
-              }}
-            />
-          </span>
-        </div>
-        {/* <span className="label-text-alt">Top Right label</span> */}
-      </div>
-      <label className="form-control w-full">
-        {useCustomModel ? (
-          <input
-            className="input input-bordered"
-            value={props.chatStore.model}
-            onChange={(event: any) => {
-              const model = event.target.value as string;
-              props.chatStore.model = model;
-              props.setChatStore({ ...props.chatStore });
-            }}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="icon" size="icon">
+                <InfoIcon className="w-4 h-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Model Selection</DialogTitle>
+                <DialogDescription>{props.help}</DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        </Label>
+
+        <div className="flex items-center gap-2">
+          <Label className="flex items-center gap-2">
+            <CogIcon className="w-4 h-4" />
+            {Tr("Custom")}
+          </Label>
+          <Checkbox
+            checked={useCustomModel}
+            onCheckedChange={() => setUseCustomModel(!useCustomModel)}
           />
-        ) : (
-          <select
-            className="select select-bordered"
-            value={props.chatStore.model}
-            onChange={(event: any) => {
-              const model = event.target.value as string;
-              props.chatStore.model = model;
-              props.chatStore.maxTokens = getDefaultParams(
-                "max",
-                models[model].maxToken,
-              );
-              props.setChatStore({ ...props.chatStore });
-            }}
-          >
-            {Object.keys(models).map((opt) => (
-              <option value={opt}>{opt}</option>
-            ))}
-          </select>
-        )}
-      </label>
-      <div className="pb-5"></div>
-    </Help>
+        </div>
+      </div>
+
+      {useCustomModel ? (
+        <Input
+          value={props.chatStore.model}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            props.chatStore.model = e.target.value;
+            props.setChatStore({ ...props.chatStore });
+          }}
+        />
+      ) : (
+        <select
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          value={props.chatStore.model}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+            const model = e.target.value;
+            props.chatStore.model = model;
+            props.chatStore.maxTokens = getDefaultParams(
+              "max",
+              models[model].maxToken
+            );
+            props.setChatStore({ ...props.chatStore });
+          }}
+        >
+          {Object.keys(models).map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      )}
+    </div>
   );
 };
 
@@ -136,21 +184,26 @@ const LongInput = (props: {
   help: string;
 }) => {
   return (
-    <label className="form-control">
-      <div className="label">
-        <span className="label-text">{props.label}</span>
-        <span className="label-text-alt">
-          <button
-            onClick={() => {
-              alert(props.help);
-            }}
-          >
-            <InformationCircleIcon className="w-4 h-4" />
-          </button>
-        </span>
-      </div>
-      <textarea
-        className="textarea textarea-bordered h-24 w-full"
+    <div>
+      <Label htmlFor="name" className="text-right">
+        {props.label}{" "}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="icon" size="icon">
+              <InfoIcon />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{props.label} Help</DialogTitle>
+            </DialogHeader>
+            {props.help}
+          </DialogContent>
+        </Dialog>
+      </Label>
+
+      <Textarea
+        className="h-24 w-full"
         value={props.chatStore[props.field]}
         onChange={(event: any) => {
           props.chatStore[props.field] = event.target.value;
@@ -160,12 +213,12 @@ const LongInput = (props: {
         onKeyPress={(event: any) => {
           autoHeight(event.target);
         }}
-      ></textarea>
-    </label>
+      />
+    </div>
   );
 };
 
-const Input = (props: {
+const InputField = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
   field:
@@ -181,49 +234,49 @@ const Input = (props: {
 }) => {
   const [hideInput, setHideInput] = useState(true);
   return (
-    <Help field={props.field} help={props.help}>
-      <div className="label">
-        <span className="label-text">{props.field}</span>
-        <span className="label-text-alt">
-          <button
-            onClick={() => {
-              alert(props.help);
-            }}
-          >
-            <InformationCircleIcon className="w-4 h-4" />
-          </button>
-        </span>
-      </div>
-      <label className="input input-bordered flex items-center gap-2 grow">
-        {hideInput ? (
-          <EyeIcon
-            className="w-4 h-4"
-            onClick={() => {
-              setHideInput(!hideInput);
-              console.log("clicked", hideInput);
-            }}
-          />
-        ) : (
-          <KeyIcon
-            className="w-4 h-4"
-            onClick={() => {
-              setHideInput(!hideInput);
-              console.log("clicked", hideInput);
-            }}
-          />
-        )}
+    <>
+      <div className="space-y-2">
+        <Label className="flex items-center gap-2">
+          <KeyIcon className="w-4 h-4" />
+          {props.field}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="icon" size="icon">
+                <InfoIcon className="w-4 h-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{props.field}</DialogTitle>
+                <DialogDescription>{props.help}</DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        </Label>
 
-        <input
-          type={hideInput ? "password" : "text"}
-          className="grow"
-          value={props.chatStore[props.field]}
-          onChange={(event: any) => {
-            props.chatStore[props.field] = event.target.value;
-            props.setChatStore({ ...props.chatStore });
-          }}
-        />
-      </label>
-    </Help>
+        <div className="flex w-full items-center space-x-2">
+          <Input
+            type={hideInput ? "password" : "text"}
+            value={props.chatStore[props.field]}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              props.chatStore[props.field] = event.target.value;
+              props.setChatStore({ ...props.chatStore });
+            }}
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setHideInput(!hideInput)}
+          >
+            {hideInput ? (
+              <EyeIcon className="h-4 w-4" />
+            ) : (
+              <KeyIcon className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      </div>
+    </>
   );
 };
 
@@ -254,64 +307,61 @@ const Slicer = (props: {
     props.setChatStore({ ...props.chatStore });
   };
   return (
-    <Help help={props.help} field={props.field}>
-      <span className="py-3">
-        <div className="form-control">
-          <label className="flex gap-2">
-            <span className="label-text flex items-center gap-2">
-              <AdjustmentsHorizontalIcon className="w-4 h-4" />
-              {props.field}{" "}
-              <button
-                onClick={() => {
-                  alert(props.help);
-                }}
-              >
-                <InformationCircleIcon className="w-4 h-4" />
-              </button>
-            </span>
-            <input
-              type="checkbox"
-              checked={props.chatStore[enable_filed_name]}
-              className="checkbox"
-              onClick={() => {
-                setEnabled(!enabled);
+    <div className="space-y-2">
+      <Label className="flex items-center gap-2">
+        <MoveHorizontalIcon className="w-4 h-4" />
+        {props.field}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="icon" size="icon">
+              <InfoIcon className="w-4 h-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{props.field}</DialogTitle>
+              <DialogDescription>{props.help}</DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+        <Checkbox
+          checked={props.chatStore[enable_filed_name]}
+          onCheckedChange={(checked: boolean) => setEnabled(!!checked)}
+        />
+        {!props.chatStore[enable_filed_name] && (
+          <span className="text-xs text-muted-foreground">disabled</span>
+        )}
+      </Label>
+
+      {enabled && (
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <Slider
+              disabled={!enabled}
+              min={props.min}
+              max={props.max}
+              step={0.01}
+              value={[props.chatStore[props.field]]}
+              onValueChange={(value: number[]) => {
+                props.chatStore[props.field] = value[0];
+                props.setChatStore({ ...props.chatStore });
               }}
             />
-          </label>
-        </div>
-      </span>
-      {enabled ? (
-        <div className="flex items-center">
-          <input
-            disabled={!enabled}
-            className="range"
-            type="range"
-            min={props.min}
-            max={props.max}
-            step="0.01"
-            value={props.chatStore[props.field]}
-            onChange={(event: any) => {
-              const value = parseFloat(event.target.value);
-              props.chatStore[props.field] = value;
-              props.setChatStore({ ...props.chatStore });
-            }}
-          />
-          <input
-            disabled={!enabled}
-            className="m-2 p-2 border rounded focus w-28"
+          </div>
+          <Input
             type="number"
+            disabled={!enabled}
+            className="w-24"
             value={props.chatStore[props.field]}
-            onChange={(event: any) => {
-              const value = parseFloat(event.target.value);
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              const value = parseFloat(e.target.value);
               props.chatStore[props.field] = value;
               props.setChatStore({ ...props.chatStore });
             }}
           />
         </div>
-      ) : (
-        ""
       )}
-    </Help>
+    </div>
   );
 };
 
@@ -330,56 +380,56 @@ const Number = (props: {
   help: string;
 }) => {
   return (
-    <Help help={props.help} field="">
-      <span>
-        <label className="py-2 flex items-center gap-1">
-          <EllipsisHorizontalCircleIcon className="h-4 w-4" /> {props.field}{" "}
-          <button
-            onClick={() => {
-              alert(props.help);
+    <div className="space-y-2">
+      <Label className="flex items-center gap-2">
+        <CircleEllipsisIcon className="h-4 w-4" />
+        {props.field}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="icon" size="icon">
+              <InfoIcon className="h-4 w-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{props.field}</DialogTitle>
+              <DialogDescription>{props.help}</DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+
+        {props.field === "maxGenTokens" && (
+          <Checkbox
+            checked={props.chatStore.maxGenTokens_enabled}
+            onCheckedChange={() => {
+              const newChatStore = { ...props.chatStore };
+              newChatStore.maxGenTokens_enabled =
+                !newChatStore.maxGenTokens_enabled;
+              props.setChatStore({ ...newChatStore });
             }}
-          >
-            <InformationCircleIcon className="w-4 h-4" />
-          </button>
-          {props.field === "maxGenTokens" && (
-            <div className="form-control">
-              <label className="label grow">
-                <input
-                  type="checkbox"
-                  checked={props.chatStore.maxGenTokens_enabled}
-                  onChange={() => {
-                    const newChatStore = { ...props.chatStore };
-                    newChatStore.maxGenTokens_enabled =
-                      !newChatStore.maxGenTokens_enabled;
-                    props.setChatStore({ ...newChatStore });
-                  }}
-                  className="checkbox"
-                />
-              </label>
-            </div>
-          )}
-        </label>
-      </span>
-      <input
+          />
+        )}
+      </Label>
+
+      <Input
+        type="number"
         readOnly={props.readOnly}
         disabled={
           props.field === "maxGenTokens" &&
           !props.chatStore.maxGenTokens_enabled
         }
-        type="number"
-        className="input input-bordered input-sm w-full"
         value={props.chatStore[props.field]}
-        onChange={(event: any) => {
-          console.log("type", typeof event.target.value);
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           let newNumber = parseFloat(event.target.value);
           if (newNumber < 0) newNumber = 0;
           props.chatStore[props.field] = newNumber;
           props.setChatStore({ ...props.chatStore });
         }}
-      ></input>
-    </Help>
+      />
+    </div>
   );
 };
+
 const Choice = (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
@@ -387,30 +437,37 @@ const Choice = (props: {
   help: string;
 }) => {
   return (
-    <Help help={props.help} field={props.field}>
-      <div className="form-control">
-        <label className="py-2 flex items-center gap-1">
-          <CheckIcon className="h-4 w-4" />
-          <span className="label-text">{props.field}</span>
-          <button
-            onClick={() => {
-              alert(props.help);
-            }}
-          >
-            <InformationCircleIcon className="w-4 h-4" />
-          </button>
-          <input
-            type="checkbox"
-            checked={props.chatStore[props.field]}
-            className="checkbox"
-            onChange={(event: any) => {
-              props.chatStore[props.field] = event.target.checked;
-              props.setChatStore({ ...props.chatStore });
-            }}
-          />
-        </label>
+    <div className="flex items-center space-x-2">
+      <div className="flex items-center">
+        <Checkbox
+          id={`${props.field}-checkbox`}
+          checked={props.chatStore[props.field]}
+          onCheckedChange={(checked: boolean) => {
+            props.chatStore[props.field] = checked;
+            props.setChatStore({ ...props.chatStore });
+          }}
+        />
       </div>
-    </Help>
+      <label
+        htmlFor={`${props.field}-checkbox`}
+        className="flex items-center gap-2 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
+        {props.field}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="icon" size="icon">
+              <InfoIcon />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{props.field} Help</DialogTitle>
+            </DialogHeader>
+            {props.help}
+          </DialogContent>
+        </Dialog>
+      </label>
+    </div>
   );
 };
 
@@ -438,11 +495,11 @@ export default (props: {
     location.host +
     location.pathname +
     `?key=${encodeURIComponent(
-      props.chatStore.apiKey,
+      props.chatStore.apiKey
     )}&api=${encodeURIComponent(props.chatStore.apiEndpoint)}&mode=${
       props.chatStore.streamMode ? "stream" : "fetch"
     }&model=${props.chatStore.model}&sys=${encodeURIComponent(
-      props.chatStore.systemMessageContent,
+      props.chatStore.systemMessageContent
     )}`;
   if (props.chatStore.develop_mode) {
     link = link + `&dev=true`;
@@ -468,541 +525,653 @@ export default (props: {
       document.removeEventListener("keydown", handleKeyPress);
     };
   }, []); // The empty dependency array ensures that the effect runs only once
-
   return (
-    <div
-      onClick={() => props.setShow(false)}
-      className="left-0 top-0 overflow-scroll flex justify-center absolute w-full h-full z-10"
-    >
-      <div
-        onClick={(event: any) => {
-          event.stopPropagation();
-        }}
-        className="modal-box"
-      >
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-bold">{Tr("Settings")}</h3>
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={() => {
-              props.setShow(false);
-            }}
-          >
-            {Tr("Close")}
-          </button>
-        </div>
-        <div className="join join-vertical w-full">
-          <div className="join-item collapse collapse-plus bg-base-200">
-            <input type="radio" name="setting-accordion" />
-            <div className="collapse-title text-xl font-medium">Session</div>
-            <div className="collapse-content">
-              <div className="stats shadow">
-                <div className="stat">
-                  <div className="stat-title">Session cost</div>
-                  <div className="stat-value">
-                    {props.chatStore.cost.toFixed(4)} $
+    // <div
+    //   onClick={() => props.setShow(false)}
+    //   className="left-0 top-0 overflow-scroll flex justify-center absolute w-full h-full z-10"
+    // >
+    //   <div
+    //     onClick={(event: any) => {
+    //       event.stopPropagation();
+    //     }}
+    //     className="modal-box"
+    //   >
+    //     <div className="flex justify-between items-center mb-2">
+    //       <h3 className="text-lg font-bold">{Tr("Settings")}</h3>
+    //       <button
+    //         className="btn btn-secondary btn-sm"
+    //         onClick={() => {
+    //           props.setShow(false);
+    //         }}
+    //       >
+    //         {Tr("Close")}
+    //       </button>
+    //     </div>
+    //     <div className="join join-vertical w-full">
+
+    // </div>
+
+    //   </div>
+    // </div>
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="outline">{Tr("Settings")}</Button>
+      </SheetTrigger>
+      <SheetContent className="flex flex-col">
+        <div className="overflow-auto">
+          <SheetHeader>
+            <SheetTitle>{Tr("Settings")}</SheetTitle>
+            <SheetDescription>
+              You can customize the settings here.
+            </SheetDescription>
+          </SheetHeader>
+          <Accordion type="multiple" collapsible className="w-full">
+            <AccordionItem value="session">
+              <AccordionTrigger>Session</AccordionTrigger>
+              <AccordionContent>
+                <Card>
+                  <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+                    <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+                      <CardTitle>Session Cost</CardTitle>
+                      <CardDescription>
+                        Cost of the current session.
+                      </CardDescription>
+                    </div>
+                    <div className="flex">
+                      <div className="flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+                        <span className="text-xs text-muted-foreground">
+                          $ USD
+                        </span>
+                        <span className="text-lg font-bold leading-none sm:text-3xl">
+                          {props.chatStore.cost.toFixed(4)}
+                        </span>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+                <LongInput
+                  label="System Prompt"
+                  field="systemMessageContent"
+                  help="系统消息，用于指示ChatGPT的角色和一些前置条件，例如“你是一个有帮助的人工智能助理”，或者“你是一个专业英语翻译，把我的话全部翻译成英语”，详情参考 OPEAN AI API 文档"
+                  {...props}
+                />
+
+                <LongInput
+                  label="Tools String"
+                  field="toolsString"
+                  help="function call tools, should be valid json format in list"
+                  {...props}
+                />
+                <span className="pt-1">
+                  JSON Check:{" "}
+                  {isVailedJSON(props.chatStore.toolsString) ? (
+                    <CheckIcon className="inline w-3 h-3" />
+                  ) : (
+                    <BanIcon className="inline w-3 h-3" />
+                  )}
+                </span>
+                <div className="box">
+                  <div className="flex justify-evenly flex-wrap">
+                    {props.chatStore.toolsString.trim() && (
+                      <Button
+                        onClick={() => {
+                          const name = prompt(
+                            `Give this **Tools** template a name:`
+                          );
+                          if (!name) {
+                            alert("No template name specified");
+                            return;
+                          }
+                          const newToolsTmp: TemplateTools = {
+                            name,
+                            toolsString: props.chatStore.toolsString,
+                          };
+                          props.templateTools.push(newToolsTmp);
+                          props.setTemplateTools([...props.templateTools]);
+                        }}
+                      >
+                        {Tr(`Save Tools`)}
+                      </Button>
+                    )}
                   </div>
                 </div>
-              </div>
-              <LongInput
-                label="System Prompt"
-                field="systemMessageContent"
-                help="系统消息，用于指示ChatGPT的角色和一些前置条件，例如“你是一个有帮助的人工智能助理”，或者“你是一个专业英语翻译，把我的话全部翻译成英语”，详情参考 OPEAN AI API 文档"
-                {...props}
-              />
-
-              <LongInput
-                label="Tools String"
-                field="toolsString"
-                help="function call tools, should be valid json format in list"
-                {...props}
-              />
-              <span className="pt-1">
-                JSON Check:{" "}
-                {isVailedJSON(props.chatStore.toolsString) ? (
-                  <CheckIcon className="inline w-4 h-4" />
-                ) : (
-                  <NoSymbolIcon className="inline w-4 h-4" />
-                )}
-              </span>
-              <div className="box">
-                <div className="flex justify-evenly flex-wrap">
-                  {props.chatStore.toolsString.trim() && (
-                    <button
-                      className="btn"
-                      onClick={() => {
-                        const name = prompt(
-                          `Give this **Tools** template a name:`,
-                        );
-                        if (!name) {
-                          alert("No template name specified");
-                          return;
-                        }
-                        const newToolsTmp: TemplateTools = {
-                          name,
-                          toolsString: props.chatStore.toolsString,
-                        };
-                        props.templateTools.push(newToolsTmp);
-                        props.setTemplateTools([...props.templateTools]);
-                      }}
-                    >
-                      {Tr(`Save Tools`)}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="join-item collapse collapse-plus bg-base-200">
-            <input type="radio" name="setting-accordion" />
-            <div className="collapse-title text-xl font-medium">System</div>
-            <div className="collapse-content">
-              <div className="stats shadow">
-                <div className="stat">
-                  <div className="stat-title">Accumulated cost</div>
-                  <div className="stat-value">{totalCost.toFixed(4)} $</div>
-                  <div className="stat-desc">
-                    in all sessions -{" "}
-                    <a
-                      className="btn btn-xs btn-primary"
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="system">
+              <AccordionTrigger>System</AccordionTrigger>
+              <AccordionContent>
+                <>
+                  <Card>
+                    <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+                      <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+                        <CardTitle>Accumulated Cost</CardTitle>
+                        <CardDescription>in all sessions</CardDescription>
+                      </div>
+                      <div className="flex">
+                        <div className="flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
+                          <span className="text-xs text-muted-foreground">
+                            $ USD
+                          </span>
+                          <span className="text-lg font-bold leading-none sm:text-3xl">
+                            {totalCost.toFixed(4)}
+                          </span>
+                        </div>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                  <div className="flex justify-end mt-2">
+                    <Button
+                      size="sm"
+                      variant="destructive"
                       onClick={() => {
                         clearTotalCost();
                         setTotalCost(getTotalCost());
                       }}
                     >
-                      Reset
-                    </a>
+                      Reset Total Cost
+                    </Button>
                   </div>
+                  <Choice
+                    field="develop_mode"
+                    help="开发者模式，开启后会显示更多选项及功能"
+                    {...props}
+                  />
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Language</Label>
+                      <select
+                        className="w-full p-2 rounded-md border border-input"
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                          setLangCode(e.target.value)
+                        }
+                      >
+                        {Object.keys(LANG_OPTIONS).map((opt) => (
+                          <option
+                            key={opt}
+                            value={opt}
+                            selected={opt === langCode}
+                          >
+                            {LANG_OPTIONS[opt].name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Quick Actions</Label>
+                      <div className="space-y-2">
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            navigator.clipboard.writeText(link);
+                            alert(tr(`Copied link:`, langCode) + `${link}`);
+                          }}
+                        >
+                          {Tr("Copy Setting Link")}
+                        </Button>
+
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="destructive" className="w-full">
+                              {Tr("Clear History")}
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>
+                                Are you absolutely sure?
+                              </DialogTitle>
+                              <DialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete all chat history.
+                              </DialogDescription>
+                            </DialogHeader>
+
+                            <DialogFooter>
+                              <Button
+                                variant="destructive"
+                                onClick={() => {
+                                  props.chatStore.history =
+                                    props.chatStore.history.filter(
+                                      (msg) => msg.example && !msg.hide
+                                    );
+                                  props.chatStore.postBeginIndex = 0;
+                                  props.setChatStore({ ...props.chatStore });
+                                }}
+                              >
+                                Yes, clear all history
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            let dataStr =
+                              "data:text/json;charset=utf-8," +
+                              encodeURIComponent(
+                                JSON.stringify(props.chatStore, null, "\t")
+                              );
+                            let downloadAnchorNode =
+                              document.createElement("a");
+                            downloadAnchorNode.setAttribute("href", dataStr);
+                            downloadAnchorNode.setAttribute(
+                              "download",
+                              `chatgpt-api-web-${props.selectedChatStoreIndex}.json`
+                            );
+                            document.body.appendChild(downloadAnchorNode);
+                            downloadAnchorNode.click();
+                            downloadAnchorNode.remove();
+                          }}
+                        >
+                          {Tr("Export")}
+                        </Button>
+
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            const name = prompt(
+                              tr("Give this template a name:", langCode)
+                            );
+                            if (!name) {
+                              alert(tr("No template name specified", langCode));
+                              return;
+                            }
+                            const tmp: ChatStore = structuredClone(
+                              props.chatStore
+                            );
+                            tmp.history = tmp.history.filter((h) => h.example);
+                            tmp.apiEndpoint = "";
+                            tmp.apiKey = "";
+                            tmp.whisper_api = "";
+                            tmp.whisper_key = "";
+                            tmp.tts_api = "";
+                            tmp.tts_key = "";
+                            tmp.image_gen_api = "";
+                            tmp.image_gen_key = "";
+                            // @ts-ignore
+                            tmp.name = name;
+                            props.templates.push(tmp as TemplateChatStore);
+                            props.setTemplates([...props.templates]);
+                          }}
+                        >
+                          {Tr("As template")}
+                        </Button>
+
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => {
+                            if (
+                              !confirm(
+                                tr(
+                                  "This will OVERWRITE the current chat history! Continue?",
+                                  langCode
+                                )
+                              )
+                            )
+                              return;
+                            console.log("importFileRef", importFileRef);
+                            importFileRef.current.click();
+                          }}
+                        >
+                          Import
+                        </Button>
+
+                        <input
+                          className="hidden"
+                          ref={importFileRef}
+                          type="file"
+                          onChange={() => {
+                            const file = importFileRef.current.files[0];
+                            if (!file || file.type !== "application/json") {
+                              alert(tr("Please select a json file", langCode));
+                              return;
+                            }
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              if (!reader) {
+                                alert(tr("Empty file", langCode));
+                                return;
+                              }
+                              try {
+                                const newChatStore: ChatStore = JSON.parse(
+                                  reader.result as string
+                                );
+                                if (!newChatStore.chatgpt_api_web_version) {
+                                  throw tr(
+                                    "This is not an exported chatgpt-api-web chatstore file. The key 'chatgpt_api_web_version' is missing!",
+                                    langCode
+                                  );
+                                }
+                                props.setChatStore({ ...newChatStore });
+                              } catch (e) {
+                                alert(
+                                  tr(
+                                    `Import error on parsing json:`,
+                                    langCode
+                                  ) + `${e}`
+                                );
+                              }
+                            };
+                            reader.readAsText(file);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="chat">
+              <AccordionTrigger>Chat</AccordionTrigger>
+              <AccordionContent>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Chat API</CardTitle>
+                    <CardDescription>
+                      Configure the LLM API settings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <InputField
+                      field="apiKey"
+                      help="OPEN AI API 密钥，请勿泄漏此密钥"
+                      {...props}
+                    />
+                    <InputField
+                      field="apiEndpoint"
+                      help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
+                      {...props}
+                    />
+                    <SetAPIsTemplate
+                      label="Chat API"
+                      endpoint={props.chatStore.apiEndpoint}
+                      APIkey={props.chatStore.apiKey}
+                      tmps={props.templateAPIs}
+                      setTmps={props.setTemplateAPIs}
+                    />
+                  </CardContent>
+                </Card>
+                <Separator className="my-3" />
+                <SelectModel
+                  help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
+                  {...props}
+                />
+                <Slicer
+                  field="temperature"
+                  min={0}
+                  max={2}
+                  help="温度，数值越大模型生成文字的随机性越高。"
+                  {...props}
+                />
+                <Choice
+                  field="streamMode"
+                  help="流模式，使用 stream mode 将可以动态看到生成内容，但无法准确计算 token 数量，在 token 数量过多时可能会裁切过多或过少历史消息"
+                  {...props}
+                />
+                <Choice
+                  field="logprobs"
+                  help="返回每个Token的概率"
+                  {...props}
+                />
+                <Number
+                  field="maxTokens"
+                  help="最大上下文 token 数量。此值会根据选择的模型自动设置。"
+                  readOnly={false}
+                  {...props}
+                />
+                <Number
+                  field="maxGenTokens"
+                  help="最大生成 Tokens 数量，可选值。"
+                  readOnly={false}
+                  {...props}
+                />
+                <Number
+                  field="tokenMargin"
+                  help="当 totalTokens > maxTokens - tokenMargin 时会触发历史消息裁切，chatgpt会“忘记”一部分对话中的消息（但所有历史消息仍然保存在本地）"
+                  readOnly={false}
+                  {...props}
+                />
+                <Choice field="json_mode" help="JSON Mode" {...props} />
+                <Number
+                  field="postBeginIndex"
+                  help="指示发送 API 请求时要”忘记“多少历史消息"
+                  readOnly={true}
+                  {...props}
+                />
+                <Number
+                  field="totalTokens"
+                  help="token总数，每次对话都会更新此参数，stream模式下该参数为估计值"
+                  readOnly={true}
+                  {...props}
+                />
+                <Slicer
+                  field="top_p"
+                  min={0}
+                  max={1}
+                  help="Top P 采样方法。建议与温度采样方法二选一，不要同时开启。"
+                  {...props}
+                />
+                <Number
+                  field="presence_penalty"
+                  help="存在惩罚度"
+                  readOnly={false}
+                  {...props}
+                />
+                <Number
+                  field="frequency_penalty"
+                  help="频率惩罚度"
+                  readOnly={false}
+                  {...props}
+                />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="speech">
+              <AccordionTrigger>Speech Recognition</AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Whisper API</CardTitle>
+                      <CardDescription>
+                        Configure speech recognition settings
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <InputField
+                        field="whisper_key"
+                        help="Used for Whisper service. Defaults to the OpenAI key above, but can be configured separately here"
+                        {...props}
+                      />
+                      <InputField
+                        field="whisper_api"
+                        help="Whisper speech-to-text service. Service is enabled when this is set. Default: https://api.openai.com/v1/audio/transriptions"
+                        {...props}
+                      />
+                      <SetAPIsTemplate
+                        label="Whisper API"
+                        endpoint={props.chatStore.whisper_api}
+                        APIkey={props.chatStore.whisper_key}
+                        tmps={props.templateAPIsWhisper}
+                        setTmps={props.setTemplateAPIsWhisper}
+                      />
+                    </CardContent>
+                  </Card>
                 </div>
-              </div>
-              <Choice
-                field="develop_mode"
-                help="开发者模式，开启后会显示更多选项及功能"
-                {...props}
-              />
-              <label className="form-control w-full">
-                <div className="label">
-                  <span className="label-text">Theme Switch</span>
-                </div>
-                <select data-choose-theme className="select select-bordered">
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
-                  <option value="cupcake">Cupcake</option>
-                  <option value="halloween">Halloween</option>
-                  <option value="wireframe">Wireframe</option>
-                  <option value="sunset">Sunset</option>
-                  <option value="lemonade">Lemonade</option>
-                  <option value="luxury">Luxury</option>
-                  <option value="cyberpunk">Cyberpunk</option>
-                  <option value="black">Black</option>
-                </select>
-              </label>
-              <label className="form-control w-full">
-                <div className="label">
-                  <span className="label-text">Language</span>
-                </div>
-                <select className="select select-bordered">
-                  {Object.keys(LANG_OPTIONS).map((opt) => (
-                    <option
-                      value={opt}
-                      selected={opt === (langCodeContext as any).langCode}
-                      onClick={(event: any) => {
-                        console.log("set lang code", event.target.value);
-                        setLangCode(event.target.value);
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="tts">
+              <AccordionTrigger>TTS</AccordionTrigger>
+              <AccordionContent>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>TTS API</CardTitle>
+                    <CardDescription>
+                      Configure text-to-speech settings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <InputField
+                      field="tts_key"
+                      help="Text-to-speech service API key. Defaults to the OpenAI key above, but can be configured separately here"
+                      {...props}
+                    />
+                    <InputField
+                      field="tts_api"
+                      help="TTS API endpoint. Service is enabled when this is set. Default: https://api.openai.com/v1/audio/speech"
+                      {...props}
+                    />
+                    <SetAPIsTemplate
+                      label="TTS API"
+                      endpoint={props.chatStore.tts_api}
+                      APIkey={props.chatStore.tts_key}
+                      tmps={props.templateAPIsTTS}
+                      setTmps={props.setTemplateAPIsTTS}
+                    />
+                  </CardContent>
+                </Card>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      TTS Voice
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="icon" size="icon">
+                            <InfoIcon className="w-4 h-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>TTS Voice</DialogTitle>
+                            <DialogDescription>
+                              Select the voice style for text-to-speech
+                            </DialogDescription>
+                          </DialogHeader>
+                        </DialogContent>
+                      </Dialog>
+                    </Label>
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={props.chatStore.tts_voice}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLSelectElement>
+                      ) => {
+                        props.chatStore.tts_voice = event.target.value;
+                        props.setChatStore({ ...props.chatStore });
                       }}
                     >
-                      {LANG_OPTIONS[opt].name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="form-control w-full">
-                <div className="label">
-                  <span className="label-text">Quick Actions</span>
+                      {TTS_VOICES.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <Slicer
+                    min={0.25}
+                    max={4.0}
+                    field="tts_speed"
+                    help="Adjust the playback speed of text-to-speech"
+                    {...props}
+                  />
+
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      TTS Format
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="icon" size="icon">
+                            <InfoIcon className="w-4 h-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>TTS Format</DialogTitle>
+                            <DialogDescription>
+                              Select the audio format for text-to-speech output
+                            </DialogDescription>
+                          </DialogHeader>
+                        </DialogContent>
+                      </Dialog>
+                    </Label>
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={props.chatStore.tts_format}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLSelectElement>
+                      ) => {
+                        props.chatStore.tts_format = event.target.value;
+                        props.setChatStore({ ...props.chatStore });
+                      }}
+                    >
+                      {TTS_FORMAT.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <button
-                    className="btn btn-sm btn-outline btn-neural"
-                    onClick={() => {
-                      navigator.clipboard.writeText(link);
-                      alert(tr(`Copied link:`, langCode) + `${link}`);
-                    }}
-                  >
-                    {Tr("Copy Setting Link")}
-                  </button>
-                  <button
-                    className="btn btn-sm btn-outline btn-neural"
-                    onClick={() => {
-                      if (
-                        !confirm(
-                          tr("Are you sure to clear all history?", langCode),
-                        )
-                      )
-                        return;
-                      props.chatStore.history = props.chatStore.history.filter(
-                        (msg) => msg.example && !msg.hide,
-                      );
-                      props.chatStore.postBeginIndex = 0;
-                      props.setChatStore({ ...props.chatStore });
-                    }}
-                  >
-                    {Tr("Clear History")}
-                  </button>
-                  <button
-                    className="btn btn-sm btn-outline btn-neural"
-                    onClick={() => {
-                      let dataStr =
-                        "data:text/json;charset=utf-8," +
-                        encodeURIComponent(
-                          JSON.stringify(props.chatStore, null, "\t"),
-                        );
-                      let downloadAnchorNode = document.createElement("a");
-                      downloadAnchorNode.setAttribute("href", dataStr);
-                      downloadAnchorNode.setAttribute(
-                        "download",
-                        `chatgpt-api-web-${props.selectedChatStoreIndex}.json`,
-                      );
-                      document.body.appendChild(downloadAnchorNode); // required for firefox
-                      downloadAnchorNode.click();
-                      downloadAnchorNode.remove();
-                    }}
-                  >
-                    {Tr("Export")}
-                  </button>
-                  <button
-                    className="btn btn-sm btn-outline btn-neural"
-                    onClick={() => {
-                      const name = prompt(
-                        tr("Give this template a name:", langCode),
-                      );
-                      if (!name) {
-                        alert(tr("No template name specified", langCode));
-                        return;
-                      }
-                      const tmp: ChatStore = structuredClone(props.chatStore);
-                      tmp.history = tmp.history.filter((h) => h.example);
-                      // clear api because it is stored in the API template
-                      tmp.apiEndpoint = "";
-                      tmp.apiKey = "";
-                      tmp.whisper_api = "";
-                      tmp.whisper_key = "";
-                      tmp.tts_api = "";
-                      tmp.tts_key = "";
-                      tmp.image_gen_api = "";
-                      tmp.image_gen_key = "";
-                      // @ts-ignore
-                      tmp.name = name;
-                      props.templates.push(tmp as TemplateChatStore);
-                      props.setTemplates([...props.templates]);
-                    }}
-                  >
-                    {Tr("As template")}
-                  </button>
-                  <button
-                    className="btn btn-sm btn-outline btn-neural"
-                    onClick={() => {
-                      if (
-                        !confirm(
-                          tr(
-                            "This will OVERWRITE the current chat history! Continue?",
-                            langCode,
-                          ),
-                        )
-                      )
-                        return;
-                      console.log("importFileRef", importFileRef);
-                      importFileRef.current.click();
-                    }}
-                  >
-                    Import
-                  </button>
-                </div>
-                <input
-                  className="hidden"
-                  ref={importFileRef}
-                  type="file"
-                  onChange={() => {
-                    const file = importFileRef.current.files[0];
-                    console.log("file to import", file);
-                    if (!file || file.type !== "application/json") {
-                      alert(tr("Please select a json file", langCode));
-                      return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                      console.log("import content", reader.result);
-                      if (!reader) {
-                        alert(tr("Empty file", langCode));
-                        return;
-                      }
-                      try {
-                        const newChatStore: ChatStore = JSON.parse(
-                          reader.result as string,
-                        );
-                        if (!newChatStore.chatgpt_api_web_version) {
-                          throw tr(
-                            "This is not an exported chatgpt-api-web chatstore file. The key 'chatgpt_api_web_version' is missing!",
-                            langCode,
-                          );
-                        }
-                        props.setChatStore({ ...newChatStore });
-                      } catch (e) {
-                        alert(
-                          tr(`Import error on parsing json:`, langCode) +
-                            `${e}`,
-                        );
-                      }
-                    };
-                    reader.readAsText(file);
-                  }}
-                />
-              </label>
-            </div>
-          </div>
-          <div className="join-item collapse collapse-plus bg-base-200">
-            <input type="radio" name="setting-accordion" />
-            <div className="collapse-title text-xl font-medium">Chat</div>
-            <div className="collapse-content">
-              <div>
-                <h2 className="card-title">Chat API</h2>
-                <p>
-                  <Input
-                    field="apiKey"
-                    help="OPEN AI API 密钥，请勿泄漏此密钥"
-                    {...props}
-                  />
-                  <Input
-                    field="apiEndpoint"
-                    help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
-                    {...props}
-                  />
-                </p>
-                <SetAPIsTemplate
-                  label="Chat API"
-                  endpoint={props.chatStore.apiEndpoint}
-                  APIkey={props.chatStore.apiKey}
-                  tmps={props.templateAPIs}
-                  setTmps={props.setTemplateAPIs}
-                />
-                <div className="divider" />
-              </div>
-              <SelectModel
-                help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
-                {...props}
-              />
-              <Slicer
-                field="temperature"
-                min={0}
-                max={2}
-                help="温度，数值越大模型生成文字的随机性越高。"
-                {...props}
-              />
-              <Choice
-                field="streamMode"
-                help="流模式，使用 stream mode 将可以动态看到生成内容，但无法准确计算 token 数量，在 token 数量过多时可能会裁切过多或过少历史消息"
-                {...props}
-              />
-              <Choice field="logprobs" help="返回每个Token的概率" {...props} />
-              <Number
-                field="maxTokens"
-                help="最大上下文 token 数量。此值会根据选择的模型自动设置。"
-                readOnly={false}
-                {...props}
-              />
-              <Number
-                field="maxGenTokens"
-                help="最大生成 Tokens 数量，可选值。"
-                readOnly={false}
-                {...props}
-              />
-              <Number
-                field="tokenMargin"
-                help="当 totalTokens > maxTokens - tokenMargin 时会触发历史消息裁切，chatgpt会“忘记”一部分对话中的消息（但所有历史消息仍然保存在本地）"
-                readOnly={false}
-                {...props}
-              />
-              <Choice field="json_mode" help="JSON Mode" {...props} />
-              <Number
-                field="postBeginIndex"
-                help="指示发送 API 请求时要”忘记“多少历史消息"
-                readOnly={true}
-                {...props}
-              />
-              <Number
-                field="totalTokens"
-                help="token总数，每次对话都会更新此参数，stream模式下该参数为估计值"
-                readOnly={true}
-                {...props}
-              />
-              <Slicer
-                field="top_p"
-                min={0}
-                max={1}
-                help="Top P 采样方法。建议与温度采样方法二选一，不要同时开启。"
-                {...props}
-              />
-              <Number
-                field="presence_penalty"
-                help="存在惩罚度"
-                readOnly={false}
-                {...props}
-              />
-              <Number
-                field="frequency_penalty"
-                help="频率惩罚度"
-                readOnly={false}
-                {...props}
-              />
-            </div>
-          </div>
-          <div className="join-item collapse collapse-plus bg-base-200">
-            <input type="radio" name="setting-accordion" />
-            <div className="collapse-title text-xl font-medium">
-              Speech Recognition
-            </div>
-            <div className="collapse-content">
-              <div>
-                <h2 className="card-title">Whisper API</h2>
-                <p>
-                  <Input
-                    field="whisper_key"
-                    help="用于 Whisper 服务的 key，默认为 上方使用的OPENAI key，可在此单独配置专用key"
-                    {...props}
-                  />
-                  <Input
-                    field="whisper_api"
-                    help="Whisper 语言转文字服务，填入此api才会开启，默认为 https://api.openai.com/v1/audio/transriptions"
-                    {...props}
-                  />
-                </p>
-                <SetAPIsTemplate
-                  label="Whisper API"
-                  endpoint={props.chatStore.whisper_api}
-                  APIkey={props.chatStore.whisper_key}
-                  tmps={props.templateAPIsWhisper}
-                  setTmps={props.setTemplateAPIsWhisper}
-                />
-                <div className="divider" />
-              </div>
-            </div>
-          </div>
-          <div className="join-item collapse collapse-plus bg-base-200">
-            <input type="radio" name="setting-accordion" />
-            <div className="collapse-title text-xl font-medium">TTS</div>
-            <div className="collapse-content">
-              <div>
-                <h2 className="card-title">TTS API</h2>
-                <p>
-                  <Input
-                    field="tts_key"
-                    help="tts service api key"
-                    {...props}
-                  />
-                  <Input
-                    field="tts_api"
-                    help="tts api, eg. https://api.openai.com/v1/audio/speech"
-                    {...props}
-                  />
-                </p>
-                <SetAPIsTemplate
-                  label="TTS API"
-                  endpoint={props.chatStore.tts_api}
-                  APIkey={props.chatStore.tts_key}
-                  tmps={props.templateAPIsTTS}
-                  setTmps={props.setTemplateAPIsTTS}
-                />
-                <div className="divider" />
-              </div>
-              <Help help="tts voice style" field="AAAAA">
-                <label className="">TTS Voice</label>
-                <select
-                  className="select select-bordered"
-                  value={props.chatStore.tts_voice}
-                  onChange={(event: any) => {
-                    const voice = event.target.value as string;
-                    props.chatStore.tts_voice = voice;
-                    props.setChatStore({ ...props.chatStore });
-                  }}
-                >
-                  {TTS_VOICES.map((opt) => (
-                    <option value={opt}>{opt}</option>
-                  ))}
-                </select>
-              </Help>
-              <Slicer
-                min={0.25}
-                max={4.0}
-                field="tts_speed"
-                help={"TTS Speed"}
-                {...props}
-              />
-              <Help help="tts response format" field="AAAAA">
-                <label className="">TTS Format</label>
-                <select
-                  className="select select-bordered"
-                  value={props.chatStore.tts_format}
-                  onChange={(event: any) => {
-                    const format = event.target.value as string;
-                    props.chatStore.tts_format = format;
-                    props.setChatStore({ ...props.chatStore });
-                  }}
-                >
-                  {TTS_FORMAT.map((opt) => (
-                    <option value={opt}>{opt}</option>
-                  ))}
-                </select>
-              </Help>
-            </div>
-          </div>
-          <div className="join-item collapse collapse-plus bg-base-200">
-            <input type="radio" name="setting-accordion" />
-            <div className="collapse-title text-xl font-medium">
-              Image Generation
-            </div>
-            <div className="collapse-content">
-              <div>
-                <h2 className="card-title">Image Gen API</h2>
-                <p>
-                  <Input
-                    field="image_gen_key"
-                    help="image generation service api key"
-                    {...props}
-                  />
-                  <Input
-                    field="image_gen_api"
-                    help="DALL image gen key, eg. https://api.openai.com/v1/images/generations"
-                    {...props}
-                  />
-                </p>
-                <SetAPIsTemplate
-                  label="Image Gen API"
-                  endpoint={props.chatStore.image_gen_api}
-                  APIkey={props.chatStore.image_gen_key}
-                  tmps={props.templateAPIsImageGen}
-                  setTmps={props.setTemplateAPIsImageGen}
-                />
-                <div className="divider" />
-              </div>
-            </div>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="image_gen">
+              <AccordionTrigger>Image Generation</AccordionTrigger>
+              <AccordionContent>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Image Generation API</CardTitle>
+                    <CardDescription>
+                      Configure image generation settings
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <InputField
+                      field="image_gen_key"
+                      help="Image generation service API key. Defaults to the OpenAI key above, but can be configured separately here"
+                      {...props}
+                    />
+                    <InputField
+                      field="image_gen_api"
+                      help="Image generation API endpoint. Service is enabled when this is set. Default: https://api.openai.com/v1/images/generations"
+                      {...props}
+                    />
+                    <SetAPIsTemplate
+                      label="Image Gen API"
+                      endpoint={props.chatStore.image_gen_api}
+                      APIkey={props.chatStore.image_gen_key}
+                      tmps={props.templateAPIsImageGen}
+                      setTmps={props.setTemplateAPIsImageGen}
+                    />
+                  </CardContent>
+                </Card>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+          <div className="pt-4 space-y-2">
+            <p className="text-sm text-muted-foreground text-center">
+              chatgpt-api-web ChatStore {Tr("Version")}{" "}
+              {props.chatStore.chatgpt_api_web_version}
+            </p>
+            <p className="text-sm text-muted-foreground text-center">
+              {Tr("Documents and source code are avaliable here")}:{" "}
+              <a
+                className="underline hover:text-primary transition-colors"
+                href="https://github.com/heimoshuiyu/chatgpt-api-web"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                github.com/heimoshuiyu/chatgpt-api-web
+              </a>
+            </p>
           </div>
         </div>
-        <div className="pt-4 pb-2">
-          <p className="text-center">
-            chatgpt-api-web ChatStore {Tr("Version")}{" "}
-            {props.chatStore.chatgpt_api_web_version}
-          </p>
-          <p className="text-center">
-            {Tr("Documents and source code are avaliable here")}:{" "}
-            <a
-              className="underline"
-              href="https://github.com/heimoshuiyu/chatgpt-api-web"
-              target="_blank"
-            >
-              github.com/heimoshuiyu/chatgpt-api-web
-            </a>
-          </p>
-        </div>
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 };
