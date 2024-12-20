@@ -1,6 +1,17 @@
 import { ChatStore, TemplateAPI } from "@/types/chatstore";
 import { Tr } from "@/translate";
 
+import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Button } from "./components/ui/button";
+import { cn } from "@/lib/utils";
+
 interface Props {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
@@ -20,63 +31,79 @@ export function ListAPIs({
   keyField,
 }: Props) {
   return (
-    <div className="break-all opacity-80 p-3 rounded base-200 my-3 text-left">
-      <h2>{Tr(`Saved ${label} templates`)}</h2>
-      <hr className="my-2" />
-      <div className="flex flex-wrap">
-        {tmps.map((t, index) => (
-          <div
-            className={`cursor-pointer rounded ${
-              // @ts-ignore
-              chatStore[apiField] === t.endpoint &&
-              // @ts-ignore
-              chatStore[keyField] === t.key
-                ? "bg-info"
-                : "bg-base-300"
-            } w-fit p-2 m-1 flex flex-col`}
-            onClick={() => {
-              // @ts-ignore
-              chatStore[apiField] = t.endpoint;
-              // @ts-ignore
-              chatStore[keyField] = t.key;
-              setChatStore({ ...chatStore });
-            }}
-          >
-            <span className="w-full text-center">{t.name}</span>
-            <span className="flex justify-between gap-x-2">
-              <button
-                className="link"
-                onClick={() => {
-                  const name = prompt(`Give **${label}** template a name`);
-                  if (!name) {
-                    return;
-                  }
-                  t.name = name;
-                  setTmps(structuredClone(tmps));
-                }}
-              >
-                Edit
-              </button>
-              <button
-                className="link"
-                onClick={() => {
-                  if (
-                    !confirm(
-                      `Are you sure to delete this **${label}** template?`,
-                    )
-                  ) {
-                    return;
-                  }
-                  tmps.splice(index, 1);
-                  setTmps(structuredClone(tmps));
-                }}
-              >
-                Delete
-              </button>
-            </span>
-          </div>
-        ))}
-      </div>
+    <div className="p-3 space-y-4">
+      <h2 className="text-2xl font-semibold">
+        {Tr(`Saved ${label} templates`)}
+      </h2>
+      <Carousel className="w-full">
+        <CarouselContent>
+          {tmps.map((t, index) => (
+            <CarouselItem key={index} className="md:basis-1/4 lg:basis-1/6">
+              <div className="p-1">
+                <Card
+                  className={cn(
+                    "cursor-pointer transition-colors",
+                    chatStore[apiField as keyof ChatStore] === t.endpoint &&
+                      chatStore[keyField as keyof ChatStore] === t.key
+                      ? "bg-primary/10"
+                      : ""
+                  )}
+                >
+                  <CardHeader>
+                    <CardTitle
+                      className="text-center"
+                      onClick={() => {
+                        // @ts-ignore
+                        chatStore[apiField] = t.endpoint;
+                        // @ts-ignore
+                        chatStore[keyField] = t.key;
+                        setChatStore({ ...chatStore });
+                      }}
+                    >
+                      {t.name}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardFooter className="flex justify-center gap-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const name = prompt(
+                          `Give **${label}** template a name`
+                        );
+                        if (!name) return;
+                        t.name = name;
+                        setTmps(structuredClone(tmps));
+                      }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (
+                          !confirm(
+                            `Are you sure to delete this **${label}** template?`
+                          )
+                        ) {
+                          return;
+                        }
+                        tmps.splice(index, 1);
+                        setTmps(structuredClone(tmps));
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
     </div>
   );
 }

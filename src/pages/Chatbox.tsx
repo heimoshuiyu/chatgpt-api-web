@@ -44,8 +44,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/components/ui/chat/chat-input";
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
-import { CornerDownLeftIcon, ImageIcon } from "lucide-react";
+import {
+  CornerDownLeftIcon,
+  GlobeIcon,
+  ImageIcon,
+  KeyIcon,
+} from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function ChatBOX(props: {
   db: Promise<IDBPDatabase<ChatStore>>;
@@ -472,71 +484,86 @@ export default function ChatBOX(props: {
       )}
       <ChatMessageList>
         {!chatStore.apiKey && (
-          <p className="bg-base-200 p-6 rounded my-3 text-left">
-            {Tr("Please click above to set")} (OpenAI) API KEY
-          </p>
+          <Alert>
+            <KeyIcon className="h-4 w-4" />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              {Tr("Please click above to set")} (OpenAI) API KEY
+            </AlertDescription>
+          </Alert>
         )}
         {!chatStore.apiEndpoint && (
-          <p className="bg-base-200 p-6 rounded my-3 text-left">
-            {Tr("Please click above to set")} API Endpoint
-          </p>
+          <Alert>
+            <GlobeIcon className="h-4 w-4" />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              {Tr("Please click above to set")} API Endpoint
+            </AlertDescription>
+          </Alert>
         )}
-        {templateAPIs.length > 0 && (
-          <ListAPIs
-            label="API"
-            tmps={templateAPIs}
-            setTmps={setTemplateAPIs}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            apiField="apiEndpoint"
-            keyField="apiKey"
-          />
-        )}
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="item-1">
+            <AccordionTrigger>Saved Presets</AccordionTrigger>
+            <AccordionContent>
+              {templateAPIs.length > 0 && (
+                <ListAPIs
+                  label="API"
+                  tmps={templateAPIs}
+                  setTmps={setTemplateAPIs}
+                  chatStore={chatStore}
+                  setChatStore={setChatStore}
+                  apiField="apiEndpoint"
+                  keyField="apiKey"
+                />
+              )}
 
-        {templateAPIsWhisper.length > 0 && (
-          <ListAPIs
-            label="Whisper API"
-            tmps={templateAPIsWhisper}
-            setTmps={setTemplateAPIsWhisper}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            apiField="whisper_api"
-            keyField="whisper_key"
-          />
-        )}
+              {templateAPIsWhisper.length > 0 && (
+                <ListAPIs
+                  label="Whisper API"
+                  tmps={templateAPIsWhisper}
+                  setTmps={setTemplateAPIsWhisper}
+                  chatStore={chatStore}
+                  setChatStore={setChatStore}
+                  apiField="whisper_api"
+                  keyField="whisper_key"
+                />
+              )}
 
-        {templateAPIsTTS.length > 0 && (
-          <ListAPIs
-            label="TTS API"
-            tmps={templateAPIsTTS}
-            setTmps={setTemplateAPIsTTS}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            apiField="tts_api"
-            keyField="tts_key"
-          />
-        )}
+              {templateAPIsTTS.length > 0 && (
+                <ListAPIs
+                  label="TTS API"
+                  tmps={templateAPIsTTS}
+                  setTmps={setTemplateAPIsTTS}
+                  chatStore={chatStore}
+                  setChatStore={setChatStore}
+                  apiField="tts_api"
+                  keyField="tts_key"
+                />
+              )}
 
-        {templateAPIsImageGen.length > 0 && (
-          <ListAPIs
-            label="Image Gen API"
-            tmps={templateAPIsImageGen}
-            setTmps={setTemplateAPIsImageGen}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            apiField="image_gen_api"
-            keyField="image_gen_key"
-          />
-        )}
+              {templateAPIsImageGen.length > 0 && (
+                <ListAPIs
+                  label="Image Gen API"
+                  tmps={templateAPIsImageGen}
+                  setTmps={setTemplateAPIsImageGen}
+                  chatStore={chatStore}
+                  setChatStore={setChatStore}
+                  apiField="image_gen_api"
+                  keyField="image_gen_key"
+                />
+              )}
 
-        {toolsTemplates.length > 0 && (
-          <ListToolsTempaltes
-            templateTools={toolsTemplates}
-            setTemplateTools={setTemplateTools}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-          />
-        )}
+              {toolsTemplates.length > 0 && (
+                <ListToolsTempaltes
+                  templateTools={toolsTemplates}
+                  setTemplateTools={setTemplateTools}
+                  chatStore={chatStore}
+                  setChatStore={setChatStore}
+                />
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         {chatStore.history.filter((msg) => !msg.example).length == 0 && (
           <div className="bg-base-200 break-all p-3 my-3 text-left">
