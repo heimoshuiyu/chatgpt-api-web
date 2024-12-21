@@ -680,7 +680,9 @@ export default function ChatBOX(props: {
           ))}
           {showGenerating && (
             <ChatBubble variant="received">
-              <ChatBubbleMessage isLoading />
+              <ChatBubbleMessage isLoading>
+                {generatingMessage}
+              </ChatBubbleMessage>
             </ChatBubble>
           )}
           <p className="text-center">
