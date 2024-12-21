@@ -10,9 +10,9 @@ export function MessageHide({ chat }: Props) {
   return (
     <>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>{getMessageText(chat).split("\n")[0].slice(0, 18)} ...</span>
+        <span>{getMessageText(chat).split("\n")[0].slice(0, 28)} ...</span>
       </div>
-      <div className="flex justify-center">
+      <div className="flex mt-2 justify-center">
         <Badge variant="destructive">Removed from context</Badge>
       </div>
     </>
