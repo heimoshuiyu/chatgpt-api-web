@@ -116,49 +116,5 @@ export function ListAPIs({
         </ul>
       </NavigationMenuContent>
     </NavigationMenuItem>
-    // <div className="p-3 space-y-4">
-    //   <h2 className="text-2xl font-semibold">
-    //     {Tr(`Saved ${label} templates`)}
-    //   </h2>
-    //   <Carousel className="w-full">
-    //     <CarouselContent>
-    //       {tmps.map((t, index) => (
-    //         <CarouselItem key={index} className="md:basis-1/4 lg:basis-1/6">
-    //           <div className="p-1">
-    //             <Card
-    //               className={cn(
-    //                 "cursor-pointer transition-colors",
-    //                 chatStore[apiField as keyof ChatStore] === t.endpoint &&
-    //                   chatStore[keyField as keyof ChatStore] === t.key
-    //                   ? "bg-primary/10"
-    //                   : ""
-    //               )}
-    //             >
-    //               <CardHeader>
-    //                 <CardTitle
-    //                   className="text-center"
-    //                   onClick={() => {
-    //                     // @ts-ignore
-    //                     chatStore[apiField] = t.endpoint;
-    //                     // @ts-ignore
-    //                     chatStore[keyField] = t.key;
-    //                     setChatStore({ ...chatStore });
-    //                   }}
-    //                 >
-    //                   {t.name}
-    //                 </CardTitle>
-    //               </CardHeader>
-    //               <CardFooter className="flex justify-center gap-4">
-
-    //               </CardFooter>
-    //             </Card>
-    //           </div>
-    //         </CarouselItem>
-    //       ))}
-    //     </CarouselContent>
-    //     <CarouselPrevious />
-    //     <CarouselNext />
-    //   </Carousel>
-    // </div>
   );
 }
