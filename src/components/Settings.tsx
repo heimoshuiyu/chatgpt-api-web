@@ -49,11 +49,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -152,11 +155,9 @@ const SelectModel = (props: {
           }}
         />
       ) : (
-        <select
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        <Select
           value={props.chatStore.model}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-            const model = e.target.value;
+          onValueChange={(model: string) => {
             props.chatStore.model = model;
             props.chatStore.maxTokens = getDefaultParams(
               "max",
@@ -165,12 +166,20 @@ const SelectModel = (props: {
             props.setChatStore({ ...props.chatStore });
           }}
         >
-          {Object.keys(models).map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a model" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Models</SelectLabel>
+              {Object.keys(models).map((opt) => (
+                <SelectItem key={opt} value={opt}>
+                  {opt}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       )}
     </div>
   );
@@ -679,22 +688,21 @@ export default (props: {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label>Language</Label>
-                      <select
-                        className="w-full p-2 rounded-md border border-input"
-                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                          setLangCode(e.target.value)
-                        }
-                      >
-                        {Object.keys(LANG_OPTIONS).map((opt) => (
-                          <option
-                            key={opt}
-                            value={opt}
-                            selected={opt === langCode}
-                          >
-                            {LANG_OPTIONS[opt].name}
-                          </option>
-                        ))}
-                      </select>
+                      <Select value={langCode} onValueChange={setLangCode}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Languages</SelectLabel>
+                            {Object.keys(LANG_OPTIONS).map((opt) => (
+                              <SelectItem key={opt} value={opt}>
+                                {LANG_OPTIONS[opt].name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="space-y-2">
@@ -1055,22 +1063,27 @@ export default (props: {
                         </DialogContent>
                       </Dialog>
                     </Label>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    <Select
                       value={props.chatStore.tts_voice}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLSelectElement>
-                      ) => {
-                        props.chatStore.tts_voice = event.target.value;
+                      onValueChange={(value) => {
+                        props.chatStore.tts_voice = value;
                         props.setChatStore({ ...props.chatStore });
                       }}
                     >
-                      {TTS_VOICES.map((opt) => (
-                        <option key={opt} value={opt}>
-                          {opt}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a voice" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Voices</SelectLabel>
+                          {TTS_VOICES.map((opt) => (
+                            <SelectItem key={opt} value={opt}>
+                              {opt}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <Slicer
@@ -1100,22 +1113,27 @@ export default (props: {
                         </DialogContent>
                       </Dialog>
                     </Label>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    <Select
                       value={props.chatStore.tts_format}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLSelectElement>
-                      ) => {
-                        props.chatStore.tts_format = event.target.value;
+                      onValueChange={(value) => {
+                        props.chatStore.tts_format = value;
                         props.setChatStore({ ...props.chatStore });
                       }}
                     >
-                      {TTS_FORMAT.map((opt) => (
-                        <option key={opt} value={opt}>
-                          {opt}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a format" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Formats</SelectLabel>
+                          {TTS_FORMAT.map((opt) => (
+                            <SelectItem key={opt} value={opt}>
+                              {opt}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </AccordionContent>
