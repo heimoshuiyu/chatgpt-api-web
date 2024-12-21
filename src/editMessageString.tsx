@@ -3,6 +3,8 @@ import { isVailedJSON } from "@/message";
 import { calculate_token_length } from "@/chatgpt";
 import { Tr } from "@/translate";
 
+import { Textarea } from "@/components/ui/textarea";
+
 interface Props {
   chat: ChatStoreMessage;
   chatStore: ChatStore;
@@ -69,7 +71,7 @@ export function EditMessageString({
                 onClick={() => {
                   if (!chat.tool_calls) return;
                   chat.tool_calls = chat.tool_calls.filter(
-                    (tc) => tc.id !== tool_call.id,
+                    (tc) => tc.id !== tool_call.id
                   );
                   setChatStore({ ...chatStore });
                 }}
@@ -100,20 +102,20 @@ export function EditMessageString({
             </span>
           </div>
         ))}
-      <textarea
-        className="rounded border border-gray-400 w-full h-32 my-2"
+      <Textarea
+        className="w-full h-32 my-2"
         value={chat.content}
-        onChange={(event: any) => {
+        onChange={(event) => {
           chat.content = event.target.value;
           chat.token = calculate_token_length(chat.content);
           setChatStore({ ...chatStore });
         }}
-        onKeyPress={(event: any) => {
+        onKeyPress={(event) => {
           if (event.keyCode == 27) {
             setShowEdit(false);
           }
         }}
-      ></textarea>
+      />
     </div>
   );
 }

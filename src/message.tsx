@@ -189,14 +189,13 @@ export default function Message(props: Props) {
           <TTSPlay chat={chat} />
         </ChatBubbleActionWrapper>
       </ChatBubble>
-      {showEdit && (
-        <EditMessage
-          setShowEdit={setShowEdit}
-          chat={chat}
-          chatStore={chatStore}
-          setChatStore={setChatStore}
-        />
-      )}
+      <EditMessage
+        showEdit={showEdit}
+        setShowEdit={setShowEdit}
+        chat={chat}
+        chatStore={chatStore}
+        setChatStore={setChatStore}
+      />
       {chatStore.develop_mode && (
         <div
           className={`flex flex-wrap items-center gap-2 mt-2 ${
