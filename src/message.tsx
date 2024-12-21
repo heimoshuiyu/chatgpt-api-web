@@ -20,7 +20,12 @@ import {
   ChatBubbleActionWrapper,
 } from "@/components/ui/chat/chat-bubble";
 import { useToast } from "@/hooks/use-toast";
-import { ClipboardIcon, PencilIcon, MessageSquareOffIcon } from "lucide-react";
+import {
+  ClipboardIcon,
+  PencilIcon,
+  MessageSquareOffIcon,
+  MessageSquarePlusIcon,
+} from "lucide-react";
 
 export const isVailedJSON = (str: string): boolean => {
   try {
@@ -84,12 +89,29 @@ export default function Message(props: Props) {
   );
 
   const { toast } = useToast();
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    // TODO: Remove show copied hint
-    toast({
-      description: Tr("Message copied to clipboard!"),
-    });
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        description: Tr("Message copied to clipboard!"),
+      });
+    } catch (err) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        toast({
+          description: Tr("Message copied to clipboard!"),
+        });
+      } catch (err) {
+        toast({
+          description: Tr("Failed to copy to clipboard"),
+        });
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   const CopyIcon = ({ textToCopy }: { textToCopy: string }) => {
@@ -157,7 +179,13 @@ export default function Message(props: Props) {
         </ChatBubbleMessage>
         <ChatBubbleActionWrapper>
           <ChatBubbleAction
-            icon={<MessageSquareOffIcon className="size-4" />}
+            icon={
+              chat.hide ? (
+                <MessageSquarePlusIcon className="size-4" />
+              ) : (
+                <MessageSquareOffIcon className="size-4" />
+              )
+            }
             onClick={() => {
               chatStore.history[messageIndex].hide =
                 !chatStore.history[messageIndex].hide;
