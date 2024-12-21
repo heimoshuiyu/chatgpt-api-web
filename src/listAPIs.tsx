@@ -34,7 +34,23 @@ export function ListAPIs({
 }: Props) {
   return (
     <NavigationMenuItem>
-      <NavigationMenuTrigger>{label}</NavigationMenuTrigger>
+      <NavigationMenuTrigger>
+        {label}{" "}
+        <span className="hidden lg:inline">
+          {tmps.find(
+            (t) =>
+              chatStore[apiField as keyof ChatStore] === t.endpoint &&
+              chatStore[keyField as keyof ChatStore] === t.key
+          )?.name &&
+            `: ${
+              tmps.find(
+                (t) =>
+                  chatStore[apiField as keyof ChatStore] === t.endpoint &&
+                  chatStore[keyField as keyof ChatStore] === t.key
+              )?.name
+            }`}
+        </span>
+      </NavigationMenuTrigger>
       <NavigationMenuContent>
         <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
           {tmps.map((t, index) => (
@@ -60,7 +76,7 @@ export function ListAPIs({
                     {t.name}
                   </div>
                   <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                    {label === "API" ? t.endpoint : t.key}
+                    {new URL(t.endpoint).host}
                   </p>
                 </a>
               </NavigationMenuLink>
