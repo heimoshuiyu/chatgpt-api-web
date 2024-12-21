@@ -82,6 +82,7 @@ import {
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const TTS_VOICES: string[] = [
   "alloy",
@@ -351,7 +352,7 @@ const Slicer = (props: {
               max={props.max}
               step={0.01}
               value={[props.chatStore[props.field]]}
-              onValueChange={(value: number[]) => {
+              onValueChange={(value) => {
                 props.chatStore[props.field] = value[0];
                 props.setChatStore({ ...props.chatStore });
               }}
@@ -535,39 +536,14 @@ export default (props: {
     };
   }, []); // The empty dependency array ensures that the effect runs only once
   return (
-    // <div
-    //   onClick={() => props.setShow(false)}
-    //   className="left-0 top-0 overflow-scroll flex justify-center absolute w-full h-full z-10"
-    // >
-    //   <div
-    //     onClick={(event: any) => {
-    //       event.stopPropagation();
-    //     }}
-    //     className="modal-box"
-    //   >
-    //     <div className="flex justify-between items-center mb-2">
-    //       <h3 className="text-lg font-bold">{Tr("Settings")}</h3>
-    //       <button
-    //         className="btn btn-secondary btn-sm"
-    //         onClick={() => {
-    //           props.setShow(false);
-    //         }}
-    //       >
-    //         {Tr("Close")}
-    //       </button>
-    //     </div>
-    //     <div className="join join-vertical w-full">
-
-    // </div>
-
-    //   </div>
-    // </div>
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline">{Tr("Settings")}</Button>
+        <Button variant="outline" className="flex-grow">
+          {Tr("Settings")}
+        </Button>
       </SheetTrigger>
       <SheetContent className="flex flex-col">
-        <div className="overflow-auto">
+        <ScrollArea>
           <SheetHeader>
             <SheetTitle>{Tr("Settings")}</SheetTitle>
             <SheetDescription>
@@ -1188,7 +1164,7 @@ export default (props: {
               </a>
             </p>
           </div>
-        </div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );

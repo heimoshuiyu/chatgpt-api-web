@@ -49,6 +49,7 @@ import {
   GlobeIcon,
   ImageIcon,
   KeyIcon,
+  SearchIcon,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -458,26 +459,35 @@ export default function ChatBOX(props: {
   return (
     <>
       <div className="flex flex-col p-2 gap-2 w-full">
-        {true && (
-          <Settings
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            setShow={setShowSettings}
-            selectedChatStoreIndex={props.selectedChatIndex}
-            templates={templates}
-            setTemplates={setTemplates}
-            templateAPIs={templateAPIs}
-            setTemplateAPIs={setTemplateAPIs}
-            templateAPIsWhisper={templateAPIsWhisper}
-            setTemplateAPIsWhisper={setTemplateAPIsWhisper}
-            templateAPIsTTS={templateAPIsTTS}
-            setTemplateAPIsTTS={setTemplateAPIsTTS}
-            templateAPIsImageGen={templateAPIsImageGen}
-            setTemplateAPIsImageGen={setTemplateAPIsImageGen}
-            templateTools={toolsTemplates}
-            setTemplateTools={setTemplateTools}
-          />
-        )}
+        <div className="flex items-center gap-2 justify-between">
+          {true && (
+            <Settings
+              chatStore={chatStore}
+              setChatStore={setChatStore}
+              setShow={setShowSettings}
+              selectedChatStoreIndex={props.selectedChatIndex}
+              templates={templates}
+              setTemplates={setTemplates}
+              templateAPIs={templateAPIs}
+              setTemplateAPIs={setTemplateAPIs}
+              templateAPIsWhisper={templateAPIsWhisper}
+              setTemplateAPIsWhisper={setTemplateAPIsWhisper}
+              templateAPIsTTS={templateAPIsTTS}
+              setTemplateAPIsTTS={setTemplateAPIsTTS}
+              templateAPIsImageGen={templateAPIsImageGen}
+              setTemplateAPIsImageGen={setTemplateAPIsImageGen}
+              templateTools={toolsTemplates}
+              setTemplateTools={setTemplateTools}
+            />
+          )}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowSearch(true)}
+          >
+            <SearchIcon />
+          </Button>
+        </div>
         {showSearch && (
           <Search
             setSelectedChatIndex={props.setSelectedChatIndex}

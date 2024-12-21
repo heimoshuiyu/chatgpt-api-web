@@ -79,7 +79,7 @@ export default function Search(props: {
                 }
 
                 const now = Math.floor(
-                  (result.length / resultKeys.length) * 100,
+                  (result.length / resultKeys.length) * 100
                 );
                 if (now !== searchingNow) setSearchingNow(now);
 
@@ -94,7 +94,7 @@ export default function Search(props: {
                     const beginIndex = msg.content.indexOf(query);
                     preview = msg.content.slice(
                       Math.max(0, beginIndex - 100),
-                      Math.min(msg.content.length, beginIndex + 239),
+                      Math.min(msg.content.length, beginIndex + 239)
                     ) as string;
                     break;
                   } else if (contentType === "object") {
@@ -105,7 +105,7 @@ export default function Search(props: {
                       const beginIndex = detail.text.indexOf(query);
                       preview = detail.text.slice(
                         Math.max(0, beginIndex - 100),
-                        Math.min(detail.text.length, beginIndex + 239),
+                        Math.min(detail.text.length, beginIndex + 239)
                       ) as string;
                       break;
                     }
