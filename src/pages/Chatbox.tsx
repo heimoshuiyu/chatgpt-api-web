@@ -43,13 +43,28 @@ import AddToolMsg from "./AddToolMsg";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/components/ui/chat/chat-input";
+import {
+  ChatBubble,
+  ChatBubbleAvatar,
+  ChatBubbleMessage,
+  ChatBubbleAction,
+  ChatBubbleActionWrapper,
+} from "@/components/ui/chat/chat-bubble";
+
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
 import {
+  AlertTriangleIcon,
+  ArrowUpIcon,
   CornerDownLeftIcon,
+  CornerLeftUpIcon,
+  CornerUpLeftIcon,
   GlobeIcon,
   ImageIcon,
+  InfoIcon,
   KeyIcon,
   SearchIcon,
+  Settings2,
+  Settings2Icon,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -603,28 +618,58 @@ export default function ChatBOX(props: {
             </div>
           )}
           {chatStore.history.length === 0 && (
-            <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
-              {Tr("No chat history here")}
-              <br />⚙{Tr("Model")}: {chatStore.model}
-              <br />⬆{Tr("Click above to change the settings of this chat")}
-              <br />↖{Tr("Click the conor to create a new chat")}
-              <br />⚠
-              {Tr(
-                "All chat history and settings are stored in the local browser"
-              )}
-              <br />
-            </p>
+            <Alert variant="default" className="my-3">
+              <InfoIcon className="h-4 w-4" />
+              <AlertTitle>{Tr("No chat history here")}</AlertTitle>
+              <AlertDescription className="flex flex-col gap-1 mt-5">
+                <div className="flex items-center gap-2">
+                  <Settings2Icon className="h-4 w-4" />
+                  <span>
+                    {Tr("Model")}: {chatStore.model}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ArrowUpIcon className="h-4 w-4" />
+                  <span>
+                    {Tr("Click above to change the settings of this chat")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CornerLeftUpIcon className="h-4 w-4" />
+                  <span>{Tr("Click the corner to create a new chat")}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <AlertTriangleIcon className="h-4 w-4" />
+                  <span>
+                    {Tr(
+                      "All chat history and settings are stored in the local browser"
+                    )}
+                  </span>
+                </div>
+              </AlertDescription>
+            </Alert>
           )}
           {chatStore.systemMessageContent.trim() && (
-            <div className="chat chat-start">
-              <div className="chat-header">Prompt</div>
-              <div
-                className="chat-bubble chat-bubble-accent cursor-pointer message-content"
-                onClick={() => setShowSettings(true)}
-              >
-                {chatStore.systemMessageContent}
-              </div>
-            </div>
+            <ChatBubble variant="received">
+              <ChatBubbleMessage>
+                <div className="flex flex-col gap-1">
+                  <div className="text-sm font-bold">System Prompt</div>
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => setShowSettings(true)}
+                  >
+                    {chatStore.systemMessageContent}
+                  </div>
+                </div>
+              </ChatBubbleMessage>
+              <ChatBubbleActionWrapper>
+                <ChatBubbleAction
+                  className="size-7"
+                  icon={<Settings2Icon className="size-4" />}
+                  onClick={() => setShowSettings(true)}
+                />
+              </ChatBubbleActionWrapper>
+            </ChatBubble>
           )}
           {chatStore.history.map((_, messageIndex) => (
             <Message
@@ -634,10 +679,9 @@ export default function ChatBOX(props: {
             />
           ))}
           {showGenerating && (
-            <p className="p-2 my-2 animate-pulse message-content">
-              {generatingMessage || Tr("Generating...")}
-              ...
-            </p>
+            <ChatBubble variant="received">
+              <ChatBubbleMessage isLoading />
+            </ChatBubble>
           )}
           <p className="text-center">
             {chatStore.history.length > 0 && (
@@ -674,11 +718,14 @@ export default function ChatBOX(props: {
           </p>
           <p className="p-2 my-2 text-center opacity-50 dark:text-white">
             {chatStore.postBeginIndex !== 0 && (
-              <>
-                <br />
-                {Tr("Info: chat history is too long, forget messages")}:{" "}
-                {chatStore.postBeginIndex}
-              </>
+              <Alert variant="info">
+                <InfoIcon className="h-4 w-4" />
+                <AlertTitle>{Tr("Chat History Notice")}</AlertTitle>
+                <AlertDescription>
+                  {Tr("Info: chat history is too long, forget messages")}:{" "}
+                  {chatStore.postBeginIndex}
+                </AlertDescription>
+              </Alert>
             )}
           </p>
           <VersionHint chatStore={chatStore} />
