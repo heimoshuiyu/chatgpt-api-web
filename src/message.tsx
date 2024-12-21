@@ -124,7 +124,6 @@ export default function Message(props: Props) {
         variant={chat.role === "assistant" ? "received" : "sent"}
         className={chat.role !== "assistant" ? "flex-row-reverse" : ""}
       >
-        <ChatBubbleAvatar fallback={chat.role === "assistant" ? "AI" : "US"} />
         <ChatBubbleMessage isLoading={false}>
           {chat.hide ? (
             <MessageHide chat={chat} />
