@@ -8,9 +8,13 @@ interface Props {
 
 export function MessageHide({ chat }: Props) {
   return (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-      <span>{getMessageText(chat).split("\n")[0].slice(0, 18)} ...</span>
-      <Badge variant="secondary">Removed from context</Badge>
-    </div>
+    <>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <span>{getMessageText(chat).split("\n")[0].slice(0, 18)} ...</span>
+      </div>
+      <div className="flex justify-center">
+        <Badge variant="destructive">Removed from context</Badge>
+      </div>
+    </>
   );
 }
