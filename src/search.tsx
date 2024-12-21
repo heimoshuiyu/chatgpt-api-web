@@ -4,6 +4,27 @@ import { StateUpdater, useRef, useState, Dispatch } from "preact/hooks";
 import { ChatStore } from "@/types/chatstore";
 import { MessageDetail } from "./chatgpt";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+import { Input } from "./components/ui/input";
+
 interface ChatStoreSearchResult {
   key: IDBValidKey;
   cs: ChatStore;
@@ -15,6 +36,7 @@ export default function Search(props: {
   db: Promise<IDBPDatabase<ChatStore>>;
   setSelectedChatIndex: Dispatch<StateUpdater<number>>;
   chatStore: ChatStore;
+  show: boolean;
   setShow: (show: boolean) => void;
 }) {
   const [searchResult, setSearchResult] = useState<ChatStoreSearchResult[]>([]);
@@ -24,29 +46,15 @@ export default function Search(props: {
   const searchAbortRef = useRef<AbortController | null>(null);
 
   return (
-    <div
-      onClick={() => props.setShow(false)}
-      className="left-0 top-0 overflow-scroll flex justify-center absolute w-screen h-full bg-black bg-opacity-50 z-10"
-    >
-      <div
-        onClick={(event: any) => {
-          event.stopPropagation();
-        }}
-        className="m-2 p-2 bg-base-300 rounded-lg h-fit w-2/3 z-20"
-      >
-        <div className="flex justify-between">
-          <span className="m-1 p-1 font-bold">Search</span>
-          <button
-            className="m-1 p-1 btn btn-sm btn-secondary"
-            onClick={() => props.setShow(false)}
-          >
-            Close
-          </button>
-        </div>
+    <Dialog open={props.show} onOpenChange={props.setShow}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Search</DialogTitle>
+          <DialogDescription>Search messages by content.</DialogDescription>
+        </DialogHeader>
         <div>
-          <input
+          <Input
             autoFocus
-            className="input input-bordered w-full border"
             type="text"
             placeholder="Type Something..."
             onInput={async (event: any) => {
@@ -160,40 +168,34 @@ export default function Search(props: {
             })}
         </div>
         {searchResult.length > 0 && (
-          <div className="flex justify-center my-2">
-            <div className="join">
-              <button
-                className="join-item btn btn-sm"
-                disabled={pageIndex === 0}
-                onClick={() => {
-                  if (pageIndex === 0) {
-                    return;
-                  }
-                  setPageIndex(pageIndex - 1);
-                }}
-              >
-                «
-              </button>
-              <button className="join-item btn btn-sm">
-                Page {pageIndex + 1} /{" "}
-                {Math.floor(searchResult.length / 10) + 1}
-              </button>
-              <button
-                className="join-item btn btn-sm"
-                disabled={pageIndex === Math.floor(searchResult.length / 10)}
-                onClick={() => {
-                  if (pageIndex === Math.floor(searchResult.length / 10)) {
-                    return;
-                  }
-                  setPageIndex(pageIndex + 1);
-                }}
-              >
-                »
-              </button>
-            </div>
-          </div>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => {
+                    if (pageIndex === 0) return;
+                    setPageIndex(pageIndex - 1);
+                  }}
+                  disabled={pageIndex === 0}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                {pageIndex + 1} of {Math.floor(searchResult.length / 10) + 1}
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => {
+                    if (pageIndex === Math.floor(searchResult.length / 10))
+                      return;
+                    setPageIndex(pageIndex + 1);
+                  }}
+                  disabled={pageIndex === Math.floor(searchResult.length / 10)}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

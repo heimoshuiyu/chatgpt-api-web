@@ -42,6 +42,7 @@ import WhisperButton from "@/components/WhisperButton";
 import AddToolMsg from "./AddToolMsg";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ChatInput } from "@/components/ui/chat/chat-input";
 import {
   ChatBubble,
@@ -508,6 +509,7 @@ export default function ChatBOX(props: {
             setSelectedChatIndex={props.setSelectedChatIndex}
             db={props.db}
             chatStore={chatStore}
+            show={showSearch}
             setShow={setShowSearch}
           />
         )}
