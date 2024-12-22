@@ -722,7 +722,7 @@ export default function ChatBOX(props: {
           </p>
           <p className="p-2 my-2 text-center opacity-50 dark:text-white">
             {chatStore.postBeginIndex !== 0 && (
-              <Alert variant="info">
+              <Alert variant="default">
                 <InfoIcon className="h-4 w-4" />
                 <AlertTitle>{Tr("Chat History Notice")}</AlertTitle>
                 <AlertDescription>

@@ -17,7 +17,8 @@ export function MessageToolResp({ chat, copyToClipboard }: Props) {
             {chat.tool_call_id}
           </span>
         </strong>
-        <p>{chat.content}</p>
+        {/* [TODO] */}
+        <p>{chat.content as string}</p>
       </div>
     </div>
   );

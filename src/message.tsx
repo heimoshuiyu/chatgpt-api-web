@@ -1,5 +1,5 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import Markdown from "preact-markdown";
+import Markdown from "react-markdown";
 import { useState, useEffect, StateUpdater } from "preact/hooks";
 
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
@@ -156,7 +156,7 @@ export default function Message(props: Props) {
           ) : chat.role === "tool" ? (
             <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
           ) : renderMarkdown ? (
-            <Markdown markdown={getMessageText(chat)} />
+            <Markdown>{getMessageText(chat)}</Markdown>
           ) : (
             <div className="message-content">
               {chat.content &&

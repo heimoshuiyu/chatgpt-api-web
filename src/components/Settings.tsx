@@ -122,7 +122,7 @@ const SelectModel = (props: {
           Model
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="icon" size="icon">
+              <Button variant="ghost" size="icon">
                 <InfoIcon className="w-4 h-4" />
               </Button>
             </DialogTrigger>
@@ -199,7 +199,7 @@ const LongInput = (props: {
         {props.label}{" "}
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="icon" size="icon">
+            <Button variant="ghost" size="icon">
               <InfoIcon />
             </Button>
           </DialogTrigger>
@@ -251,7 +251,7 @@ const InputField = (props: {
           {props.field}
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="icon" size="icon">
+              <Button variant="ghost" size="icon">
                 <InfoIcon className="w-4 h-4" />
               </Button>
             </DialogTrigger>
@@ -323,7 +323,7 @@ const Slicer = (props: {
         {props.field}
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="icon" size="icon">
+            <Button variant="ghost" size="icon">
               <InfoIcon className="w-4 h-4" />
             </Button>
           </DialogTrigger>
@@ -396,7 +396,7 @@ const Number = (props: {
         {props.field}
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="icon" size="icon">
+            <Button variant="ghost" size="icon">
               <InfoIcon className="h-4 w-4" />
             </Button>
           </DialogTrigger>
@@ -465,7 +465,7 @@ const Choice = (props: {
         {props.field}
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="icon" size="icon">
+            <Button variant="ghost" size="icon">
               <InfoIcon />
             </Button>
           </DialogTrigger>
@@ -550,7 +550,7 @@ export default (props: {
               You can customize the settings here.
             </SheetDescription>
           </SheetHeader>
-          <Accordion type="multiple" collapsible className="w-full">
+          <Accordion type="multiple" className="w-full">
             <AccordionItem value="session">
               <AccordionTrigger>Session</AccordionTrigger>
               <AccordionContent>
@@ -1025,7 +1025,7 @@ export default (props: {
                       TTS Voice
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="icon" size="icon">
+                          <Button variant="ghost" size="icon">
                             <InfoIcon className="w-4 h-4" />
                           </Button>
                         </DialogTrigger>
@@ -1075,7 +1075,7 @@ export default (props: {
                       TTS Format
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="icon" size="icon">
+                          <Button variant="ghost" size="icon">
                             <InfoIcon className="w-4 h-4" />
                           </Button>
                         </DialogTrigger>

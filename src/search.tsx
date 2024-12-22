@@ -155,13 +155,13 @@ export default function Search(props: {
               return (
                 <div
                   className="flex justify-start p-1 m-1 rounded border bg-base-200 cursor-pointer"
-                  key={result.key}
+                  key={result.key as number}
                   onClick={() => {
                     props.setSelectedChatIndex(parseInt(result.key.toString()));
                     props.setShow(false);
                   }}
                 >
-                  <div className="m-1 p-1 font-bold">{result.key}</div>
+                  <div className="m-1 p-1 font-bold">{result.key as number}</div>
                   <div className="m-1 p-1">{result.preview}</div>
                 </div>
               );
@@ -176,7 +176,7 @@ export default function Search(props: {
                     if (pageIndex === 0) return;
                     setPageIndex(pageIndex - 1);
                   }}
-                  disabled={pageIndex === 0}
+                  // disabled={pageIndex === 0}
                 />
               </PaginationItem>
               <PaginationItem>
@@ -189,7 +189,7 @@ export default function Search(props: {
                       return;
                     setPageIndex(pageIndex + 1);
                   }}
-                  disabled={pageIndex === Math.floor(searchResult.length / 10)}
+                  // disabled={pageIndex === Math.floor(searchResult.length / 10)}
                 />
               </PaginationItem>
             </PaginationContent>
