@@ -803,8 +803,9 @@ export default function ChatBOX(props: {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setShowAddImage(!showAddImage)}
-                disabled={showGenerating || !chatStore.apiKey}
+                type="button"
+                onClick={() => setShowAddImage(true)}
+                disabled={showGenerating}
               >
                 <ImageIcon className="size-4" />
                 <span className="sr-only">Add Image</span>
@@ -837,15 +838,14 @@ export default function ChatBOX(props: {
             </div>
           </form>
 
-          {showAddImage && (
-            <AddImage
-              chatStore={chatStore}
-              setChatStore={setChatStore}
-              setShowAddImage={setShowAddImage}
-              images={images}
-              setImages={setImages}
-            />
-          )}
+          <AddImage
+            chatStore={chatStore}
+            setChatStore={setChatStore}
+            setShowAddImage={setShowAddImage}
+            images={images}
+            showAddImage={showAddImage}
+            setImages={setImages}
+          />
         </div>
       </div>
     </>
