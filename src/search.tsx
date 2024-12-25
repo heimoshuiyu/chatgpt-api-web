@@ -47,7 +47,7 @@ export default function Search(props: {
 
   return (
     <Dialog open={props.show} onOpenChange={props.setShow}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[80%]">
         <DialogHeader>
           <DialogTitle>Search</DialogTitle>
           <DialogDescription>Search messages by content.</DialogDescription>
