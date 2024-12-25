@@ -3,6 +3,12 @@ import { createRef } from "preact";
 import { ChatStore } from "@/types/chatstore";
 import { StateUpdater, useEffect, useState, Dispatch } from "preact/hooks";
 import { Button } from "@/components/ui/button";
+import {
+  AudioWaveform,
+  AudioWaveformIcon,
+  MicIcon,
+  VoicemailIcon,
+} from "lucide-react";
 
 const WhisperButton = (props: {
   chatStore: ChatStore;
@@ -14,11 +20,14 @@ const WhisperButton = (props: {
   const [isRecording, setIsRecording] = useState("Mic");
   return (
     <Button
-      variant={isRecording === "Recording" ? "destructive" : "default"}
+      variant="ghost"
+      size="icon"
       className={`m-1 p-1 ${isRecording !== "Mic" ? "animate-pulse" : ""}`}
       disabled={isRecording === "Transcribing"}
       ref={mediaRef}
-      onClick={async () => {
+      onClick={async (event) => {
+        event.preventDefault(); // Prevent the default behavior
+
         if (isRecording === "Recording") {
           // @ts-ignore
           window.mediaRecorder.stop();
@@ -124,7 +133,13 @@ const WhisperButton = (props: {
         }
       }}
     >
-      {isRecording}
+      {isRecording === "Mic" ? (
+        <MicIcon />
+      ) : isRecording === "Recording" ? (
+        <VoicemailIcon />
+      ) : (
+        <AudioWaveformIcon />
+      )}
     </Button>
   );
 };
