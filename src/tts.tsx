@@ -4,6 +4,8 @@ import { useMemo, useState } from "preact/hooks";
 import { addTotalCost } from "@/utils/totalCost";
 import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
 import { Message, getMessageText } from "@/chatgpt";
+import { AudioLinesIcon, LoaderCircleIcon } from "lucide-react";
+import { Button } from "./components/ui/button";
 
 interface TTSProps {
   chatStore: ChatStore;
@@ -25,14 +27,16 @@ export function TTSPlay(props: TTSPlayProps) {
     return <></>;
   }
   if (props.chat.audio instanceof Blob) {
-    return <audio className="w-full" src={src} controls />;
+    return <audio className="w-64" src={src} controls />;
   }
   return <></>;
 }
 export default function TTSButton(props: TTSProps) {
   const [generating, setGenerating] = useState(false);
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={() => {
         const api = props.chatStore.tts_api;
         const api_key = props.chatStore.tts_key;
@@ -82,10 +86,10 @@ export default function TTSButton(props: TTSProps) {
       }}
     >
       {generating ? (
-        <span className="loading loading-dots loading-xs"></span>
+        <LoaderCircleIcon className="h-4 w-4 animate-spin" />
       ) : (
-        <SpeakerWaveIcon className="h-4 w-4" />
+        <AudioLinesIcon className="h-4 w-4" />
       )}
-    </button>
+    </Button>
   );
 }
