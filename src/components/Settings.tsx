@@ -568,7 +568,7 @@ export default (props: {
                           $ USD
                         </span>
                         <span className="text-lg font-bold leading-none sm:text-3xl">
-                          {props.chatStore.cost.toFixed(4)}
+                          {props.chatStore.cost?.toFixed(4)}
                         </span>
                       </div>
                     </div>

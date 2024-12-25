@@ -59,7 +59,7 @@ const StatusBar = (props: {
             <li>
               <p>
                 <BanknotesIcon className="h-4 w-4" />
-                Cost: ${chatStore.cost.toFixed(4)}
+                Cost: ${chatStore.cost?.toFixed(4)}
               </p>
             </li>
           </ul>
@@ -122,7 +122,7 @@ const StatusBar = (props: {
             </div>
             <div className="stat-title">Cost</div>
             <div className="stat-value text-base">
-              ${chatStore.cost.toFixed(4)}
+              ${chatStore.cost?.toFixed(4)}
             </div>
             <div className="stat-desc">
               Accumulated: ${getTotalCost().toFixed(2)}

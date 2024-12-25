@@ -338,7 +338,7 @@ export function App() {
                         {chatStore.history.filter(({ hide }) => !hide).length}
                       </p>
                       <p>
-                        Cost: ${chatStore.cost.toFixed(4)} / $
+                        Cost: ${chatStore.cost?.toFixed(4)} / $
                         {getTotalCost().toFixed(2)}
                       </p>
                     </PopoverContent>
@@ -351,7 +351,7 @@ export function App() {
                         <WholeWordIcon className="w-4 h-4 mr-2" />{" "}
                         {chatStore.totalTokens}
                         <CircleDollarSignIcon className="w-4 h-4 mx-2" />
-                        {chatStore.cost.toFixed(4)}
+                        {chatStore.cost?.toFixed(4)}
                       </MenubarTrigger>
                       <MenubarContent>
                         <MenubarItem>
