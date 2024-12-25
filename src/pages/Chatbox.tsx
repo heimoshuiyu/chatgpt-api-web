@@ -805,7 +805,7 @@ export default function ChatBOX(props: {
                 size="icon"
                 type="button"
                 onClick={() => setShowAddImage(true)}
-                disabled={showGenerating || !chatStore.apiKey}
+                disabled={showGenerating}
               >
                 <ImageIcon className="size-4" />
                 <span className="sr-only">Add Image</span>
