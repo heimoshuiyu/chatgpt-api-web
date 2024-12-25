@@ -1,10 +1,9 @@
-import { createContext } from "preact";
-import { useContext, useEffect, useState } from "preact/hooks";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "dark" | "light" | "system";
 
 type ThemeProviderProps = {
-  children: preact.VNode;
+  children: React.ReactNode;
   defaultTheme?: Theme;
   storageKey?: string;
 };
