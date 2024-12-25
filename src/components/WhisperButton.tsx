@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   AudioWaveform,
   AudioWaveformIcon,
+  CircleStopIcon,
   MicIcon,
   VoicemailIcon,
 } from "lucide-react";
@@ -136,7 +137,7 @@ const WhisperButton = (props: {
       {isRecording === "Mic" ? (
         <MicIcon />
       ) : isRecording === "Recording" ? (
-        <VoicemailIcon />
+        <CircleStopIcon />
       ) : (
         <AudioWaveformIcon />
       )}
