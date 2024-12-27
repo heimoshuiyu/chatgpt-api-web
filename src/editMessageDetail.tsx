@@ -14,19 +14,19 @@ import {
 } from "@/components/ui/drawer";
 
 import { Button } from "./components/ui/button";
+import { useContext } from "react";
+import { AppContext } from "./pages/App";
 
 interface Props {
   chat: ChatStoreMessage;
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
   setShowEdit: (se: boolean) => void;
 }
-export function EditMessageDetail({
-  chat,
-  chatStore,
-  setChatStore,
-  setShowEdit,
-}: Props) {
+export function EditMessageDetail({ chat, setShowEdit }: Props) {
+  const ctx = useContext(AppContext);
+  if (!ctx) return <div>error</div>;
+
+  const { chatStore, setChatStore } = ctx;
+
   if (typeof chat.content !== "object") return <div>error</div>;
   return (
     <Drawer open={true} onOpenChange={setShowEdit}>

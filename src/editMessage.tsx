@@ -1,4 +1,4 @@
-import { useState, useEffect, Dispatch } from "react";
+import { useState, useEffect, Dispatch, useContext } from "react";
 import { Tr, langCodeContext, LANG_OPTIONS, tr } from "@/translate";
 import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
 import { EditMessageString } from "@/editMessageString";
@@ -13,16 +13,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "./components/ui/button";
+import { AppContext } from "./pages/App";
 
 interface EditMessageProps {
   chat: ChatStoreMessage;
-  chatStore: ChatStore;
   showEdit: boolean;
   setShowEdit: Dispatch<boolean>;
-  setChatStore: (cs: ChatStore) => void;
 }
 export function EditMessage(props: EditMessageProps) {
-  const { showEdit, setShowEdit, chat, setChatStore, chatStore } = props;
+  const ctx = useContext(AppContext);
+  if (!ctx) return <div>error</div>;
+
+  const { showEdit, setShowEdit, chat } = props;
 
   return (
     <Dialog open={showEdit} onOpenChange={setShowEdit}>
@@ -37,21 +39,11 @@ export function EditMessage(props: EditMessageProps) {
           </DialogDescription>
         </DialogHeader>
         {typeof chat.content === "string" ? (
-          <EditMessageString
-            chat={chat}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            setShowEdit={setShowEdit}
-          />
+          <EditMessageString chat={chat} setShowEdit={setShowEdit} />
         ) : (
-          <EditMessageDetail
-            chat={chat}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            setShowEdit={setShowEdit}
-          />
+          <EditMessageDetail chat={chat} setShowEdit={setShowEdit} />
         )}
-        {chatStore.develop_mode && (
+        {ctx.chatStore.develop_mode && (
           <Button
             variant="destructive"
             className="w-full"
@@ -66,7 +58,7 @@ export function EditMessage(props: EditMessageProps) {
               } else {
                 chat.content = "";
               }
-              setChatStore({ ...chatStore });
+              ctx.setChatStore({ ...ctx.chatStore });
             }}
           >
             Switch to{" "}

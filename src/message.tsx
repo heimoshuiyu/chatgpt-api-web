@@ -208,23 +208,11 @@ export default function Message(props: { messageIndex: number }) {
             icon={<ClipboardIcon className="size-4" />}
             onClick={() => copyToClipboard(getMessageText(chat))}
           />
-          {chatStore.tts_api && chatStore.tts_key && (
-            <TTSButton
-              chatStore={chatStore}
-              chat={chat}
-              setChatStore={setChatStore}
-            />
-          )}
+          {chatStore.tts_api && chatStore.tts_key && <TTSButton chat={chat} />}
           <TTSPlay chat={chat} />
         </ChatBubbleActionWrapper>
       </ChatBubble>
-      <EditMessage
-        showEdit={showEdit}
-        setShowEdit={setShowEdit}
-        chat={chat}
-        chatStore={chatStore}
-        setChatStore={setChatStore}
-      />
+      <EditMessage showEdit={showEdit} setShowEdit={setShowEdit} chat={chat} />
       {chatStore.develop_mode && (
         <div
           className={`flex flex-wrap items-center gap-2 mt-2 ${

@@ -1,4 +1,4 @@
-import { createRef } from "react";
+import { createRef, useContext } from "react";
 
 import { ChatStore } from "@/types/chatstore";
 import { useEffect, useState, Dispatch } from "react";
@@ -10,13 +10,17 @@ import {
   MicIcon,
   VoicemailIcon,
 } from "lucide-react";
+import { AppContext } from "@/pages/App";
 
 const WhisperButton = (props: {
-  chatStore: ChatStore;
   inputMsg: string;
   setInputMsg: Dispatch<string>;
 }) => {
-  const { chatStore, inputMsg, setInputMsg } = props;
+  const ctx = useContext(AppContext);
+  if (!ctx) return <div>error</div>;
+  const { chatStore } = ctx;
+
+  const { inputMsg, setInputMsg } = props;
   const mediaRef = createRef();
   const [isRecording, setIsRecording] = useState("Mic");
   return (

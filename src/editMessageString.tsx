@@ -4,19 +4,19 @@ import { calculate_token_length } from "@/chatgpt";
 import { Tr } from "@/translate";
 
 import { Textarea } from "@/components/ui/textarea";
+import { useContext } from "react";
+import { AppContext } from "./pages/App";
 
 interface Props {
   chat: ChatStoreMessage;
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
   setShowEdit: (se: boolean) => void;
 }
-export function EditMessageString({
-  chat,
-  chatStore,
-  setChatStore,
-  setShowEdit,
-}: Props) {
+export function EditMessageString({ chat, setShowEdit }: Props) {
+  const ctx = useContext(AppContext);
+  if (!ctx) return <div>error</div>;
+
+  const { chatStore, setChatStore } = ctx;
+
   if (typeof chat.content !== "string") return <div>error</div>;
   return (
     <div className="flex flex-col">

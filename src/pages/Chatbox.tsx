@@ -454,14 +454,7 @@ export default function ChatBOX() {
                 keyField="image_gen_key"
               />
             )}
-            {ctx.templateTools.length > 0 && (
-              <ListToolsTempaltes
-                templateTools={ctx.templateTools}
-                setTemplateTools={ctx.setTemplateTools}
-                chatStore={chatStore}
-                setChatStore={setChatStore}
-              />
-            )}
+            {ctx.templateTools.length > 0 && <ListToolsTempaltes />}
           </NavigationMenuList>
         </NavigationMenu>
       </div>
@@ -599,7 +592,7 @@ export default function ChatBOX() {
               </Alert>
             )}
           </p>
-          <VersionHint chatStore={chatStore} />
+          <VersionHint />
           {showRetry && (
             <p className="text-right p-2 my-2 dark:text-white">
               <Button
@@ -681,7 +674,6 @@ export default function ChatBOX() {
               {chatStore.whisper_api && chatStore.whisper_key && (
                 <>
                   <WhisperButton
-                    chatStore={chatStore}
                     inputMsg={inputMsg}
                     setInputMsg={setInputMsg}
                   />

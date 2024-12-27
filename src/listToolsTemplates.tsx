@@ -12,19 +12,15 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { Button } from "./components/ui/button";
+import { useContext } from "react";
+import { AppContext } from "./pages/App";
 
-interface Props {
-  templateTools: TemplateTools[];
-  setTemplateTools: (tmps: TemplateTools[]) => void;
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
-}
-export function ListToolsTempaltes({
-  chatStore,
-  templateTools,
-  setTemplateTools,
-  setChatStore,
-}: Props) {
+export function ListToolsTempaltes() {
+  const ctx = useContext(AppContext);
+  if (!ctx) return <div>error</div>;
+
+  const { chatStore, setChatStore } = ctx;
+
   return (
     <NavigationMenuItem className="p-3">
       <NavigationMenuTrigger>
@@ -42,7 +38,7 @@ export function ListToolsTempaltes({
       </NavigationMenuTrigger>
       <NavigationMenuContent>
         <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-          {templateTools.map((t, index) => (
+          {ctx.templateTools.map((t, index) => (
             <li key={index}>
               <NavigationMenuLink asChild>
                 <a
@@ -73,7 +69,7 @@ export function ListToolsTempaltes({
                     const name = prompt(`Give **tools** template a name`);
                     if (!name) return;
                     t.name = name;
-                    setTemplateTools(structuredClone(templateTools));
+                    ctx.setTemplateTools(structuredClone(ctx.templateTools));
                   }}
                 >
                   Edit
@@ -89,8 +85,8 @@ export function ListToolsTempaltes({
                     ) {
                       return;
                     }
-                    templateTools.splice(index, 1);
-                    setTemplateTools(structuredClone(templateTools));
+                    ctx.templateTools.splice(index, 1);
+                    ctx.setTemplateTools(structuredClone(ctx.templateTools));
                   }}
                 >
                   Delete
