@@ -1,6 +1,6 @@
 import { IDBPDatabase } from "idb";
-import { createRef } from "preact";
-import { StateUpdater, useEffect, useState, Dispatch } from "preact/hooks";
+import { useRef } from "react";
+import { useEffect, useState, Dispatch } from "react";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import {
   STORAGE_NAME_TEMPLATE,
@@ -84,7 +84,7 @@ export default function ChatBOX(props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
   selectedChatIndex: number;
-  setSelectedChatIndex: Dispatch<StateUpdater<number>>;
+  setSelectedChatIndex: Dispatch<number>;
 }) {
   const { chatStore, setChatStore } = props;
   // prevent error
@@ -109,9 +109,10 @@ export default function ChatBOX(props: {
     _setFollow(follow);
   };
 
-  const messagesEndRef = createRef();
+  const messagesEndRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (follow) {
+      if (messagesEndRef.current === null) return;
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [showRetry, showGenerating, generatingMessage]);
@@ -470,7 +471,7 @@ export default function ChatBOX(props: {
     );
     _setToolsTemplates(templateTools);
   };
-  const userInputRef = createRef();
+  const userInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <>
@@ -746,7 +747,7 @@ export default function ChatBOX(props: {
               </Button>
             </p>
           )}
-          <div ref={messagesEndRef}></div>
+          <div ref={messagesEndRef as any}></div>
         </ChatMessageList>
         {images.length > 0 && (
           <div className="flex flex-wrap">
@@ -780,7 +781,7 @@ export default function ChatBOX(props: {
           <form className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1">
             <ChatInput
               value={inputMsg}
-              ref={userInputRef}
+              ref={userInputRef as any}
               placeholder="Type your message here..."
               onChange={(event: any) => {
                 setInputMsg(event.target.value);
@@ -828,6 +829,7 @@ export default function ChatBOX(props: {
                 disabled={showGenerating}
                 onClick={() => {
                   send(inputMsg, true);
+                  if (userInputRef.current === null) return;
                   userInputRef.current.value = "";
                   autoHeight(userInputRef.current);
                 }}

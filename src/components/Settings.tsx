@@ -1,13 +1,7 @@
 import { themeChange } from "theme-change";
 
-import { createRef } from "preact";
-import {
-  StateUpdater,
-  useContext,
-  useEffect,
-  useState,
-  Dispatch,
-} from "preact/hooks";
+import { useRef } from "react";
+import { useContext, useEffect, useState, Dispatch } from "react";
 import { clearTotalCost, getTotalCost } from "@/utils/totalCost";
 import {
   ChatStore,
@@ -484,7 +478,7 @@ const Choice = (props: {
 export default (props: {
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
-  setShow: Dispatch<StateUpdater<boolean>>;
+  setShow: Dispatch<boolean>;
   selectedChatStoreIndex: number;
   templates: TemplateChatStore[];
   setTemplates: (templates: TemplateChatStore[]) => void;
@@ -515,7 +509,7 @@ export default (props: {
     link = link + `&dev=true`;
   }
 
-  const importFileRef = createRef();
+  const importFileRef = useRef<any>(null);
   const [totalCost, setTotalCost] = useState(getTotalCost());
   // @ts-ignore
   const { langCode, setLangCode } = useContext(langCodeContext);

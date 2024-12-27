@@ -1,12 +1,11 @@
-import { useState } from "preact/hooks";
-import { Dispatch, StateUpdater } from "preact/hooks";
+import { Dispatch, useState } from "react";
 
 import { Tr } from "@/translate";
 import { calculate_token_length } from "@/chatgpt";
 import { ChatStore } from "@/types/chatstore";
 
 const AddToolMsg = (props: {
-  setShowAddToolMsg: Dispatch<StateUpdater<boolean>>;
+  setShowAddToolMsg: Dispatch<boolean>;
   chatStore: ChatStore;
   setChatStore: (cs: ChatStore) => void;
 }) => {

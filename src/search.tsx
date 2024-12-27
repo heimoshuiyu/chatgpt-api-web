@@ -1,5 +1,5 @@
 import { IDBPDatabase } from "idb";
-import { StateUpdater, useRef, useState, Dispatch } from "preact/hooks";
+import { useRef, useState, Dispatch } from "react";
 
 import { ChatStore } from "@/types/chatstore";
 import { MessageDetail } from "./chatgpt";
@@ -34,7 +34,7 @@ interface ChatStoreSearchResult {
 
 export default function Search(props: {
   db: Promise<IDBPDatabase<ChatStore>>;
-  setSelectedChatIndex: Dispatch<StateUpdater<number>>;
+  setSelectedChatIndex: Dispatch<number>;
   chatStore: ChatStore;
   show: boolean;
   setShow: (show: boolean) => void;

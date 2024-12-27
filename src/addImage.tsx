@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useState } from "react";
 import { ChatStore } from "@/types/chatstore";
 import { MessageDetail } from "@/chatgpt";
 import { Tr } from "@/translate";

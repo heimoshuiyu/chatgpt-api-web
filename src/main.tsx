@@ -1,6 +1,6 @@
 import { themeChange } from "theme-change";
-import { render } from "preact";
-import { useState, useEffect } from "preact/hooks";
+import { createRoot } from "react-dom/client";
+import { useState, useEffect } from "react";
 import { App } from "@/pages/App";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -60,4 +60,4 @@ function Base() {
   );
 }
 
-render(<Base />, document.getElementById("app") as HTMLElement);
+createRoot(document.getElementById("app") as HTMLElement).render(<Base />);

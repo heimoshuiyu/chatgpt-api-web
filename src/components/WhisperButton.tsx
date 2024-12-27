@@ -1,7 +1,7 @@
-import { createRef } from "preact";
+import { createRef } from "react";
 
 import { ChatStore } from "@/types/chatstore";
-import { StateUpdater, useEffect, useState, Dispatch } from "preact/hooks";
+import { useEffect, useState, Dispatch } from "react";
 import { Button } from "@/components/ui/button";
 import {
   AudioWaveform,
@@ -14,7 +14,7 @@ import {
 const WhisperButton = (props: {
   chatStore: ChatStore;
   inputMsg: string;
-  setInputMsg: Dispatch<StateUpdater<string>>;
+  setInputMsg: Dispatch<string>;
 }) => {
   const { chatStore, inputMsg, setInputMsg } = props;
   const mediaRef = createRef();
@@ -25,7 +25,7 @@ const WhisperButton = (props: {
       size="icon"
       className={`m-1 p-1 ${isRecording !== "Mic" ? "animate-pulse" : ""}`}
       disabled={isRecording === "Transcribing"}
-      ref={mediaRef}
+      ref={mediaRef as any}
       onClick={async (event) => {
         event.preventDefault(); // Prevent the default behavior
 

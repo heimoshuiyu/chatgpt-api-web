@@ -1,6 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Markdown from "react-markdown";
-import { useState, useEffect, StateUpdater } from "preact/hooks";
+import { useState } from "react";
 
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
@@ -156,7 +156,9 @@ export default function Message(props: Props) {
           ) : chat.role === "tool" ? (
             <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
           ) : renderMarkdown ? (
-            <Markdown>{getMessageText(chat)}</Markdown>
+            // [TODO] It is happening https://github.com/remarkjs/react-markdown/pull/879
+            // <Markdown>{getMessageText(chat)}</Markdown>
+            <></>
           ) : (
             <div className="message-content">
               {chat.content &&

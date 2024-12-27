@@ -1,4 +1,4 @@
-import { useState, useEffect, StateUpdater, Dispatch } from "preact/hooks";
+import { useState, useEffect, Dispatch } from "react";
 import { Tr, langCodeContext, LANG_OPTIONS, tr } from "@/translate";
 import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
 import { EditMessageString } from "@/editMessageString";
@@ -18,7 +18,7 @@ interface EditMessageProps {
   chat: ChatStoreMessage;
   chatStore: ChatStore;
   showEdit: boolean;
-  setShowEdit: Dispatch<StateUpdater<boolean>>;
+  setShowEdit: Dispatch<boolean>;
   setChatStore: (cs: ChatStore) => void;
 }
 export function EditMessage(props: EditMessageProps) {

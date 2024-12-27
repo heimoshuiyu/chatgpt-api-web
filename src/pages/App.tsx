@@ -1,5 +1,5 @@
 import { openDB } from "idb";
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useState } from "react";
 import "@/global.css";
 
 import { calculate_token_length } from "@/chatgpt";
