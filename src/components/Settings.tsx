@@ -77,6 +77,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { AppContext } from "@/pages/App";
 
 const TTS_VOICES: string[] = [
   "alloy",
@@ -96,14 +97,13 @@ const Help = (props: { children: any; help: string; field: string }) => {
   );
 };
 
-const SelectModel = (props: {
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
-  help: string;
-}) => {
+const SelectModel = (props: { help: string }) => {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
+
   let shouldIUseCustomModel: boolean = true;
   for (const model in models) {
-    if (props.chatStore.model === model) {
+    if (ctx.chatStore.model === model) {
       shouldIUseCustomModel = false;
     }
   }
@@ -143,22 +143,22 @@ const SelectModel = (props: {
 
       {useCustomModel ? (
         <Input
-          value={props.chatStore.model}
+          value={ctx.chatStore.model}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            props.chatStore.model = e.target.value;
-            props.setChatStore({ ...props.chatStore });
+            ctx.chatStore.model = e.target.value;
+            ctx.setChatStore({ ...ctx.chatStore });
           }}
         />
       ) : (
         <Select
-          value={props.chatStore.model}
+          value={ctx.chatStore.model}
           onValueChange={(model: string) => {
-            props.chatStore.model = model;
-            props.chatStore.maxTokens = getDefaultParams(
+            ctx.chatStore.model = model;
+            ctx.chatStore.maxTokens = getDefaultParams(
               "max",
               models[model].maxToken
             );
-            props.setChatStore({ ...props.chatStore });
+            ctx.setChatStore({ ...ctx.chatStore });
           }}
         >
           <SelectTrigger className="w-full">
@@ -181,12 +181,12 @@ const SelectModel = (props: {
 };
 
 const LongInput = (props: {
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
   field: "systemMessageContent" | "toolsString";
   label: string;
   help: string;
 }) => {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
   return (
     <div>
       <Label htmlFor="name" className="text-right">
@@ -208,10 +208,10 @@ const LongInput = (props: {
 
       <Textarea
         className="h-24 w-full"
-        value={props.chatStore[props.field]}
+        value={ctx.chatStore[props.field]}
         onChange={(event: any) => {
-          props.chatStore[props.field] = event.target.value;
-          props.setChatStore({ ...props.chatStore });
+          ctx.chatStore[props.field] = event.target.value;
+          ctx.setChatStore({ ...ctx.chatStore });
           autoHeight(event.target);
         }}
         onKeyPress={(event: any) => {
@@ -223,8 +223,6 @@ const LongInput = (props: {
 };
 
 const InputField = (props: {
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
   field:
     | "apiKey"
     | "apiEndpoint"
@@ -236,6 +234,8 @@ const InputField = (props: {
     | "image_gen_key";
   help: string;
 }) => {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
   const [hideInput, setHideInput] = useState(true);
   return (
     <>
@@ -261,10 +261,10 @@ const InputField = (props: {
         <div className="flex w-full items-center space-x-2">
           <Input
             type={hideInput ? "password" : "text"}
-            value={props.chatStore[props.field]}
+            value={ctx.chatStore[props.field]}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              props.chatStore[props.field] = event.target.value;
-              props.setChatStore({ ...props.chatStore });
+              ctx.chatStore[props.field] = event.target.value;
+              ctx.setChatStore({ ...ctx.chatStore });
             }}
           />
           <Button
@@ -285,30 +285,30 @@ const InputField = (props: {
 };
 
 const Slicer = (props: {
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
   field: "temperature" | "top_p" | "tts_speed";
   help: string;
   min: number;
   max: number;
 }) => {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
   const enable_filed_name: "temperature_enabled" | "top_p_enabled" =
     `${props.field}_enabled` as any;
 
-  const enabled = props.chatStore[enable_filed_name];
+  const enabled = ctx.chatStore[enable_filed_name];
 
   if (enabled === null || enabled === undefined) {
     if (props.field === "temperature") {
-      props.chatStore[enable_filed_name] = true;
+      ctx.chatStore[enable_filed_name] = true;
     }
     if (props.field === "top_p") {
-      props.chatStore[enable_filed_name] = false;
+      ctx.chatStore[enable_filed_name] = false;
     }
   }
 
   const setEnabled = (state: boolean) => {
-    props.chatStore[enable_filed_name] = state;
-    props.setChatStore({ ...props.chatStore });
+    ctx.chatStore[enable_filed_name] = state;
+    ctx.setChatStore({ ...ctx.chatStore });
   };
   return (
     <div className="space-y-2">
@@ -329,10 +329,10 @@ const Slicer = (props: {
           </DialogContent>
         </Dialog>
         <Checkbox
-          checked={props.chatStore[enable_filed_name]}
+          checked={ctx.chatStore[enable_filed_name]}
           onCheckedChange={(checked: boolean) => setEnabled(!!checked)}
         />
-        {!props.chatStore[enable_filed_name] && (
+        {!ctx.chatStore[enable_filed_name] && (
           <span className="text-xs text-muted-foreground">disabled</span>
         )}
       </Label>
@@ -345,10 +345,10 @@ const Slicer = (props: {
               min={props.min}
               max={props.max}
               step={0.01}
-              value={[props.chatStore[props.field]]}
+              value={[ctx.chatStore[props.field]]}
               onValueChange={(value) => {
-                props.chatStore[props.field] = value[0];
-                props.setChatStore({ ...props.chatStore });
+                ctx.chatStore[props.field] = value[0];
+                ctx.setChatStore({ ...ctx.chatStore });
               }}
             />
           </div>
@@ -356,11 +356,11 @@ const Slicer = (props: {
             type="number"
             disabled={!enabled}
             className="w-24"
-            value={props.chatStore[props.field]}
+            value={ctx.chatStore[props.field]}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const value = parseFloat(e.target.value);
-              props.chatStore[props.field] = value;
-              props.setChatStore({ ...props.chatStore });
+              ctx.chatStore[props.field] = value;
+              ctx.setChatStore({ ...ctx.chatStore });
             }}
           />
         </div>
@@ -370,8 +370,6 @@ const Slicer = (props: {
 };
 
 const Number = (props: {
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
   field:
     | "totalTokens"
     | "maxTokens"
@@ -383,6 +381,8 @@ const Number = (props: {
   readOnly: boolean;
   help: string;
 }) => {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
   return (
     <div className="space-y-2">
       <Label className="flex items-center gap-2">
@@ -404,12 +404,12 @@ const Number = (props: {
 
         {props.field === "maxGenTokens" && (
           <Checkbox
-            checked={props.chatStore.maxGenTokens_enabled}
+            checked={ctx.chatStore.maxGenTokens_enabled}
             onCheckedChange={() => {
-              const newChatStore = { ...props.chatStore };
+              const newChatStore = { ...ctx.chatStore };
               newChatStore.maxGenTokens_enabled =
                 !newChatStore.maxGenTokens_enabled;
-              props.setChatStore({ ...newChatStore });
+              ctx.setChatStore({ ...newChatStore });
             }}
           />
         )}
@@ -419,15 +419,14 @@ const Number = (props: {
         type="number"
         readOnly={props.readOnly}
         disabled={
-          props.field === "maxGenTokens" &&
-          !props.chatStore.maxGenTokens_enabled
+          props.field === "maxGenTokens" && !ctx.chatStore.maxGenTokens_enabled
         }
-        value={props.chatStore[props.field]}
+        value={ctx.chatStore[props.field]}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           let newNumber = parseFloat(event.target.value);
           if (newNumber < 0) newNumber = 0;
-          props.chatStore[props.field] = newNumber;
-          props.setChatStore({ ...props.chatStore });
+          ctx.chatStore[props.field] = newNumber;
+          ctx.setChatStore({ ...ctx.chatStore });
         }}
       />
     </div>
@@ -435,20 +434,21 @@ const Number = (props: {
 };
 
 const Choice = (props: {
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
   field: "streamMode" | "develop_mode" | "json_mode" | "logprobs";
   help: string;
 }) => {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
+
   return (
     <div className="flex items-center space-x-2">
       <div className="flex items-center">
         <Checkbox
           id={`${props.field}-checkbox`}
-          checked={props.chatStore[props.field]}
+          checked={ctx.chatStore[props.field]}
           onCheckedChange={(checked: boolean) => {
-            props.chatStore[props.field] = checked;
-            props.setChatStore({ ...props.chatStore });
+            ctx.chatStore[props.field] = checked;
+            ctx.setChatStore({ ...ctx.chatStore });
           }}
         />
       </div>
@@ -475,37 +475,21 @@ const Choice = (props: {
   );
 };
 
-export default (props: {
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
-  setShow: Dispatch<boolean>;
-  selectedChatStoreIndex: number;
-  templates: TemplateChatStore[];
-  setTemplates: (templates: TemplateChatStore[]) => void;
-  templateAPIs: TemplateAPI[];
-  setTemplateAPIs: (templateAPIs: TemplateAPI[]) => void;
-  templateAPIsWhisper: TemplateAPI[];
-  setTemplateAPIsWhisper: (templateAPIs: TemplateAPI[]) => void;
-  templateAPIsTTS: TemplateAPI[];
-  setTemplateAPIsTTS: (templateAPIs: TemplateAPI[]) => void;
-  templateAPIsImageGen: TemplateAPI[];
-  setTemplateAPIsImageGen: (templateAPIs: TemplateAPI[]) => void;
-  templateTools: TemplateTools[];
-  setTemplateTools: (templateTools: TemplateTools[]) => void;
-}) => {
+export default (props: { setShow: Dispatch<boolean> }) => {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
+
   let link =
     location.protocol +
     "//" +
     location.host +
     location.pathname +
-    `?key=${encodeURIComponent(
-      props.chatStore.apiKey
-    )}&api=${encodeURIComponent(props.chatStore.apiEndpoint)}&mode=${
-      props.chatStore.streamMode ? "stream" : "fetch"
-    }&model=${props.chatStore.model}&sys=${encodeURIComponent(
-      props.chatStore.systemMessageContent
-    )}`;
-  if (props.chatStore.develop_mode) {
+    `?key=${encodeURIComponent(ctx.chatStore.apiKey)}&api=${encodeURIComponent(
+      ctx.chatStore.apiEndpoint
+    )}&mode=${ctx.chatStore.streamMode ? "stream" : "fetch"}&model=${
+      ctx.chatStore.model
+    }&sys=${encodeURIComponent(ctx.chatStore.systemMessageContent)}`;
+  if (ctx.chatStore.develop_mode) {
     link = link + `&dev=true`;
   }
 
@@ -562,7 +546,7 @@ export default (props: {
                           $ USD
                         </span>
                         <span className="text-lg font-bold leading-none sm:text-3xl">
-                          {props.chatStore.cost?.toFixed(4)}
+                          {ctx.chatStore.cost?.toFixed(4)}
                         </span>
                       </div>
                     </div>
@@ -583,7 +567,7 @@ export default (props: {
                 />
                 <span className="pt-1">
                   JSON Check:{" "}
-                  {isVailedJSON(props.chatStore.toolsString) ? (
+                  {isVailedJSON(ctx.chatStore.toolsString) ? (
                     <CheckIcon className="inline w-3 h-3" />
                   ) : (
                     <BanIcon className="inline w-3 h-3" />
@@ -591,7 +575,7 @@ export default (props: {
                 </span>
                 <div className="box">
                   <div className="flex justify-evenly flex-wrap">
-                    {props.chatStore.toolsString.trim() && (
+                    {ctx.chatStore.toolsString.trim() && (
                       <Button
                         onClick={() => {
                           const name = prompt(
@@ -603,10 +587,10 @@ export default (props: {
                           }
                           const newToolsTmp: TemplateTools = {
                             name,
-                            toolsString: props.chatStore.toolsString,
+                            toolsString: ctx.chatStore.toolsString,
                           };
-                          props.templateTools.push(newToolsTmp);
-                          props.setTemplateTools([...props.templateTools]);
+                          ctx.templateTools.push(newToolsTmp);
+                          ctx.setTemplateTools([...ctx.templateTools]);
                         }}
                       >
                         {Tr(`Save Tools`)}
@@ -710,12 +694,12 @@ export default (props: {
                               <Button
                                 variant="destructive"
                                 onClick={() => {
-                                  props.chatStore.history =
-                                    props.chatStore.history.filter(
+                                  ctx.chatStore.history =
+                                    ctx.chatStore.history.filter(
                                       (msg) => msg.example && !msg.hide
                                     );
-                                  props.chatStore.postBeginIndex = 0;
-                                  props.setChatStore({ ...props.chatStore });
+                                  ctx.chatStore.postBeginIndex = 0;
+                                  ctx.setChatStore({ ...ctx.chatStore });
                                 }}
                               >
                                 Yes, clear all history
@@ -731,14 +715,14 @@ export default (props: {
                             let dataStr =
                               "data:text/json;charset=utf-8," +
                               encodeURIComponent(
-                                JSON.stringify(props.chatStore, null, "\t")
+                                JSON.stringify(ctx.chatStore, null, "\t")
                               );
                             let downloadAnchorNode =
                               document.createElement("a");
                             downloadAnchorNode.setAttribute("href", dataStr);
                             downloadAnchorNode.setAttribute(
                               "download",
-                              `chatgpt-api-web-${props.selectedChatStoreIndex}.json`
+                              `chatgpt-api-web-${ctx.selectedChatIndex}.json`
                             );
                             document.body.appendChild(downloadAnchorNode);
                             downloadAnchorNode.click();
@@ -760,7 +744,7 @@ export default (props: {
                               return;
                             }
                             const tmp: ChatStore = structuredClone(
-                              props.chatStore
+                              ctx.chatStore
                             );
                             tmp.history = tmp.history.filter((h) => h.example);
                             tmp.apiEndpoint = "";
@@ -773,8 +757,8 @@ export default (props: {
                             tmp.image_gen_key = "";
                             // @ts-ignore
                             tmp.name = name;
-                            props.templates.push(tmp as TemplateChatStore);
-                            props.setTemplates([...props.templates]);
+                            ctx.templates.push(tmp as TemplateChatStore);
+                            ctx.setTemplates([...ctx.templates]);
                           }}
                         >
                           {Tr("As template")}
@@ -826,7 +810,7 @@ export default (props: {
                                     langCode
                                   );
                                 }
-                                props.setChatStore({ ...newChatStore });
+                                ctx.setChatStore({ ...newChatStore });
                               } catch (e) {
                                 alert(
                                   tr(
@@ -868,10 +852,10 @@ export default (props: {
                     />
                     <SetAPIsTemplate
                       label="Chat API"
-                      endpoint={props.chatStore.apiEndpoint}
-                      APIkey={props.chatStore.apiKey}
-                      tmps={props.templateAPIs}
-                      setTmps={props.setTemplateAPIs}
+                      endpoint={ctx.chatStore.apiEndpoint}
+                      APIkey={ctx.chatStore.apiKey}
+                      tmps={ctx.templateAPIs}
+                      setTmps={ctx.setTemplateAPIs}
                     />
                   </CardContent>
                 </Card>
@@ -973,10 +957,10 @@ export default (props: {
                       />
                       <SetAPIsTemplate
                         label="Whisper API"
-                        endpoint={props.chatStore.whisper_api}
-                        APIkey={props.chatStore.whisper_key}
-                        tmps={props.templateAPIsWhisper}
-                        setTmps={props.setTemplateAPIsWhisper}
+                        endpoint={ctx.chatStore.whisper_api}
+                        APIkey={ctx.chatStore.whisper_key}
+                        tmps={ctx.templateAPIsWhisper}
+                        setTmps={ctx.setTemplateAPIsWhisper}
                       />
                     </CardContent>
                   </Card>
@@ -1006,10 +990,10 @@ export default (props: {
                     />
                     <SetAPIsTemplate
                       label="TTS API"
-                      endpoint={props.chatStore.tts_api}
-                      APIkey={props.chatStore.tts_key}
-                      tmps={props.templateAPIsTTS}
-                      setTmps={props.setTemplateAPIsTTS}
+                      endpoint={ctx.chatStore.tts_api}
+                      APIkey={ctx.chatStore.tts_key}
+                      tmps={ctx.templateAPIsTTS}
+                      setTmps={ctx.setTemplateAPIsTTS}
                     />
                   </CardContent>
                 </Card>
@@ -1034,10 +1018,10 @@ export default (props: {
                       </Dialog>
                     </Label>
                     <Select
-                      value={props.chatStore.tts_voice}
+                      value={ctx.chatStore.tts_voice}
                       onValueChange={(value) => {
-                        props.chatStore.tts_voice = value;
-                        props.setChatStore({ ...props.chatStore });
+                        ctx.chatStore.tts_voice = value;
+                        ctx.setChatStore({ ...ctx.chatStore });
                       }}
                     >
                       <SelectTrigger className="w-full">
@@ -1084,10 +1068,10 @@ export default (props: {
                       </Dialog>
                     </Label>
                     <Select
-                      value={props.chatStore.tts_format}
+                      value={ctx.chatStore.tts_format}
                       onValueChange={(value) => {
-                        props.chatStore.tts_format = value;
-                        props.setChatStore({ ...props.chatStore });
+                        ctx.chatStore.tts_format = value;
+                        ctx.setChatStore({ ...ctx.chatStore });
                       }}
                     >
                       <SelectTrigger className="w-full">
@@ -1131,10 +1115,10 @@ export default (props: {
                     />
                     <SetAPIsTemplate
                       label="Image Gen API"
-                      endpoint={props.chatStore.image_gen_api}
-                      APIkey={props.chatStore.image_gen_key}
-                      tmps={props.templateAPIsImageGen}
-                      setTmps={props.setTemplateAPIsImageGen}
+                      endpoint={ctx.chatStore.image_gen_api}
+                      APIkey={ctx.chatStore.image_gen_key}
+                      tmps={ctx.templateAPIsImageGen}
+                      setTmps={ctx.setTemplateAPIsImageGen}
                     />
                   </CardContent>
                 </Card>
@@ -1144,7 +1128,7 @@ export default (props: {
           <div className="pt-4 space-y-2">
             <p className="text-sm text-muted-foreground text-center">
               chatgpt-api-web ChatStore {Tr("Version")}{" "}
-              {props.chatStore.chatgpt_api_web_version}
+              {ctx.chatStore.chatgpt_api_web_version}
             </p>
             <p className="text-sm text-muted-foreground text-center">
               {Tr("Documents and source code are avaliable here")}:{" "}

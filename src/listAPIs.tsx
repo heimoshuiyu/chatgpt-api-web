@@ -13,61 +13,54 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Button } from "./components/ui/button";
 import { cn } from "@/lib/utils";
+import { useContext } from "react";
+import { AppContext } from "./pages/App";
 
 interface Props {
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
-  tmps: TemplateAPI[];
-  setTmps: (tmps: TemplateAPI[]) => void;
   label: string;
   apiField: string;
   keyField: string;
 }
-export function ListAPIs({
-  tmps,
-  setTmps,
-  chatStore,
-  setChatStore,
-  label,
-  apiField,
-  keyField,
-}: Props) {
+export function ListAPIs({ label, apiField, keyField }: Props) {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
+
   return (
     <NavigationMenuItem>
       <NavigationMenuTrigger>
         {label}{" "}
         <span className="hidden lg:inline">
-          {tmps.find(
+          {ctx.templateAPIs.find(
             (t) =>
-              chatStore[apiField as keyof ChatStore] === t.endpoint &&
-              chatStore[keyField as keyof ChatStore] === t.key
+              ctx.chatStore[apiField as keyof ChatStore] === t.endpoint &&
+              ctx.chatStore[keyField as keyof ChatStore] === t.key
           )?.name &&
             `: ${
-              tmps.find(
+              ctx.templateAPIs.find(
                 (t) =>
-                  chatStore[apiField as keyof ChatStore] === t.endpoint &&
-                  chatStore[keyField as keyof ChatStore] === t.key
+                  ctx.chatStore[apiField as keyof ChatStore] === t.endpoint &&
+                  ctx.chatStore[keyField as keyof ChatStore] === t.key
               )?.name
             }`}
         </span>
       </NavigationMenuTrigger>
       <NavigationMenuContent>
         <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-          {tmps.map((t, index) => (
+          {ctx.templateAPIs.map((t, index) => (
             <li>
               <NavigationMenuLink asChild>
                 <a
                   onClick={() => {
                     // @ts-ignore
-                    chatStore[apiField] = t.endpoint;
+                    ctx.chatStore[apiField as keyof ChatStore] = t.endpoint;
                     // @ts-ignore
-                    chatStore[keyField] = t.key;
-                    setChatStore({ ...chatStore });
+                    ctx.chatStore[keyField] = t.key;
+                    ctx.setChatStore({ ...ctx.chatStore });
                   }}
                   className={cn(
                     "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-                    chatStore[apiField as keyof ChatStore] === t.endpoint &&
-                      chatStore[keyField as keyof ChatStore] === t.key
+                    ctx.chatStore[apiField as keyof ChatStore] === t.endpoint &&
+                      ctx.chatStore[keyField as keyof ChatStore] === t.key
                       ? "bg-accent text-accent-foreground"
                       : ""
                   )}
@@ -88,7 +81,7 @@ export function ListAPIs({
                     const name = prompt(`Give **${label}** template a name`);
                     if (!name) return;
                     t.name = name;
-                    setTmps(structuredClone(tmps));
+                    ctx.setTemplateAPIs(structuredClone(ctx.templateAPIs));
                   }}
                 >
                   Edit
@@ -104,8 +97,8 @@ export function ListAPIs({
                     ) {
                       return;
                     }
-                    tmps.splice(index, 1);
-                    setTmps(structuredClone(tmps));
+                    ctx.templateAPIs.splice(index, 1);
+                    ctx.setTemplateAPIs(structuredClone(ctx.templateAPIs));
                   }}
                 >
                   Delete

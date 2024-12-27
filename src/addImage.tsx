@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { ChatStore } from "@/types/chatstore";
 import { MessageDetail } from "@/chatgpt";
 import { Tr } from "@/translate";
@@ -20,10 +20,9 @@ import { Checkbox } from "./components/ui/checkbox";
 import { Label } from "./components/ui/label";
 import { Textarea } from "./components/ui/textarea";
 import { Separator } from "./components/ui/separator";
+import { AppContext } from "./pages/App";
 
 interface Props {
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
   images: MessageDetail[];
   showAddImage: boolean;
   setShowAddImage: (se: boolean) => void;
@@ -35,13 +34,14 @@ interface ImageResponse {
   revised_prompt: string;
 }
 export function AddImage({
-  chatStore,
-  setChatStore,
   showAddImage,
   setShowAddImage,
   setImages,
   images,
 }: Props) {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
+
   const [enableHighResolution, setEnableHighResolution] = useState(true);
   const [imageGenPrompt, setImageGenPrompt] = useState("");
   const [imageGenModel, setImageGenModel] = useState("dall-e-3");
@@ -134,7 +134,7 @@ export function AddImage({
             </div>
           </div>
           <Separator className="my-2" />
-          {chatStore.image_gen_api && chatStore.image_gen_key && (
+          {ctx.chatStore.image_gen_api && ctx.chatStore.image_gen_key && (
             <div className="flex flex-col">
               <h3>Generate Image</h3>
               <span className="flex flex-col justify-between m-1 p-1">
@@ -240,11 +240,11 @@ export function AddImage({
                         body.style = imageGenStyle;
                       }
                       const resp: ImageResponse[] = (
-                        await fetch(chatStore.image_gen_api, {
+                        await fetch(ctx.chatStore.image_gen_api, {
                           method: "POST",
                           headers: {
                             "Content-Type": "application/json",
-                            Authorization: `Bearer ${chatStore.image_gen_key}`,
+                            Authorization: `Bearer ${ctx.chatStore.image_gen_key}`,
                           },
                           body: JSON.stringify(body),
                         }).then((resp) => resp.json())
@@ -258,7 +258,7 @@ export function AddImage({
                           url = "data:image/png;base64," + image.b64_json;
                         if (!url) continue;
 
-                        chatStore.history.push({
+                        ctx.chatStore.history.push({
                           role: "assistant",
                           content: [
                             {
@@ -281,7 +281,7 @@ export function AddImage({
                           response_model_name: imageGenModel,
                         });
 
-                        setChatStore({ ...chatStore });
+                        ctx.setChatStore({ ...ctx.chatStore });
                       }
                     } catch (e) {
                       console.error(e);

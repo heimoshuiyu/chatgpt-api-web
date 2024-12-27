@@ -1,5 +1,5 @@
 import { IDBPDatabase } from "idb";
-import { useRef, useState, Dispatch } from "react";
+import { useRef, useState, Dispatch, useContext } from "react";
 
 import { ChatStore } from "@/types/chatstore";
 import { MessageDetail } from "./chatgpt";
@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/pagination";
 
 import { Input } from "./components/ui/input";
+import { AppContext } from "./pages/App";
 
 interface ChatStoreSearchResult {
   key: IDBValidKey;
@@ -33,12 +34,13 @@ interface ChatStoreSearchResult {
 }
 
 export default function Search(props: {
-  db: Promise<IDBPDatabase<ChatStore>>;
-  setSelectedChatIndex: Dispatch<number>;
-  chatStore: ChatStore;
   show: boolean;
   setShow: (show: boolean) => void;
 }) {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
+  const { setSelectedChatIndex, db } = ctx;
+
   const [searchResult, setSearchResult] = useState<ChatStoreSearchResult[]>([]);
   const [searching, setSearching] = useState<boolean>(false);
   const [searchingNow, setSearchingNow] = useState<number>(0);
@@ -76,8 +78,8 @@ export default function Search(props: {
 
               setSearching(true);
 
-              const db = await props.db;
-              const resultKeys = await db.getAllKeys("chatgpt-api-web");
+              const idb = await db;
+              const resultKeys = await idb.getAllKeys("chatgpt-api-web");
 
               const result: ChatStoreSearchResult[] = [];
               for (const key of resultKeys) {
@@ -91,7 +93,7 @@ export default function Search(props: {
                 );
                 if (now !== searchingNow) setSearchingNow(now);
 
-                const value: ChatStore = await db.get("chatgpt-api-web", key);
+                const value: ChatStore = await idb.get("chatgpt-api-web", key);
 
                 let preview: string = "";
                 for (const msg of value.history) {
@@ -157,7 +159,7 @@ export default function Search(props: {
                   className="flex justify-start p-1 m-1 rounded border bg-base-200 cursor-pointer"
                   key={result.key as number}
                   onClick={() => {
-                    props.setSelectedChatIndex(parseInt(result.key.toString()));
+                    setSelectedChatIndex(parseInt(result.key.toString()));
                     props.setShow(false);
                   }}
                 >

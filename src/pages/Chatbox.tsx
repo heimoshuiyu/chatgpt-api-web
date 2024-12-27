@@ -1,15 +1,7 @@
 import { IDBPDatabase } from "idb";
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import { useEffect, useState, Dispatch } from "react";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
-import {
-  STORAGE_NAME_TEMPLATE,
-  STORAGE_NAME_TEMPLATE_API,
-  STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
-  STORAGE_NAME_TEMPLATE_API_TTS,
-  STORAGE_NAME_TEMPLATE_API_WHISPER,
-  STORAGE_NAME_TEMPLATE_TOOLS,
-} from "@/const";
 import { addTotalCost, getTotalCost } from "@/utils/totalCost";
 import ChatGPT, {
   calculate_token_length,
@@ -79,14 +71,18 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 
-export default function ChatBOX(props: {
-  db: Promise<IDBPDatabase<ChatStore>>;
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
-  selectedChatIndex: number;
-  setSelectedChatIndex: Dispatch<number>;
-}) {
-  const { chatStore, setChatStore } = props;
+import { AppContext } from "./App";
+
+export default function ChatBOX() {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
+  const {
+    db,
+    chatStore,
+    setChatStore,
+    selectedChatIndex,
+    setSelectedChatIndex,
+  } = ctx;
   // prevent error
   if (chatStore === undefined) return <div></div>;
   const [inputMsg, setInputMsg] = useState("");
@@ -357,7 +353,7 @@ export default function ChatBOX(props: {
       alert(error);
     } finally {
       setShowGenerating(false);
-      props.setSelectedChatIndex(props.selectedChatIndex);
+      setSelectedChatIndex(selectedChatIndex);
     }
   };
 
@@ -401,102 +397,13 @@ export default function ChatBOX(props: {
   };
 
   const [showSettings, setShowSettings] = useState(false);
-
-  const [templates, _setTemplates] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE) || "[]"
-    ) as TemplateChatStore[]
-  );
-  const [templateAPIs, _setTemplateAPIs] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API) || "[]"
-    ) as TemplateAPI[]
-  );
-  const [templateAPIsWhisper, _setTemplateAPIsWhisper] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_WHISPER) || "[]"
-    ) as TemplateAPI[]
-  );
-  const [templateAPIsTTS, _setTemplateAPIsTTS] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_TTS) || "[]"
-    ) as TemplateAPI[]
-  );
-  const [templateAPIsImageGen, _setTemplateAPIsImageGen] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_IMAGE_GEN) || "[]"
-    ) as TemplateAPI[]
-  );
-  const [toolsTemplates, _setToolsTemplates] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_TOOLS) || "[]"
-    ) as TemplateTools[]
-  );
-  const setTemplates = (templates: TemplateChatStore[]) => {
-    localStorage.setItem(STORAGE_NAME_TEMPLATE, JSON.stringify(templates));
-    _setTemplates(templates);
-  };
-  const setTemplateAPIs = (templateAPIs: TemplateAPI[]) => {
-    localStorage.setItem(
-      STORAGE_NAME_TEMPLATE_API,
-      JSON.stringify(templateAPIs)
-    );
-    _setTemplateAPIs(templateAPIs);
-  };
-  const setTemplateAPIsWhisper = (templateAPIWhisper: TemplateAPI[]) => {
-    localStorage.setItem(
-      STORAGE_NAME_TEMPLATE_API_WHISPER,
-      JSON.stringify(templateAPIWhisper)
-    );
-    _setTemplateAPIsWhisper(templateAPIWhisper);
-  };
-  const setTemplateAPIsTTS = (templateAPITTS: TemplateAPI[]) => {
-    localStorage.setItem(
-      STORAGE_NAME_TEMPLATE_API_TTS,
-      JSON.stringify(templateAPITTS)
-    );
-    _setTemplateAPIsTTS(templateAPITTS);
-  };
-  const setTemplateAPIsImageGen = (templateAPIImageGen: TemplateAPI[]) => {
-    localStorage.setItem(
-      STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
-      JSON.stringify(templateAPIImageGen)
-    );
-    _setTemplateAPIsImageGen(templateAPIImageGen);
-  };
-  const setTemplateTools = (templateTools: TemplateTools[]) => {
-    localStorage.setItem(
-      STORAGE_NAME_TEMPLATE_TOOLS,
-      JSON.stringify(templateTools)
-    );
-    _setToolsTemplates(templateTools);
-  };
   const userInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <>
       <div className="flex flex-col p-2 gap-2 w-full">
         <div className="flex items-center gap-2 justify-between">
-          {true && (
-            <Settings
-              chatStore={chatStore}
-              setChatStore={setChatStore}
-              setShow={setShowSettings}
-              selectedChatStoreIndex={props.selectedChatIndex}
-              templates={templates}
-              setTemplates={setTemplates}
-              templateAPIs={templateAPIs}
-              setTemplateAPIs={setTemplateAPIs}
-              templateAPIsWhisper={templateAPIsWhisper}
-              setTemplateAPIsWhisper={setTemplateAPIsWhisper}
-              templateAPIsTTS={templateAPIsTTS}
-              setTemplateAPIsTTS={setTemplateAPIsTTS}
-              templateAPIsImageGen={templateAPIsImageGen}
-              setTemplateAPIsImageGen={setTemplateAPIsImageGen}
-              templateTools={toolsTemplates}
-              setTemplateTools={setTemplateTools}
-            />
-          )}
+          {true && <Settings setShow={setShowSettings} />}
           <Button
             variant="outline"
             size="icon"
@@ -505,15 +412,7 @@ export default function ChatBOX(props: {
             <SearchIcon />
           </Button>
         </div>
-        {showSearch && (
-          <Search
-            setSelectedChatIndex={props.setSelectedChatIndex}
-            db={props.db}
-            chatStore={chatStore}
-            show={showSearch}
-            setShow={setShowSearch}
-          />
-        )}
+        {showSearch && <Search show={showSearch} setShow={setShowSearch} />}
 
         {!chatStore.apiKey && (
           <Alert>
@@ -535,54 +434,30 @@ export default function ChatBOX(props: {
         )}
         <NavigationMenu>
           <NavigationMenuList>
-            {templateAPIs.length > 0 && (
-              <ListAPIs
-                label="API"
-                tmps={templateAPIs}
-                setTmps={setTemplateAPIs}
-                chatStore={chatStore}
-                setChatStore={setChatStore}
-                apiField="apiEndpoint"
-                keyField="apiKey"
-              />
+            {ctx.templateAPIs.length > 0 && (
+              <ListAPIs label="API" apiField="apiEndpoint" keyField="apiKey" />
             )}
-            {templateAPIsWhisper.length > 0 && (
+            {ctx.templateAPIsWhisper.length > 0 && (
               <ListAPIs
                 label="Whisper API"
-                tmps={templateAPIsWhisper}
-                setTmps={setTemplateAPIsWhisper}
-                chatStore={chatStore}
-                setChatStore={setChatStore}
                 apiField="whisper_api"
                 keyField="whisper_key"
               />
             )}
-            {templateAPIsTTS.length > 0 && (
-              <ListAPIs
-                label="TTS API"
-                tmps={templateAPIsTTS}
-                setTmps={setTemplateAPIsTTS}
-                chatStore={chatStore}
-                setChatStore={setChatStore}
-                apiField="tts_api"
-                keyField="tts_key"
-              />
+            {ctx.templateAPIsTTS.length > 0 && (
+              <ListAPIs label="TTS API" apiField="tts_api" keyField="tts_key" />
             )}
-            {templateAPIsImageGen.length > 0 && (
+            {ctx.templateAPIsImageGen.length > 0 && (
               <ListAPIs
                 label="Image Gen API"
-                tmps={templateAPIsImageGen}
-                setTmps={setTemplateAPIsImageGen}
-                chatStore={chatStore}
-                setChatStore={setChatStore}
                 apiField="image_gen_api"
                 keyField="image_gen_key"
               />
             )}
-            {toolsTemplates.length > 0 && (
+            {ctx.templateTools.length > 0 && (
               <ListToolsTempaltes
-                templateTools={toolsTemplates}
-                setTemplateTools={setTemplateTools}
+                templateTools={ctx.templateTools}
+                setTemplateTools={ctx.setTemplateTools}
                 chatStore={chatStore}
                 setChatStore={setChatStore}
               />
@@ -611,12 +486,7 @@ export default function ChatBOX(props: {
               </h2>
               <div className="divider"></div>
               <div className="flex flex-wrap">
-                <Templates
-                  templates={templates}
-                  setTemplates={setTemplates}
-                  chatStore={chatStore}
-                  setChatStore={setChatStore}
-                />
+                <Templates />
               </div>
             </div>
           )}
@@ -675,11 +545,7 @@ export default function ChatBOX(props: {
             </ChatBubble>
           )}
           {chatStore.history.map((_, messageIndex) => (
-            <Message
-              chatStore={chatStore}
-              setChatStore={setChatStore}
-              messageIndex={messageIndex}
-            />
+            <Message messageIndex={messageIndex} />
           ))}
           {showGenerating && (
             <ChatBubble variant="received">
@@ -841,8 +707,6 @@ export default function ChatBOX(props: {
           </form>
 
           <AddImage
-            chatStore={chatStore}
-            setChatStore={setChatStore}
             setShowAddImage={setShowAddImage}
             images={images}
             showAddImage={showAddImage}

@@ -1,6 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Markdown from "react-markdown";
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
@@ -26,6 +26,7 @@ import {
   MessageSquareOffIcon,
   MessageSquarePlusIcon,
 } from "lucide-react";
+import { AppContext } from "./pages/App";
 
 export const isVailedJSON = (str: string): boolean => {
   try {
@@ -36,14 +37,12 @@ export const isVailedJSON = (str: string): boolean => {
   return true;
 };
 
-interface Props {
-  messageIndex: number;
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
-}
+export default function Message(props: { messageIndex: number }) {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
+  const { messageIndex } = props;
+  const { chatStore, setChatStore } = ctx;
 
-export default function Message(props: Props) {
-  const { chatStore, messageIndex, setChatStore } = props;
   const chat = chatStore.history[messageIndex];
   const [showEdit, setShowEdit] = useState(false);
   const [showCopiedHint, setShowCopiedHint] = useState(false);

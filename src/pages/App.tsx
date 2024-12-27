@@ -1,5 +1,5 @@
-import { openDB } from "idb";
-import { useEffect, useState } from "react";
+import { IDBPDatabase, openDB } from "idb";
+import { createContext, useEffect, useState } from "react";
 import "@/global.css";
 
 import { calculate_token_length } from "@/chatgpt";
@@ -13,6 +13,43 @@ import { newChatStore } from "@/types/newChatstore";
 import { STORAGE_NAME, STORAGE_NAME_SELECTED } from "@/const";
 import { upgrade } from "@/indexedDB/upgrade";
 import { getTotalCost } from "@/utils/totalCost";
+
+import {
+  STORAGE_NAME_TEMPLATE,
+  STORAGE_NAME_TEMPLATE_API,
+  STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
+  STORAGE_NAME_TEMPLATE_API_TTS,
+  STORAGE_NAME_TEMPLATE_API_WHISPER,
+  STORAGE_NAME_TEMPLATE_TOOLS,
+} from "@/const";
+import {
+  ChatStoreMessage,
+  TemplateChatStore,
+  TemplateAPI,
+  TemplateTools,
+} from "../types/chatstore";
+
+interface AppContextType {
+  db: Promise<IDBPDatabase<ChatStore>>;
+  chatStore: ChatStore;
+  setChatStore: (cs: ChatStore) => void;
+  selectedChatIndex: number;
+  setSelectedChatIndex: (i: number) => void;
+  templates: TemplateChatStore[];
+  setTemplates: (t: TemplateChatStore[]) => void;
+  templateAPIs: TemplateAPI[];
+  setTemplateAPIs: (t: TemplateAPI[]) => void;
+  templateAPIsWhisper: TemplateAPI[];
+  setTemplateAPIsWhisper: (t: TemplateAPI[]) => void;
+  templateAPIsTTS: TemplateAPI[];
+  setTemplateAPIsTTS: (t: TemplateAPI[]) => void;
+  templateAPIsImageGen: TemplateAPI[];
+  setTemplateAPIsImageGen: (t: TemplateAPI[]) => void;
+  templateTools: TemplateTools[];
+  setTemplateTools: (t: TemplateTools[]) => void;
+}
+
+export const AppContext = createContext<AppContextType | null>(null);
 
 import {
   Sidebar,
@@ -247,6 +284,77 @@ export function App() {
     run();
   }, []);
 
+  const [templates, _setTemplates] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE) || "[]"
+    ) as TemplateChatStore[]
+  );
+  const [templateAPIs, _setTemplateAPIs] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API) || "[]"
+    ) as TemplateAPI[]
+  );
+  const [templateAPIsWhisper, _setTemplateAPIsWhisper] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_WHISPER) || "[]"
+    ) as TemplateAPI[]
+  );
+  const [templateAPIsTTS, _setTemplateAPIsTTS] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_TTS) || "[]"
+    ) as TemplateAPI[]
+  );
+  const [templateAPIsImageGen, _setTemplateAPIsImageGen] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_IMAGE_GEN) || "[]"
+    ) as TemplateAPI[]
+  );
+  const [templateTools, _setTemplateTools] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_TOOLS) || "[]"
+    ) as TemplateTools[]
+  );
+  const setTemplates = (templates: TemplateChatStore[]) => {
+    localStorage.setItem(STORAGE_NAME_TEMPLATE, JSON.stringify(templates));
+    _setTemplates(templates);
+  };
+  const setTemplateAPIs = (templateAPIs: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API,
+      JSON.stringify(templateAPIs)
+    );
+    _setTemplateAPIs(templateAPIs);
+  };
+  const setTemplateAPIsWhisper = (templateAPIWhisper: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API_WHISPER,
+      JSON.stringify(templateAPIWhisper)
+    );
+    _setTemplateAPIsWhisper(templateAPIWhisper);
+  };
+  const setTemplateAPIsTTS = (templateAPITTS: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API_TTS,
+      JSON.stringify(templateAPITTS)
+    );
+    _setTemplateAPIsTTS(templateAPITTS);
+  };
+  const setTemplateAPIsImageGen = (templateAPIImageGen: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
+      JSON.stringify(templateAPIImageGen)
+    );
+    _setTemplateAPIsImageGen(templateAPIImageGen);
+  };
+  const setTemplateTools = (templateTools: TemplateTools[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_TOOLS,
+      JSON.stringify(templateTools)
+    );
+    _setTemplateTools(templateTools);
+  };
+  console.log("[PERFORMANCE!] reading localStorage");
+
   return (
     <>
       <Sidebar>
@@ -410,13 +518,29 @@ export function App() {
             </div>
           </div>
         </header>
-        <ChatBOX
-          db={db}
-          chatStore={chatStore}
-          setChatStore={setChatStore}
-          selectedChatIndex={selectedChatIndex}
-          setSelectedChatIndex={setSelectedChatIndex}
-        />
+        <AppContext.Provider
+          value={{
+            db,
+            chatStore,
+            setChatStore,
+            selectedChatIndex,
+            setSelectedChatIndex,
+            templates,
+            setTemplates,
+            templateAPIs,
+            setTemplateAPIs,
+            templateAPIsWhisper,
+            setTemplateAPIsWhisper,
+            templateAPIsTTS,
+            setTemplateAPIsTTS,
+            templateAPIsImageGen,
+            setTemplateAPIsImageGen,
+            templateTools,
+            setTemplateTools,
+          }}
+        >
+          <ChatBOX />
+        </AppContext.Provider>
       </SidebarInset>
     </>
   );

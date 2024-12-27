@@ -1,14 +1,14 @@
+import { AppContext } from "@/pages/App";
 import { TemplateChatStore } from "@/types/chatstore";
 import { ChatStore } from "@/types/chatstore";
 import { getDefaultParams } from "@/utils/getDefaultParam";
+import { useContext } from "react";
 
-const Templates = (props: {
-  templates: TemplateChatStore[];
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
-  setTemplates: (templates: TemplateChatStore[]) => void;
-}) => {
-  const { templates, chatStore, setChatStore, setTemplates } = props;
+const Templates = () => {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
+  const { templates, chatStore, setChatStore, setTemplates } = ctx;
+
   return (
     <>
       {templates.map((t, index) => (
