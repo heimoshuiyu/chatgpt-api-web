@@ -161,7 +161,9 @@ export default function Search(props: {
                     props.setShow(false);
                   }}
                 >
-                  <div className="m-1 p-1 font-bold">{result.key as number}</div>
+                  <div className="m-1 p-1 font-bold">
+                    {result.key as number}
+                  </div>
                   <div className="m-1 p-1">{result.preview}</div>
                 </div>
               );

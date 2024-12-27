@@ -11,7 +11,7 @@ export function addTotalCost(cost: number) {
 
 export function getTotalCost(): number {
   let totalCost = parseFloat(
-    localStorage.getItem(STORAGE_NAME_TOTALCOST) ?? "0",
+    localStorage.getItem(STORAGE_NAME_TOTALCOST) ?? "0"
   );
   if (isNaN(totalCost)) {
     totalCost = 0;

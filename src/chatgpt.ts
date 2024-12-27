@@ -117,7 +117,7 @@ function calculate_token_length_from_text(text: string): number {
 }
 // https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
 export function calculate_token_length(
-  content: string | MessageDetail[],
+  content: string | MessageDetail[]
 ): number {
   if (typeof content === "string") {
     return calculate_token_length_from_text(content);
@@ -172,7 +172,7 @@ class Chat {
       presence_penalty = 0,
       frequency_penalty = 0,
       json_mode = false,
-    } = {},
+    } = {}
   ) {
     this.OPENAI_API_KEY = OPENAI_API_KEY ?? "";
     this.messages = [];
@@ -207,14 +207,14 @@ class Chat {
       }
       if (msg.role === "system") {
         console.log(
-          "Warning: detected system message in the middle of history",
+          "Warning: detected system message in the middle of history"
         );
       }
     }
     for (const msg of this.messages) {
       if (msg.name && msg.role !== "system") {
         console.log(
-          "Warning: detected message where name field set but role is system",
+          "Warning: detected message where name field set but role is system"
         );
       }
     }

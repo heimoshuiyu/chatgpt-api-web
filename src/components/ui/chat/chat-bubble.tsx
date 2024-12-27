@@ -6,25 +6,22 @@ import MessageLoading from "./message-loading";
 import { Button, ButtonProps } from "../button";
 
 // ChatBubble
-const chatBubbleVariant = cva(
-  "flex gap-2 items-end relative group",
-  {
-    variants: {
-      variant: {
-        received: "self-start",
-        sent: "self-end flex-row-reverse",
-      },
-      layout: {
-        default: "",
-        ai: "max-w-full w-full items-center",
-      },
+const chatBubbleVariant = cva("flex gap-2 items-end relative group", {
+  variants: {
+    variant: {
+      received: "self-start",
+      sent: "self-end flex-row-reverse",
     },
-    defaultVariants: {
-      variant: "received",
-      layout: "default",
+    layout: {
+      default: "",
+      ai: "max-w-full w-full items-center",
     },
-  }
-);
+  },
+  defaultVariants: {
+    variant: "received",
+    layout: "default",
+  },
+});
 
 interface ChatBubbleProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -181,9 +178,7 @@ const ChatBubbleActionWrapper = React.forwardRef<
     ref={ref}
     className={cn(
       "absolute z-50 translate-y-full flex opacity-0 group-hover:opacity-100 transition-opacity duration-200",
-      variant === "sent"
-        ? "flex-row-reverse"
-        : "",
+      variant === "sent" ? "flex-row-reverse" : "",
       className
     )}
     {...props}
