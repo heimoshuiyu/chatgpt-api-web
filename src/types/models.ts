@@ -7,7 +7,7 @@ interface Model {
   };
 }
 
-const M = 1000 / 1000; // dollars per million tokens
+const M = 1000 * 1000; // dollars per million tokens
 const K = 1000; // dollars per thousand tokens
 
 export const models: Record<string, Model> = {
@@ -37,19 +37,19 @@ export const models: Record<string, Model> = {
   },
   o1: {
     maxToken: 128000,
-    price: { prompt: 15 / M, cached_prompt: 7.5 / M, completion: 60 },
+    price: { prompt: 15 / M, cached_prompt: 7.5 / M, completion: 60 / M },
   },
   "o1-2024-12-17": {
     maxToken: 128000,
-    price: { prompt: 15 / M, cached_prompt: 7.5 / M, completion: 60 },
+    price: { prompt: 15 / M, cached_prompt: 7.5 / M, completion: 60 / M },
   },
   "o1-preview": {
     maxToken: 128000,
-    price: { prompt: 15 / M, cached_prompt: 7.5 / M, completion: 60 },
+    price: { prompt: 15 / M, cached_prompt: 7.5 / M, completion: 60 / M },
   },
   "o1-preview-2024-09-12": {
     maxToken: 128000,
-    price: { prompt: 15 / M, cached_prompt: 7.5 / M, completion: 60 },
+    price: { prompt: 15 / M, cached_prompt: 7.5 / M, completion: 60 / M },
   },
   "o1-mini": {
     maxToken: 128000,
@@ -93,7 +93,7 @@ export const models: Record<string, Model> = {
   },
   "gpt-4-1106-vision-preview": {
     maxToken: 128000,
-    price: { prompt: 0.01 / 1000, completion: 0.03 / 1000 },
+    price: { prompt: 10 / M, completion: 30 / M },
   },
   "gpt-3.5-turbo-0125": {
     maxToken: 16000,

@@ -237,17 +237,6 @@ export default function ChatBOX() {
 
   const _completeWithFetchMode = async (response: Response): Promise<Usage> => {
     const data = (await response.json()) as FetchResponse;
-    if (data.model) {
-      let cost = 0;
-      cost +=
-        (data.usage.prompt_tokens ?? 0) *
-        (models[data.model]?.price?.prompt ?? 0);
-      cost +=
-        (data.usage.completion_tokens ?? 0) *
-        (models[data.model]?.price?.completion ?? 0);
-      chatStore.cost += cost;
-      addTotalCost(cost);
-    }
     const msg = client.processFetchResponse(data);
 
     chatStore.history.push({
@@ -355,12 +344,30 @@ export default function ChatBOX() {
       // calculate cost
       if (usage.response_model_name) {
         let cost = 0;
-        cost +=
-          usage.prompt_tokens *
-          (models[usage.response_model_name]?.price?.prompt ?? 0);
+
+        if (usage.prompt_tokens_details) {
+          const cached_prompt_tokens =
+            usage.prompt_tokens_details.cached_tokens ?? 0;
+          const uncached_prompt_tokens =
+            usage.prompt_tokens - cached_prompt_tokens;
+          const prompt_price =
+            models[usage.response_model_name]?.price?.prompt ?? 0;
+          const cached_price =
+            models[usage.response_model_name]?.price?.cached_prompt ??
+            prompt_price;
+          cost +=
+            cached_prompt_tokens * cached_price +
+            uncached_prompt_tokens * prompt_price;
+        } else {
+          cost +=
+            usage.prompt_tokens *
+            (models[usage.response_model_name]?.price?.prompt ?? 0);
+        }
+
         cost +=
           usage.completion_tokens *
           (models[usage.response_model_name]?.price?.completion ?? 0);
+
         addTotalCost(cost);
         chatStore.cost += cost;
         console.log("cost", cost);
