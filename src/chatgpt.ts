@@ -49,10 +49,24 @@ interface LogprobsContent {
   logprob: number;
 }
 
+interface PromptTokensDetails {
+  cached_tokens: number;
+  audio_tokens: number;
+}
+
+interface CompletionTokensDetails {
+  reasoning_tokens: number;
+  audio_tokens: number;
+  accepted_prediction_tokens: number;
+  rejected_prediction_tokens: number;
+}
+
 export interface Usage {
   prompt_tokens: number;
   completion_tokens: number;
   total_tokens: number;
+  prompt_tokens_details: PromptTokensDetails | null;
+  completion_tokens_details: CompletionTokensDetails | null;
   response_model_name: string | null;
 }
 
@@ -96,11 +110,7 @@ export interface FetchResponse {
   object: string;
   created: number;
   model: string;
-  usage: {
-    prompt_tokens: number | undefined;
-    completion_tokens: number | undefined;
-    total_tokens: number | undefined;
-  };
+  usage: Usage;
   choices: {
     message: Message | undefined;
     finish_reason: "stop" | "length";
