@@ -49,10 +49,11 @@ interface LogprobsContent {
   logprob: number;
 }
 
-export interface StreamingUsage {
+export interface Usage {
   prompt_tokens: number;
   completion_tokens: number;
   total_tokens: number;
+  response_model_name: string | null;
 }
 
 export interface StreamingResponseChunk {
@@ -62,7 +63,7 @@ export interface StreamingResponseChunk {
   model: string;
   system_fingerprint: string;
   choices: Choices[];
-  usage: null | StreamingUsage;
+  usage: null | Usage;
 }
 export const getMessageText = (message: Message): string => {
   if (typeof message.content === "string") {

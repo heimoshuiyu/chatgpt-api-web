@@ -10,7 +10,7 @@ import ChatGPT, {
   MessageDetail,
   ToolCall,
   Logprobs,
-  StreamingUsage,
+  Usage,
 } from "@/chatgpt";
 import {
   ChatStore,
@@ -72,6 +72,7 @@ import {
 } from "@/components/ui/navigation-menu";
 
 import { AppContext } from "./App";
+import { addToRange } from "react-day-picker";
 
 export default function ChatBOX() {
   const ctx = useContext(AppContext);
@@ -115,7 +116,9 @@ export default function ChatBOX() {
 
   const client = new ChatGPT(chatStore.apiKey);
 
-  const _completeWithStreamMode = async (response: Response) => {
+  const _completeWithStreamMode = async (
+    response: Response
+  ): Promise<Usage> => {
     let responseTokenCount = 0;
     const allChunkMessage: string[] = [];
     const allChunkTool: ToolCall[] = [];
@@ -124,7 +127,7 @@ export default function ChatBOX() {
       content: [],
     };
     let response_model_name: string | null = null;
-    let usage: StreamingUsage | null = null;
+    let usage: Usage | null = null;
     for await (const i of client.processStreamResponse(response)) {
       response_model_name = i.model;
       responseTokenCount += 1;
@@ -187,36 +190,6 @@ export default function ChatBOX() {
     setShowGenerating(false);
     const content = allChunkMessage.join("");
 
-    // estimate cost
-    let cost = 0;
-    if (response_model_name) {
-      cost +=
-        responseTokenCount *
-        (models[response_model_name]?.price?.completion ?? 0);
-      let sum = 0;
-      for (const msg of chatStore.history
-        .filter(({ hide }) => !hide)
-        .slice(chatStore.postBeginIndex)) {
-        sum += msg.token;
-      }
-      cost += sum * (models[response_model_name]?.price?.prompt ?? 0);
-      if (usage) {
-        // use the response usage if exists
-        cost = 0;
-        cost +=
-          (usage.prompt_tokens ?? 0) *
-          (models[response_model_name]?.price?.prompt ?? 0);
-        cost +=
-          (usage.completion_tokens ?? 0) *
-          models[response_model_name]?.price?.completion;
-        console.log("usage", usage, "cost", cost);
-      }
-    }
-
-    console.log("cost", cost);
-    chatStore.cost += cost;
-    addTotalCost(cost);
-
     console.log("save logprobs", logprobs);
     const newMsg: ChatStoreMessage = {
       role: "assistant",
@@ -234,12 +207,31 @@ export default function ChatBOX() {
     // manually copy status from client to chatStore
     chatStore.maxTokens = client.max_tokens;
     chatStore.tokenMargin = client.tokens_margin;
-    setChatStore({ ...chatStore });
     setGeneratingMessage("");
     setShowGenerating(false);
+
+    const prompt_tokens = chatStore.history
+      .filter(({ hide }) => !hide)
+      .slice(chatStore.postBeginIndex, -1)
+      .reduce((acc, msg) => acc + msg.token, 0);
+    const ret: Usage = {
+      prompt_tokens: prompt_tokens,
+      completion_tokens: responseTokenCount,
+      total_tokens: prompt_tokens + responseTokenCount,
+      response_model_name: response_model_name,
+    };
+
+    if (usage) {
+      ret.prompt_tokens = usage.prompt_tokens ?? prompt_tokens;
+      ret.completion_tokens = usage.completion_tokens ?? responseTokenCount;
+      ret.total_tokens =
+        usage.total_tokens ?? prompt_tokens + responseTokenCount;
+    }
+
+    return ret;
   };
 
-  const _completeWithFetchMode = async (response: Response) => {
+  const _completeWithFetchMode = async (response: Response): Promise<Usage> => {
     const data = (await response.json()) as FetchResponse;
     if (data.model) {
       let cost = 0;
@@ -254,22 +246,6 @@ export default function ChatBOX() {
     }
     const msg = client.processFetchResponse(data);
 
-    // estimate user's input message token
-    let aboveToken = 0;
-    for (const msg of chatStore.history
-      .filter(({ hide }) => !hide)
-      .slice(chatStore.postBeginIndex, -1)) {
-      aboveToken += msg.token;
-    }
-    if (data.usage.prompt_tokens) {
-      const userMessageToken = data.usage.prompt_tokens - aboveToken;
-      console.log("set user message token");
-      if (chatStore.history.filter((msg) => !msg.hide).length > 0) {
-        chatStore.history.filter((msg) => !msg.hide).slice(-1)[0].token =
-          userMessageToken;
-      }
-    }
-
     chatStore.history.push({
       role: "assistant",
       content: msg.content,
@@ -283,6 +259,15 @@ export default function ChatBOX() {
       response_model_name: data.model,
     });
     setShowGenerating(false);
+
+    const ret: Usage = {
+      prompt_tokens: data.usage.prompt_tokens ?? 0,
+      completion_tokens: data.usage.completion_tokens ?? 0,
+      total_tokens: data.usage.total_tokens ?? 0,
+      response_model_name: data.model ?? null,
+    };
+
+    return ret;
   };
 
   // wrap the actuall complete api
@@ -333,19 +318,48 @@ export default function ChatBOX() {
         chatStore.logprobs
       );
       const contentType = response.headers.get("content-type");
+      let usage: Usage;
       if (contentType?.startsWith("text/event-stream")) {
-        await _completeWithStreamMode(response);
+        usage = await _completeWithStreamMode(response);
       } else if (contentType?.startsWith("application/json")) {
-        await _completeWithFetchMode(response);
+        usage = await _completeWithFetchMode(response);
       } else {
         throw `unknown response content type ${contentType}`;
       }
+
       // manually copy status from client to chatStore
       chatStore.maxTokens = client.max_tokens;
       chatStore.tokenMargin = client.tokens_margin;
       chatStore.totalTokens = client.total_tokens;
 
-      console.log("postBeginIndex", chatStore.postBeginIndex);
+      console.log("usage", usage);
+      // estimate user's input message token
+      const aboveTokens = chatStore.history
+        .filter(({ hide }) => !hide)
+        .slice(chatStore.postBeginIndex, -2)
+        .reduce((acc, msg) => acc + msg.token, 0);
+      const userMessage = chatStore.history
+        .filter(({ hide }) => !hide)
+        .slice(-2, -1)[0];
+      if (userMessage) {
+        userMessage.token = usage.prompt_tokens - aboveTokens;
+        console.log("estimate user message token", userMessage.token);
+      }
+      // [TODO]
+      // calculate cost
+      if (usage.response_model_name) {
+        let cost = 0;
+        cost +=
+          usage.prompt_tokens *
+          (models[usage.response_model_name]?.price?.prompt ?? 0);
+        cost +=
+          usage.completion_tokens *
+          (models[usage.response_model_name]?.price?.completion ?? 0);
+        addTotalCost(cost);
+        chatStore.cost += cost;
+        console.log("cost", cost);
+      }
+
       setShowRetry(false);
       setChatStore({ ...chatStore });
     } catch (error) {
