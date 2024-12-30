@@ -12,7 +12,7 @@ export async function upgrade(
     ChatStore,
     StoreNames<ChatStore>[],
     "versionchange"
-  >,
+  >
 ) {
   if (oldVersion < 1) {
     upgradeV1(db, oldVersion, newVersion, transaction);

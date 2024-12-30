@@ -10,7 +10,7 @@ export async function upgradeV11(
     ChatStore,
     StoreNames<ChatStore>[],
     "versionchange"
-  >,
+  >
 ) {
   if (oldVersion < 11 && oldVersion >= 1) {
     alert("Start upgrading storage, just a sec... (Click OK to continue)");

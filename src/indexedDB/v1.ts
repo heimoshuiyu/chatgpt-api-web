@@ -10,7 +10,7 @@ export async function upgradeV1(
     ChatStore,
     StoreNames<ChatStore>[],
     "versionchange"
-  >,
+  >
 ) {
   const store = db.createObjectStore(STORAGE_NAME, {
     autoIncrement: true,
@@ -18,7 +18,7 @@ export async function upgradeV1(
 
   // copy from localStorage to indexedDB
   const allChatStoreIndexes: number[] = JSON.parse(
-    localStorage.getItem(STORAGE_NAME_INDEXES) ?? "[]",
+    localStorage.getItem(STORAGE_NAME_INDEXES) ?? "[]"
   );
   let keyCount = 0;
   for (const i of allChatStoreIndexes) {
@@ -32,7 +32,7 @@ export async function upgradeV1(
   // setSelectedChatIndex(keyCount);
   if (keyCount > 0) {
     alert(
-      "v2.0.0 Update: Imported chat history from localStorage to indexedDB. 🎉",
+      "v2.0.0 Update: Imported chat history from localStorage to indexedDB. 🎉"
     );
   }
 }

@@ -1,4 +1,4 @@
-import { Logprobs, Message } from "@/chatgpt";
+import { Logprobs, Message, MessageDetail, ToolCall } from "@/chatgpt";
 
 /**
  * ChatStore is the main object of the chatgpt-api-web,
@@ -62,11 +62,17 @@ export interface TemplateTools {
  * ChatStoreMessage extends the Message type defined by OpenAI.
  * It adds more fields to be stored within the ChatStore structure.
  */
-export interface ChatStoreMessage extends Message {
+export interface ChatStoreMessage {
   hide: boolean;
   token: number;
   example: boolean;
   audio: Blob | null;
   logprobs: Logprobs | null;
   response_model_name: string | null;
+
+  role: "system" | "user" | "assistant" | "tool";
+  content: string | MessageDetail[];
+  name?: "example_user" | "example_assistant";
+  tool_calls?: ToolCall[];
+  tool_call_id?: string;
 }

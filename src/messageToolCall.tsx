@@ -39,7 +39,8 @@ export function MessageToolCall({ chat, copyToClipboard }: Props) {
           </p>
         </div>
       ))}
-      {chat.content}
+      {/* [TODO] */}
+      {chat.content as string}
     </div>
   );
 }

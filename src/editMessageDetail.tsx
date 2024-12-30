@@ -2,160 +2,190 @@ import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
 import { calculate_token_length } from "@/chatgpt";
 import { Tr } from "@/translate";
 
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+
+import { Button } from "./components/ui/button";
+import { useContext } from "react";
+import { AppContext } from "./pages/App";
+
 interface Props {
   chat: ChatStoreMessage;
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
   setShowEdit: (se: boolean) => void;
 }
-export function EditMessageDetail({
-  chat,
-  chatStore,
-  setChatStore,
-  setShowEdit,
-}: Props) {
+export function EditMessageDetail({ chat, setShowEdit }: Props) {
+  const ctx = useContext(AppContext);
+  if (!ctx) return <div>error</div>;
+
+  const { chatStore, setChatStore } = ctx;
+
   if (typeof chat.content !== "object") return <div>error</div>;
   return (
-    <div
-      className={"w-full h-full flex flex-col overflow-scroll"}
-      onClick={(event) => event.stopPropagation()}
-    >
-      {chat.content.map((mdt, index) => (
-        <div className={"w-full p-2 px-4"}>
-          <div className="flex justify-center">
-            {mdt.type === "text" ? (
-              <textarea
-                className={"w-full border p-1 rounded"}
-                value={mdt.text}
-                onChange={(event: any) => {
-                  if (typeof chat.content === "string") return;
-                  chat.content[index].text = event.target.value;
-                  chat.token = calculate_token_length(chat.content);
-                  console.log("calculated token length", chat.token);
-                  setChatStore({ ...chatStore });
-                }}
-                onKeyPress={(event: any) => {
-                  if (event.keyCode == 27) {
-                    setShowEdit(false);
-                  }
-                }}
-              ></textarea>
-            ) : (
-              <div className="border p-1 rounded">
-                <img
-                  className="max-h-32 max-w-xs cursor-pointer m-2"
-                  src={mdt.image_url?.url}
-                  onClick={() => {
-                    window.open(mdt.image_url?.url, "_blank");
-                  }}
-                />
-                <button
-                  className="bg-blue-300 p-1 rounded m-1"
-                  onClick={() => {
-                    const image_url = prompt("image url", mdt.image_url?.url);
-                    if (image_url) {
+    <Drawer open={true} onOpenChange={setShowEdit}>
+      <DrawerTrigger>Open</DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Edit Message Detail</DrawerTitle>
+          <DrawerDescription>
+            Modify the content of the message.
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className={"w-full h-full flex flex-col overflow-scroll"}>
+          {chat.content.map((mdt, index) => (
+            <div className={"w-full p-2 px-4"} key={index}>
+              <div className="flex justify-center">
+                {mdt.type === "text" ? (
+                  <textarea
+                    className={"w-full border p-1 rounded"}
+                    value={mdt.text}
+                    onChange={(event: any) => {
                       if (typeof chat.content === "string") return;
-                      const obj = chat.content[index].image_url;
-                      if (obj === undefined) return;
-                      obj.url = image_url;
+                      chat.content[index].text = event.target.value;
+                      chat.token = calculate_token_length(chat.content);
+                      console.log("calculated token length", chat.token);
                       setChatStore({ ...chatStore });
-                    }
-                  }}
-                >
-                  {Tr("Edit URL")}
-                </button>
-                <button
-                  className="bg-blue-300 p-1 rounded m-1"
-                  onClick={() => {
-                    // select file and load it to base64 image URL format
-                    const input = document.createElement("input");
-                    input.type = "file";
-                    input.accept = "image/*";
-                    input.onchange = (event) => {
-                      const file = (event.target as HTMLInputElement)
-                        .files?.[0];
-                      if (!file) {
-                        return;
+                    }}
+                    onKeyPress={(event: any) => {
+                      if (event.keyCode == 27) {
+                        setShowEdit(false);
                       }
-                      const reader = new FileReader();
-                      reader.readAsDataURL(file);
-                      reader.onloadend = () => {
-                        const base64data = reader.result;
-                        if (!base64data) return;
+                    }}
+                  ></textarea>
+                ) : (
+                  <div className="border p-1 rounded">
+                    <img
+                      className="max-h-32 max-w-xs cursor-pointer m-2"
+                      src={mdt.image_url?.url}
+                      onClick={() => {
+                        window.open(mdt.image_url?.url, "_blank");
+                      }}
+                    />
+                    <Button
+                      className="bg-blue-300 p-1 rounded m-1"
+                      onClick={() => {
+                        const image_url = prompt(
+                          "image url",
+                          mdt.image_url?.url
+                        );
+                        if (image_url) {
+                          if (typeof chat.content === "string") return;
+                          const obj = chat.content[index].image_url;
+                          if (obj === undefined) return;
+                          obj.url = image_url;
+                          setChatStore({ ...chatStore });
+                        }
+                      }}
+                    >
+                      {Tr("Edit URL")}
+                    </Button>
+                    <Button
+                      className="bg-blue-300 p-1 rounded m-1"
+                      onClick={() => {
+                        const input = document.createElement("input");
+                        input.type = "file";
+                        input.accept = "image/*";
+                        input.onchange = (event) => {
+                          const file = (event.target as HTMLInputElement)
+                            .files?.[0];
+                          if (!file) {
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.readAsDataURL(file);
+                          reader.onloadend = () => {
+                            const base64data = reader.result;
+                            if (!base64data) return;
+                            if (typeof chat.content === "string") return;
+                            const obj = chat.content[index].image_url;
+                            if (obj === undefined) return;
+                            obj.url = String(base64data);
+                            setChatStore({ ...chatStore });
+                          };
+                        };
+                        input.click();
+                      }}
+                    >
+                      {Tr("Upload")}
+                    </Button>
+                    <span
+                      className="bg-blue-300 p-1 rounded m-1"
+                      onClick={() => {
                         if (typeof chat.content === "string") return;
                         const obj = chat.content[index].image_url;
                         if (obj === undefined) return;
-                        obj.url = String(base64data);
+                        obj.detail = obj.detail === "high" ? "low" : "high";
+                        chat.token = calculate_token_length(chat.content);
                         setChatStore({ ...chatStore });
-                      };
-                    };
-                    input.click();
-                  }}
-                >
-                  {Tr("Upload")}
-                </button>
-                <span
-                  className="bg-blue-300 p-1 rounded m-1"
+                      }}
+                    >
+                      <label>High Resolution</label>
+                      <input
+                        type="checkbox"
+                        checked={mdt.image_url?.detail === "high"}
+                      />
+                    </span>
+                  </div>
+                )}
+                <Button
                   onClick={() => {
                     if (typeof chat.content === "string") return;
-                    const obj = chat.content[index].image_url;
-                    if (obj === undefined) return;
-                    obj.detail = obj.detail === "high" ? "low" : "high";
+                    chat.content.splice(index, 1);
                     chat.token = calculate_token_length(chat.content);
                     setChatStore({ ...chatStore });
                   }}
                 >
-                  <label>High Resolution</label>
-                  <input
-                    type="checkbox"
-                    checked={mdt.image_url?.detail === "high"}
-                  />
-                </span>
+                  ❌
+                </Button>
               </div>
-            )}
-
-            <button
-              onClick={() => {
-                if (typeof chat.content === "string") return;
-                chat.content.splice(index, 1);
-                chat.token = calculate_token_length(chat.content);
-                setChatStore({ ...chatStore });
-              }}
-            >
-              ❌
-            </button>
-          </div>
+            </div>
+          ))}
+          <Button
+            className={"m-2 p-1 rounded bg-green-500"}
+            onClick={() => {
+              if (typeof chat.content === "string") return;
+              chat.content.push({
+                type: "text",
+                text: "",
+              });
+              setChatStore({ ...chatStore });
+            }}
+          >
+            {Tr("Add text")}
+          </Button>
+          <Button
+            className={"m-2 p-1 rounded bg-green-500"}
+            onClick={() => {
+              if (typeof chat.content === "string") return;
+              chat.content.push({
+                type: "image_url",
+                image_url: {
+                  url: "",
+                  detail: "high",
+                },
+              });
+              setChatStore({ ...chatStore });
+            }}
+          >
+            {Tr("Add image")}
+          </Button>
         </div>
-      ))}
-      <button
-        className={"m-2 p-1 rounded bg-green-500"}
-        onClick={() => {
-          if (typeof chat.content === "string") return;
-          chat.content.push({
-            type: "text",
-            text: "",
-          });
-          setChatStore({ ...chatStore });
-        }}
-      >
-        {Tr("Add text")}
-      </button>
-      <button
-        className={"m-2 p-1 rounded bg-green-500"}
-        onClick={() => {
-          if (typeof chat.content === "string") return;
-          chat.content.push({
-            type: "image_url",
-            image_url: {
-              url: "",
-              detail: "high",
-            },
-          });
-          setChatStore({ ...chatStore });
-        }}
-      >
-        {Tr("Add image")}
-      </button>
-    </div>
+        <DrawerFooter>
+          <Button
+            className="bg-blue-500 p-2 rounded"
+            onClick={() => setShowEdit(false)}
+          >
+            {Tr("Close")}
+          </Button>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }

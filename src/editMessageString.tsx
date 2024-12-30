@@ -3,18 +3,20 @@ import { isVailedJSON } from "@/message";
 import { calculate_token_length } from "@/chatgpt";
 import { Tr } from "@/translate";
 
+import { Textarea } from "@/components/ui/textarea";
+import { useContext } from "react";
+import { AppContext } from "./pages/App";
+
 interface Props {
   chat: ChatStoreMessage;
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
   setShowEdit: (se: boolean) => void;
 }
-export function EditMessageString({
-  chat,
-  chatStore,
-  setChatStore,
-  setShowEdit,
-}: Props) {
+export function EditMessageString({ chat, setShowEdit }: Props) {
+  const ctx = useContext(AppContext);
+  if (!ctx) return <div>error</div>;
+
+  const { chatStore, setChatStore } = ctx;
+
   if (typeof chat.content !== "string") return <div>error</div>;
   return (
     <div className="flex flex-col">
@@ -69,7 +71,7 @@ export function EditMessageString({
                 onClick={() => {
                   if (!chat.tool_calls) return;
                   chat.tool_calls = chat.tool_calls.filter(
-                    (tc) => tc.id !== tool_call.id,
+                    (tc) => tc.id !== tool_call.id
                   );
                   setChatStore({ ...chatStore });
                 }}
@@ -100,20 +102,20 @@ export function EditMessageString({
             </span>
           </div>
         ))}
-      <textarea
-        className="rounded border border-gray-400 w-full h-32 my-2"
+      <Textarea
+        className="w-full h-32 my-2"
         value={chat.content}
-        onChange={(event: any) => {
+        onChange={(event) => {
           chat.content = event.target.value;
           chat.token = calculate_token_length(chat.content);
           setChatStore({ ...chatStore });
         }}
-        onKeyPress={(event: any) => {
+        onKeyPress={(event) => {
           if (event.keyCode == 27) {
             setShowEdit(false);
           }
         }}
-      ></textarea>
+      />
     </div>
   );
 }

@@ -1,8 +1,11 @@
 import { themeChange } from "theme-change";
-import { render } from "preact";
-import { useState, useEffect } from "preact/hooks";
+import { createRoot } from "react-dom/client";
+import { useState, useEffect } from "react";
 import { App } from "@/pages/App";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/theme-provider";
 
 function Base() {
   const [langCode, _setLangCode] = useState("en-US");
@@ -45,10 +48,16 @@ function Base() {
 
   return (
     /* @ts-ignore */
+
     <langCodeContext.Provider value={{ langCode, setLangCode }}>
-      <App />
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <SidebarProvider>
+          <App />
+          <Toaster />
+        </SidebarProvider>
+      </ThemeProvider>
     </langCodeContext.Provider>
   );
 }
 
-render(<Base />, document.getElementById("app") as HTMLElement);
+createRoot(document.getElementById("app") as HTMLElement).render(<Base />);

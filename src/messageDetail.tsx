@@ -28,7 +28,7 @@ export function MessageDetail({ chat, renderMarkdown }: Props) {
               window.open(mdt.image_url?.url, "_blank");
             }}
           />
-        ),
+        )
       )}
     </div>
   );

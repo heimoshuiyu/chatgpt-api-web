@@ -1,8 +1,30 @@
 import { IDBPDatabase } from "idb";
-import { StateUpdater, useRef, useState, Dispatch } from "preact/hooks";
+import { useRef, useState, Dispatch, useContext } from "react";
 
 import { ChatStore } from "@/types/chatstore";
 import { MessageDetail } from "./chatgpt";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+import { Input } from "./components/ui/input";
+import { AppContext } from "./pages/App";
 
 interface ChatStoreSearchResult {
   key: IDBValidKey;
@@ -12,11 +34,13 @@ interface ChatStoreSearchResult {
 }
 
 export default function Search(props: {
-  db: Promise<IDBPDatabase<ChatStore>>;
-  setSelectedChatIndex: Dispatch<StateUpdater<number>>;
-  chatStore: ChatStore;
+  show: boolean;
   setShow: (show: boolean) => void;
 }) {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
+  const { setSelectedChatIndex, db } = ctx;
+
   const [searchResult, setSearchResult] = useState<ChatStoreSearchResult[]>([]);
   const [searching, setSearching] = useState<boolean>(false);
   const [searchingNow, setSearchingNow] = useState<number>(0);
@@ -24,29 +48,15 @@ export default function Search(props: {
   const searchAbortRef = useRef<AbortController | null>(null);
 
   return (
-    <div
-      onClick={() => props.setShow(false)}
-      className="left-0 top-0 overflow-scroll flex justify-center absolute w-screen h-full bg-black bg-opacity-50 z-10"
-    >
-      <div
-        onClick={(event: any) => {
-          event.stopPropagation();
-        }}
-        className="m-2 p-2 bg-base-300 rounded-lg h-fit w-2/3 z-20"
-      >
-        <div className="flex justify-between">
-          <span className="m-1 p-1 font-bold">Search</span>
-          <button
-            className="m-1 p-1 btn btn-sm btn-secondary"
-            onClick={() => props.setShow(false)}
-          >
-            Close
-          </button>
-        </div>
+    <Dialog open={props.show} onOpenChange={props.setShow}>
+      <DialogContent className="sm:max-w-[80%]">
+        <DialogHeader>
+          <DialogTitle>Search</DialogTitle>
+          <DialogDescription>Search messages by content.</DialogDescription>
+        </DialogHeader>
         <div>
-          <input
+          <Input
             autoFocus
-            className="input input-bordered w-full border"
             type="text"
             placeholder="Type Something..."
             onInput={async (event: any) => {
@@ -68,8 +78,8 @@ export default function Search(props: {
 
               setSearching(true);
 
-              const db = await props.db;
-              const resultKeys = await db.getAllKeys("chatgpt-api-web");
+              const idb = await db;
+              const resultKeys = await idb.getAllKeys("chatgpt-api-web");
 
               const result: ChatStoreSearchResult[] = [];
               for (const key of resultKeys) {
@@ -79,11 +89,11 @@ export default function Search(props: {
                 }
 
                 const now = Math.floor(
-                  (result.length / resultKeys.length) * 100,
+                  (result.length / resultKeys.length) * 100
                 );
                 if (now !== searchingNow) setSearchingNow(now);
 
-                const value: ChatStore = await db.get("chatgpt-api-web", key);
+                const value: ChatStore = await idb.get("chatgpt-api-web", key);
 
                 let preview: string = "";
                 for (const msg of value.history) {
@@ -94,7 +104,7 @@ export default function Search(props: {
                     const beginIndex = msg.content.indexOf(query);
                     preview = msg.content.slice(
                       Math.max(0, beginIndex - 100),
-                      Math.min(msg.content.length, beginIndex + 239),
+                      Math.min(msg.content.length, beginIndex + 239)
                     ) as string;
                     break;
                   } else if (contentType === "object") {
@@ -105,7 +115,7 @@ export default function Search(props: {
                       const beginIndex = detail.text.indexOf(query);
                       preview = detail.text.slice(
                         Math.max(0, beginIndex - 100),
-                        Math.min(detail.text.length, beginIndex + 239),
+                        Math.min(detail.text.length, beginIndex + 239)
                       ) as string;
                       break;
                     }
@@ -147,53 +157,49 @@ export default function Search(props: {
               return (
                 <div
                   className="flex justify-start p-1 m-1 rounded border bg-base-200 cursor-pointer"
-                  key={result.key}
+                  key={result.key as number}
                   onClick={() => {
-                    props.setSelectedChatIndex(parseInt(result.key.toString()));
+                    setSelectedChatIndex(parseInt(result.key.toString()));
                     props.setShow(false);
                   }}
                 >
-                  <div className="m-1 p-1 font-bold">{result.key}</div>
+                  <div className="m-1 p-1 font-bold">
+                    {result.key as number}
+                  </div>
                   <div className="m-1 p-1">{result.preview}</div>
                 </div>
               );
             })}
         </div>
         {searchResult.length > 0 && (
-          <div className="flex justify-center my-2">
-            <div className="join">
-              <button
-                className="join-item btn btn-sm"
-                disabled={pageIndex === 0}
-                onClick={() => {
-                  if (pageIndex === 0) {
-                    return;
-                  }
-                  setPageIndex(pageIndex - 1);
-                }}
-              >
-                «
-              </button>
-              <button className="join-item btn btn-sm">
-                Page {pageIndex + 1} /{" "}
-                {Math.floor(searchResult.length / 10) + 1}
-              </button>
-              <button
-                className="join-item btn btn-sm"
-                disabled={pageIndex === Math.floor(searchResult.length / 10)}
-                onClick={() => {
-                  if (pageIndex === Math.floor(searchResult.length / 10)) {
-                    return;
-                  }
-                  setPageIndex(pageIndex + 1);
-                }}
-              >
-                »
-              </button>
-            </div>
-          </div>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => {
+                    if (pageIndex === 0) return;
+                    setPageIndex(pageIndex - 1);
+                  }}
+                  // disabled={pageIndex === 0}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                {pageIndex + 1} of {Math.floor(searchResult.length / 10) + 1}
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => {
+                    if (pageIndex === Math.floor(searchResult.length / 10))
+                      return;
+                    setPageIndex(pageIndex + 1);
+                  }}
+                  // disabled={pageIndex === Math.floor(searchResult.length / 10)}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

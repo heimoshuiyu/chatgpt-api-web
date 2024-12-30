@@ -1,21 +1,124 @@
-import { openDB } from "idb";
-import { useEffect, useState } from "preact/hooks";
+import { IDBPDatabase, openDB } from "idb";
+import { createContext, useEffect, useState } from "react";
 import "@/global.css";
 
 import { calculate_token_length } from "@/chatgpt";
 import { getDefaultParams } from "@/utils/getDefaultParam";
 import ChatBOX from "@/pages/Chatbox";
+import { models } from "@/types/models";
 import { DefaultModel } from "@/const";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { ChatStore } from "@/types/chatstore";
 import { newChatStore } from "@/types/newChatstore";
 import { STORAGE_NAME, STORAGE_NAME_SELECTED } from "@/const";
 import { upgrade } from "@/indexedDB/upgrade";
+import { getTotalCost } from "@/utils/totalCost";
+
+import {
+  STORAGE_NAME_TEMPLATE,
+  STORAGE_NAME_TEMPLATE_API,
+  STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
+  STORAGE_NAME_TEMPLATE_API_TTS,
+  STORAGE_NAME_TEMPLATE_API_WHISPER,
+  STORAGE_NAME_TEMPLATE_TOOLS,
+} from "@/const";
+import {
+  ChatStoreMessage,
+  TemplateChatStore,
+  TemplateAPI,
+  TemplateTools,
+} from "../types/chatstore";
+
+interface AppContextType {
+  db: Promise<IDBPDatabase<ChatStore>>;
+  chatStore: ChatStore;
+  setChatStore: (cs: ChatStore) => void;
+  selectedChatIndex: number;
+  setSelectedChatIndex: (i: number) => void;
+  templates: TemplateChatStore[];
+  setTemplates: (t: TemplateChatStore[]) => void;
+  templateAPIs: TemplateAPI[];
+  setTemplateAPIs: (t: TemplateAPI[]) => void;
+  templateAPIsWhisper: TemplateAPI[];
+  setTemplateAPIsWhisper: (t: TemplateAPI[]) => void;
+  templateAPIsTTS: TemplateAPI[];
+  setTemplateAPIsTTS: (t: TemplateAPI[]) => void;
+  templateAPIsImageGen: TemplateAPI[];
+  setTemplateAPIsImageGen: (t: TemplateAPI[]) => void;
+  templateTools: TemplateTools[];
+  setTemplateTools: (t: TemplateTools[]) => void;
+}
+
+export const AppContext = createContext<AppContextType | null>(null);
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarCheckboxItem,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
+import {
+  BoxesIcon,
+  ArrowUpDownIcon,
+  CircleDollarSignIcon,
+  ScissorsIcon,
+  WholeWordIcon,
+  EllipsisIcon,
+  CogIcon,
+  Menu,
+  ReceiptIcon,
+  WalletIcon,
+  RulerIcon,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export function App() {
   // init selected index
   const [selectedChatIndex, setSelectedChatIndex] = useState(
-    parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "1"),
+    parseInt(localStorage.getItem(STORAGE_NAME_SELECTED) ?? "1")
   );
   console.log("selectedChatIndex", selectedChatIndex);
   useEffect(() => {
@@ -26,6 +129,8 @@ export function App() {
   const db = openDB<ChatStore>(STORAGE_NAME, 11, {
     upgrade,
   });
+
+  const { toast } = useToast();
 
   const getChatStoreByIndex = async (index: number): Promise<ChatStore> => {
     const ret: ChatStore = await (await db).get(STORAGE_NAME, index);
@@ -54,7 +159,7 @@ export function App() {
     const max = chatStore.maxTokens - chatStore.tokenMargin;
     let sum = 0;
     chatStore.postBeginIndex = chatStore.history.filter(
-      ({ hide }) => !hide,
+      ({ hide }) => !hide
     ).length;
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -69,7 +174,7 @@ export function App() {
 
     // manually estimate token
     chatStore.totalTokens = calculate_token_length(
-      chatStore.systemMessageContent,
+      chatStore.systemMessageContent
     );
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -82,7 +187,7 @@ export function App() {
 
     // update total tokens
     chatStore.totalTokens = calculate_token_length(
-      chatStore.systemMessageContent,
+      chatStore.systemMessageContent
     );
     for (const msg of chatStore.history
       .filter(({ hide }) => !hide)
@@ -101,7 +206,7 @@ export function App() {
 
   // all chat store indexes
   const [allChatStoreIndexes, setAllChatStoreIndexes] = useState<IDBValidKey>(
-    [],
+    []
   );
 
   const handleNewChatStoreWithOldOne = async (chatStore: ChatStore) => {
@@ -114,7 +219,6 @@ export function App() {
   };
 
   const handleDEL = async () => {
-    if (!confirm("Are you sure you want to delete this chat history?")) return;
     console.log("remove item", `${STORAGE_NAME}-${selectedChatIndex}`);
     (await db).delete(STORAGE_NAME, selectedChatIndex);
     const newAllChatStoreIndexes = await (await db).getAllKeys(STORAGE_NAME);
@@ -129,6 +233,11 @@ export function App() {
     console.log("next is", next);
     setSelectedChatIndex(next as number);
     setAllChatStoreIndexes(newAllChatStoreIndexes);
+
+    toast({
+      title: "Chat history deleted",
+      description: `Chat history ${selectedChatIndex} has been deleted.`,
+    });
   };
 
   const handleCLS = async () => {
@@ -175,61 +284,264 @@ export function App() {
     run();
   }, []);
 
+  const [templates, _setTemplates] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE) || "[]"
+    ) as TemplateChatStore[]
+  );
+  const [templateAPIs, _setTemplateAPIs] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API) || "[]"
+    ) as TemplateAPI[]
+  );
+  const [templateAPIsWhisper, _setTemplateAPIsWhisper] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_WHISPER) || "[]"
+    ) as TemplateAPI[]
+  );
+  const [templateAPIsTTS, _setTemplateAPIsTTS] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_TTS) || "[]"
+    ) as TemplateAPI[]
+  );
+  const [templateAPIsImageGen, _setTemplateAPIsImageGen] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_IMAGE_GEN) || "[]"
+    ) as TemplateAPI[]
+  );
+  const [templateTools, _setTemplateTools] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_TOOLS) || "[]"
+    ) as TemplateTools[]
+  );
+  const setTemplates = (templates: TemplateChatStore[]) => {
+    localStorage.setItem(STORAGE_NAME_TEMPLATE, JSON.stringify(templates));
+    _setTemplates(templates);
+  };
+  const setTemplateAPIs = (templateAPIs: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API,
+      JSON.stringify(templateAPIs)
+    );
+    _setTemplateAPIs(templateAPIs);
+  };
+  const setTemplateAPIsWhisper = (templateAPIWhisper: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API_WHISPER,
+      JSON.stringify(templateAPIWhisper)
+    );
+    _setTemplateAPIsWhisper(templateAPIWhisper);
+  };
+  const setTemplateAPIsTTS = (templateAPITTS: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API_TTS,
+      JSON.stringify(templateAPITTS)
+    );
+    _setTemplateAPIsTTS(templateAPITTS);
+  };
+  const setTemplateAPIsImageGen = (templateAPIImageGen: TemplateAPI[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
+      JSON.stringify(templateAPIImageGen)
+    );
+    _setTemplateAPIsImageGen(templateAPIImageGen);
+  };
+  const setTemplateTools = (templateTools: TemplateTools[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_TOOLS,
+      JSON.stringify(templateTools)
+    );
+    _setTemplateTools(templateTools);
+  };
+  console.log("[PERFORMANCE!] reading localStorage");
+
   return (
-    <div className="flex text-sm h-full">
-      <div className="flex flex-col h-full p-2 bg-primary">
-        <div className="grow overflow-scroll">
-          <button
-            className="btn btn-sm btn-info p-1 my-1 w-full"
-            onClick={handleNewChatStore}
-          >
-            {Tr("NEW")}
-          </button>
-          <ul className="pt-2">
-            {(allChatStoreIndexes as number[])
-              .slice()
-              .reverse()
-              .map((i) => {
-                // reverse
-                return (
-                  <li>
-                    <button
-                      className={`w-full my-1 p-1 btn btn-sm ${
-                        i === selectedChatIndex ? "btn-accent" : "btn-secondary"
-                      }`}
-                      onClick={() => setSelectedChatIndex(i)}
-                    >
-                      {i}
-                    </button>
-                  </li>
-                );
-              })}
-          </ul>
-        </div>
-        <div>
-          <button
-            className="btn btn-warning btn-sm p-1 my-1 w-full"
-            onClick={async () => handleDEL()}
-          >
-            {Tr("DEL")}
-          </button>
+    <>
+      <Sidebar>
+        <SidebarHeader>
+          <Button onClick={handleNewChatStore}>
+            <span>{Tr("New")}</span>
+          </Button>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Conversation</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {(allChatStoreIndexes as number[])
+                  .slice()
+                  .reverse()
+                  .map((i) => {
+                    // reverse
+                    return (
+                      <SidebarMenuItem
+                        key={i}
+                        onClick={() => setSelectedChatIndex(i)}
+                      >
+                        <SidebarMenuButton
+                          asChild
+                          isActive={i === selectedChatIndex}
+                        >
+                          <span>{i}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">{Tr("DEL")}</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the
+                  chat history.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDEL}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
           {chatStore.develop_mode && (
-            <button
-              className="btn btn-sm btn-warning p-1 my-1 w-full"
-              onClick={async () => handleCLS()}
-            >
-              {Tr("CLS")}
-            </button>
+            <Button onClick={handleCLS} variant="destructive">
+              <span>{Tr("CLS")}</span>
+            </Button>
           )}
-        </div>
-      </div>
-      <ChatBOX
-        db={db}
-        chatStore={chatStore}
-        setChatStore={setChatStore}
-        selectedChatIndex={selectedChatIndex}
-        setSelectedChatIndex={setSelectedChatIndex}
-      />
-    </div>
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+      <SidebarInset>
+        <header className="flex sticky top-0 bg-background h-16 shrink-0 items-center gap-2 border-b z-50">
+          <div className="flex items-center gap-2 px-3">
+            <SidebarTrigger />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <h1 className="text-lg font-bold">{chatStore.model}</h1>
+            <div className="flex justify-between items-center gap-2">
+              <div>
+                <div className="dropdown lg:hidden flex items-center gap-2">
+                  <Badge variant="outline">
+                    {chatStore.totalTokens.toString()}
+                  </Badge>
+                  <Popover>
+                    <PopoverTrigger>
+                      <EllipsisIcon />
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <p>
+                        Tokens: {chatStore.totalTokens}/{chatStore.maxTokens}
+                      </p>
+                      <p>
+                        Cut(s): {chatStore.postBeginIndex}/
+                        {chatStore.history.filter(({ hide }) => !hide).length}
+                      </p>
+                      <p>
+                        Cost: ${chatStore.cost?.toFixed(4)} / $
+                        {getTotalCost().toFixed(2)}
+                      </p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="hidden lg:inline-grid">
+                  <Menubar>
+                    <MenubarMenu>
+                      <MenubarTrigger>
+                        <WholeWordIcon className="w-4 h-4 mr-2" />{" "}
+                        {chatStore.totalTokens}
+                        <CircleDollarSignIcon className="w-4 h-4 mx-2" />
+                        {chatStore.cost?.toFixed(4)}
+                      </MenubarTrigger>
+                      <MenubarContent>
+                        <MenubarItem>
+                          <RulerIcon className="w-4 h-4 mr-2" />
+                          Max Length: {chatStore.maxTokens}
+                        </MenubarItem>
+                        <MenubarItem>
+                          <ReceiptIcon className="w-4 h-4 mr-2" />
+                          Price:{" "}
+                          {models[chatStore.model]?.price?.prompt * 1000 * 1000}
+                          $ / 1M input tokens
+                        </MenubarItem>
+                        <MenubarItem>
+                          <WalletIcon className="w-4 h-4 mr-2" />
+                          Total: {getTotalCost().toFixed(2)}$
+                        </MenubarItem>
+                        <MenubarItem>
+                          <ArrowUpDownIcon className="w-4 h-4 mr-2" />
+                          {chatStore.streamMode ? (
+                            <>
+                              <span>{Tr("STREAM")}</span>·
+                              <span style={{ color: "gray" }}>
+                                {Tr("FETCH")}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span style={{ color: "gray" }}>
+                                {Tr("STREAM")}
+                              </span>
+                              ·<span>{Tr("FETCH")}</span>
+                            </>
+                          )}
+                        </MenubarItem>
+                        <MenubarItem>
+                          <ScissorsIcon className="w-4 h-4 mr-2" />
+                          {chatStore.postBeginIndex} /{" "}
+                          {chatStore.history.length}
+                        </MenubarItem>
+                        <MenubarSeparator />
+                        <MenubarItem disabled>
+                          Switch to Model (TODO):
+                        </MenubarItem>
+                        <MenubarCheckboxItem checked>
+                          gpt-4o
+                        </MenubarCheckboxItem>
+                        <MenubarCheckboxItem>gpt-o1</MenubarCheckboxItem>
+                        <MenubarCheckboxItem>gpt-o1-mini</MenubarCheckboxItem>
+                        <MenubarCheckboxItem>gpt-o3</MenubarCheckboxItem>
+                      </MenubarContent>
+                    </MenubarMenu>
+                  </Menubar>
+                </div>
+              </div>
+              <ModeToggle />
+            </div>
+          </div>
+        </header>
+        <AppContext.Provider
+          value={{
+            db,
+            chatStore,
+            setChatStore,
+            selectedChatIndex,
+            setSelectedChatIndex,
+            templates,
+            setTemplates,
+            templateAPIs,
+            setTemplateAPIs,
+            templateAPIsWhisper,
+            setTemplateAPIsWhisper,
+            templateAPIsTTS,
+            setTemplateAPIsTTS,
+            templateAPIsImageGen,
+            setTemplateAPIsImageGen,
+            templateTools,
+            setTemplateTools,
+          }}
+        >
+          <ChatBOX />
+        </AppContext.Provider>
+      </SidebarInset>
+    </>
   );
 }

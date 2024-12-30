@@ -1,24 +1,38 @@
-import { createRef } from "preact";
+import { createRef, useContext } from "react";
 
 import { ChatStore } from "@/types/chatstore";
-import { StateUpdater, useEffect, useState, Dispatch } from "preact/hooks";
+import { useEffect, useState, Dispatch } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  AudioWaveform,
+  AudioWaveformIcon,
+  CircleStopIcon,
+  MicIcon,
+  VoicemailIcon,
+} from "lucide-react";
+import { AppContext } from "@/pages/App";
 
 const WhisperButton = (props: {
-  chatStore: ChatStore;
   inputMsg: string;
-  setInputMsg: Dispatch<StateUpdater<string>>;
+  setInputMsg: Dispatch<string>;
 }) => {
-  const { chatStore, inputMsg, setInputMsg } = props;
+  const ctx = useContext(AppContext);
+  if (!ctx) return <div>error</div>;
+  const { chatStore } = ctx;
+
+  const { inputMsg, setInputMsg } = props;
   const mediaRef = createRef();
   const [isRecording, setIsRecording] = useState("Mic");
   return (
-    <button
-      className={`btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1 ${
-        isRecording === "Recording" ? "btn-error" : "btn-success"
-      } ${isRecording !== "Mic" ? "animate-pulse" : ""}`}
+    <Button
+      variant="ghost"
+      size="icon"
+      className={`m-1 p-1 ${isRecording !== "Mic" ? "animate-pulse" : ""}`}
       disabled={isRecording === "Transcribing"}
-      ref={mediaRef}
-      onClick={async () => {
+      ref={mediaRef as any}
+      onClick={async (event) => {
+        event.preventDefault(); // Prevent the default behavior
+
         if (isRecording === "Recording") {
           // @ts-ignore
           window.mediaRecorder.stop();
@@ -38,7 +52,7 @@ const WhisperButton = (props: {
                 } else {
                   return content.map((c) => c?.text).join(" ");
                 }
-              }),
+              })
           )
           .concat([inputMsg])
           .join(" ");
@@ -52,7 +66,7 @@ const WhisperButton = (props: {
             await navigator.mediaDevices.getUserMedia({
               audio: true,
             }),
-            { audioBitsPerSecond: 64 * 1000 },
+            { audioBitsPerSecond: 64 * 1000 }
           );
 
           // mount mediaRecorder to ref
@@ -124,8 +138,14 @@ const WhisperButton = (props: {
         }
       }}
     >
-      {isRecording}
-    </button>
+      {isRecording === "Mic" ? (
+        <MicIcon />
+      ) : isRecording === "Recording" ? (
+        <CircleStopIcon />
+      ) : (
+        <AudioWaveformIcon />
+      )}
+    </Button>
   );
 };
 

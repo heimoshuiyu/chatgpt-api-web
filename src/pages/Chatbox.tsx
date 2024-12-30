@@ -1,15 +1,7 @@
 import { IDBPDatabase } from "idb";
-import { createRef } from "preact";
-import { StateUpdater, useEffect, useState, Dispatch } from "preact/hooks";
+import { useContext, useRef } from "react";
+import { useEffect, useState, Dispatch } from "react";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
-import {
-  STORAGE_NAME_TEMPLATE,
-  STORAGE_NAME_TEMPLATE_API,
-  STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
-  STORAGE_NAME_TEMPLATE_API_TTS,
-  STORAGE_NAME_TEMPLATE_API_WHISPER,
-  STORAGE_NAME_TEMPLATE_TOOLS,
-} from "@/const";
 import { addTotalCost, getTotalCost } from "@/utils/totalCost";
 import ChatGPT, {
   calculate_token_length,
@@ -18,7 +10,7 @@ import ChatGPT, {
   MessageDetail,
   ToolCall,
   Logprobs,
-  StreamingUsage,
+  Usage,
 } from "@/chatgpt";
 import {
   ChatStore,
@@ -29,7 +21,7 @@ import {
 } from "../types/chatstore";
 import Message from "@/message";
 import { models } from "@/types/models";
-import Settings from "@/settings";
+import Settings from "@/components/Settings";
 import { AddImage } from "@/addImage";
 import { ListAPIs } from "@/listAPIs";
 import { ListToolsTempaltes } from "@/listToolsTemplates";
@@ -40,15 +32,58 @@ import VersionHint from "@/components/VersionHint";
 import StatusBar from "@/components/StatusBar";
 import WhisperButton from "@/components/WhisperButton";
 import AddToolMsg from "./AddToolMsg";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ChatInput } from "@/components/ui/chat/chat-input";
+import {
+  ChatBubble,
+  ChatBubbleAvatar,
+  ChatBubbleMessage,
+  ChatBubbleAction,
+  ChatBubbleActionWrapper,
+} from "@/components/ui/chat/chat-bubble";
 
-export default function ChatBOX(props: {
-  db: Promise<IDBPDatabase<ChatStore>>;
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
-  selectedChatIndex: number;
-  setSelectedChatIndex: Dispatch<StateUpdater<number>>;
-}) {
-  const { chatStore, setChatStore } = props;
+import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
+import {
+  AlertTriangleIcon,
+  ArrowUpIcon,
+  CornerDownLeftIcon,
+  CornerLeftUpIcon,
+  CornerUpLeftIcon,
+  GlobeIcon,
+  ImageIcon,
+  InfoIcon,
+  KeyIcon,
+  SearchIcon,
+  Settings2,
+  Settings2Icon,
+} from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+
+import { AppContext } from "./App";
+import { addToRange } from "react-day-picker";
+
+export default function ChatBOX() {
+  const ctx = useContext(AppContext);
+  if (ctx === null) return <></>;
+  const {
+    db,
+    chatStore,
+    setChatStore,
+    selectedChatIndex,
+    setSelectedChatIndex,
+  } = ctx;
   // prevent error
   if (chatStore === undefined) return <div></div>;
   const [inputMsg, setInputMsg] = useState("");
@@ -71,16 +106,19 @@ export default function ChatBOX(props: {
     _setFollow(follow);
   };
 
-  const messagesEndRef = createRef();
+  const messagesEndRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (follow) {
+      if (messagesEndRef.current === null) return;
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [showRetry, showGenerating, generatingMessage]);
 
   const client = new ChatGPT(chatStore.apiKey);
 
-  const _completeWithStreamMode = async (response: Response) => {
+  const _completeWithStreamMode = async (
+    response: Response
+  ): Promise<Usage> => {
     let responseTokenCount = 0;
     const allChunkMessage: string[] = [];
     const allChunkTool: ToolCall[] = [];
@@ -89,7 +127,7 @@ export default function ChatBOX(props: {
       content: [],
     };
     let response_model_name: string | null = null;
-    let usage: StreamingUsage | null = null;
+    let usage: Usage | null = null;
     for await (const i of client.processStreamResponse(response)) {
       response_model_name = i.model;
       responseTokenCount += 1;
@@ -131,7 +169,7 @@ export default function ChatBOX(props: {
 
           // update tool call arguments
           const tool = allChunkTool.find(
-            (tool) => tool.index === tool_call.index,
+            (tool) => tool.index === tool_call.index
           );
 
           if (!tool) {
@@ -146,41 +184,11 @@ export default function ChatBOX(props: {
         allChunkMessage.join("") +
           allChunkTool.map((tool) => {
             return `Tool Call ID: ${tool.id}\nType: ${tool.type}\nFunction: ${tool.function.name}\nArguments: ${tool.function.arguments}`;
-          }),
+          })
       );
     }
     setShowGenerating(false);
     const content = allChunkMessage.join("");
-
-    // estimate cost
-    let cost = 0;
-    if (response_model_name) {
-      cost +=
-        responseTokenCount *
-        (models[response_model_name]?.price?.completion ?? 0);
-      let sum = 0;
-      for (const msg of chatStore.history
-        .filter(({ hide }) => !hide)
-        .slice(chatStore.postBeginIndex)) {
-        sum += msg.token;
-      }
-      cost += sum * (models[response_model_name]?.price?.prompt ?? 0);
-      if (usage) {
-        // use the response usage if exists
-        cost = 0;
-        cost +=
-          (usage.prompt_tokens ?? 0) *
-          (models[response_model_name]?.price?.prompt ?? 0);
-        cost +=
-          (usage.completion_tokens ?? 0) *
-          models[response_model_name]?.price?.completion;
-        console.log("usage", usage, "cost", cost);
-      }
-    }
-
-    console.log("cost", cost);
-    chatStore.cost += cost;
-    addTotalCost(cost);
 
     console.log("save logprobs", logprobs);
     const newMsg: ChatStoreMessage = {
@@ -199,41 +207,37 @@ export default function ChatBOX(props: {
     // manually copy status from client to chatStore
     chatStore.maxTokens = client.max_tokens;
     chatStore.tokenMargin = client.tokens_margin;
-    setChatStore({ ...chatStore });
     setGeneratingMessage("");
     setShowGenerating(false);
+
+    const prompt_tokens = chatStore.history
+      .filter(({ hide }) => !hide)
+      .slice(chatStore.postBeginIndex, -1)
+      .reduce((acc, msg) => acc + msg.token, 0);
+    const ret: Usage = {
+      prompt_tokens: prompt_tokens,
+      completion_tokens: responseTokenCount,
+      total_tokens: prompt_tokens + responseTokenCount,
+      response_model_name: response_model_name,
+      prompt_tokens_details: null,
+      completion_tokens_details: null,
+    };
+
+    if (usage) {
+      ret.prompt_tokens = usage.prompt_tokens ?? prompt_tokens;
+      ret.completion_tokens = usage.completion_tokens ?? responseTokenCount;
+      ret.total_tokens =
+        usage.total_tokens ?? prompt_tokens + responseTokenCount;
+      ret.prompt_tokens_details = usage.prompt_tokens_details ?? null;
+      ret.completion_tokens_details = usage.completion_tokens_details ?? null;
+    }
+
+    return ret;
   };
 
-  const _completeWithFetchMode = async (response: Response) => {
+  const _completeWithFetchMode = async (response: Response): Promise<Usage> => {
     const data = (await response.json()) as FetchResponse;
-    if (data.model) {
-      let cost = 0;
-      cost +=
-        (data.usage.prompt_tokens ?? 0) *
-        (models[data.model]?.price?.prompt ?? 0);
-      cost +=
-        (data.usage.completion_tokens ?? 0) *
-        (models[data.model]?.price?.completion ?? 0);
-      chatStore.cost += cost;
-      addTotalCost(cost);
-    }
     const msg = client.processFetchResponse(data);
-
-    // estimate user's input message token
-    let aboveToken = 0;
-    for (const msg of chatStore.history
-      .filter(({ hide }) => !hide)
-      .slice(chatStore.postBeginIndex, -1)) {
-      aboveToken += msg.token;
-    }
-    if (data.usage.prompt_tokens) {
-      const userMessageToken = data.usage.prompt_tokens - aboveToken;
-      console.log("set user message token");
-      if (chatStore.history.filter((msg) => !msg.hide).length > 0) {
-        chatStore.history.filter((msg) => !msg.hide).slice(-1)[0].token =
-          userMessageToken;
-      }
-    }
 
     chatStore.history.push({
       role: "assistant",
@@ -248,6 +252,17 @@ export default function ChatBOX(props: {
       response_model_name: data.model,
     });
     setShowGenerating(false);
+
+    const ret: Usage = {
+      prompt_tokens: data.usage.prompt_tokens ?? 0,
+      completion_tokens: data.usage.completion_tokens ?? 0,
+      total_tokens: data.usage.total_tokens ?? 0,
+      response_model_name: data.model ?? null,
+      prompt_tokens_details: data.usage.prompt_tokens_details ?? null,
+      completion_tokens_details: data.usage.completion_tokens_details ?? null,
+    };
+
+    return ret;
   };
 
   // wrap the actuall complete api
@@ -295,22 +310,69 @@ export default function ChatBOX(props: {
       setShowGenerating(true);
       const response = await client._fetch(
         chatStore.streamMode,
-        chatStore.logprobs,
+        chatStore.logprobs
       );
       const contentType = response.headers.get("content-type");
+      let usage: Usage;
       if (contentType?.startsWith("text/event-stream")) {
-        await _completeWithStreamMode(response);
+        usage = await _completeWithStreamMode(response);
       } else if (contentType?.startsWith("application/json")) {
-        await _completeWithFetchMode(response);
+        usage = await _completeWithFetchMode(response);
       } else {
         throw `unknown response content type ${contentType}`;
       }
+
       // manually copy status from client to chatStore
       chatStore.maxTokens = client.max_tokens;
       chatStore.tokenMargin = client.tokens_margin;
       chatStore.totalTokens = client.total_tokens;
 
-      console.log("postBeginIndex", chatStore.postBeginIndex);
+      console.log("usage", usage);
+      // estimate user's input message token
+      const aboveTokens = chatStore.history
+        .filter(({ hide }) => !hide)
+        .slice(chatStore.postBeginIndex, -2)
+        .reduce((acc, msg) => acc + msg.token, 0);
+      const userMessage = chatStore.history
+        .filter(({ hide }) => !hide)
+        .slice(-2, -1)[0];
+      if (userMessage) {
+        userMessage.token = usage.prompt_tokens - aboveTokens;
+        console.log("estimate user message token", userMessage.token);
+      }
+      // [TODO]
+      // calculate cost
+      if (usage.response_model_name) {
+        let cost = 0;
+
+        if (usage.prompt_tokens_details) {
+          const cached_prompt_tokens =
+            usage.prompt_tokens_details.cached_tokens ?? 0;
+          const uncached_prompt_tokens =
+            usage.prompt_tokens - cached_prompt_tokens;
+          const prompt_price =
+            models[usage.response_model_name]?.price?.prompt ?? 0;
+          const cached_price =
+            models[usage.response_model_name]?.price?.cached_prompt ??
+            prompt_price;
+          cost +=
+            cached_prompt_tokens * cached_price +
+            uncached_prompt_tokens * prompt_price;
+        } else {
+          cost +=
+            usage.prompt_tokens *
+            (models[usage.response_model_name]?.price?.prompt ?? 0);
+        }
+
+        cost +=
+          usage.completion_tokens *
+          (models[usage.response_model_name]?.price?.completion ?? 0);
+
+        addTotalCost(cost);
+        chatStore.cost += cost;
+        console.log("cost", cost);
+      }
+
       setShowRetry(false);
       setChatStore({ ...chatStore });
     } catch (error) {
@@ -318,7 +380,7 @@ export default function ChatBOX(props: {
       alert(error);
     } finally {
       setShowGenerating(false);
-      props.setSelectedChatIndex(props.selectedChatIndex);
+      setSelectedChatIndex(selectedChatIndex);
     }
   };
 
@@ -362,450 +424,311 @@ export default function ChatBOX(props: {
   };
 
   const [showSettings, setShowSettings] = useState(false);
-
-  const [templates, _setTemplates] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE) || "[]",
-    ) as TemplateChatStore[],
-  );
-  const [templateAPIs, _setTemplateAPIs] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API) || "[]",
-    ) as TemplateAPI[],
-  );
-  const [templateAPIsWhisper, _setTemplateAPIsWhisper] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_WHISPER) || "[]",
-    ) as TemplateAPI[],
-  );
-  const [templateAPIsTTS, _setTemplateAPIsTTS] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_TTS) || "[]",
-    ) as TemplateAPI[],
-  );
-  const [templateAPIsImageGen, _setTemplateAPIsImageGen] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_API_IMAGE_GEN) || "[]",
-    ) as TemplateAPI[],
-  );
-  const [toolsTemplates, _setToolsTemplates] = useState(
-    JSON.parse(
-      localStorage.getItem(STORAGE_NAME_TEMPLATE_TOOLS) || "[]",
-    ) as TemplateTools[],
-  );
-  const setTemplates = (templates: TemplateChatStore[]) => {
-    localStorage.setItem(STORAGE_NAME_TEMPLATE, JSON.stringify(templates));
-    _setTemplates(templates);
-  };
-  const setTemplateAPIs = (templateAPIs: TemplateAPI[]) => {
-    localStorage.setItem(
-      STORAGE_NAME_TEMPLATE_API,
-      JSON.stringify(templateAPIs),
-    );
-    _setTemplateAPIs(templateAPIs);
-  };
-  const setTemplateAPIsWhisper = (templateAPIWhisper: TemplateAPI[]) => {
-    localStorage.setItem(
-      STORAGE_NAME_TEMPLATE_API_WHISPER,
-      JSON.stringify(templateAPIWhisper),
-    );
-    _setTemplateAPIsWhisper(templateAPIWhisper);
-  };
-  const setTemplateAPIsTTS = (templateAPITTS: TemplateAPI[]) => {
-    localStorage.setItem(
-      STORAGE_NAME_TEMPLATE_API_TTS,
-      JSON.stringify(templateAPITTS),
-    );
-    _setTemplateAPIsTTS(templateAPITTS);
-  };
-  const setTemplateAPIsImageGen = (templateAPIImageGen: TemplateAPI[]) => {
-    localStorage.setItem(
-      STORAGE_NAME_TEMPLATE_API_IMAGE_GEN,
-      JSON.stringify(templateAPIImageGen),
-    );
-    _setTemplateAPIsImageGen(templateAPIImageGen);
-  };
-  const setTemplateTools = (templateTools: TemplateTools[]) => {
-    localStorage.setItem(
-      STORAGE_NAME_TEMPLATE_TOOLS,
-      JSON.stringify(templateTools),
-    );
-    _setToolsTemplates(templateTools);
-  };
-  const userInputRef = createRef();
+  const userInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="grow flex flex-col p-2 w-full">
-      {showSettings && (
-        <Settings
-          chatStore={chatStore}
-          setChatStore={setChatStore}
-          setShow={setShowSettings}
-          selectedChatStoreIndex={props.selectedChatIndex}
-          templates={templates}
-          setTemplates={setTemplates}
-          templateAPIs={templateAPIs}
-          setTemplateAPIs={setTemplateAPIs}
-          templateAPIsWhisper={templateAPIsWhisper}
-          setTemplateAPIsWhisper={setTemplateAPIsWhisper}
-          templateAPIsTTS={templateAPIsTTS}
-          setTemplateAPIsTTS={setTemplateAPIsTTS}
-          templateAPIsImageGen={templateAPIsImageGen}
-          setTemplateAPIsImageGen={setTemplateAPIsImageGen}
-          templateTools={toolsTemplates}
-          setTemplateTools={setTemplateTools}
-        />
-      )}
-      {showSearch && (
-        <Search
-          setSelectedChatIndex={props.setSelectedChatIndex}
-          db={props.db}
-          chatStore={chatStore}
-          setShow={setShowSearch}
-        />
-      )}
+    <>
+      <div className="flex flex-col p-2 gap-2 w-full">
+        <div className="flex items-center gap-2 justify-between">
+          {true && <Settings setShow={setShowSettings} />}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowSearch(true)}
+          >
+            <SearchIcon />
+          </Button>
+        </div>
+        {showSearch && <Search show={showSearch} setShow={setShowSearch} />}
 
-      <StatusBar
-        chatStore={chatStore}
-        setShowSettings={setShowSettings}
-        setShowSearch={setShowSearch}
-      />
-
-      <div className="grow overflow-scroll">
         {!chatStore.apiKey && (
-          <p className="bg-base-200 p-6 rounded my-3 text-left">
-            {Tr("Please click above to set")} (OpenAI) API KEY
-          </p>
+          <Alert>
+            <KeyIcon className="h-4 w-4" />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              {Tr("Please click above to set")} (OpenAI) API KEY
+            </AlertDescription>
+          </Alert>
         )}
         {!chatStore.apiEndpoint && (
-          <p className="bg-base-200 p-6 rounded my-3 text-left">
-            {Tr("Please click above to set")} API Endpoint
-          </p>
+          <Alert>
+            <GlobeIcon className="h-4 w-4" />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>
+              {Tr("Please click above to set")} API Endpoint
+            </AlertDescription>
+          </Alert>
         )}
-        {templateAPIs.length > 0 && (
-          <ListAPIs
-            label="API"
-            tmps={templateAPIs}
-            setTmps={setTemplateAPIs}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            apiField="apiEndpoint"
-            keyField="apiKey"
-          />
-        )}
+        <NavigationMenu>
+          <NavigationMenuList>
+            {ctx.templateAPIs.length > 0 && (
+              <ListAPIs label="API" apiField="apiEndpoint" keyField="apiKey" />
+            )}
+            {ctx.templateAPIsWhisper.length > 0 && (
+              <ListAPIs
+                label="Whisper API"
+                apiField="whisper_api"
+                keyField="whisper_key"
+              />
+            )}
+            {ctx.templateAPIsTTS.length > 0 && (
+              <ListAPIs label="TTS API" apiField="tts_api" keyField="tts_key" />
+            )}
+            {ctx.templateAPIsImageGen.length > 0 && (
+              <ListAPIs
+                label="Image Gen API"
+                apiField="image_gen_api"
+                keyField="image_gen_key"
+              />
+            )}
+            {ctx.templateTools.length > 0 && <ListToolsTempaltes />}
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
+      <div className="grow flex flex-col p-2 w-full">
+        <ChatMessageList>
+          {chatStore.history.filter((msg) => !msg.example).length == 0 && (
+            <div className="bg-base-200 break-all p-3 my-3 text-left">
+              <h2>
+                <span>{Tr("Saved prompt templates")}</span>
+                <Button
+                  variant="link"
+                  className="mx-2"
+                  onClick={() => {
+                    chatStore.systemMessageContent = "";
+                    chatStore.toolsString = "";
+                    chatStore.history = [];
+                    setChatStore({ ...chatStore });
+                  }}
+                >
+                  {Tr("Reset Current")}
+                </Button>
+              </h2>
+              <div className="divider"></div>
+              <div className="flex flex-wrap">
+                <Templates />
+              </div>
+            </div>
+          )}
+          {chatStore.history.length === 0 && (
+            <Alert variant="default" className="my-3">
+              <InfoIcon className="h-4 w-4" />
+              <AlertTitle>{Tr("No chat history here")}</AlertTitle>
+              <AlertDescription className="flex flex-col gap-1 mt-5">
+                <div className="flex items-center gap-2">
+                  <Settings2Icon className="h-4 w-4" />
+                  <span>
+                    {Tr("Model")}: {chatStore.model}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ArrowUpIcon className="h-4 w-4" />
+                  <span>
+                    {Tr("Click above to change the settings of this chat")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CornerLeftUpIcon className="h-4 w-4" />
+                  <span>{Tr("Click the corner to create a new chat")}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <AlertTriangleIcon className="h-4 w-4" />
+                  <span>
+                    {Tr(
+                      "All chat history and settings are stored in the local browser"
+                    )}
+                  </span>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+          {chatStore.systemMessageContent.trim() && (
+            <ChatBubble variant="received">
+              <ChatBubbleMessage>
+                <div className="flex flex-col gap-1">
+                  <div className="text-sm font-bold">System Prompt</div>
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => setShowSettings(true)}
+                  >
+                    {chatStore.systemMessageContent}
+                  </div>
+                </div>
+              </ChatBubbleMessage>
+              <ChatBubbleActionWrapper>
+                <ChatBubbleAction
+                  className="size-7"
+                  icon={<Settings2Icon className="size-4" />}
+                  onClick={() => setShowSettings(true)}
+                />
+              </ChatBubbleActionWrapper>
+            </ChatBubble>
+          )}
+          {chatStore.history.map((_, messageIndex) => (
+            <Message messageIndex={messageIndex} />
+          ))}
+          {showGenerating && (
+            <ChatBubble variant="received">
+              <ChatBubbleMessage isLoading>
+                {generatingMessage}
+              </ChatBubbleMessage>
+            </ChatBubble>
+          )}
+          <p className="text-center">
+            {chatStore.history.length > 0 && (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="m-2"
+                disabled={showGenerating}
+                onClick={async () => {
+                  const messageIndex = chatStore.history.length - 1;
+                  if (chatStore.history[messageIndex].role === "assistant") {
+                    chatStore.history[messageIndex].hide = true;
+                  }
 
-        {templateAPIsWhisper.length > 0 && (
-          <ListAPIs
-            label="Whisper API"
-            tmps={templateAPIsWhisper}
-            setTmps={setTemplateAPIsWhisper}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            apiField="whisper_api"
-            keyField="whisper_key"
-          />
-        )}
-
-        {templateAPIsTTS.length > 0 && (
-          <ListAPIs
-            label="TTS API"
-            tmps={templateAPIsTTS}
-            setTmps={setTemplateAPIsTTS}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            apiField="tts_api"
-            keyField="tts_key"
-          />
-        )}
-
-        {templateAPIsImageGen.length > 0 && (
-          <ListAPIs
-            label="Image Gen API"
-            tmps={templateAPIsImageGen}
-            setTmps={setTemplateAPIsImageGen}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            apiField="image_gen_api"
-            keyField="image_gen_key"
-          />
-        )}
-
-        {toolsTemplates.length > 0 && (
-          <ListToolsTempaltes
-            templateTools={toolsTemplates}
-            setTemplateTools={setTemplateTools}
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-          />
-        )}
-
-        {chatStore.history.filter((msg) => !msg.example).length == 0 && (
-          <div className="bg-base-200 break-all p-3 my-3 text-left">
-            <h2>
-              <span>{Tr("Saved prompt templates")}</span>
-              <button
-                className="mx-2 underline cursor-pointer"
-                onClick={() => {
-                  chatStore.systemMessageContent = "";
-                  chatStore.toolsString = "";
-                  chatStore.history = [];
                   setChatStore({ ...chatStore });
+                  await complete();
                 }}
               >
-                {Tr("Reset Current")}
-              </button>
-            </h2>
-            <div className="divider"></div>
-            <div className="flex flex-wrap">
-              <Templates
-                templates={templates}
-                setTemplates={setTemplates}
-                chatStore={chatStore}
-                setChatStore={setChatStore}
-              />
-            </div>
-          </div>
-        )}
-        {chatStore.history.length === 0 && (
-          <p className="break-all opacity-60 p-6 rounded bg-white my-3 text-left dark:text-black">
-            {Tr("No chat history here")}
-            <br />⚙{Tr("Model")}: {chatStore.model}
-            <br />⬆{Tr("Click above to change the settings of this chat")}
-            <br />↖{Tr("Click the conor to create a new chat")}
-            <br />⚠
-            {Tr(
-              "All chat history and settings are stored in the local browser",
+                {Tr("Re-Generate")}
+              </Button>
             )}
-            <br />
+            {chatStore.develop_mode && chatStore.history.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={showGenerating}
+                onClick={async () => {
+                  await complete();
+                }}
+              >
+                {Tr("Completion")}
+              </Button>
+            )}
           </p>
-        )}
-        {chatStore.systemMessageContent.trim() && (
-          <div className="chat chat-start">
-            <div className="chat-header">Prompt</div>
-            <div
-              className="chat-bubble chat-bubble-accent cursor-pointer message-content"
-              onClick={() => setShowSettings(true)}
-            >
-              {chatStore.systemMessageContent}
-            </div>
+          <p className="p-2 my-2 text-center opacity-50 dark:text-white">
+            {chatStore.postBeginIndex !== 0 && (
+              <Alert variant="default">
+                <InfoIcon className="h-4 w-4" />
+                <AlertTitle>{Tr("Chat History Notice")}</AlertTitle>
+                <AlertDescription>
+                  {Tr("Info: chat history is too long, forget messages")}:{" "}
+                  {chatStore.postBeginIndex}
+                </AlertDescription>
+              </Alert>
+            )}
+          </p>
+          <VersionHint />
+          {showRetry && (
+            <p className="text-right p-2 my-2 dark:text-white">
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  setShowRetry(false);
+                  await complete();
+                }}
+              >
+                {Tr("Retry")}
+              </Button>
+            </p>
+          )}
+          <div ref={messagesEndRef as any}></div>
+        </ChatMessageList>
+        {images.length > 0 && (
+          <div className="flex flex-wrap">
+            {images.map((image, index) => (
+              <div className="flex flex-col">
+                {image.type === "image_url" && (
+                  <img
+                    className="rounded m-1 p-1 border-2 border-gray-400 max-h-32 max-w-xs"
+                    src={image.image_url?.url}
+                  />
+                )}
+              </div>
+            ))}
           </div>
         )}
 
-        {chatStore.history.map((_, messageIndex) => (
-          <Message
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            messageIndex={messageIndex}
-          />
-        ))}
-        {showGenerating && (
-          <p className="p-2 my-2 animate-pulse message-content">
-            {generatingMessage || Tr("Generating...")}
-            ...
-          </p>
+        {generatingMessage && (
+          <div className="flex items-center justify-end gap-2 p-2 m-2 rounded bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Follow
+            </label>
+            <Switch
+              checked={follow}
+              onCheckedChange={setFollow}
+              aria-label="Toggle auto-scroll"
+            />
+          </div>
         )}
-        <p className="text-center">
-          {chatStore.history.length > 0 && (
-            <button
-              className="btn btn-sm btn-warning disabled:line-through disabled:btn-neutral disabled:text-white m-2 p-2"
-              disabled={showGenerating}
-              onClick={async () => {
-                const messageIndex = chatStore.history.length - 1;
-                if (chatStore.history[messageIndex].role === "assistant") {
-                  chatStore.history[messageIndex].hide = true;
-                }
-
-                //chatStore.totalTokens =
-                setChatStore({ ...chatStore });
-
-                await complete();
-              }}
-            >
-              {Tr("Re-Generate")}
-            </button>
-          )}
-          {chatStore.develop_mode && chatStore.history.length > 0 && (
-            <button
-              className="btn btn-outline btn-sm btn-warning disabled:line-through disabled:bg-neural"
-              disabled={showGenerating}
-              onClick={async () => {
-                await complete();
-              }}
-            >
-              {Tr("Completion")}
-            </button>
-          )}
-        </p>
-        <p className="p-2 my-2 text-center opacity-50 dark:text-white">
-          {chatStore.postBeginIndex !== 0 && (
-            <>
-              <br />
-              {Tr("Info: chat history is too long, forget messages")}:{" "}
-              {chatStore.postBeginIndex}
-            </>
-          )}
-        </p>
-        <VersionHint chatStore={chatStore} />
-        {showRetry && (
-          <p className="text-right p-2 my-2 dark:text-white">
-            <button
-              className="p-1 rounded bg-rose-500"
-              onClick={async () => {
-                setShowRetry(false);
-                await complete();
-              }}
-            >
-              {Tr("Retry")}
-            </button>
-          </p>
-        )}
-        <div ref={messagesEndRef}></div>
       </div>
-      {images.length > 0 && (
-        <div className="flex flex-wrap">
-          {images.map((image, index) => (
-            <div className="flex flex-col">
-              {image.type === "image_url" && (
-                <img
-                  className="rounded m-1 p-1 border-2 border-gray-400 max-h-32 max-w-xs"
-                  src={image.image_url?.url}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {generatingMessage && (
-        <span
-          className="p-2 m-2 rounded bg-white dark:text-black dark:bg-white dark:bg-opacity-50"
-          style={{ textAlign: "right" }}
-          onClick={() => {
-            setFollow(!follow);
-          }}
-        >
-          <label>Follow</label>
-          <input type="checkbox" checked={follow} />
-        </span>
-      )}
-
-      <div className="flex justify-between my-1">
-        <button
-          className="btn btn-primary disabled:line-through disabled:text-white disabled:bg-neutral m-1 p-1"
-          disabled={showGenerating || !chatStore.apiKey}
-          onClick={() => {
-            setShowAddImage(!showAddImage);
-          }}
-        >
-          Image
-        </button>
-        {showAddImage && (
-          <AddImage
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            setShowAddImage={setShowAddImage}
-            images={images}
-            setImages={setImages}
-          />
-        )}
-        <textarea
-          autofocus
-          value={inputMsg}
-          ref={userInputRef}
-          onChange={(event: any) => {
-            setInputMsg(event.target.value);
-            autoHeight(event.target);
-          }}
-          onKeyPress={(event: any) => {
-            console.log(event);
-            if (event.ctrlKey && event.code === "Enter") {
-              send(event.target.value, true);
-              setInputMsg("");
-              event.target.value = "";
+      <div className="sticky bottom-0 w-full z-20 bg-background">
+        <form className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1">
+          <ChatInput
+            value={inputMsg}
+            ref={userInputRef as any}
+            placeholder="Type your message here..."
+            onChange={(event: any) => {
+              setInputMsg(event.target.value);
               autoHeight(event.target);
-              return;
-            }
-            autoHeight(event.target);
-            setInputMsg(event.target.value);
-          }}
-          className="textarea textarea-bordered textarea-sm grow w-0"
-          style={{
-            lineHeight: "1.39",
-          }}
-          placeholder="Type here..."
-        ></textarea>
-        <button
-          className="btn btn-primary disabled:btn-neutral disabled:line-through m-1 p-1"
-          disabled={showGenerating}
-          onClick={() => {
-            send(inputMsg, true);
-            userInputRef.current.value = "";
-            autoHeight(userInputRef.current);
-          }}
-        >
-          {Tr("Send")}
-        </button>
-        {chatStore.whisper_api && chatStore.whisper_key && (
-          <WhisperButton
-            chatStore={chatStore}
-            inputMsg={inputMsg}
-            setInputMsg={setInputMsg}
+            }}
+            onKeyPress={(event: any) => {
+              if (event.ctrlKey && event.code === "Enter") {
+                send(event.target.value, true);
+                setInputMsg("");
+                event.target.value = "";
+                autoHeight(event.target);
+                return;
+              }
+              autoHeight(event.target);
+              setInputMsg(event.target.value);
+            }}
+            className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
           />
-        )}
-        {chatStore.develop_mode && (
-          <button
-            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
-            disabled={showGenerating || !chatStore.apiKey}
-            onClick={() => {
-              chatStore.history.push({
-                role: "assistant",
-                content: inputMsg,
-                token:
-                  calculate_token_length(inputMsg) +
-                  calculate_token_length(images),
-                hide: false,
-                example: false,
-                audio: null,
-                logprobs: null,
-                response_model_name: null,
-              });
-              setInputMsg("");
-              setChatStore({ ...chatStore });
-            }}
-          >
-            {Tr("AI")}
-          </button>
-        )}
-        {chatStore.develop_mode && (
-          <button
-            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
-            disabled={showGenerating || !chatStore.apiKey}
-            onClick={() => {
-              send(inputMsg, false);
-            }}
-          >
-            {Tr("User")}
-          </button>
-        )}
-        {chatStore.develop_mode && (
-          <button
-            className="btn disabled:line-through disabled:btn-neutral disabled:text-white m-1 p-1"
-            disabled={showGenerating || !chatStore.apiKey}
-            onClick={() => {
-              setShowAddToolMsg(true);
-            }}
-          >
-            {Tr("Tool")}
-          </button>
-        )}
-        {showAddToolMsg && (
-          <AddToolMsg
-            chatStore={chatStore}
-            setChatStore={setChatStore}
-            setShowAddToolMsg={setShowAddToolMsg}
-          />
-        )}
+          <div className="flex items-center p-3 pt-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              onClick={() => setShowAddImage(true)}
+              disabled={showGenerating}
+            >
+              <ImageIcon className="size-4" />
+              <span className="sr-only">Add Image</span>
+            </Button>
+
+            {chatStore.whisper_api && chatStore.whisper_key && (
+              <>
+                <WhisperButton inputMsg={inputMsg} setInputMsg={setInputMsg} />
+                <span className="sr-only">Use Microphone</span>
+              </>
+            )}
+
+            <Button
+              size="sm"
+              className="ml-auto gap-1.5"
+              disabled={showGenerating}
+              onClick={() => {
+                send(inputMsg, true);
+                if (userInputRef.current === null) return;
+                userInputRef.current.value = "";
+                autoHeight(userInputRef.current);
+              }}
+            >
+              Send Message
+              <CornerDownLeftIcon className="size-3.5" />
+            </Button>
+          </div>
+        </form>
+
+        <AddImage
+          setShowAddImage={setShowAddImage}
+          images={images}
+          showAddImage={showAddImage}
+          setImages={setImages}
+        />
       </div>
-    </div>
+    </>
   );
 }

@@ -1,5 +1,6 @@
 import { TemplateAPI } from "@/types/chatstore";
 import { Tr } from "@/translate";
+import { Button } from "./components/ui/button";
 
 interface Props {
   tmps: TemplateAPI[];
@@ -16,8 +17,10 @@ export function SetAPIsTemplate({
   label,
 }: Props) {
   return (
-    <button
-      className="btn btn-primary btn-sm mt-3"
+    <Button
+      variant="default"
+      size="sm"
+      className="mt-3"
       onClick={() => {
         const name = prompt(`Give this **${label}** template a name:`);
         if (!name) {
@@ -34,6 +37,6 @@ export function SetAPIsTemplate({
       }}
     >
       {Tr(`Save ${label}`)}
-    </button>
+    </Button>
   );
 }

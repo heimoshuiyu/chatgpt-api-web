@@ -1,4 +1,4 @@
-import { createContext } from "preact";
+import { createContext } from "react";
 import MAP_zh_CN from "@/translate/zh_CN";
 
 interface LangOption {
