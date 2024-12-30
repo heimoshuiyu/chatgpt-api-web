@@ -662,76 +662,72 @@ export default function ChatBOX() {
             />
           </div>
         )}
-
-        <div className="sticky top-0 z-10 bg-background">
-          <form className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1">
-            <ChatInput
-              value={inputMsg}
-              ref={userInputRef as any}
-              placeholder="Type your message here..."
-              onChange={(event: any) => {
-                setInputMsg(event.target.value);
+      </div>
+      <div className="sticky bottom-0 w-full z-20 bg-background">
+        <form className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1">
+          <ChatInput
+            value={inputMsg}
+            ref={userInputRef as any}
+            placeholder="Type your message here..."
+            onChange={(event: any) => {
+              setInputMsg(event.target.value);
+              autoHeight(event.target);
+            }}
+            onKeyPress={(event: any) => {
+              if (event.ctrlKey && event.code === "Enter") {
+                send(event.target.value, true);
+                setInputMsg("");
+                event.target.value = "";
                 autoHeight(event.target);
-              }}
-              onKeyPress={(event: any) => {
-                if (event.ctrlKey && event.code === "Enter") {
-                  send(event.target.value, true);
-                  setInputMsg("");
-                  event.target.value = "";
-                  autoHeight(event.target);
-                  return;
-                }
-                autoHeight(event.target);
-                setInputMsg(event.target.value);
-              }}
-              className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
-            />
-            <div className="flex items-center p-3 pt-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                type="button"
-                onClick={() => setShowAddImage(true)}
-                disabled={showGenerating}
-              >
-                <ImageIcon className="size-4" />
-                <span className="sr-only">Add Image</span>
-              </Button>
-
-              {chatStore.whisper_api && chatStore.whisper_key && (
-                <>
-                  <WhisperButton
-                    inputMsg={inputMsg}
-                    setInputMsg={setInputMsg}
-                  />
-                  <span className="sr-only">Use Microphone</span>
-                </>
-              )}
-
-              <Button
-                size="sm"
-                className="ml-auto gap-1.5"
-                disabled={showGenerating}
-                onClick={() => {
-                  send(inputMsg, true);
-                  if (userInputRef.current === null) return;
-                  userInputRef.current.value = "";
-                  autoHeight(userInputRef.current);
-                }}
-              >
-                Send Message
-                <CornerDownLeftIcon className="size-3.5" />
-              </Button>
-            </div>
-          </form>
-
-          <AddImage
-            setShowAddImage={setShowAddImage}
-            images={images}
-            showAddImage={showAddImage}
-            setImages={setImages}
+                return;
+              }
+              autoHeight(event.target);
+              setInputMsg(event.target.value);
+            }}
+            className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
           />
-        </div>
+          <div className="flex items-center p-3 pt-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              onClick={() => setShowAddImage(true)}
+              disabled={showGenerating}
+            >
+              <ImageIcon className="size-4" />
+              <span className="sr-only">Add Image</span>
+            </Button>
+
+            {chatStore.whisper_api && chatStore.whisper_key && (
+              <>
+                <WhisperButton inputMsg={inputMsg} setInputMsg={setInputMsg} />
+                <span className="sr-only">Use Microphone</span>
+              </>
+            )}
+
+            <Button
+              size="sm"
+              className="ml-auto gap-1.5"
+              disabled={showGenerating}
+              onClick={() => {
+                send(inputMsg, true);
+                if (userInputRef.current === null) return;
+                userInputRef.current.value = "";
+                autoHeight(userInputRef.current);
+              }}
+            >
+              Send Message
+              <CornerDownLeftIcon className="size-3.5" />
+            </Button>
+          </div>
+        </form>
+
+        <AddImage
+          setShowAddImage={setShowAddImage}
+          images={images}
+          showAddImage={showAddImage}
+          setImages={setImages}
+        />
       </div>
     </>
   );
