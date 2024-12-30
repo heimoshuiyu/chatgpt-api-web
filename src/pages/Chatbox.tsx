@@ -430,7 +430,7 @@ export default function ChatBOX() {
     <>
       <div className="flex flex-col p-2 gap-2 w-full">
         <div className="flex items-center gap-2 justify-between">
-          {true && <Settings setShow={setShowSettings} />}
+          <Settings setShow={setShowSettings} />
           <Button
             variant="outline"
             size="icon"

@@ -520,7 +520,7 @@ export default (props: { setShow: Dispatch<boolean> }) => {
           {Tr("Settings")}
         </Button>
       </SheetTrigger>
-      <SheetContent className="flex flex-col">
+      <SheetContent className="flex flex-col overflow-scroll">
         <ScrollArea>
           <SheetHeader>
             <SheetTitle>{Tr("Settings")}</SheetTitle>
