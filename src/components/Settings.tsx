@@ -76,7 +76,7 @@ import {
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { NonOverflowScrollArea, ScrollArea } from "@/components/ui/scroll-area";
 import { AppContext } from "@/pages/App";
 
 const TTS_VOICES: string[] = [
@@ -520,8 +520,8 @@ export default (props: { setShow: Dispatch<boolean> }) => {
           {Tr("Settings")}
         </Button>
       </SheetTrigger>
-      <SheetContent className="flex flex-col">
-        <ScrollArea>
+      <SheetContent className="flex flex-col overflow-scroll">
+        <NonOverflowScrollArea>
           <SheetHeader>
             <SheetTitle>{Tr("Settings")}</SheetTitle>
             <SheetDescription>
@@ -1142,7 +1142,7 @@ export default (props: { setShow: Dispatch<boolean> }) => {
               </a>
             </p>
           </div>
-        </ScrollArea>
+        </NonOverflowScrollArea>
       </SheetContent>
     </Sheet>
   );
