@@ -1,4 +1,5 @@
 import { ChatStoreMessage } from "@/types/chatstore";
+import Markdown from "react-markdown";
 
 interface Props {
   chat: ChatStoreMessage;
@@ -15,8 +16,7 @@ export function MessageDetail({ chat, renderMarkdown }: Props) {
           chat.hide ? (
             mdt.text?.split("\n")[0].slice(0, 16) + " ..."
           ) : renderMarkdown ? (
-            // @ts-ignore
-            <Markdown markdown={mdt.text} />
+            <Markdown>{mdt.text}</Markdown>
           ) : (
             mdt.text
           )
