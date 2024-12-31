@@ -155,9 +155,7 @@ export default function Message(props: { messageIndex: number }) {
           ) : chat.role === "tool" ? (
             <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
           ) : renderMarkdown ? (
-            // [TODO] It is happening https://github.com/remarkjs/react-markdown/pull/879
-            // <Markdown>{getMessageText(chat)}</Markdown>
-            <></>
+            <Markdown>{getMessageText(chat)}</Markdown>
           ) : (
             <div className="message-content">
               {chat.content &&
