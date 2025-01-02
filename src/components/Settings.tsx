@@ -73,6 +73,7 @@ import {
   KeyIcon,
   ListIcon,
   MoveHorizontalIcon,
+  TriangleAlertIcon,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
@@ -519,6 +520,9 @@ export default (props: {}) => {
       <SheetTrigger asChild>
         <Button variant="outline" className="flex-grow">
           {Tr("Settings")}
+          {(!ctx.chatStore.apiKey || !ctx.chatStore.apiEndpoint) && (
+            <TriangleAlertIcon className="w-4 h-4 ml-1 text-yellow-500" />
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent className="flex flex-col overflow-scroll">

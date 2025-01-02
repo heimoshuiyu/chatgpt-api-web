@@ -428,24 +428,6 @@ export default function ChatBOX() {
   return (
     <>
       <div className="flex flex-col p-2 gap-2 w-full">
-        {!chatStore.apiKey && (
-          <Alert>
-            <KeyIcon className="h-4 w-4" />
-            <AlertTitle>Heads up!</AlertTitle>
-            <AlertDescription>
-              {Tr("Please click above to set")} (OpenAI) API KEY
-            </AlertDescription>
-          </Alert>
-        )}
-        {!chatStore.apiEndpoint && (
-          <Alert>
-            <GlobeIcon className="h-4 w-4" />
-            <AlertTitle>Heads up!</AlertTitle>
-            <AlertDescription>
-              {Tr("Please click above to set")} API Endpoint
-            </AlertDescription>
-          </Alert>
-        )}
         <NavigationMenu>
           <NavigationMenuList>
             {ctx.templateAPIs.length > 0 && (
