@@ -423,7 +423,6 @@ export default function ChatBOX() {
     }
   };
 
-  const [showSettings, setShowSettings] = useState(false);
   const userInputRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -537,7 +536,8 @@ export default function ChatBOX() {
                   <div className="text-sm font-bold">System Prompt</div>
                   <div
                     className="cursor-pointer"
-                    onClick={() => setShowSettings(true)}
+                    // onClick={() => setShowSettings(true)}
+                    // TODO: add a button to show settings
                   >
                     {chatStore.systemMessageContent}
                   </div>
@@ -547,7 +547,7 @@ export default function ChatBOX() {
                 <ChatBubbleAction
                   className="size-7"
                   icon={<Settings2Icon className="size-4" />}
-                  onClick={() => setShowSettings(true)}
+                  // TODO: add a button to show settings
                 />
               </ChatBubbleActionWrapper>
             </ChatBubble>
