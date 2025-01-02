@@ -649,7 +649,8 @@ export default function ChatBOX() {
             ))}
           </div>
         )}
-
+      </div>
+      <div className="sticky bottom-0 w-full z-20 bg-background">
         {generatingMessage && (
           <div className="flex items-center justify-end gap-2 p-2 m-2 rounded bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -662,8 +663,6 @@ export default function ChatBOX() {
             />
           </div>
         )}
-      </div>
-      <div className="sticky bottom-0 w-full z-20 bg-background">
         <form className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1">
           <ChatInput
             value={inputMsg}
