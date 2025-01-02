@@ -25,6 +25,8 @@ import {
 
 import { Input } from "./components/ui/input";
 import { AppContext } from "./pages/App";
+import { Button } from "./components/ui/button";
+import { SearchIcon } from "lucide-react";
 
 interface ChatStoreSearchResult {
   key: IDBValidKey;
@@ -33,10 +35,7 @@ interface ChatStoreSearchResult {
   preview: string;
 }
 
-export default function Search(props: {
-  show: boolean;
-  setShow: (show: boolean) => void;
-}) {
+export default function Search() {
   const ctx = useContext(AppContext);
   if (ctx === null) return <></>;
   const { setSelectedChatIndex, db } = ctx;
@@ -46,9 +45,15 @@ export default function Search(props: {
   const [searchingNow, setSearchingNow] = useState<number>(0);
   const [pageIndex, setPageIndex] = useState<number>(0);
   const searchAbortRef = useRef<AbortController | null>(null);
+  const [open, setOpen] = useState<boolean>(false);
 
   return (
-    <Dialog open={props.show} onOpenChange={props.setShow}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger>
+        <Button variant="outline" size="icon">
+          <SearchIcon />
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[80%]">
         <DialogHeader>
           <DialogTitle>Search</DialogTitle>
@@ -160,7 +165,7 @@ export default function Search(props: {
                   key={result.key as number}
                   onClick={() => {
                     setSelectedChatIndex(parseInt(result.key.toString()));
-                    props.setShow(false);
+                    setOpen(false);
                   }}
                 >
                   <div className="m-1 p-1 font-bold">

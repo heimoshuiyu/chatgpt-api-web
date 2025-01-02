@@ -429,18 +429,6 @@ export default function ChatBOX() {
   return (
     <>
       <div className="flex flex-col p-2 gap-2 w-full">
-        <div className="flex items-center gap-2 justify-between">
-          {true && <Settings setShow={setShowSettings} />}
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setShowSearch(true)}
-          >
-            <SearchIcon />
-          </Button>
-        </div>
-        {showSearch && <Search show={showSearch} setShow={setShowSearch} />}
-
         {!chatStore.apiKey && (
           <Alert>
             <KeyIcon className="h-4 w-4" />

@@ -475,7 +475,7 @@ const Choice = (props: {
   );
 };
 
-export default (props: { setShow: Dispatch<boolean> }) => {
+export default (props: {}) => {
   const ctx = useContext(AppContext);
   if (ctx === null) return <></>;
 
@@ -497,13 +497,14 @@ export default (props: { setShow: Dispatch<boolean> }) => {
   const [totalCost, setTotalCost] = useState(getTotalCost());
   // @ts-ignore
   const { langCode, setLangCode } = useContext(langCodeContext);
+  const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
     themeChange(false);
     const handleKeyPress = (event: any) => {
       if (event.keyCode === 27) {
         // keyCode for ESC key is 27
-        props.setShow(false);
+        setOpen(false);
       }
     };
 
@@ -514,7 +515,7 @@ export default (props: { setShow: Dispatch<boolean> }) => {
     };
   }, []); // The empty dependency array ensures that the effect runs only once
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" className="flex-grow">
           {Tr("Settings")}
