@@ -21,12 +21,10 @@ import {
 } from "../types/chatstore";
 import Message from "@/message";
 import { models } from "@/types/models";
-import Settings from "@/components/Settings";
 import { AddImage } from "@/addImage";
 import { ListAPIs } from "@/listAPIs";
 import { ListToolsTempaltes } from "@/listToolsTemplates";
 import { autoHeight } from "@/textarea";
-import Search from "@/search";
 import Templates from "@/components/Templates";
 import VersionHint from "@/components/VersionHint";
 import StatusBar from "@/components/StatusBar";

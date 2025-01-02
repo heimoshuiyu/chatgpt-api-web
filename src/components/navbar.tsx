@@ -26,8 +26,6 @@ import {
   WalletIcon,
   ArrowUpDownIcon,
   ScissorsIcon,
-  SearchIcon,
-  CogIcon,
 } from "lucide-react";
 import { AppContext } from "@/pages/App";
 import { models } from "@/types/models";
@@ -35,9 +33,8 @@ import { getTotalCost } from "@/utils/totalCost";
 import { Tr } from "@/translate";
 
 import { useContext } from "react";
-import { Button } from "./ui/button";
-import Search from "@/search";
-import Settings from "./Settings";
+import Search from "@/components/Search";
+import Settings from "@/components/Settings";
 
 const Navbar: React.FC = () => {
   const ctx = useContext(AppContext);

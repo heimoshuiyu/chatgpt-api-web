@@ -1,8 +1,7 @@
-import { IDBPDatabase } from "idb";
 import { useRef, useState, Dispatch, useContext } from "react";
 
 import { ChatStore } from "@/types/chatstore";
-import { MessageDetail } from "./chatgpt";
+import { MessageDetail } from "../chatgpt";
 
 import {
   Dialog,
@@ -16,16 +15,14 @@ import {
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
-  PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-import { Input } from "./components/ui/input";
-import { AppContext } from "./pages/App";
-import { Button } from "./components/ui/button";
+import { Input } from "./ui/input";
+import { AppContext } from "../pages/App";
+import { Button } from "./ui/button";
 import { SearchIcon } from "lucide-react";
 
 interface ChatStoreSearchResult {
