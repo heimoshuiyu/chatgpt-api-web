@@ -2,14 +2,10 @@ import { ChatStore, TemplateAPI } from "@/types/chatstore";
 import { Tr } from "@/translate";
 
 import {
-  NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
 import { Button } from "./components/ui/button";
 import { cn } from "@/lib/utils";

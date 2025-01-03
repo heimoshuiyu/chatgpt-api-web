@@ -11,7 +11,7 @@ import { MessageDetail } from "@/messageDetail";
 import { MessageToolCall } from "@/messageToolCall";
 import { MessageToolResp } from "@/messageToolResp";
 import { EditMessage } from "@/editMessage";
-import logprobToColor from "@/logprob";
+import logprobToColor from "@/utils/logprob";
 import {
   ChatBubble,
   ChatBubbleMessage,

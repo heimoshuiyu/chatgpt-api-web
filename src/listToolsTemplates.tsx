@@ -1,21 +1,16 @@
-import { ChatStore, TemplateTools } from "@/types/chatstore";
 import { Tr } from "@/translate";
 import {
-  NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
-  NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuViewport,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { Button } from "./components/ui/button";
 import { useContext } from "react";
 import { AppContext } from "./pages/App";
 
-export function ListToolsTempaltes() {
+export function ListToolsTemplates() {
   const ctx = useContext(AppContext);
   if (!ctx) return <div>error</div>;
 

@@ -23,7 +23,7 @@ import Message from "@/message";
 import { models } from "@/types/models";
 import { AddImage } from "@/addImage";
 import { ListAPIs } from "@/listAPIs";
-import { ListToolsTempaltes } from "@/listToolsTemplates";
+import { ListToolsTemplates } from "@/listToolsTemplates";
 import { autoHeight } from "@/utils/textAreaHelp";
 import Templates from "@/components/Templates";
 import VersionHint from "@/components/VersionHint";
