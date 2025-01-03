@@ -113,7 +113,7 @@ import {
   RulerIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { ModeToggle } from "@/components/mode-toggle";
+import { ModeToggle } from "@/components/ModeToggle";
 
 import Navbar from "@/components/navbar";
 

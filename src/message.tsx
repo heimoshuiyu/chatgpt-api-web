@@ -14,7 +14,6 @@ import { EditMessage } from "@/editMessage";
 import logprobToColor from "@/logprob";
 import {
   ChatBubble,
-  ChatBubbleAvatar,
   ChatBubbleMessage,
   ChatBubbleAction,
   ChatBubbleActionWrapper,

@@ -13,7 +13,7 @@ import { models } from "@/types/models";
 import { tr, Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { isVailedJSON } from "@/message";
 import { SetAPIsTemplate } from "@/setAPIsTemplate";
-import { autoHeight } from "@/textarea";
+import { autoHeight } from "@/utils/textAreaHelp";
 import { getDefaultParams } from "@/utils/getDefaultParam";
 
 import { Button } from "@/components/ui/button";

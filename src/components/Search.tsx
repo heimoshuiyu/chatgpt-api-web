@@ -46,7 +46,7 @@ export default function Search() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button variant="outline" size="icon">
           <SearchIcon />
         </Button>

@@ -3,13 +3,7 @@ import { createRef, useContext } from "react";
 import { ChatStore } from "@/types/chatstore";
 import { useEffect, useState, Dispatch } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  AudioWaveform,
-  AudioWaveformIcon,
-  CircleStopIcon,
-  MicIcon,
-  VoicemailIcon,
-} from "lucide-react";
+import { AudioWaveformIcon, CircleStopIcon, MicIcon } from "lucide-react";
 import { AppContext } from "@/pages/App";
 
 const WhisperButton = (props: {
