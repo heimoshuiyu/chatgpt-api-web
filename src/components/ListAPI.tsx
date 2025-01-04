@@ -19,25 +19,18 @@ import {
 
 interface APITemplateItemProps {
   label: string;
-  shortLabel: string;
   apiField: string;
   keyField: string;
 }
-function ListAPIs({
-  label,
-  shortLabel,
-  apiField,
-  keyField,
-}: APITemplateItemProps) {
+function ListAPIs({ label, apiField, keyField }: APITemplateItemProps) {
   const ctx = useContext(AppContext);
   if (ctx === null) return <></>;
 
   return (
     <NavigationMenuItem>
       <NavigationMenuTrigger>
-        <span className="lg:hidden">{shortLabel}</span>
+        {label}{" "}
         <span className="hidden lg:inline">
-          {label}{" "}
           {ctx.templateAPIs.find(
             (t) =>
               ctx.chatStore[apiField as keyof ChatStore] === t.endpoint &&
@@ -215,7 +208,6 @@ const ListAPI: React.FC = () => {
           {ctx.templateAPIs.length > 0 && (
             <ListAPIs
               label="Chat API"
-              shortLabel="API"
               apiField="apiEndpoint"
               keyField="apiKey"
             />
@@ -223,23 +215,16 @@ const ListAPI: React.FC = () => {
           {ctx.templateAPIsWhisper.length > 0 && (
             <ListAPIs
               label="Whisper API"
-              shortLabel="Whisper"
               apiField="whisper_api"
               keyField="whisper_key"
             />
           )}
           {ctx.templateAPIsTTS.length > 0 && (
-            <ListAPIs
-              label="TTS API"
-              shortLabel="TTS"
-              apiField="tts_api"
-              keyField="tts_key"
-            />
+            <ListAPIs label="TTS API" apiField="tts_api" keyField="tts_key" />
           )}
           {ctx.templateAPIsImageGen.length > 0 && (
             <ListAPIs
               label="Image Gen API"
-              shortLabel="ImgGen"
               apiField="image_gen_api"
               keyField="image_gen_key"
             />

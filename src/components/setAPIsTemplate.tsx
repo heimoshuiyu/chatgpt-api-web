@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "./components/ui/button";
+import { Button } from "./ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SaveIcon } from "lucide-react";
@@ -71,12 +71,12 @@ export function SetAPIsTemplate({
                   }
                   return;
                 }
-                const tmp: TemplateAPI = {
+                const temp: TemplateAPI = {
                   name: name.value,
                   endpoint,
                   key: APIkey,
                 };
-                temps.push(tmp);
+                temps.push(temp);
                 setTemps([...temps]);
               }}
             >
