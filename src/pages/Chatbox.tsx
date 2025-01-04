@@ -15,8 +15,6 @@ import { ChatStoreMessage } from "../types/chatstore";
 import Message from "@/components/MessageBubble";
 import { models } from "@/types/models";
 import { AddImage } from "@/addImage";
-import { ListAPIs } from "@/listAPIs";
-import { ListToolsTemplates } from "@/listToolsTemplates";
 import { autoHeight } from "@/utils/textAreaHelp";
 import VersionHint from "@/components/VersionHint";
 import WhisperButton from "@/components/WhisperButton";
@@ -41,12 +39,9 @@ import {
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  NavigationMenu,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
 
 import { AppContext } from "./App";
+import ListAPI from "@/components/ListAPI";
 
 export default function ChatBOX() {
   const ctx = useContext(AppContext);
@@ -401,45 +396,7 @@ export default function ChatBOX() {
 
   return (
     <>
-      <div className="flex flex-col p-2 gap-2 w-full">
-        <NavigationMenu>
-          <NavigationMenuList>
-            {ctx.templateAPIs.length > 0 && (
-              <ListAPIs
-                label="Chat API"
-                shortLabel="API"
-                apiField="apiEndpoint"
-                keyField="apiKey"
-              />
-            )}
-            {ctx.templateAPIsWhisper.length > 0 && (
-              <ListAPIs
-                label="Whisper API"
-                shortLabel="Whisper"
-                apiField="whisper_api"
-                keyField="whisper_key"
-              />
-            )}
-            {ctx.templateAPIsTTS.length > 0 && (
-              <ListAPIs
-                label="TTS API"
-                shortLabel="TTS"
-                apiField="tts_api"
-                keyField="tts_key"
-              />
-            )}
-            {ctx.templateAPIsImageGen.length > 0 && (
-              <ListAPIs
-                label="Image Gen API"
-                shortLabel="ImgGen"
-                apiField="image_gen_api"
-                keyField="image_gen_key"
-              />
-            )}
-            {ctx.templateTools.length > 0 && <ListToolsTemplates />}
-          </NavigationMenuList>
-        </NavigationMenu>
-      </div>
+      <ListAPI />
       <div className="grow flex flex-col p-2 w-full">
         <ChatMessageList>
           {chatStore.history.length === 0 && (
