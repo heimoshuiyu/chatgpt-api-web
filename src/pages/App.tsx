@@ -215,6 +215,10 @@ export function App() {
     const newKey = await (await db).add(STORAGE_NAME, newChatStore(chatStore));
     setSelectedChatIndex(newKey as number);
     setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
+    toast({
+      title: "New chat session created",
+      description: `A new chat session (ID. ${newKey}) has been created.`,
+    });
   };
   const handleNewChatStore = async () => {
     return handleNewChatStoreWithOldOne(chatStore);

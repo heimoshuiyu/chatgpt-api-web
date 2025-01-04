@@ -1,15 +1,11 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Markdown from "react-markdown";
 import { useContext, useState } from "react";
+import { ChatStoreMessage } from "@/types/chatstore";
 
-import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
-import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
-import { calculate_token_length, getMessageText } from "@/chatgpt";
+import { Tr } from "@/translate";
+import { getMessageText } from "@/chatgpt";
 import TTSButton, { TTSPlay } from "@/tts";
-import { MessageHide } from "@/messageHide";
-import { MessageDetail } from "@/messageDetail";
-import { MessageToolCall } from "@/messageToolCall";
-import { MessageToolResp } from "@/messageToolResp";
 import { EditMessage } from "@/editMessage";
 import logprobToColor from "@/utils/logprob";
 import {
@@ -18,6 +14,7 @@ import {
   ChatBubbleAction,
   ChatBubbleActionWrapper,
 } from "@/components/ui/chat/chat-bubble";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
   ClipboardIcon,
@@ -25,16 +22,126 @@ import {
   MessageSquareOffIcon,
   MessageSquarePlusIcon,
 } from "lucide-react";
-import { AppContext } from "./pages/App";
+import { AppContext } from "@/pages/App";
 
-export const isVailedJSON = (str: string): boolean => {
-  try {
-    JSON.parse(str);
-  } catch (e) {
-    return false;
+interface HideMessageProps {
+  chat: ChatStoreMessage;
+}
+
+function MessageHide({ chat }: HideMessageProps) {
+  return (
+    <>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <span>{getMessageText(chat).split("\n")[0].slice(0, 28)} ...</span>
+      </div>
+      <div className="flex mt-2 justify-center">
+        <Badge variant="destructive">Removed from context</Badge>
+      </div>
+    </>
+  );
+}
+
+interface MessageDetailProps {
+  chat: ChatStoreMessage;
+  renderMarkdown: boolean;
+}
+function MessageDetail({ chat, renderMarkdown }: MessageDetailProps) {
+  if (typeof chat.content === "string") {
+    return <div></div>;
   }
-  return true;
-};
+  return (
+    <div>
+      {chat.content.map((mdt) =>
+        mdt.type === "text" ? (
+          chat.hide ? (
+            mdt.text?.split("\n")[0].slice(0, 16) + " ..."
+          ) : renderMarkdown ? (
+            <Markdown>{mdt.text}</Markdown>
+          ) : (
+            mdt.text
+          )
+        ) : (
+          <img
+            className="my-2 rounded-md max-w-64 max-h-64"
+            src={mdt.image_url?.url}
+            onClick={() => {
+              window.open(mdt.image_url?.url, "_blank");
+            }}
+          />
+        )
+      )}
+    </div>
+  );
+}
+
+interface ToolCallMessageProps {
+  chat: ChatStoreMessage;
+  copyToClipboard: (text: string) => void;
+}
+function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
+  return (
+    <div className="message-content">
+      {chat.tool_calls?.map((tool_call) => (
+        <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded my-1">
+          <strong>
+            Tool Call ID:{" "}
+            <span
+              className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+              onClick={() => copyToClipboard(String(tool_call.id))}
+            >
+              {tool_call?.id}
+            </span>
+          </strong>
+          <p>Type: {tool_call?.type}</p>
+          <p>
+            Function:
+            <span
+              className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+              onClick={() => copyToClipboard(tool_call.function.name)}
+            >
+              {tool_call.function.name}
+            </span>
+          </p>
+          <p>
+            Arguments:
+            <span
+              className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+              onClick={() => copyToClipboard(tool_call.function.arguments)}
+            >
+              {tool_call.function.arguments}
+            </span>
+          </p>
+        </div>
+      ))}
+      {/* [TODO] */}
+      {chat.content as string}
+    </div>
+  );
+}
+
+interface ToolRespondMessageProps {
+  chat: ChatStoreMessage;
+  copyToClipboard: (text: string) => void;
+}
+function MessageToolResp({ chat, copyToClipboard }: ToolRespondMessageProps) {
+  return (
+    <div className="message-content">
+      <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded my-1">
+        <strong>
+          Tool Response ID:{" "}
+          <span
+            className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+            onClick={() => copyToClipboard(String(chat.tool_call_id))}
+          >
+            {chat.tool_call_id}
+          </span>
+        </strong>
+        {/* [TODO] */}
+        <p>{chat.content as string}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function Message(props: { messageIndex: number }) {
   const ctx = useContext(AppContext);
@@ -44,7 +151,6 @@ export default function Message(props: { messageIndex: number }) {
 
   const chat = chatStore.history[messageIndex];
   const [showEdit, setShowEdit] = useState(false);
-  const [showCopiedHint, setShowCopiedHint] = useState(false);
   const [renderMarkdown, setRenderWorkdown] = useState(false);
   const [renderColor, setRenderColor] = useState(false);
   const DeleteIcon = () => (

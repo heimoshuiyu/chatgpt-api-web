@@ -12,7 +12,7 @@ import ChatGPT, {
   Usage,
 } from "@/chatgpt";
 import { ChatStoreMessage } from "../types/chatstore";
-import Message from "@/message";
+import Message from "@/components/MessageBubble";
 import { models } from "@/types/models";
 import { AddImage } from "@/addImage";
 import { ListAPIs } from "@/listAPIs";
