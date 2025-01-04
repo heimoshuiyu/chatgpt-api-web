@@ -11,7 +11,7 @@ import {
 } from "@/types/chatstore";
 import { models } from "@/types/models";
 import { tr, Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
-import { isVailedJSON } from "@/message";
+import { isVailedJSON } from "@/utils/isVailedJSON";
 import { SetAPIsTemplate } from "@/setAPIsTemplate";
 import { autoHeight } from "@/utils/textAreaHelp";
 import { getDefaultParams } from "@/utils/getDefaultParam";
