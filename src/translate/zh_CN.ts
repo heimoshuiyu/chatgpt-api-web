@@ -14,6 +14,12 @@ const LANG_MAP: Record<string, string> = {
   "saved api templates": "已保存的 API 模板",
   "saved prompt templates": "已保存的提示模板",
   "no chat history here": "暂无历史对话记录",
+  "This is a new chat session, start by typing a message":
+    "这是一个新对话，开始输入消息",
+  "Settings button located at the top right corner can be used to change the settings of this chat":
+    "右上角的设置按钮可用于更改此对话的设置",
+  "'New' button located at the top left corner can be used to create a new chat":
+    "左上角的 '新' 按钮可用于创建新对话",
   "click above to change the settings of this chat":
     "点击上方更改此对话的参数（请勿泄漏）",
   "click the NEW to create a new chat": "点击左上角 NEW 新建对话",

@@ -1,8 +1,7 @@
-import { IDBPDatabase } from "idb";
 import { useContext, useRef } from "react";
-import { useEffect, useState, Dispatch } from "react";
-import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
-import { addTotalCost, getTotalCost } from "@/utils/totalCost";
+import { useEffect, useState } from "react";
+import { Tr } from "@/translate";
+import { addTotalCost } from "@/utils/totalCost";
 import ChatGPT, {
   calculate_token_length,
   FetchResponse,
@@ -12,30 +11,19 @@ import ChatGPT, {
   Logprobs,
   Usage,
 } from "@/chatgpt";
-import {
-  ChatStore,
-  ChatStoreMessage,
-  TemplateChatStore,
-  TemplateAPI,
-  TemplateTools,
-} from "../types/chatstore";
+import { ChatStoreMessage } from "../types/chatstore";
 import Message from "@/message";
 import { models } from "@/types/models";
 import { AddImage } from "@/addImage";
 import { ListAPIs } from "@/listAPIs";
 import { ListToolsTemplates } from "@/listToolsTemplates";
 import { autoHeight } from "@/utils/textAreaHelp";
-import Templates from "@/components/Templates";
 import VersionHint from "@/components/VersionHint";
 import WhisperButton from "@/components/WhisperButton";
-import AddToolMsg from "./AddToolMsg";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ChatInput } from "@/components/ui/chat/chat-input";
 import {
   ChatBubble,
-  ChatBubbleAvatar,
   ChatBubbleMessage,
   ChatBubbleAction,
   ChatBubbleActionWrapper,
@@ -43,33 +31,22 @@ import {
 
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
 import {
-  AlertTriangleIcon,
-  ArrowUpIcon,
+  ArrowDownToDotIcon,
   CornerDownLeftIcon,
   CornerLeftUpIcon,
-  CornerUpLeftIcon,
-  GlobeIcon,
+  CornerRightUpIcon,
   ImageIcon,
   InfoIcon,
-  KeyIcon,
-  SearchIcon,
-  Settings2,
-  Settings2Icon,
+  ScissorsIcon,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 
 import { AppContext } from "./App";
-import { addToRange } from "react-day-picker";
 
 export default function ChatBOX() {
   const ctx = useContext(AppContext);
@@ -428,21 +405,33 @@ export default function ChatBOX() {
         <NavigationMenu>
           <NavigationMenuList>
             {ctx.templateAPIs.length > 0 && (
-              <ListAPIs label="API" apiField="apiEndpoint" keyField="apiKey" />
+              <ListAPIs
+                label="Chat API"
+                shortLabel="API"
+                apiField="apiEndpoint"
+                keyField="apiKey"
+              />
             )}
             {ctx.templateAPIsWhisper.length > 0 && (
               <ListAPIs
                 label="Whisper API"
+                shortLabel="Whisper"
                 apiField="whisper_api"
                 keyField="whisper_key"
               />
             )}
             {ctx.templateAPIsTTS.length > 0 && (
-              <ListAPIs label="TTS API" apiField="tts_api" keyField="tts_key" />
+              <ListAPIs
+                label="TTS API"
+                shortLabel="TTS"
+                apiField="tts_api"
+                keyField="tts_key"
+              />
             )}
             {ctx.templateAPIsImageGen.length > 0 && (
               <ListAPIs
                 label="Image Gen API"
+                shortLabel="ImgGen"
                 apiField="image_gen_api"
                 keyField="image_gen_key"
               />
@@ -453,52 +442,31 @@ export default function ChatBOX() {
       </div>
       <div className="grow flex flex-col p-2 w-full">
         <ChatMessageList>
-          {chatStore.history.filter((msg) => !msg.example).length == 0 && (
-            <div className="bg-base-200 break-all p-3 my-3 text-left">
-              <h2>
-                <span>{Tr("Saved prompt templates")}</span>
-                <Button
-                  variant="link"
-                  className="mx-2"
-                  onClick={() => {
-                    chatStore.systemMessageContent = "";
-                    chatStore.toolsString = "";
-                    chatStore.history = [];
-                    setChatStore({ ...chatStore });
-                  }}
-                >
-                  {Tr("Reset Current")}
-                </Button>
-              </h2>
-              <div className="divider"></div>
-              <div className="flex flex-wrap">
-                <Templates />
-              </div>
-            </div>
-          )}
           {chatStore.history.length === 0 && (
             <Alert variant="default" className="my-3">
               <InfoIcon className="h-4 w-4" />
-              <AlertTitle>{Tr("No chat history here")}</AlertTitle>
+              <AlertTitle>
+                {Tr("This is a new chat session, start by typing a message")}
+              </AlertTitle>
               <AlertDescription className="flex flex-col gap-1 mt-5">
                 <div className="flex items-center gap-2">
-                  <Settings2Icon className="h-4 w-4" />
+                  <CornerRightUpIcon className="h-4 w-4" />
                   <span>
-                    {Tr("Model")}: {chatStore.model}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ArrowUpIcon className="h-4 w-4" />
-                  <span>
-                    {Tr("Click above to change the settings of this chat")}
+                    {Tr(
+                      "Settings button located at the top right corner can be used to change the settings of this chat"
+                    )}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CornerLeftUpIcon className="h-4 w-4" />
-                  <span>{Tr("Click the corner to create a new chat")}</span>
+                  <span>
+                    {Tr(
+                      "'New' button located at the top left corner can be used to create a new chat"
+                    )}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <AlertTriangleIcon className="h-4 w-4" />
+                  <ArrowDownToDotIcon className="h-4 w-4" />
                   <span>
                     {Tr(
                       "All chat history and settings are stored in the local browser"
@@ -525,8 +493,13 @@ export default function ChatBOX() {
               <ChatBubbleActionWrapper>
                 <ChatBubbleAction
                   className="size-7"
-                  icon={<Settings2Icon className="size-4" />}
-                  // TODO: add a button to show settings
+                  icon={<ScissorsIcon className="size-4" />}
+                  onClick={() => {
+                    chatStore.systemMessageContent = "";
+                    chatStore.toolsString = "";
+                    chatStore.history = [];
+                    setChatStore({ ...chatStore });
+                  }}
                 />
               </ChatBubbleActionWrapper>
             </ChatBubble>

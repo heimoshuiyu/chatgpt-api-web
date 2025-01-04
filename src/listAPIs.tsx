@@ -14,18 +14,20 @@ import { AppContext } from "./pages/App";
 
 interface Props {
   label: string;
+  shortLabel: string;
   apiField: string;
   keyField: string;
 }
-export function ListAPIs({ label, apiField, keyField }: Props) {
+export function ListAPIs({ label, shortLabel, apiField, keyField }: Props) {
   const ctx = useContext(AppContext);
   if (ctx === null) return <></>;
 
   return (
     <NavigationMenuItem>
       <NavigationMenuTrigger>
-        {label}{" "}
+        <span className="lg:hidden">{shortLabel}</span>
         <span className="hidden lg:inline">
+          {label}{" "}
           {ctx.templateAPIs.find(
             (t) =>
               ctx.chatStore[apiField as keyof ChatStore] === t.endpoint &&
