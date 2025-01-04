@@ -859,8 +859,8 @@ export default (props: {}) => {
                       label="Chat API"
                       endpoint={ctx.chatStore.apiEndpoint}
                       APIkey={ctx.chatStore.apiKey}
-                      tmps={ctx.templateAPIs}
-                      setTmps={ctx.setTemplateAPIs}
+                      temps={ctx.templateAPIs}
+                      setTemps={ctx.setTemplateAPIs}
                     />
                   </CardContent>
                 </Card>
@@ -964,8 +964,8 @@ export default (props: {}) => {
                         label="Whisper API"
                         endpoint={ctx.chatStore.whisper_api}
                         APIkey={ctx.chatStore.whisper_key}
-                        tmps={ctx.templateAPIsWhisper}
-                        setTmps={ctx.setTemplateAPIsWhisper}
+                        temps={ctx.templateAPIsWhisper}
+                        setTemps={ctx.setTemplateAPIsWhisper}
                       />
                     </CardContent>
                   </Card>
@@ -997,8 +997,8 @@ export default (props: {}) => {
                       label="TTS API"
                       endpoint={ctx.chatStore.tts_api}
                       APIkey={ctx.chatStore.tts_key}
-                      tmps={ctx.templateAPIsTTS}
-                      setTmps={ctx.setTemplateAPIsTTS}
+                      temps={ctx.templateAPIsTTS}
+                      setTemps={ctx.setTemplateAPIsTTS}
                     />
                   </CardContent>
                 </Card>
@@ -1122,8 +1122,8 @@ export default (props: {}) => {
                       label="Image Gen API"
                       endpoint={ctx.chatStore.image_gen_api}
                       APIkey={ctx.chatStore.image_gen_key}
-                      tmps={ctx.templateAPIsImageGen}
-                      setTmps={ctx.setTemplateAPIsImageGen}
+                      temps={ctx.templateAPIsImageGen}
+                      setTemps={ctx.setTemplateAPIsImageGen}
                     />
                   </CardContent>
                 </Card>

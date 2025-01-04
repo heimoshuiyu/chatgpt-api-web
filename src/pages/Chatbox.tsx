@@ -447,7 +447,7 @@ export default function ChatBOX() {
                 keyField="image_gen_key"
               />
             )}
-            {ctx.templateTools.length > 0 && <ListToolsTempaltes />}
+            {ctx.templateTools.length > 0 && <ListToolsTemplates />}
           </NavigationMenuList>
         </NavigationMenu>
       </div>
