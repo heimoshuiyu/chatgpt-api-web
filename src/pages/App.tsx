@@ -414,6 +414,7 @@ export function App() {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
+          <ModeToggle />
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive">{Tr("DEL")}</Button>

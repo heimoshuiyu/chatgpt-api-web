@@ -14,7 +14,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ModeToggle } from "@/components/ModeToggle";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -130,7 +129,6 @@ const Navbar: React.FC = () => {
                 </Menubar>
               </div>
             </div>
-            <ModeToggle />
           </div>
         </div>
         <div className="flex ml-auto gap-2 px-3">
