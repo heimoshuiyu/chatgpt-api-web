@@ -67,6 +67,7 @@ function MessageDetail({ chat, renderMarkdown }: MessageDetailProps) {
           <img
             className="my-2 rounded-md max-w-64 max-h-64"
             src={mdt.image_url?.url}
+            key={mdt.image_url?.url}
             onClick={() => {
               window.open(mdt.image_url?.url, "_blank");
             }}

@@ -463,7 +463,7 @@ export default function ChatBOX() {
             </ChatBubble>
           )}
           {chatStore.history.map((_, messageIndex) => (
-            <Message messageIndex={messageIndex} />
+            <Message messageIndex={messageIndex} key={messageIndex} />
           ))}
           {showGenerating && (
             <ChatBubble variant="received">

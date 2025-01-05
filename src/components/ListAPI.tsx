@@ -65,7 +65,7 @@ function APIsDropdownList({
       <NavigationMenuContent>
         <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
           {API.map((t: TemplateAPI, index: number) => (
-            <li>
+            <li key={index}>
               <NavigationMenuLink asChild>
                 <a
                   onClick={() => {
@@ -258,9 +258,15 @@ const APIListMenu: React.FC = () => {
               keyField="image_gen_key"
             />
           )}
-          {ctx.templateTools.length > 0 && <ToolsDropdownList />}
         </NavigationMenuList>
       </NavigationMenu>
+      {ctx.templateTools.length > 0 && (
+        <NavigationMenu>
+          <NavigationMenuList>
+            <ToolsDropdownList />
+          </NavigationMenuList>
+        </NavigationMenu>
+      )}
     </div>
   );
 };
