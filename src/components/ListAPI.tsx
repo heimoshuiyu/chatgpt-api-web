@@ -139,7 +139,7 @@ function ToolsDropdownList() {
   return (
     <NavigationMenuItem className="p-3">
       <NavigationMenuTrigger>
-        <span>{Tr(`Saved tools templates`)}</span>
+        <span>{Tr(`Tools`)}</span>
         <Button
           variant="link"
           className="ml-2 text-sm"

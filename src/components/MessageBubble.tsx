@@ -244,44 +244,6 @@ export default function Message(props: { messageIndex: number }) {
   const [showEdit, setShowEdit] = useState(false);
   const [renderMarkdown, setRenderWorkdown] = useState(false);
   const [renderColor, setRenderColor] = useState(false);
-  const DeleteIcon = () => (
-    <button
-      onClick={() => {
-        chatStore.history[messageIndex].hide =
-          !chatStore.history[messageIndex].hide;
-
-        //chatStore.totalTokens =
-        chatStore.totalTokens = 0;
-        for (const i of chatStore.history
-          .filter(({ hide }) => !hide)
-          .slice(chatStore.postBeginIndex)
-          .map(({ token }) => token)) {
-          chatStore.totalTokens += i;
-        }
-        setChatStore({ ...chatStore });
-      }}
-    >
-      Delete
-    </button>
-  );
-  const CopiedHint = () => (
-    <div role="alert" className="alert">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        className="stroke-info h-6 w-6 shrink-0"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        ></path>
-      </svg>
-      <span>{Tr("Message copied to clipboard!")}</span>
-    </div>
-  );
 
   const { toast } = useToast();
   const copyToClipboard = async (text: string) => {
@@ -307,20 +269,6 @@ export default function Message(props: { messageIndex: number }) {
       }
       document.body.removeChild(textArea);
     }
-  };
-
-  const CopyIcon = ({ textToCopy }: { textToCopy: string }) => {
-    return (
-      <>
-        <button
-          onClick={() => {
-            copyToClipboard(textToCopy);
-          }}
-        >
-          Copy
-        </button>
-      </>
-    );
   };
 
   return (

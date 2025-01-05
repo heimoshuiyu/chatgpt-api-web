@@ -53,6 +53,7 @@ import {
 } from "@/components/ui/select";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -73,6 +74,7 @@ import {
   KeyIcon,
   ListIcon,
   MoveHorizontalIcon,
+  SaveIcon,
   TriangleAlertIcon,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -581,25 +583,68 @@ export default (props: {}) => {
                 <div className="box">
                   <div className="flex justify-evenly flex-wrap">
                     {ctx.chatStore.toolsString.trim() && (
-                      <Button
-                        onClick={() => {
-                          const name = prompt(
-                            `Give this **Tools** template a name:`
-                          );
-                          if (!name) {
-                            alert("No template name specified");
-                            return;
-                          }
-                          const newToolsTmp: TemplateTools = {
-                            name,
-                            toolsString: ctx.chatStore.toolsString,
-                          };
-                          ctx.templateTools.push(newToolsTmp);
-                          ctx.setTemplateTools([...ctx.templateTools]);
-                        }}
-                      >
-                        {Tr(`Save Tools`)}
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">{Tr(`Save Tools`)}</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Save the tool as Template</DialogTitle>
+                            <DialogDescription>
+                              Once saved, you can easily access your tools from
+                              the dropdown menu.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="flex items-center space-x-2">
+                            <div className="grid flex-1 gap-2">
+                              <Label htmlFor="toolsName" className="sr-only">
+                                Name
+                              </Label>
+                              <Input
+                                id="toolsName"
+                                placeholder="Type Something..."
+                              />
+                              <Label
+                                id="toolsNameError"
+                                className="text-red-600"
+                              ></Label>
+                            </div>
+                          </div>
+                          <DialogFooter className="sm:justify-start">
+                            <DialogClose asChild>
+                              <Button
+                                type="submit"
+                                size="sm"
+                                className="px-3"
+                                onClick={() => {
+                                  const name = document.getElementById(
+                                    "toolsName" as string
+                                  ) as HTMLInputElement;
+                                  if (!name.value) {
+                                    const errorLabel = document.getElementById(
+                                      "toolsNameError" as string
+                                    ) as HTMLLabelElement;
+                                    if (errorLabel) {
+                                      errorLabel.textContent =
+                                        "Tool name is required.";
+                                    }
+                                    return;
+                                  }
+                                  const newToolsTmp: TemplateTools = {
+                                    name: name.value,
+                                    toolsString: ctx.chatStore.toolsString,
+                                  };
+                                  ctx.templateTools.push(newToolsTmp);
+                                  ctx.setTemplateTools([...ctx.templateTools]);
+                                }}
+                              >
+                                <SaveIcon className="w-4 h-4" /> Save
+                                <span className="sr-only">Save</span>
+                              </Button>
+                            </DialogClose>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     )}
                   </div>
                 </div>

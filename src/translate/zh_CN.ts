@@ -11,6 +11,8 @@ const LANG_MAP: Record<string, string> = {
   cost: "消费",
   stream: "流式返回",
   fetch: "一次获取",
+  Tools: "工具",
+  Clear: "清空",
   "saved api templates": "已保存的 API 模板",
   "saved prompt templates": "已保存的提示模板",
   "no chat history here": "暂无历史对话记录",
