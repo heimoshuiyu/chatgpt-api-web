@@ -5,6 +5,7 @@ import { Tr } from "@/translate";
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -29,7 +30,7 @@ export function ImageUploadDrawer({ setImages, images, disableFactor }: Props) {
   useState("b64_json");
   return (
     <Drawer open={showAddImage} onOpenChange={setShowAddImage}>
-      <DrawerTrigger>
+      <DrawerTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
@@ -40,6 +41,9 @@ export function ImageUploadDrawer({ setImages, images, disableFactor }: Props) {
           <span className="sr-only">Add Image</span>
         </Button>
       </DrawerTrigger>
+      <DrawerDescription className="sr-only">
+        Add images to the chat.
+      </DrawerDescription>
       <DrawerContent>
         <div className="mx-auto w-full max-w-lg">
           <DrawerHeader>

@@ -5,6 +5,7 @@ import { Tr } from "@/translate";
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
@@ -55,6 +56,9 @@ export function ImageGenDrawer({ disableFactor }: Props) {
               <span className="sr-only">Generate Image</span>
             </Button>
           </DrawerTrigger>
+          <DrawerDescription className="sr-only">
+            Generate images using the DALL-E model.
+          </DrawerDescription>
           <DrawerContent>
             <div className="mx-auto w-full max-w-lg">
               <DrawerHeader>
