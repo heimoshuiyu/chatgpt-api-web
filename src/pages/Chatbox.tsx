@@ -14,7 +14,7 @@ import ChatGPT, {
 import { ChatStoreMessage } from "../types/chatstore";
 import Message from "@/components/MessageBubble";
 import { models } from "@/types/models";
-import { AddImage } from "@/addImage";
+import { ImageUploadDrawer } from "@/components/ImageUploadDrawer";
 import { autoHeight } from "@/utils/textAreaHelp";
 import VersionHint from "@/components/VersionHint";
 import WhisperButton from "@/components/WhisperButton";
@@ -35,6 +35,7 @@ import {
   CornerRightUpIcon,
   ImageIcon,
   InfoIcon,
+  PaintBucketIcon,
   ScissorsIcon,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -42,6 +43,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { AppContext } from "./App";
 import APIListMenu from "@/components/ListAPI";
+import { ImageGenDrawer } from "@/components/ImageGenDrawer";
 
 export default function ChatBOX() {
   const ctx = useContext(AppContext);
@@ -58,6 +60,7 @@ export default function ChatBOX() {
   const [inputMsg, setInputMsg] = useState("");
   const [images, setImages] = useState<MessageDetail[]>([]);
   const [showAddImage, setShowAddImage] = useState(false);
+  const [showGenImage, setShowGenImage] = useState(false);
   const [showGenerating, setShowGenerating] = useState(false);
   const [generatingMessage, setGeneratingMessage] = useState("");
   const [showRetry, setShowRetry] = useState(false);
@@ -591,6 +594,16 @@ export default function ChatBOX() {
               <ImageIcon className="size-4" />
               <span className="sr-only">Add Image</span>
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              onClick={() => setShowGenImage(true)}
+              disabled={showGenerating}
+            >
+              <PaintBucketIcon className="size-4" />
+              <span className="sr-only">Generate Image</span>
+            </Button>
 
             {chatStore.whisper_api && chatStore.whisper_key && (
               <>
@@ -616,11 +629,15 @@ export default function ChatBOX() {
           </div>
         </form>
 
-        <AddImage
+        <ImageUploadDrawer
           setShowAddImage={setShowAddImage}
           images={images}
           showAddImage={showAddImage}
           setImages={setImages}
+        />
+        <ImageGenDrawer
+          showGenImage={showGenImage}
+          setShowGenImage={setShowGenImage}
         />
       </div>
     </>
