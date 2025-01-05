@@ -17,28 +17,45 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 
-interface APITemplateItemProps {
+interface APITemplateDropdownProps {
   label: string;
+  shortLabel: string;
+  ctx: any;
   apiField: string;
   keyField: string;
 }
-function ListAPIs({ label, apiField, keyField }: APITemplateItemProps) {
-  const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
+function APIsDropdownList({
+  label,
+  shortLabel,
+  ctx,
+  apiField,
+  keyField,
+}: APITemplateDropdownProps) {
+  let API = ctx.templateAPIs;
+  if (label === "Chat API") {
+    API = ctx.templateAPIs;
+  } else if (label === "Whisper API") {
+    API = ctx.templateAPIsWhisper;
+  } else if (label === "TTS API") {
+    API = ctx.templateAPIsTTS;
+  } else if (label === "Image Gen API") {
+    API = ctx.templateAPIsImageGen;
+  }
 
   return (
     <NavigationMenuItem>
       <NavigationMenuTrigger>
-        {label}{" "}
+        <span className="lg:hidden">{shortLabel}</span>
         <span className="hidden lg:inline">
-          {ctx.templateAPIs.find(
-            (t) =>
+          {label}{" "}
+          {API.find(
+            (t: TemplateAPI) =>
               ctx.chatStore[apiField as keyof ChatStore] === t.endpoint &&
               ctx.chatStore[keyField as keyof ChatStore] === t.key
           )?.name &&
             `: ${
-              ctx.templateAPIs.find(
-                (t) =>
+              API.find(
+                (t: TemplateAPI) =>
                   ctx.chatStore[apiField as keyof ChatStore] === t.endpoint &&
                   ctx.chatStore[keyField as keyof ChatStore] === t.key
               )?.name
@@ -47,7 +64,7 @@ function ListAPIs({ label, apiField, keyField }: APITemplateItemProps) {
       </NavigationMenuTrigger>
       <NavigationMenuContent>
         <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-          {ctx.templateAPIs.map((t, index) => (
+          {API.map((t: TemplateAPI, index: number) => (
             <li>
               <NavigationMenuLink asChild>
                 <a
@@ -113,7 +130,7 @@ function ListAPIs({ label, apiField, keyField }: APITemplateItemProps) {
   );
 }
 
-function ListToolsTemplates() {
+function ToolsDropdownList() {
   const ctx = useContext(AppContext);
   if (!ctx) return <div>error</div>;
 
@@ -198,7 +215,7 @@ function ListToolsTemplates() {
   );
 }
 
-const ListAPI: React.FC = () => {
+const APIListMenu: React.FC = () => {
   const ctx = useContext(AppContext);
   if (!ctx) return <div>error</div>;
   return (
@@ -206,34 +223,46 @@ const ListAPI: React.FC = () => {
       <NavigationMenu>
         <NavigationMenuList>
           {ctx.templateAPIs.length > 0 && (
-            <ListAPIs
+            <APIsDropdownList
               label="Chat API"
+              shortLabel="Chat"
+              ctx={ctx}
               apiField="apiEndpoint"
               keyField="apiKey"
             />
           )}
           {ctx.templateAPIsWhisper.length > 0 && (
-            <ListAPIs
+            <APIsDropdownList
               label="Whisper API"
+              shortLabel="Whisper"
+              ctx={ctx}
               apiField="whisper_api"
               keyField="whisper_key"
             />
           )}
           {ctx.templateAPIsTTS.length > 0 && (
-            <ListAPIs label="TTS API" apiField="tts_api" keyField="tts_key" />
+            <APIsDropdownList
+              label="TTS API"
+              shortLabel="TTS"
+              ctx={ctx}
+              apiField="tts_api"
+              keyField="tts_key"
+            />
           )}
           {ctx.templateAPIsImageGen.length > 0 && (
-            <ListAPIs
+            <APIsDropdownList
               label="Image Gen API"
+              shortLabel="ImgGen"
+              ctx={ctx}
               apiField="image_gen_api"
               keyField="image_gen_key"
             />
           )}
-          {ctx.templateTools.length > 0 && <ListToolsTemplates />}
+          {ctx.templateTools.length > 0 && <ToolsDropdownList />}
         </NavigationMenuList>
       </NavigationMenu>
     </div>
   );
 };
 
-export default ListAPI;
+export default APIListMenu;

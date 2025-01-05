@@ -41,7 +41,7 @@ import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { AppContext } from "./App";
-import ListAPI from "@/components/ListAPI";
+import APIListMenu from "@/components/ListAPI";
 
 export default function ChatBOX() {
   const ctx = useContext(AppContext);
@@ -61,8 +61,6 @@ export default function ChatBOX() {
   const [showGenerating, setShowGenerating] = useState(false);
   const [generatingMessage, setGeneratingMessage] = useState("");
   const [showRetry, setShowRetry] = useState(false);
-  const [showAddToolMsg, setShowAddToolMsg] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
   let default_follow = localStorage.getItem("follow");
   if (default_follow === null) {
     default_follow = "true";
@@ -396,7 +394,7 @@ export default function ChatBOX() {
 
   return (
     <>
-      <ListAPI />
+      <APIListMenu />
       <div className="grow flex flex-col p-2 w-full">
         <ChatMessageList>
           {chatStore.history.length === 0 && (
