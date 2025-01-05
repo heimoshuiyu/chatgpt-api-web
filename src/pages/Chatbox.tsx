@@ -584,33 +584,14 @@ export default function ChatBOX() {
             className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
           />
           <div className="flex items-center p-3 pt-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              type="button"
-              onClick={() => setShowAddImage(true)}
-              disabled={showGenerating}
-            >
-              <ImageIcon className="size-4" />
-              <span className="sr-only">Add Image</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              type="button"
-              onClick={() => setShowGenImage(true)}
-              disabled={showGenerating}
-            >
-              <PaintBucketIcon className="size-4" />
-              <span className="sr-only">Generate Image</span>
-            </Button>
+            <ImageUploadDrawer
+              images={images}
+              setImages={setImages}
+              disableFactor={[showGenerating]}
+            />
+            <ImageGenDrawer disableFactor={[showGenerating]} />
 
-            {chatStore.whisper_api && chatStore.whisper_key && (
-              <>
-                <WhisperButton inputMsg={inputMsg} setInputMsg={setInputMsg} />
-                <span className="sr-only">Use Microphone</span>
-              </>
-            )}
+            <WhisperButton inputMsg={inputMsg} setInputMsg={setInputMsg} />
 
             <Button
               size="sm"
@@ -628,17 +609,6 @@ export default function ChatBOX() {
             </Button>
           </div>
         </form>
-
-        <ImageUploadDrawer
-          setShowAddImage={setShowAddImage}
-          images={images}
-          showAddImage={showAddImage}
-          setImages={setImages}
-        />
-        <ImageGenDrawer
-          showGenImage={showGenImage}
-          setShowGenImage={setShowGenImage}
-        />
       </div>
     </>
   );

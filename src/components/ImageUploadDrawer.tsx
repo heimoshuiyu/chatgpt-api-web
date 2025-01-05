@@ -8,33 +8,38 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
+  DrawerTrigger,
 } from "@/components/ui/drawer";
 
 import { Button } from "@/components/ui/button";
-import { PenIcon, XIcon } from "lucide-react";
+import { PenIcon, XIcon, ImageIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
 import { AppContext } from "@/pages/App";
 
 interface Props {
   images: MessageDetail[];
-  showAddImage: boolean;
-  setShowAddImage: (se: boolean) => void;
   setImages: (images: MessageDetail[]) => void;
+  disableFactor: boolean[];
 }
-export function ImageUploadDrawer({
-  showAddImage,
-  setShowAddImage,
-  setImages,
-  images,
-}: Props) {
+export function ImageUploadDrawer({ setImages, images, disableFactor }: Props) {
   const ctx = useContext(AppContext);
   if (ctx === null) return <></>;
-
+  const [showAddImage, setShowAddImage] = useState(false);
   const [enableHighResolution, setEnableHighResolution] = useState(true);
   useState("b64_json");
   return (
     <Drawer open={showAddImage} onOpenChange={setShowAddImage}>
+      <DrawerTrigger>
+        <Button
+          variant="ghost"
+          size="icon"
+          type="button"
+          disabled={disableFactor.some((factor) => factor)}
+        >
+          <ImageIcon className="size-4" />
+          <span className="sr-only">Add Image</span>
+        </Button>
+      </DrawerTrigger>
       <DrawerContent>
         <div className="mx-auto w-full max-w-lg">
           <DrawerHeader>
