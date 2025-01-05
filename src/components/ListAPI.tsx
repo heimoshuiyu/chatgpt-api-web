@@ -137,19 +137,9 @@ function ToolsDropdownList() {
   const { chatStore, setChatStore } = ctx;
 
   return (
-    <NavigationMenuItem className="p-3">
+    <NavigationMenuItem>
       <NavigationMenuTrigger>
         <span>{Tr(`Tools`)}</span>
-        <Button
-          variant="link"
-          className="ml-2 text-sm"
-          onClick={() => {
-            chatStore.toolsString = "";
-            setChatStore({ ...chatStore });
-          }}
-        >
-          {Tr(`Clear`)}
-        </Button>
       </NavigationMenuTrigger>
       <NavigationMenuContent>
         <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
@@ -177,6 +167,16 @@ function ToolsDropdownList() {
                 </a>
               </NavigationMenuLink>
               <div className="mt-2 flex justify-between">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    chatStore.toolsString = "";
+                    setChatStore({ ...chatStore });
+                  }}
+                >
+                  {Tr(`Clear`)}
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
