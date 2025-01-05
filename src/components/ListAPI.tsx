@@ -173,7 +173,7 @@ function ToolsDropdownList() {
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0" side="right" align="start">
+        <PopoverContent className="p-0" side="bottom" align="start">
           <Command>
             <CommandInput placeholder="You can search..." />
             <CommandList>
