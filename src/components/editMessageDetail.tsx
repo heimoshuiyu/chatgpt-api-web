@@ -13,9 +13,9 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 
-import { Button } from "./components/ui/button";
+import { Button } from "./ui/button";
 import { useContext } from "react";
-import { AppContext } from "./pages/App";
+import { AppContext } from "../pages/App";
 
 interface Props {
   chat: ChatStoreMessage;

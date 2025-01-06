@@ -3,17 +3,12 @@ import { themeChange } from "theme-change";
 import { useRef } from "react";
 import { useContext, useEffect, useState, Dispatch } from "react";
 import { clearTotalCost, getTotalCost } from "@/utils/totalCost";
-import {
-  ChatStore,
-  TemplateChatStore,
-  TemplateAPI,
-  TemplateTools,
-} from "@/types/chatstore";
+import { ChatStore, TemplateChatStore, TemplateTools } from "@/types/chatstore";
 import { models } from "@/types/models";
 import { tr, Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
-import { isVailedJSON } from "@/message";
-import { SetAPIsTemplate } from "@/setAPIsTemplate";
-import { autoHeight } from "@/textarea";
+import { isVailedJSON } from "@/utils/isVailedJSON";
+import { SetAPIsTemplate } from "@/components/setAPIsTemplate";
+import { autoHeight } from "@/utils/textAreaHelp";
 import { getDefaultParams } from "@/utils/getDefaultParam";
 
 import { Button } from "@/components/ui/button";
@@ -53,6 +48,7 @@ import {
 } from "@/components/ui/select";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -61,18 +57,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
   BanIcon,
   CheckIcon,
   CircleEllipsisIcon,
   CogIcon,
-  Ellipsis,
   EyeIcon,
   InfoIcon,
   KeyIcon,
   ListIcon,
   MoveHorizontalIcon,
+  SaveIcon,
+  TriangleAlertIcon,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
@@ -475,7 +473,152 @@ const Choice = (props: {
   );
 };
 
-export default (props: { setShow: Dispatch<boolean> }) => {
+const APIShowBlock = (props: {
+  ctx: any;
+  index: number;
+  label: string;
+  type: string;
+  apiField: string;
+  keyField: string;
+}) => {
+  return (
+    <div className="border-b border-gray-200 pb-4 pt-4">
+      <Badge variant="outline">{props.type}</Badge> <Label>{props.label}</Label>
+      <div className="mt-4">
+        <div className="grid w-full max-w-sm items-center gap-1.5 mt-2">
+          <Label>Endpoint</Label> {props.apiField}
+        </div>
+        <div className="grid w-full max-w-sm items-center gap-1.5 mt-2">
+          <Label>Key</Label>
+          {props.keyField ? (
+            props.keyField
+          ) : (
+            <span className="text-gray-500 italic">empty</span>
+          )}
+        </div>
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        className="mt-2 mr-2"
+        onClick={() => {
+          const name = prompt(`Give template ${props.label} a new name`);
+          if (!name) return;
+          if (props.type === "Chat") {
+            props.ctx.templateAPIs[props.index].name = name;
+            props.ctx.setTemplateAPIs(structuredClone(props.ctx.templateAPIs));
+          } else if (props.type === "Whisper") {
+            props.ctx.templateAPIsWhisper[props.index].name = name;
+            props.ctx.setTemplateAPIsWhisper(
+              structuredClone(props.ctx.templateAPIsWhisper)
+            );
+          } else if (props.type === "TTS") {
+            props.ctx.templateAPIsTTS[props.index].name = name;
+            props.ctx.setTemplateAPIsTTS(
+              structuredClone(props.ctx.templateAPIsTTS)
+            );
+          } else if (props.type === "ImgGen") {
+            props.ctx.templateAPIsImageGen[props.index].name = name;
+            props.ctx.setTemplateAPIsImageGen(
+              structuredClone(props.ctx.templateAPIsImageGen)
+            );
+          }
+        }}
+      >
+        Change Name
+      </Button>
+      <Button
+        variant="destructive"
+        size="sm"
+        className="mt-2"
+        onClick={() => {
+          if (!props.ctx) return;
+          if (
+            !confirm(
+              `Are you sure to delete ${props.label}(${props.type}) API?`
+            )
+          ) {
+            return;
+          }
+          if (props.type === "Chat") {
+            props.ctx.templateAPIs.splice(props.index, 1);
+            props.ctx.setTemplateAPIs(structuredClone(props.ctx.templateAPIs));
+          } else if (props.type === "Whisper") {
+            props.ctx.templateAPIsWhisper.splice(props.index, 1);
+            props.ctx.setTemplateAPIsWhisper(
+              structuredClone(props.ctx.templateAPIsWhisper)
+            );
+          } else if (props.type === "TTS") {
+            props.ctx.templateAPIsTTS.splice(props.index, 1);
+            props.ctx.setTemplateAPIsTTS(
+              structuredClone(props.ctx.templateAPIsTTS)
+            );
+          } else if (props.type === "ImgGen") {
+            props.ctx.templateAPIsImageGen.splice(props.index, 1);
+            props.ctx.setTemplateAPIsImageGen(
+              structuredClone(props.ctx.templateAPIsImageGen)
+            );
+          }
+        }}
+      >
+        Delete
+      </Button>
+    </div>
+  );
+};
+
+const ToolsShowBlock = (props: {
+  ctx: any;
+  index: number;
+  label: string;
+  content: string;
+}) => {
+  return (
+    <div className="border-b border-gray-200 pb-4 pt-4">
+      <Badge variant="outline">Tool</Badge> <Label>{props.label}</Label>
+      <div className="mt-4">
+        <div className="grid w-full max-w-sm items-center gap-1.5 mt-2">
+          <Label>Content</Label>
+          <ScrollArea className="w-72 whitespace-nowrap rounded-md border">
+            <pre className="text-xs">
+              {JSON.stringify(JSON.parse(props.content), null, 2)}
+            </pre>
+          </ScrollArea>
+        </div>
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        className="mt-2 mr-2"
+        onClick={() => {
+          const name = prompt(`Give the tool ${props.label} a new name`);
+          if (!name) return;
+          props.ctx.templateTools[props.index].name = name;
+          props.ctx.setTemplateTools(structuredClone(props.ctx.templateTools));
+        }}
+      >
+        Edit
+      </Button>
+      <Button
+        variant="destructive"
+        size="sm"
+        className="mt-2"
+        onClick={() => {
+          if (!props.ctx) return;
+          if (!confirm(`Are you sure to delete ${props.label} Tool?`)) {
+            return;
+          }
+          props.ctx.templateTools.splice(props.index, 1);
+          props.ctx.setTemplateTools(structuredClone(props.ctx.templateTools));
+        }}
+      >
+        Delete
+      </Button>
+    </div>
+  );
+};
+
+export default (props: {}) => {
   const ctx = useContext(AppContext);
   if (ctx === null) return <></>;
 
@@ -497,13 +640,14 @@ export default (props: { setShow: Dispatch<boolean> }) => {
   const [totalCost, setTotalCost] = useState(getTotalCost());
   // @ts-ignore
   const { langCode, setLangCode } = useContext(langCodeContext);
+  const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
     themeChange(false);
     const handleKeyPress = (event: any) => {
       if (event.keyCode === 27) {
         // keyCode for ESC key is 27
-        props.setShow(false);
+        setOpen(false);
       }
     };
 
@@ -514,10 +658,13 @@ export default (props: { setShow: Dispatch<boolean> }) => {
     };
   }, []); // The empty dependency array ensures that the effect runs only once
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" className="flex-grow">
           {Tr("Settings")}
+          {(!ctx.chatStore.apiKey || !ctx.chatStore.apiEndpoint) && (
+            <TriangleAlertIcon className="w-4 h-4 ml-1 text-yellow-500" />
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent className="flex flex-col overflow-scroll">
@@ -576,25 +723,68 @@ export default (props: { setShow: Dispatch<boolean> }) => {
                 <div className="box">
                   <div className="flex justify-evenly flex-wrap">
                     {ctx.chatStore.toolsString.trim() && (
-                      <Button
-                        onClick={() => {
-                          const name = prompt(
-                            `Give this **Tools** template a name:`
-                          );
-                          if (!name) {
-                            alert("No template name specified");
-                            return;
-                          }
-                          const newToolsTmp: TemplateTools = {
-                            name,
-                            toolsString: ctx.chatStore.toolsString,
-                          };
-                          ctx.templateTools.push(newToolsTmp);
-                          ctx.setTemplateTools([...ctx.templateTools]);
-                        }}
-                      >
-                        {Tr(`Save Tools`)}
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">{Tr(`Save Tools`)}</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Save the tool as Template</DialogTitle>
+                            <DialogDescription>
+                              Once saved, you can easily access your tools from
+                              the dropdown menu.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="flex items-center space-x-2">
+                            <div className="grid flex-1 gap-2">
+                              <Label htmlFor="toolsName" className="sr-only">
+                                Name
+                              </Label>
+                              <Input
+                                id="toolsName"
+                                placeholder="Type Something..."
+                              />
+                              <Label
+                                id="toolsNameError"
+                                className="text-red-600"
+                              ></Label>
+                            </div>
+                          </div>
+                          <DialogFooter className="sm:justify-start">
+                            <DialogClose asChild>
+                              <Button
+                                type="submit"
+                                size="sm"
+                                className="px-3"
+                                onClick={() => {
+                                  const name = document.getElementById(
+                                    "toolsName" as string
+                                  ) as HTMLInputElement;
+                                  if (!name.value) {
+                                    const errorLabel = document.getElementById(
+                                      "toolsNameError" as string
+                                    ) as HTMLLabelElement;
+                                    if (errorLabel) {
+                                      errorLabel.textContent =
+                                        "Tool name is required.";
+                                    }
+                                    return;
+                                  }
+                                  const newToolsTmp: TemplateTools = {
+                                    name: name.value,
+                                    toolsString: ctx.chatStore.toolsString,
+                                  };
+                                  ctx.templateTools.push(newToolsTmp);
+                                  ctx.setTemplateTools([...ctx.templateTools]);
+                                }}
+                              >
+                                <SaveIcon className="w-4 h-4" /> Save
+                                <span className="sr-only">Save</span>
+                              </Button>
+                            </DialogClose>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     )}
                   </div>
                 </div>
@@ -854,8 +1044,8 @@ export default (props: { setShow: Dispatch<boolean> }) => {
                       label="Chat API"
                       endpoint={ctx.chatStore.apiEndpoint}
                       APIkey={ctx.chatStore.apiKey}
-                      tmps={ctx.templateAPIs}
-                      setTmps={ctx.setTemplateAPIs}
+                      temps={ctx.templateAPIs}
+                      setTemps={ctx.setTemplateAPIs}
                     />
                   </CardContent>
                 </Card>
@@ -959,8 +1149,8 @@ export default (props: { setShow: Dispatch<boolean> }) => {
                         label="Whisper API"
                         endpoint={ctx.chatStore.whisper_api}
                         APIkey={ctx.chatStore.whisper_key}
-                        tmps={ctx.templateAPIsWhisper}
-                        setTmps={ctx.setTemplateAPIsWhisper}
+                        temps={ctx.templateAPIsWhisper}
+                        setTemps={ctx.setTemplateAPIsWhisper}
                       />
                     </CardContent>
                   </Card>
@@ -992,8 +1182,8 @@ export default (props: { setShow: Dispatch<boolean> }) => {
                       label="TTS API"
                       endpoint={ctx.chatStore.tts_api}
                       APIkey={ctx.chatStore.tts_key}
-                      tmps={ctx.templateAPIsTTS}
-                      setTmps={ctx.setTemplateAPIsTTS}
+                      temps={ctx.templateAPIsTTS}
+                      setTemps={ctx.setTemplateAPIsTTS}
                     />
                   </CardContent>
                 </Card>
@@ -1117,11 +1307,74 @@ export default (props: { setShow: Dispatch<boolean> }) => {
                       label="Image Gen API"
                       endpoint={ctx.chatStore.image_gen_api}
                       APIkey={ctx.chatStore.image_gen_key}
-                      tmps={ctx.templateAPIsImageGen}
-                      setTmps={ctx.setTemplateAPIsImageGen}
+                      temps={ctx.templateAPIsImageGen}
+                      setTemps={ctx.setTemplateAPIsImageGen}
                     />
                   </CardContent>
                 </Card>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="templates">
+              <AccordionTrigger>Saved Template</AccordionTrigger>
+              <AccordionContent>
+                {ctx.templateAPIs.map((template, index) => (
+                  <div key={index}>
+                    <APIShowBlock
+                      ctx={ctx}
+                      index={index}
+                      label={template.name}
+                      type="Chat"
+                      apiField={template.endpoint}
+                      keyField={template.key}
+                    />
+                  </div>
+                ))}
+                {ctx.templateAPIsWhisper.map((template, index) => (
+                  <div key={index}>
+                    <APIShowBlock
+                      ctx={ctx}
+                      index={index}
+                      label={template.name}
+                      type="Whisper"
+                      apiField={template.endpoint}
+                      keyField={template.key}
+                    />
+                  </div>
+                ))}
+                {ctx.templateAPIsTTS.map((template, index) => (
+                  <div key={index}>
+                    <APIShowBlock
+                      ctx={ctx}
+                      index={index}
+                      label={template.name}
+                      type="TTS"
+                      apiField={template.endpoint}
+                      keyField={template.key}
+                    />
+                  </div>
+                ))}
+                {ctx.templateAPIsImageGen.map((template, index) => (
+                  <div key={index}>
+                    <APIShowBlock
+                      ctx={ctx}
+                      index={index}
+                      label={template.name}
+                      type="ImgGen"
+                      apiField={template.endpoint}
+                      keyField={template.key}
+                    />
+                  </div>
+                ))}
+                {ctx.templateTools.map((template, index) => (
+                  <div key={index}>
+                    <ToolsShowBlock
+                      ctx={ctx}
+                      index={index}
+                      label={template.name}
+                      content={template.toolsString}
+                    />
+                  </div>
+                ))}
               </AccordionContent>
             </AccordionItem>
           </Accordion>

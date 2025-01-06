@@ -1,11 +1,11 @@
 import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
-import { isVailedJSON } from "@/message";
+import { isVailedJSON } from "@/utils/isVailedJSON";
 import { calculate_token_length } from "@/chatgpt";
 import { Tr } from "@/translate";
 
 import { Textarea } from "@/components/ui/textarea";
 import { useContext } from "react";
-import { AppContext } from "./pages/App";
+import { AppContext } from "../pages/App";
 
 interface Props {
   chat: ChatStoreMessage;

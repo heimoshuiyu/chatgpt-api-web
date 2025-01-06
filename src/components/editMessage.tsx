@@ -1,8 +1,8 @@
 import { useState, useEffect, Dispatch, useContext } from "react";
 import { Tr, langCodeContext, LANG_OPTIONS, tr } from "@/translate";
 import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
-import { EditMessageString } from "@/editMessageString";
-import { EditMessageDetail } from "@/editMessageDetail";
+import { EditMessageString } from "@/components/editMessageString";
+import { EditMessageDetail } from "@/components/editMessageDetail";
 
 import {
   Dialog,
@@ -12,8 +12,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "./components/ui/button";
-import { AppContext } from "./pages/App";
+import { Button } from "./ui/button";
+import { AppContext } from "../pages/App";
 
 interface EditMessageProps {
   chat: ChatStoreMessage;

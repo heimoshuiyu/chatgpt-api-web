@@ -5,7 +5,7 @@ import { App } from "@/pages/App";
 import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 function Base() {
   const [langCode, _setLangCode] = useState("en-US");

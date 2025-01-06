@@ -1,41 +1,239 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Markdown from "react-markdown";
-import { useContext, useState } from "react";
+import { useContext, useState, useMemo } from "react";
+import { ChatStoreMessage } from "@/types/chatstore";
+import { addTotalCost } from "@/utils/totalCost";
 
-import { Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
-import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
-import { calculate_token_length, getMessageText } from "@/chatgpt";
-import TTSButton, { TTSPlay } from "@/tts";
-import { MessageHide } from "@/messageHide";
-import { MessageDetail } from "@/messageDetail";
-import { MessageToolCall } from "@/messageToolCall";
-import { MessageToolResp } from "@/messageToolResp";
-import { EditMessage } from "@/editMessage";
-import logprobToColor from "@/logprob";
+import { Tr } from "@/translate";
+import { getMessageText } from "@/chatgpt";
+import { EditMessage } from "@/components/editMessage";
+import logprobToColor from "@/utils/logprob";
 import {
   ChatBubble,
-  ChatBubbleAvatar,
   ChatBubbleMessage,
   ChatBubbleAction,
   ChatBubbleActionWrapper,
 } from "@/components/ui/chat/chat-bubble";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
   ClipboardIcon,
   PencilIcon,
   MessageSquareOffIcon,
   MessageSquarePlusIcon,
+  AudioLinesIcon,
+  LoaderCircleIcon,
 } from "lucide-react";
-import { AppContext } from "./pages/App";
+import { AppContext } from "@/pages/App";
 
-export const isVailedJSON = (str: string): boolean => {
-  try {
-    JSON.parse(str);
-  } catch (e) {
-    return false;
+interface HideMessageProps {
+  chat: ChatStoreMessage;
+}
+
+function MessageHide({ chat }: HideMessageProps) {
+  return (
+    <>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <span>{getMessageText(chat).split("\n")[0].slice(0, 28)} ...</span>
+      </div>
+      <div className="flex mt-2 justify-center">
+        <Badge variant="destructive">Removed from context</Badge>
+      </div>
+    </>
+  );
+}
+
+interface MessageDetailProps {
+  chat: ChatStoreMessage;
+  renderMarkdown: boolean;
+}
+function MessageDetail({ chat, renderMarkdown }: MessageDetailProps) {
+  if (typeof chat.content === "string") {
+    return <div></div>;
   }
-  return true;
-};
+  return (
+    <div>
+      {chat.content.map((mdt) =>
+        mdt.type === "text" ? (
+          chat.hide ? (
+            mdt.text?.split("\n")[0].slice(0, 16) + " ..."
+          ) : renderMarkdown ? (
+            <Markdown>{mdt.text}</Markdown>
+          ) : (
+            mdt.text
+          )
+        ) : (
+          <img
+            className="my-2 rounded-md max-w-64 max-h-64"
+            src={mdt.image_url?.url}
+            key={mdt.image_url?.url}
+            onClick={() => {
+              window.open(mdt.image_url?.url, "_blank");
+            }}
+          />
+        )
+      )}
+    </div>
+  );
+}
+
+interface ToolCallMessageProps {
+  chat: ChatStoreMessage;
+  copyToClipboard: (text: string) => void;
+}
+function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
+  return (
+    <div className="message-content">
+      {chat.tool_calls?.map((tool_call) => (
+        <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded my-1">
+          <strong>
+            Tool Call ID:{" "}
+            <span
+              className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+              onClick={() => copyToClipboard(String(tool_call.id))}
+            >
+              {tool_call?.id}
+            </span>
+          </strong>
+          <p>Type: {tool_call?.type}</p>
+          <p>
+            Function:
+            <span
+              className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+              onClick={() => copyToClipboard(tool_call.function.name)}
+            >
+              {tool_call.function.name}
+            </span>
+          </p>
+          <p>
+            Arguments:
+            <span
+              className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+              onClick={() => copyToClipboard(tool_call.function.arguments)}
+            >
+              {tool_call.function.arguments}
+            </span>
+          </p>
+        </div>
+      ))}
+      {/* [TODO] */}
+      {chat.content as string}
+    </div>
+  );
+}
+
+interface ToolRespondMessageProps {
+  chat: ChatStoreMessage;
+  copyToClipboard: (text: string) => void;
+}
+function MessageToolResp({ chat, copyToClipboard }: ToolRespondMessageProps) {
+  return (
+    <div className="message-content">
+      <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded my-1">
+        <strong>
+          Tool Response ID:{" "}
+          <span
+            className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
+            onClick={() => copyToClipboard(String(chat.tool_call_id))}
+          >
+            {chat.tool_call_id}
+          </span>
+        </strong>
+        {/* [TODO] */}
+        <p>{chat.content as string}</p>
+      </div>
+    </div>
+  );
+}
+
+interface TTSProps {
+  chat: ChatStoreMessage;
+}
+interface TTSPlayProps {
+  chat: ChatStoreMessage;
+}
+export function TTSPlay(props: TTSPlayProps) {
+  const src = useMemo(() => {
+    if (props.chat.audio instanceof Blob) {
+      return URL.createObjectURL(props.chat.audio);
+    }
+    return "";
+  }, [props.chat.audio]);
+
+  if (props.chat.hide) {
+    return <></>;
+  }
+  if (props.chat.audio instanceof Blob) {
+    return <audio className="w-64" src={src} controls />;
+  }
+  return <></>;
+}
+function TTSButton(props: TTSProps) {
+  const [generating, setGenerating] = useState(false);
+  const ctx = useContext(AppContext);
+  if (!ctx) return <div>error</div>;
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => {
+        const api = ctx.chatStore.tts_api;
+        const api_key = ctx.chatStore.tts_key;
+        const model = "tts-1";
+        const input = getMessageText(props.chat);
+        const voice = ctx.chatStore.tts_voice;
+
+        const body: Record<string, any> = {
+          model,
+          input,
+          voice,
+          response_format: ctx.chatStore.tts_format || "mp3",
+        };
+        if (ctx.chatStore.tts_speed_enabled) {
+          body["speed"] = ctx.chatStore.tts_speed;
+        }
+
+        setGenerating(true);
+
+        fetch(api, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${api_key}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        })
+          .then((response) => response.blob())
+          .then((blob) => {
+            // update price
+            const cost = (input.length * 0.015) / 1000;
+            ctx.chatStore.cost += cost;
+            addTotalCost(cost);
+            ctx.setChatStore({ ...ctx.chatStore });
+
+            // save blob
+            props.chat.audio = blob;
+            ctx.setChatStore({ ...ctx.chatStore });
+
+            const url = URL.createObjectURL(blob);
+            const audio = new Audio(url);
+            audio.play();
+          })
+          .finally(() => {
+            setGenerating(false);
+          });
+      }}
+    >
+      {generating ? (
+        <LoaderCircleIcon className="h-4 w-4 animate-spin" />
+      ) : (
+        <AudioLinesIcon className="h-4 w-4" />
+      )}
+    </Button>
+  );
+}
 
 export default function Message(props: { messageIndex: number }) {
   const ctx = useContext(AppContext);
@@ -45,47 +243,8 @@ export default function Message(props: { messageIndex: number }) {
 
   const chat = chatStore.history[messageIndex];
   const [showEdit, setShowEdit] = useState(false);
-  const [showCopiedHint, setShowCopiedHint] = useState(false);
   const [renderMarkdown, setRenderWorkdown] = useState(false);
   const [renderColor, setRenderColor] = useState(false);
-  const DeleteIcon = () => (
-    <button
-      onClick={() => {
-        chatStore.history[messageIndex].hide =
-          !chatStore.history[messageIndex].hide;
-
-        //chatStore.totalTokens =
-        chatStore.totalTokens = 0;
-        for (const i of chatStore.history
-          .filter(({ hide }) => !hide)
-          .slice(chatStore.postBeginIndex)
-          .map(({ token }) => token)) {
-          chatStore.totalTokens += i;
-        }
-        setChatStore({ ...chatStore });
-      }}
-    >
-      Delete
-    </button>
-  );
-  const CopiedHint = () => (
-    <div role="alert" className="alert">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        className="stroke-info h-6 w-6 shrink-0"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-        ></path>
-      </svg>
-      <span>{Tr("Message copied to clipboard!")}</span>
-    </div>
-  );
 
   const { toast } = useToast();
   const copyToClipboard = async (text: string) => {
@@ -111,20 +270,6 @@ export default function Message(props: { messageIndex: number }) {
       }
       document.body.removeChild(textArea);
     }
-  };
-
-  const CopyIcon = ({ textToCopy }: { textToCopy: string }) => {
-    return (
-      <>
-        <button
-          onClick={() => {
-            copyToClipboard(textToCopy);
-          }}
-        >
-          Copy
-        </button>
-      </>
-    );
   };
 
   return (
