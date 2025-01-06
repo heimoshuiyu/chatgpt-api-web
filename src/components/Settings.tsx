@@ -486,12 +486,19 @@ const APIShowBlock = (props: {
       <Badge variant="outline">{props.type}</Badge> <Label>{props.label}</Label>
       <div className="mt-4">
         <div className="grid w-full max-w-sm items-center gap-1.5 mt-2">
-          <Label>Endpoint</Label> {props.apiField}
+          <Label>Endpoint</Label>
+          <div className="w-72">
+            <pre className="text-xs whitespace-pre-wrap">{props.apiField}</pre>
+          </div>
         </div>
         <div className="grid w-full max-w-sm items-center gap-1.5 mt-2">
           <Label>Key</Label>
           {props.keyField ? (
-            props.keyField
+            <div className="w-72">
+              <pre className="text-xs whitespace-pre-wrap">
+                {props.keyField}
+              </pre>
+            </div>
           ) : (
             <span className="text-gray-500 italic">empty</span>
           )}
