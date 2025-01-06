@@ -107,37 +107,6 @@ function APIsDropdownList({
                   </p>
                 </a>
               </NavigationMenuLink>
-              <div className="mt-2 flex justify-between">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    const name = prompt(`Give **${label}** template a name`);
-                    if (!name) return;
-                    t.name = name;
-                    ctx.setTemplateAPIs(structuredClone(ctx.templateAPIs));
-                  }}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    if (
-                      !confirm(
-                        `Are you sure to delete this **${label}** template?`
-                      )
-                    ) {
-                      return;
-                    }
-                    ctx.templateAPIs.splice(index, 1);
-                    ctx.setTemplateAPIs(structuredClone(ctx.templateAPIs));
-                  }}
-                >
-                  Delete
-                </Button>
-              </div>
             </li>
           ))}
         </ul>

@@ -33,9 +33,7 @@ import {
   CornerDownLeftIcon,
   CornerLeftUpIcon,
   CornerRightUpIcon,
-  ImageIcon,
   InfoIcon,
-  PaintBucketIcon,
   ScissorsIcon,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
