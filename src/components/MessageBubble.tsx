@@ -6,7 +6,7 @@ import { addTotalCost } from "@/utils/totalCost";
 
 import { Tr } from "@/translate";
 import { getMessageText } from "@/chatgpt";
-import { EditMessage } from "@/editMessage";
+import { EditMessage } from "@/components/editMessage";
 import logprobToColor from "@/utils/logprob";
 import {
   ChatBubble,

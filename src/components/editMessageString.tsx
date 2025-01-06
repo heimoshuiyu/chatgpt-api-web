@@ -5,7 +5,7 @@ import { Tr } from "@/translate";
 
 import { Textarea } from "@/components/ui/textarea";
 import { useContext } from "react";
-import { AppContext } from "./pages/App";
+import { AppContext } from "../pages/App";
 
 interface Props {
   chat: ChatStoreMessage;
