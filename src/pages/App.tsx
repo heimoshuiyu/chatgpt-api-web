@@ -115,7 +115,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ModeToggle } from "@/components/ModeToggle";
 
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/navbar";
 
 export function App() {
   // init selected index
