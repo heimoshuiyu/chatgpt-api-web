@@ -80,39 +80,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarCheckboxItem,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
-
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-
 import { useToast } from "@/hooks/use-toast";
-import { Separator } from "@/components/ui/separator";
-import {
-  BoxesIcon,
-  ArrowUpDownIcon,
-  CircleDollarSignIcon,
-  ScissorsIcon,
-  WholeWordIcon,
-  EllipsisIcon,
-  CogIcon,
-  Menu,
-  ReceiptIcon,
-  WalletIcon,
-  RulerIcon,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { ModeToggle } from "@/components/ModeToggle";
 
 import Navbar from "@/components/navbar";
