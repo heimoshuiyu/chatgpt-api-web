@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/pagination";
 
 import { Input } from "./ui/input";
-import { AppContext } from "../pages/App";
+import { App, AppContext } from "../pages/App";
 import { Button } from "./ui/button";
 import { SearchIcon } from "lucide-react";
 
@@ -33,9 +33,7 @@ interface ChatStoreSearchResult {
 }
 
 export default function Search() {
-  const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
-  const { setSelectedChatIndex, db } = ctx;
+  const { setSelectedChatIndex, db } = useContext(AppContext);
 
   const [searchResult, setSearchResult] = useState<ChatStoreSearchResult[]>([]);
   const [searching, setSearching] = useState<boolean>(false);

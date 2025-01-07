@@ -26,7 +26,7 @@ import {
   ArrowUpDownIcon,
   ScissorsIcon,
 } from "lucide-react";
-import { AppContext } from "@/pages/App";
+import { AppChatStoreContext, AppContext } from "@/pages/App";
 import { models } from "@/types/models";
 import { getTotalCost } from "@/utils/totalCost";
 import { Tr } from "@/translate";
@@ -36,9 +36,7 @@ import Search from "@/components/Search";
 import Settings from "@/components/Settings";
 
 const Navbar: React.FC = () => {
-  const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
-  const { chatStore, setChatStore } = ctx;
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
 
   return (
     <header className="flex sticky top-0 bg-background h-14 shrink-0 items-center border-b z-50">

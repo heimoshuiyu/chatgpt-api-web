@@ -3,15 +3,13 @@ import { createRef, useContext } from "react";
 import { useState, Dispatch } from "react";
 import { Button } from "@/components/ui/button";
 import { AudioWaveformIcon, CircleStopIcon, MicIcon } from "lucide-react";
-import { AppContext } from "@/pages/App";
+import { AppChatStoreContext, AppContext } from "@/pages/App";
 
 const WhisperButton = (props: {
   inputMsg: string;
   setInputMsg: Dispatch<string>;
 }) => {
-  const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
-  const { chatStore } = ctx;
+  const { chatStore } = useContext(AppChatStoreContext);
 
   const { inputMsg, setInputMsg } = props;
   const mediaRef = createRef();

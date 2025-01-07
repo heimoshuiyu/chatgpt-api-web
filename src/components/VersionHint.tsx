@@ -1,13 +1,10 @@
 import { ChatStore } from "@/types/chatstore";
 import { Tr } from "@/translate";
 import { useContext } from "react";
-import { AppContext } from "@/pages/App";
+import { AppChatStoreContext, AppContext } from "@/pages/App";
 
 const VersionHint = () => {
-  const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
-
-  const { chatStore } = ctx;
+  const { chatStore } = useContext(AppChatStoreContext);
   return (
     <>
       {chatStore.chatgpt_api_web_version < "v1.3.0" && (

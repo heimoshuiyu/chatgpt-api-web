@@ -39,22 +39,15 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-import { AppContext } from "./App";
+import { AppChatStoreContext, AppContext } from "./App";
 import APIListMenu from "@/components/ListAPI";
 import { ImageGenDrawer } from "@/components/ImageGenDrawer";
 
 export default function ChatBOX() {
-  const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
-  const {
-    db,
-    chatStore,
-    setChatStore,
-    selectedChatIndex,
-    setSelectedChatIndex,
-  } = ctx;
+  const { db, selectedChatIndex, setSelectedChatIndex } =
+    useContext(AppContext);
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
   // prevent error
-  if (chatStore === undefined) return <div></div>;
   const [inputMsg, setInputMsg] = useState("");
   const [images, setImages] = useState<MessageDetail[]>([]);
   const [showAddImage, setShowAddImage] = useState(false);

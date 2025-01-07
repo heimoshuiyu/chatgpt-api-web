@@ -15,17 +15,14 @@ import {
 
 import { Button } from "./ui/button";
 import { useContext } from "react";
-import { AppContext } from "../pages/App";
+import { AppChatStoreContext, AppContext } from "../pages/App";
 
 interface Props {
   chat: ChatStoreMessage;
   setShowEdit: (se: boolean) => void;
 }
 export function EditMessageDetail({ chat, setShowEdit }: Props) {
-  const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
-
-  const { chatStore, setChatStore } = ctx;
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
 
   if (typeof chat.content !== "object") return <div>error</div>;
   return (

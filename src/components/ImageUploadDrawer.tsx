@@ -24,7 +24,6 @@ interface Props {
 }
 export function ImageUploadDrawer({ setImages, images, disableFactor }: Props) {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
   const [showAddImage, setShowAddImage] = useState(false);
   const [enableHighResolution, setEnableHighResolution] = useState(true);
   useState("b64_json");
