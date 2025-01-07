@@ -141,7 +141,7 @@ const SelectModel = (props: { help: string }) => {
       {useCustomModel ? (
         <Input
           value={chatStore.model}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          onBlur={(e: React.ChangeEvent<HTMLInputElement>) => {
             chatStore.model = e.target.value;
             setChatStore({ ...chatStore });
           }}
@@ -205,7 +205,7 @@ const LongInput = (props: {
       <Textarea
         className="h-24 w-full"
         value={chatStore[props.field]}
-        onChange={async (event: any) => {
+        onBlur={async (event: any) => {
           chatStore[props.field] = event.target.value;
           await setChatStore({ ...chatStore });
           autoHeight(event.target);
@@ -257,7 +257,7 @@ const InputField = (props: {
           <Input
             type={hideInput ? "password" : "text"}
             value={chatStore[props.field]}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            onBlur={(event: React.ChangeEvent<HTMLInputElement>) => {
               chatStore[props.field] = event.target.value;
               setChatStore({ ...chatStore });
             }}
@@ -351,7 +351,7 @@ const Slicer = (props: {
             disabled={!enabled}
             className="w-24"
             value={chatStore[props.field]}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            onBlur={(e: React.ChangeEvent<HTMLInputElement>) => {
               const value = parseFloat(e.target.value);
               chatStore[props.field] = value;
               setChatStore({ ...chatStore });
@@ -415,7 +415,7 @@ const Number = (props: {
           props.field === "maxGenTokens" && !chatStore.maxGenTokens_enabled
         }
         value={chatStore[props.field]}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+        onBlur={(event: React.ChangeEvent<HTMLInputElement>) => {
           let newNumber = parseFloat(event.target.value);
           if (newNumber < 0) newNumber = 0;
           chatStore[props.field] = newNumber;
