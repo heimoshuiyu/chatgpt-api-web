@@ -1,5 +1,5 @@
 import React from "react";
-import { ChatStore, TemplateAPI } from "@/types/chatstore";
+import { ChatStore, TemplateAPI, TemplateChatStore } from "@/types/chatstore";
 import { Tr } from "@/translate";
 
 import {
@@ -32,6 +32,7 @@ import {
 import { BrushIcon } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
+import { newChatStore } from "@/types/newChatstore";
 
 interface APITemplateDropdownProps {
   label: string;
@@ -186,6 +187,54 @@ function ToolsDropdownList() {
   );
 }
 
+function ChatTemplateDropdownList() {
+  const ctx = useContext(AppContext);
+  if (!ctx) return <div>error</div>;
+
+  const { chatStore, setChatStore, templates } = ctx;
+
+  return (
+    <NavigationMenuItem>
+      <NavigationMenuTrigger>
+        <span className="lg:hidden">Chat Template</span>
+        <span className="hidden lg:inline">Chat Template</span>
+      </NavigationMenuTrigger>
+      <NavigationMenuContent>
+        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+          {templates.map((t: TemplateChatStore, index: number) => (
+            <li key={index}>
+              <NavigationMenuLink asChild>
+                <a
+                  onClick={() => {
+                    // Update chatStore with the selected template
+                    if (
+                      chatStore.history.length > 0 ||
+                      chatStore.systemMessageContent
+                    ) {
+                      const confirm = window.confirm(
+                        "This will replace the current chat history. Are you sure?"
+                      );
+                      if (!confirm) return;
+                    }
+                    setChatStore({ ...t });
+                  }}
+                  className={cn(
+                    "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  )}
+                >
+                  <div className="text-sm font-medium leading-none">
+                    {t.name}
+                  </div>
+                </a>
+              </NavigationMenuLink>
+            </li>
+          ))}
+        </ul>
+      </NavigationMenuContent>
+    </NavigationMenuItem>
+  );
+}
+
 const APIListMenu: React.FC = () => {
   const ctx = useContext(AppContext);
   if (!ctx) return <div>error</div>;
@@ -194,6 +243,7 @@ const APIListMenu: React.FC = () => {
       {ctx.templateTools.length > 0 && <ToolsDropdownList />}
       <NavigationMenu>
         <NavigationMenuList>
+          {ctx.templates.length > 0 && <ChatTemplateDropdownList />}
           {ctx.templateAPIs.length > 0 && (
             <APIsDropdownList
               label="Chat API"
