@@ -245,7 +245,7 @@ function ChatTemplateDropdownList() {
 const APIListMenu: React.FC = () => {
   const ctx = useContext(AppContext);
   return (
-    <div className="flex flex-col m-2 gap-2 w-full">
+    <div className="flex flex-col my-2 gap-2 w-full">
       {ctx.templateTools.length > 0 && <ToolsDropdownList />}
       <NavigationMenu>
         <NavigationMenuList>
