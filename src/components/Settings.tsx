@@ -205,9 +205,9 @@ const LongInput = (props: {
       <Textarea
         className="h-24 w-full"
         value={chatStore[props.field]}
-        onChange={(event: any) => {
+        onChange={async (event: any) => {
           chatStore[props.field] = event.target.value;
-          setChatStore({ ...chatStore });
+          await setChatStore({ ...chatStore });
           autoHeight(event.target);
         }}
         onKeyPress={(event: any) => {

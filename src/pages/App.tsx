@@ -49,7 +49,7 @@ interface AppContextType {
 
 interface AppChatStoreContextType {
   chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
+  setChatStore: (cs: ChatStore) => Promise<void>;
 }
 
 export const AppContext = createContext<AppContextType>(null as any);
