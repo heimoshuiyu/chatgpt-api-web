@@ -102,7 +102,7 @@ export function EditMessageString({ chat, setShowEdit }: Props) {
       <Textarea
         className="w-full h-32 my-2"
         value={chat.content}
-        onChange={(event) => {
+        onBlur={(event) => {
           chat.content = event.target.value;
           chat.token = calculate_token_length(chat.content);
           setChatStore({ ...chatStore });

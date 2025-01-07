@@ -66,7 +66,7 @@ export function EditMessage(props: EditMessageProps) {
               : "string message"}
           </Button>
         )}
-        <Button onClick={() => setShowEdit(false)}>Save & Close</Button>
+        <Button onClick={() => setShowEdit(false)}>Close</Button>
       </DialogContent>
     </Dialog>
   );
