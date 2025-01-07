@@ -944,14 +944,6 @@ export default (props: {}) => {
                               ctx.chatStore
                             );
                             tmp.history = tmp.history.filter((h) => h.example);
-                            tmp.apiEndpoint = "";
-                            tmp.apiKey = "";
-                            tmp.whisper_api = "";
-                            tmp.whisper_key = "";
-                            tmp.tts_api = "";
-                            tmp.tts_key = "";
-                            tmp.image_gen_api = "";
-                            tmp.image_gen_key = "";
                             // @ts-ignore
                             tmp.name = name;
                             ctx.templates.push(tmp as TemplateChatStore);
