@@ -5,16 +5,14 @@ import { Tr } from "@/translate";
 
 import { Textarea } from "@/components/ui/textarea";
 import { useContext } from "react";
-import { AppContext } from "../pages/App";
+import { AppChatStoreContext, AppContext } from "../pages/App";
 
 interface Props {
   chat: ChatStoreMessage;
   setShowEdit: (se: boolean) => void;
 }
 export function EditMessageString({ chat, setShowEdit }: Props) {
-  const ctx = useContext(AppContext);
-
-  const { chatStore, setChatStore } = ctx;
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
 
   if (typeof chat.content !== "string") return <div>error</div>;
   return (

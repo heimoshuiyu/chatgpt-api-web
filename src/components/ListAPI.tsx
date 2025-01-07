@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useContext } from "react";
-import { AppContext } from "@/pages/App";
+import { AppChatStoreContext, AppContext } from "@/pages/App";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -37,26 +37,26 @@ import { newChatStore } from "@/types/newChatstore";
 interface APITemplateDropdownProps {
   label: string;
   shortLabel: string;
-  ctx: any;
   apiField: string;
   keyField: string;
 }
 function APIsDropdownList({
   label,
   shortLabel,
-  ctx,
   apiField,
   keyField,
 }: APITemplateDropdownProps) {
-  let API = ctx.templateAPIs;
+  const ctxAppChatStore = useContext(AppChatStoreContext);
+  const ctxApp = useContext(AppContext);
+  let API = ctxApp.templateAPIs;
   if (label === "Chat API") {
-    API = ctx.templateAPIs;
+    API = ctxApp.templateAPIs;
   } else if (label === "Whisper API") {
-    API = ctx.templateAPIsWhisper;
+    API = ctxApp.templateAPIsWhisper;
   } else if (label === "TTS API") {
-    API = ctx.templateAPIsTTS;
+    API = ctxApp.templateAPIsTTS;
   } else if (label === "Image Gen API") {
-    API = ctx.templateAPIsImageGen;
+    API = ctxApp.templateAPIsImageGen;
   }
 
   return (
@@ -67,14 +67,17 @@ function APIsDropdownList({
           {label}{" "}
           {API.find(
             (t: TemplateAPI) =>
-              ctx.chatStore[apiField as keyof ChatStore] === t.endpoint &&
-              ctx.chatStore[keyField as keyof ChatStore] === t.key
+              ctxAppChatStore.chatStore[apiField as keyof ChatStore] ===
+                t.endpoint &&
+              ctxAppChatStore.chatStore[keyField as keyof ChatStore] === t.key
           )?.name &&
             `: ${
               API.find(
                 (t: TemplateAPI) =>
-                  ctx.chatStore[apiField as keyof ChatStore] === t.endpoint &&
-                  ctx.chatStore[keyField as keyof ChatStore] === t.key
+                  ctxAppChatStore.chatStore[apiField as keyof ChatStore] ===
+                    t.endpoint &&
+                  ctxAppChatStore.chatStore[keyField as keyof ChatStore] ===
+                    t.key
               )?.name
             }`}
         </span>
@@ -87,15 +90,20 @@ function APIsDropdownList({
                 <a
                   onClick={() => {
                     // @ts-ignore
-                    ctx.chatStore[apiField as keyof ChatStore] = t.endpoint;
+                    ctxAppChatStore.chatStore[apiField as keyof ChatStore] =
+                      t.endpoint;
                     // @ts-ignore
-                    ctx.chatStore[keyField] = t.key;
-                    ctx.setChatStore({ ...ctx.chatStore });
+                    ctxAppChatStore.chatStore[keyField] = t.key;
+                    ctxAppChatStore.setChatStore({
+                      ...ctxAppChatStore.chatStore,
+                    });
                   }}
                   className={cn(
                     "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-                    ctx.chatStore[apiField as keyof ChatStore] === t.endpoint &&
-                      ctx.chatStore[keyField as keyof ChatStore] === t.key
+                    ctxAppChatStore.chatStore[apiField as keyof ChatStore] ===
+                      t.endpoint &&
+                      ctxAppChatStore.chatStore[keyField as keyof ChatStore] ===
+                        t.key
                       ? "bg-accent text-accent-foreground"
                       : ""
                   )}
@@ -117,11 +125,11 @@ function APIsDropdownList({
 }
 
 function ToolsDropdownList() {
-  const ctx = useContext(AppContext);
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
 
-  const { chatStore, setChatStore } = ctx;
+  const ctx = useContext(AppContext);
 
   return (
     <div className="flex items-center space-x-4 mx-3">
@@ -189,7 +197,8 @@ function ToolsDropdownList() {
 function ChatTemplateDropdownList() {
   const ctx = useContext(AppContext);
 
-  const { chatStore, setChatStore, templates } = ctx;
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
+  const { templates } = useContext(AppContext);
 
   return (
     <NavigationMenuItem>
@@ -245,7 +254,6 @@ const APIListMenu: React.FC = () => {
             <APIsDropdownList
               label="Chat API"
               shortLabel="Chat"
-              ctx={ctx}
               apiField="apiEndpoint"
               keyField="apiKey"
             />
@@ -254,7 +262,6 @@ const APIListMenu: React.FC = () => {
             <APIsDropdownList
               label="Whisper API"
               shortLabel="Whisper"
-              ctx={ctx}
               apiField="whisper_api"
               keyField="whisper_key"
             />
@@ -263,7 +270,6 @@ const APIListMenu: React.FC = () => {
             <APIsDropdownList
               label="TTS API"
               shortLabel="TTS"
-              ctx={ctx}
               apiField="tts_api"
               keyField="tts_key"
             />
@@ -272,7 +278,6 @@ const APIListMenu: React.FC = () => {
             <APIsDropdownList
               label="Image Gen API"
               shortLabel="ImgGen"
-              ctx={ctx}
               apiField="image_gen_api"
               keyField="image_gen_key"
             />

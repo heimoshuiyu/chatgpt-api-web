@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AppContext } from "@/pages/App";
+import { AppChatStoreContext, AppContext } from "@/pages/App";
 import { PaintBucketIcon } from "lucide-react";
 
 interface Props {
@@ -27,7 +27,7 @@ interface ImageResponse {
   revised_prompt: string;
 }
 export function ImageGenDrawer({ disableFactor }: Props) {
-  const ctx = useContext(AppContext);
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
 
   const [showGenImage, setShowGenImage] = useState(false);
   const [imageGenPrompt, setImageGenPrompt] = useState("");
@@ -42,7 +42,7 @@ export function ImageGenDrawer({ disableFactor }: Props) {
   useState("b64_json");
   return (
     <>
-      {ctx.chatStore.image_gen_api && ctx.chatStore.image_gen_key ? (
+      {chatStore.image_gen_api && chatStore.image_gen_key ? (
         <Drawer open={showGenImage} onOpenChange={setShowGenImage}>
           <DrawerTrigger>
             <Button
@@ -169,11 +169,11 @@ export function ImageGenDrawer({ disableFactor }: Props) {
                           body.style = imageGenStyle;
                         }
                         const resp: ImageResponse[] = (
-                          await fetch(ctx.chatStore.image_gen_api, {
+                          await fetch(chatStore.image_gen_api, {
                             method: "POST",
                             headers: {
                               "Content-Type": "application/json",
-                              Authorization: `Bearer ${ctx.chatStore.image_gen_key}`,
+                              Authorization: `Bearer ${chatStore.image_gen_key}`,
                             },
                             body: JSON.stringify(body),
                           }).then((resp) => resp.json())
@@ -187,7 +187,7 @@ export function ImageGenDrawer({ disableFactor }: Props) {
                             url = "data:image/png;base64," + image.b64_json;
                           if (!url) continue;
 
-                          ctx.chatStore.history.push({
+                          chatStore.history.push({
                             role: "assistant",
                             content: [
                               {
@@ -210,7 +210,7 @@ export function ImageGenDrawer({ disableFactor }: Props) {
                             response_model_name: imageGenModel,
                           });
 
-                          ctx.setChatStore({ ...ctx.chatStore });
+                          setChatStore({ ...chatStore });
                         }
                       } catch (e) {
                         console.error(e);

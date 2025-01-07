@@ -1,5 +1,5 @@
 import { IDBPDatabase, openDB } from "idb";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import "@/global.css";
 
 import { calculate_token_length } from "@/chatgpt";
@@ -31,8 +31,6 @@ import {
 
 interface AppContextType {
   db: Promise<IDBPDatabase<ChatStore>>;
-  chatStore: ChatStore;
-  setChatStore: (cs: ChatStore) => void;
   selectedChatIndex: number;
   setSelectedChatIndex: (i: number) => void;
   templates: TemplateChatStore[];
@@ -49,7 +47,15 @@ interface AppContextType {
   setTemplateTools: (t: TemplateTools[]) => void;
 }
 
+interface AppChatStoreContextType {
+  chatStore: ChatStore;
+  setChatStore: (cs: ChatStore) => void;
+}
+
 export const AppContext = createContext<AppContextType>(null as any);
+export const AppChatStoreContext = createContext<AppChatStoreContextType>(
+  null as any
+);
 
 import {
   Sidebar,
@@ -123,57 +129,6 @@ export function App() {
     return ret;
   };
 
-  const [chatStore, _setChatStore] = useState(newChatStore({}));
-  const setChatStore = async (chatStore: ChatStore) => {
-    console.log("recalculate postBeginIndex");
-    const max = chatStore.maxTokens - chatStore.tokenMargin;
-    let sum = 0;
-    chatStore.postBeginIndex = chatStore.history.filter(
-      ({ hide }) => !hide
-    ).length;
-    for (const msg of chatStore.history
-      .filter(({ hide }) => !hide)
-      .slice()
-      .reverse()) {
-      if (sum + msg.token > max) break;
-      sum += msg.token;
-      chatStore.postBeginIndex -= 1;
-    }
-    chatStore.postBeginIndex =
-      chatStore.postBeginIndex < 0 ? 0 : chatStore.postBeginIndex;
-
-    // manually estimate token
-    chatStore.totalTokens = calculate_token_length(
-      chatStore.systemMessageContent
-    );
-    for (const msg of chatStore.history
-      .filter(({ hide }) => !hide)
-      .slice(chatStore.postBeginIndex)) {
-      chatStore.totalTokens += msg.token;
-    }
-
-    console.log("saved chat", selectedChatIndex, chatStore);
-    (await db).put(STORAGE_NAME, chatStore, selectedChatIndex);
-
-    // update total tokens
-    chatStore.totalTokens = calculate_token_length(
-      chatStore.systemMessageContent
-    );
-    for (const msg of chatStore.history
-      .filter(({ hide }) => !hide)
-      .slice(chatStore.postBeginIndex)) {
-      chatStore.totalTokens += msg.token;
-    }
-
-    _setChatStore(chatStore);
-  };
-  useEffect(() => {
-    const run = async () => {
-      _setChatStore(await getChatStoreByIndex(selectedChatIndex));
-    };
-    run();
-  }, [selectedChatIndex]);
-
   // all chat store indexes
   const [allChatStoreIndexes, setAllChatStoreIndexes] = useState<IDBValidKey>(
     []
@@ -189,7 +144,8 @@ export function App() {
     });
   };
   const handleNewChatStore = async () => {
-    return handleNewChatStoreWithOldOne(chatStore);
+    let currentChatStore = await getChatStoreByIndex(selectedChatIndex);
+    return handleNewChatStoreWithOldOne(currentChatStore);
   };
 
   const handleDEL = async () => {
@@ -198,7 +154,7 @@ export function App() {
     const newAllChatStoreIndexes = await (await db).getAllKeys(STORAGE_NAME);
 
     if (newAllChatStoreIndexes.length === 0) {
-      handleNewChatStore();
+      await handleNewChatStore();
       return;
     }
 
@@ -333,8 +289,6 @@ export function App() {
     <AppContext.Provider
       value={{
         db,
-        chatStore,
-        setChatStore,
         selectedChatIndex,
         setSelectedChatIndex,
         templates,
@@ -407,19 +361,93 @@ export function App() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-
-          {chatStore.develop_mode && (
-            <Button onClick={handleCLS} variant="destructive">
-              <span>{Tr("CLS")}</span>
-            </Button>
-          )}
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <Navbar />
-        <ChatBOX />
+        <AppChatStoreProvider
+          selectedChatIndex={selectedChatIndex}
+          getChatStoreByIndex={getChatStoreByIndex}
+        >
+          <Navbar />
+          <ChatBOX />
+        </AppChatStoreProvider>
       </SidebarInset>
     </AppContext.Provider>
   );
 }
+
+const AppChatStoreProvider = ({
+  children,
+  selectedChatIndex,
+  getChatStoreByIndex,
+}: {
+  children: React.ReactNode;
+  selectedChatIndex: number;
+  getChatStoreByIndex: (index: number) => Promise<ChatStore>;
+}) => {
+  console.log("[Render] AppChatStoreProvider");
+  const ctx = useContext(AppContext);
+
+  const [chatStore, _setChatStore] = useState(newChatStore({}));
+  const setChatStore = async (chatStore: ChatStore) => {
+    console.log("recalculate postBeginIndex");
+    const max = chatStore.maxTokens - chatStore.tokenMargin;
+    let sum = 0;
+    chatStore.postBeginIndex = chatStore.history.filter(
+      ({ hide }) => !hide
+    ).length;
+    for (const msg of chatStore.history
+      .filter(({ hide }) => !hide)
+      .slice()
+      .reverse()) {
+      if (sum + msg.token > max) break;
+      sum += msg.token;
+      chatStore.postBeginIndex -= 1;
+    }
+    chatStore.postBeginIndex =
+      chatStore.postBeginIndex < 0 ? 0 : chatStore.postBeginIndex;
+
+    // manually estimate token
+    chatStore.totalTokens = calculate_token_length(
+      chatStore.systemMessageContent
+    );
+    for (const msg of chatStore.history
+      .filter(({ hide }) => !hide)
+      .slice(chatStore.postBeginIndex)) {
+      chatStore.totalTokens += msg.token;
+    }
+
+    console.log("saved chat", selectedChatIndex, chatStore);
+    (await ctx.db).put(STORAGE_NAME, chatStore, selectedChatIndex);
+
+    // update total tokens
+    chatStore.totalTokens = calculate_token_length(
+      chatStore.systemMessageContent
+    );
+    for (const msg of chatStore.history
+      .filter(({ hide }) => !hide)
+      .slice(chatStore.postBeginIndex)) {
+      chatStore.totalTokens += msg.token;
+    }
+
+    _setChatStore(chatStore);
+  };
+  useEffect(() => {
+    const run = async () => {
+      _setChatStore(await getChatStoreByIndex(selectedChatIndex));
+    };
+    run();
+  }, [selectedChatIndex]);
+
+  return (
+    <AppChatStoreContext.Provider
+      value={{
+        chatStore,
+        setChatStore,
+      }}
+    >
+      {children}
+    </AppChatStoreContext.Provider>
+  );
+};

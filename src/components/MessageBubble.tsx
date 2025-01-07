@@ -25,7 +25,7 @@ import {
   AudioLinesIcon,
   LoaderCircleIcon,
 } from "lucide-react";
-import { AppContext } from "@/pages/App";
+import { AppChatStoreContext, AppContext } from "@/pages/App";
 
 interface HideMessageProps {
   chat: ChatStoreMessage;
@@ -171,27 +171,27 @@ export function TTSPlay(props: TTSPlayProps) {
 }
 function TTSButton(props: TTSProps) {
   const [generating, setGenerating] = useState(false);
-  const ctx = useContext(AppContext);
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
 
   return (
     <Button
       variant="ghost"
       size="icon"
       onClick={() => {
-        const api = ctx.chatStore.tts_api;
-        const api_key = ctx.chatStore.tts_key;
+        const api = chatStore.tts_api;
+        const api_key = chatStore.tts_key;
         const model = "tts-1";
         const input = getMessageText(props.chat);
-        const voice = ctx.chatStore.tts_voice;
+        const voice = chatStore.tts_voice;
 
         const body: Record<string, any> = {
           model,
           input,
           voice,
-          response_format: ctx.chatStore.tts_format || "mp3",
+          response_format: chatStore.tts_format || "mp3",
         };
-        if (ctx.chatStore.tts_speed_enabled) {
-          body["speed"] = ctx.chatStore.tts_speed;
+        if (chatStore.tts_speed_enabled) {
+          body["speed"] = chatStore.tts_speed;
         }
 
         setGenerating(true);
@@ -208,13 +208,13 @@ function TTSButton(props: TTSProps) {
           .then((blob) => {
             // update price
             const cost = (input.length * 0.015) / 1000;
-            ctx.chatStore.cost += cost;
+            chatStore.cost += cost;
             addTotalCost(cost);
-            ctx.setChatStore({ ...ctx.chatStore });
+            setChatStore({ ...chatStore });
 
             // save blob
             props.chat.audio = blob;
-            ctx.setChatStore({ ...ctx.chatStore });
+            setChatStore({ ...chatStore });
 
             const url = URL.createObjectURL(blob);
             const audio = new Audio(url);
@@ -235,9 +235,8 @@ function TTSButton(props: TTSProps) {
 }
 
 export default function Message(props: { messageIndex: number }) {
-  const ctx = useContext(AppContext);
   const { messageIndex } = props;
-  const { chatStore, setChatStore } = ctx;
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
 
   const chat = chatStore.history[messageIndex];
   const [showEdit, setShowEdit] = useState(false);
@@ -301,8 +300,7 @@ export default function Message(props: { messageIndex: number }) {
             <Markdown>{getMessageText(chat)}</Markdown>
           ) : (
             <div className="message-content">
-              {ctx &&
-                chat.content &&
+              {chat.content &&
                 (chat.logprobs && renderColor
                   ? chat.logprobs.content
                       .filter((c) => c.token)

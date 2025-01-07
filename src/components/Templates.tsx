@@ -1,4 +1,4 @@
-import { AppContext } from "@/pages/App";
+import { AppChatStoreContext, AppContext } from "@/pages/App";
 import { TemplateChatStore } from "@/types/chatstore";
 import { ChatStore } from "@/types/chatstore";
 import { getDefaultParams } from "@/utils/getDefaultParam";
@@ -6,7 +6,8 @@ import { useContext } from "react";
 
 const Templates = () => {
   const ctx = useContext(AppContext);
-  const { templates, chatStore, setChatStore, setTemplates } = ctx;
+  const { templates, setTemplates } = useContext(AppContext);
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
 
   return (
     <>

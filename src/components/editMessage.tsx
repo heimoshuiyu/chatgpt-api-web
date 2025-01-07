@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
-import { AppContext } from "../pages/App";
+import { AppChatStoreContext, AppContext } from "../pages/App";
 
 interface EditMessageProps {
   chat: ChatStoreMessage;
@@ -21,7 +21,7 @@ interface EditMessageProps {
   setShowEdit: Dispatch<boolean>;
 }
 export function EditMessage(props: EditMessageProps) {
-  const ctx = useContext(AppContext);
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
 
   const { showEdit, setShowEdit, chat } = props;
 
@@ -42,7 +42,7 @@ export function EditMessage(props: EditMessageProps) {
         ) : (
           <EditMessageDetail chat={chat} setShowEdit={setShowEdit} />
         )}
-        {ctx.chatStore.develop_mode && (
+        {chatStore.develop_mode && (
           <Button
             variant="destructive"
             className="w-full"
@@ -57,7 +57,7 @@ export function EditMessage(props: EditMessageProps) {
               } else {
                 chat.content = "";
               }
-              ctx.setChatStore({ ...ctx.chatStore });
+              setChatStore({ ...chatStore });
             }}
           >
             Switch to{" "}
