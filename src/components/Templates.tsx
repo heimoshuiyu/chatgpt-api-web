@@ -6,7 +6,6 @@ import { useContext } from "react";
 
 const Templates = () => {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
   const { templates, chatStore, setChatStore, setTemplates } = ctx;
 
   return (

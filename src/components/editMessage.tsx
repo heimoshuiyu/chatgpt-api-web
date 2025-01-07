@@ -22,7 +22,6 @@ interface EditMessageProps {
 }
 export function EditMessage(props: EditMessageProps) {
   const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
 
   const { showEdit, setShowEdit, chat } = props;
 

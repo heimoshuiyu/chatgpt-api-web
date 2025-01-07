@@ -5,7 +5,6 @@ import { AppContext } from "@/pages/App";
 
 const VersionHint = () => {
   const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
 
   const { chatStore } = ctx;
   return (

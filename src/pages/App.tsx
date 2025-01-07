@@ -49,7 +49,7 @@ interface AppContextType {
   setTemplateTools: (t: TemplateTools[]) => void;
 }
 
-export const AppContext = createContext<AppContextType | null>(null);
+export const AppContext = createContext<AppContextType>(null as any);
 
 import {
   Sidebar,

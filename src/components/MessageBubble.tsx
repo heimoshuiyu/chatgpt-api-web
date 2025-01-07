@@ -172,7 +172,6 @@ export function TTSPlay(props: TTSPlayProps) {
 function TTSButton(props: TTSProps) {
   const [generating, setGenerating] = useState(false);
   const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
 
   return (
     <Button
@@ -237,7 +236,6 @@ function TTSButton(props: TTSProps) {
 
 export default function Message(props: { messageIndex: number }) {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
   const { messageIndex } = props;
   const { chatStore, setChatStore } = ctx;
 
@@ -303,7 +301,8 @@ export default function Message(props: { messageIndex: number }) {
             <Markdown>{getMessageText(chat)}</Markdown>
           ) : (
             <div className="message-content">
-              {chat.content &&
+              {ctx &&
+                chat.content &&
                 (chat.logprobs && renderColor
                   ? chat.logprobs.content
                       .filter((c) => c.token)

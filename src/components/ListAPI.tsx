@@ -118,7 +118,6 @@ function APIsDropdownList({
 
 function ToolsDropdownList() {
   const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
 
@@ -189,7 +188,6 @@ function ToolsDropdownList() {
 
 function ChatTemplateDropdownList() {
   const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
 
   const { chatStore, setChatStore, templates } = ctx;
 
@@ -237,7 +235,6 @@ function ChatTemplateDropdownList() {
 
 const APIListMenu: React.FC = () => {
   const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
   return (
     <div className="flex flex-col m-2 gap-2 w-full">
       {ctx.templateTools.length > 0 && <ToolsDropdownList />}

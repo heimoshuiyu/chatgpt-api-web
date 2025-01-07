@@ -97,7 +97,6 @@ const Help = (props: { children: any; help: string; field: string }) => {
 
 const SelectModel = (props: { help: string }) => {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
 
   let shouldIUseCustomModel: boolean = true;
   for (const model in models) {
@@ -184,7 +183,6 @@ const LongInput = (props: {
   help: string;
 }) => {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
   return (
     <div>
       <Label htmlFor="name" className="text-right">
@@ -233,7 +231,6 @@ const InputField = (props: {
   help: string;
 }) => {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
   const [hideInput, setHideInput] = useState(true);
   return (
     <>
@@ -289,7 +286,6 @@ const Slicer = (props: {
   max: number;
 }) => {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
   const enable_filed_name: "temperature_enabled" | "top_p_enabled" =
     `${props.field}_enabled` as any;
 
@@ -380,7 +376,6 @@ const Number = (props: {
   help: string;
 }) => {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
   return (
     <div className="space-y-2">
       <Label className="flex items-center gap-2">
@@ -436,7 +431,6 @@ const Choice = (props: {
   help: string;
 }) => {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
 
   return (
     <div className="flex items-center space-x-2">
@@ -627,7 +621,6 @@ const ToolsShowBlock = (props: {
 
 export default (props: {}) => {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
 
   let link =
     location.protocol +

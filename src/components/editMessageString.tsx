@@ -13,7 +13,6 @@ interface Props {
 }
 export function EditMessageString({ chat, setShowEdit }: Props) {
   const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
 
   const { chatStore, setChatStore } = ctx;
 

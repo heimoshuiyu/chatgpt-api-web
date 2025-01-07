@@ -28,7 +28,6 @@ interface ImageResponse {
 }
 export function ImageGenDrawer({ disableFactor }: Props) {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
 
   const [showGenImage, setShowGenImage] = useState(false);
   const [imageGenPrompt, setImageGenPrompt] = useState("");

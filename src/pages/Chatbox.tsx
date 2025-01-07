@@ -45,7 +45,6 @@ import { ImageGenDrawer } from "@/components/ImageGenDrawer";
 
 export default function ChatBOX() {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
   const {
     db,
     chatStore,
@@ -54,7 +53,6 @@ export default function ChatBOX() {
     setSelectedChatIndex,
   } = ctx;
   // prevent error
-  if (chatStore === undefined) return <div></div>;
   const [inputMsg, setInputMsg] = useState("");
   const [images, setImages] = useState<MessageDetail[]>([]);
   const [showAddImage, setShowAddImage] = useState(false);

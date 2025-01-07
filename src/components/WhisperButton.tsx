@@ -10,7 +10,6 @@ const WhisperButton = (props: {
   setInputMsg: Dispatch<string>;
 }) => {
   const ctx = useContext(AppContext);
-  if (!ctx) return <div>error</div>;
   const { chatStore } = ctx;
 
   const { inputMsg, setInputMsg } = props;

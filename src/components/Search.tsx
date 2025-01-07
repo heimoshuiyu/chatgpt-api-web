@@ -34,7 +34,6 @@ interface ChatStoreSearchResult {
 
 export default function Search() {
   const ctx = useContext(AppContext);
-  if (ctx === null) return <></>;
   const { setSelectedChatIndex, db } = ctx;
 
   const [searchResult, setSearchResult] = useState<ChatStoreSearchResult[]>([]);
