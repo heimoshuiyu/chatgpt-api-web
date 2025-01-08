@@ -8,6 +8,7 @@ interface ChatInputProps
 const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
   ({ className, ...props }, ref) => (
     <Textarea
+      mockOnChange={false}
       autoComplete="off"
       ref={ref}
       name="message"
