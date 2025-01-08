@@ -347,6 +347,10 @@ export default function ChatBOX() {
 
   // when user click the "send" button or ctrl+Enter in the textarea
   const send = async (msg = "", call_complete = true) => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+
     const inputMsg = msg.trim();
     if (!inputMsg && images.length === 0) {
       console.log("empty message");
