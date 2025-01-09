@@ -29,10 +29,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { BrushIcon } from "lucide-react";
+import { BrushIcon, DeleteIcon, EditIcon } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
 import { newChatStore } from "@/types/newChatstore";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger,
+} from "./ui/dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
+import { Textarea } from "./ui/textarea";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { SetAPIsTemplate } from "./setAPIsTemplate";
+import { isVailedJSON } from "@/utils/isVailedJSON";
 
 interface APITemplateDropdownProps {
   label: string;
@@ -46,17 +58,29 @@ function APIsDropdownList({
   apiField,
   keyField,
 }: APITemplateDropdownProps) {
-  const ctxAppChatStore = useContext(AppChatStoreContext);
-  const ctxApp = useContext(AppContext);
-  let API = ctxApp.templateAPIs;
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
+  const {
+    templates,
+    templateAPIs,
+    templateAPIsImageGen,
+    templateAPIsTTS,
+    templateAPIsWhisper,
+    setTemplates,
+    setTemplateAPIs,
+    setTemplateAPIsImageGen,
+    setTemplateAPIsTTS,
+    setTemplateAPIsWhisper,
+    setTemplateTools,
+  } = useContext(AppContext);
+  let API = templateAPIs;
   if (label === "Chat API") {
-    API = ctxApp.templateAPIs;
+    API = templateAPIs;
   } else if (label === "Whisper API") {
-    API = ctxApp.templateAPIsWhisper;
+    API = templateAPIsWhisper;
   } else if (label === "TTS API") {
-    API = ctxApp.templateAPIsTTS;
+    API = templateAPIsTTS;
   } else if (label === "Image Gen API") {
-    API = ctxApp.templateAPIsImageGen;
+    API = templateAPIsImageGen;
   }
 
   return (
@@ -67,17 +91,14 @@ function APIsDropdownList({
           {label}{" "}
           {API.find(
             (t: TemplateAPI) =>
-              ctxAppChatStore.chatStore[apiField as keyof ChatStore] ===
-                t.endpoint &&
-              ctxAppChatStore.chatStore[keyField as keyof ChatStore] === t.key
+              chatStore[apiField as keyof ChatStore] === t.endpoint &&
+              chatStore[keyField as keyof ChatStore] === t.key
           )?.name &&
             `: ${
               API.find(
                 (t: TemplateAPI) =>
-                  ctxAppChatStore.chatStore[apiField as keyof ChatStore] ===
-                    t.endpoint &&
-                  ctxAppChatStore.chatStore[keyField as keyof ChatStore] ===
-                    t.key
+                  chatStore[apiField as keyof ChatStore] === t.endpoint &&
+                  chatStore[keyField as keyof ChatStore] === t.key
               )?.name
             }`}
         </span>
@@ -90,20 +111,17 @@ function APIsDropdownList({
                 <a
                   onClick={() => {
                     // @ts-ignore
-                    ctxAppChatStore.chatStore[apiField as keyof ChatStore] =
-                      t.endpoint;
+                    chatStore[apiField as keyof ChatStore] = t.endpoint;
                     // @ts-ignore
-                    ctxAppChatStore.chatStore[keyField] = t.key;
-                    ctxAppChatStore.setChatStore({
-                      ...ctxAppChatStore.chatStore,
+                    chatStore[keyField] = t.key;
+                    setChatStore({
+                      ...chatStore,
                     });
                   }}
                   className={cn(
                     "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-                    ctxAppChatStore.chatStore[apiField as keyof ChatStore] ===
-                      t.endpoint &&
-                      ctxAppChatStore.chatStore[keyField as keyof ChatStore] ===
-                        t.key
+                    chatStore[apiField as keyof ChatStore] === t.endpoint &&
+                      chatStore[keyField as keyof ChatStore] === t.key
                       ? "bg-accent text-accent-foreground"
                       : ""
                   )}
@@ -198,7 +216,7 @@ function ChatTemplateDropdownList() {
   const ctx = useContext(AppContext);
 
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
-  const { templates } = useContext(AppContext);
+  const { templates, setTemplates } = useContext(AppContext);
 
   return (
     <NavigationMenuItem>
@@ -208,34 +226,104 @@ function ChatTemplateDropdownList() {
       </NavigationMenuTrigger>
       <NavigationMenuContent>
         <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-          {templates.map((t: TemplateChatStore, index: number) => (
-            <li key={index}>
-              <NavigationMenuLink asChild>
-                <a
-                  onClick={() => {
-                    // Update chatStore with the selected template
-                    if (
-                      chatStore.history.length > 0 ||
-                      chatStore.systemMessageContent
-                    ) {
-                      const confirm = window.confirm(
-                        "This will replace the current chat history. Are you sure?"
-                      );
-                      if (!confirm) return;
-                    }
-                    setChatStore({ ...t });
-                  }}
-                  className={cn(
-                    "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                  )}
-                >
-                  <div className="text-sm font-medium leading-none">
-                    {t.name}
-                  </div>
-                </a>
-              </NavigationMenuLink>
-            </li>
-          ))}
+          {templates.map((t: TemplateChatStore, index: number) => {
+            const [dialogOpen, setDialogOpen] = React.useState(false);
+            return (
+              <li key={index}>
+                <NavigationMenuLink asChild>
+                  <a
+                    onClick={() => {
+                      // Update chatStore with the selected template
+                      if (
+                        chatStore.history.length > 0 ||
+                        chatStore.systemMessageContent
+                      ) {
+                        console.log("you clicked", t.name);
+                        const confirm = window.confirm(
+                          "This will replace the current chat history. Are you sure?"
+                        );
+                        if (!confirm) return;
+                      }
+                      setChatStore({ ...newChatStore({ ...chatStore, ...t }) });
+                    }}
+                    className={cn(
+                      "flex flex-row justify-between items-center select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                    )}
+                  >
+                    <div className="text-sm font-medium leading-non">
+                      {t.name}
+                    </div>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                        <DialogTrigger asChild>
+                          <EditIcon />
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Edit Template</DialogTitle>
+                          </DialogHeader>
+                          <Label>Template Name</Label>
+                          <Input
+                            value={t.name}
+                            onBlur={(e) => {
+                              t.name = e.target.value;
+                              templates[index] = t;
+                              setTemplates([...templates]);
+                            }}
+                          />
+                          <p>
+                            Raw JSON allows you to modify any content within the
+                            template. You can remove unnecessary fields, and
+                            non-existent fields will be inherited from the
+                            current session.
+                          </p>
+                          <Textarea
+                            className="h-64"
+                            value={JSON.stringify(t, null, 2)}
+                            onBlur={(e) => {
+                              try {
+                                const json = JSON.parse(
+                                  e.target.value
+                                ) as TemplateChatStore;
+                                json.name = t.name;
+                                templates[index] = json;
+                                setTemplates([...templates]);
+                              } catch (e) {
+                                console.error(e);
+                                alert("Invalid JSON");
+                              }
+                            }}
+                          />
+                          <Button
+                            type="submit"
+                            variant={"destructive"}
+                            onClick={() => {
+                              const confirm = window.confirm(
+                                "Are you sure you want to delete this template?"
+                              );
+                              if (confirm) {
+                                templates.splice(index, 1);
+                                setTemplates([...templates]);
+                                setDialogOpen(false);
+                              }
+                            }}
+                          >
+                            Delete
+                          </Button>
+                          <Button
+                            type="submit"
+                            onClick={() => setDialogOpen(false)}
+                          >
+                            Close
+                          </Button>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </a>
+                </NavigationMenuLink>
+              </li>
+            );
+          })}
         </ul>
       </NavigationMenuContent>
     </NavigationMenuItem>
