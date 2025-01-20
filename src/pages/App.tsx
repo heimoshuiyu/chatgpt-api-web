@@ -90,7 +90,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ModeToggle } from "@/components/ModeToggle";
 
 import Navbar from "@/components/navbar";
-import { is } from "date-fns/locale";
 
 export function App() {
   // init selected index
