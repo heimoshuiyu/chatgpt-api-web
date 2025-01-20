@@ -110,7 +110,14 @@ export function App() {
 
   const getChatStoreByIndex = async (index: number): Promise<ChatStore> => {
     const ret: ChatStore = await (await db).get(STORAGE_NAME, index);
-    if (ret === null || ret === undefined) return newChatStore({});
+    if (ret === null || ret === undefined) {
+      const newStore = newChatStore({});
+      toast({
+        title: "New chat created",
+        description: `Current API Endpoint: ${newStore.apiEndpoint}`,
+      });
+      return newStore;
+    }
     // handle read from old version chatstore
     if (ret.maxGenTokens === undefined) ret.maxGenTokens = 2048;
     if (ret.maxGenTokens_enabled === undefined) ret.maxGenTokens_enabled = true;
@@ -126,6 +133,11 @@ export function App() {
         message.token = calculate_token_length(message.content);
     }
     if (ret.cost === undefined) ret.cost = 0;
+
+    toast({
+      title: "Chat ready",
+      description: `Current API Endpoint: ${ret.apiEndpoint}`,
+    });
     return ret;
   };
 
@@ -139,8 +151,8 @@ export function App() {
     setSelectedChatIndex(newKey as number);
     setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
     toast({
-      title: "New chat session created",
-      description: `A new chat session (ID. ${newKey}) has been created.`,
+      title: "New chat created",
+      description: `Current API Endpoint: ${chatStore.apiEndpoint}`,
     });
   };
   const handleNewChatStore = async () => {
