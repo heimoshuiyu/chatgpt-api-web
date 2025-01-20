@@ -110,11 +110,14 @@ export function App() {
   const { toast } = useToast();
 
   const getChatStoreByIndex = async (index: number): Promise<ChatStore> => {
-    let isOverrideEndpoint = false;
     const ret: ChatStore = await (await db).get(STORAGE_NAME, index);
     if (ret === null || ret === undefined) {
-      isOverrideEndpoint = true;
-      return newChatStore({});
+      const newStore = newChatStore({});
+      toast({
+        title: "New chat created",
+        description: `Current API Endpoint: ${newStore.apiEndpoint}`,
+      });
+      return newStore;
     }
     // handle read from old version chatstore
     if (ret.maxGenTokens === undefined) ret.maxGenTokens = 2048;
@@ -131,19 +134,11 @@ export function App() {
         message.token = calculate_token_length(message.content);
     }
     if (ret.cost === undefined) ret.cost = 0;
-    if (isOverrideEndpoint) {
-      // if the chatStore is not found, we need to override the endpoint
-      // with the default one
-      toast({
-        title: "New chat created",
-        description: `API Endpoint: ${ret.apiEndpoint}`,
-      });
-    } else {
-      toast({
-        title: "Chat ready",
-        description: `Current API Endpoint: ${ret.apiEndpoint}`,
-      });
-    }
+
+    toast({
+      title: "Chat ready",
+      description: `Current API Endpoint: ${ret.apiEndpoint}`,
+    });
     return ret;
   };
 
