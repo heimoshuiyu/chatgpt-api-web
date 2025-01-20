@@ -238,7 +238,9 @@ export default function ChatBOX() {
     client.top_p = chatStore.top_p;
     client.enable_top_p = chatStore.top_p_enabled;
     client.frequency_penalty = chatStore.frequency_penalty;
+    client.frequency_penalty_enabled = chatStore.frequency_penalty_enabled;
     client.presence_penalty = chatStore.presence_penalty;
+    client.presence_penalty_enabled = chatStore.presence_penalty_enabled;
     client.json_mode = chatStore.json_mode;
     client.messages = chatStore.history
       // only copy non hidden message

@@ -162,7 +162,9 @@ class Chat {
   top_p: number;
   enable_top_p: boolean;
   presence_penalty: number;
+  presence_penalty_enabled: boolean;
   frequency_penalty: number;
+  frequency_penalty_enabled: boolean;
   json_mode: boolean;
 
   constructor(
@@ -181,7 +183,9 @@ class Chat {
       top_p = 1,
       enable_top_p = false,
       presence_penalty = 0,
+      presence_penalty_enabled = false,
       frequency_penalty = 0,
+      frequency_penalty_enabled = false,
       json_mode = false,
     } = {}
   ) {
@@ -201,7 +205,9 @@ class Chat {
     this.top_p = top_p;
     this.enable_top_p = enable_top_p;
     this.presence_penalty = presence_penalty;
+    this.presence_penalty_enabled = presence_penalty_enabled
     this.frequency_penalty = frequency_penalty;
+    this.frequency_penalty_enabled = frequency_penalty_enabled;
     this.json_mode = json_mode;
   }
 
@@ -239,8 +245,6 @@ class Chat {
       model: this.model,
       messages,
       stream,
-      presence_penalty: this.presence_penalty,
-      frequency_penalty: this.frequency_penalty,
     };
     if (stream) {
       body["stream_options"] = {
@@ -255,6 +259,12 @@ class Chat {
     }
     if (this.enable_max_gen_tokens) {
       body["max_tokens"] = this.max_gen_tokens;
+    }
+    if (this.presence_penalty_enabled) {
+      body["presence_penalty"] = this.presence_penalty;
+    }
+    if (this.frequency_penalty_enabled) {
+      body["frequency_penalty"] = this.frequency_penalty;
     }
     if (this.json_mode) {
       body["response_format"] = {
