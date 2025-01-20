@@ -90,6 +90,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ModeToggle } from "@/components/ModeToggle";
 
 import Navbar from "@/components/navbar";
+import { is } from "date-fns/locale";
 
 export function App() {
   // init selected index
@@ -109,8 +110,12 @@ export function App() {
   const { toast } = useToast();
 
   const getChatStoreByIndex = async (index: number): Promise<ChatStore> => {
+    let isOverrideEndpoint = false;
     const ret: ChatStore = await (await db).get(STORAGE_NAME, index);
-    if (ret === null || ret === undefined) return newChatStore({});
+    if (ret === null || ret === undefined) {
+      isOverrideEndpoint = true;
+      return newChatStore({});
+    }
     // handle read from old version chatstore
     if (ret.maxGenTokens === undefined) ret.maxGenTokens = 2048;
     if (ret.maxGenTokens_enabled === undefined) ret.maxGenTokens_enabled = true;
@@ -126,6 +131,19 @@ export function App() {
         message.token = calculate_token_length(message.content);
     }
     if (ret.cost === undefined) ret.cost = 0;
+    if (isOverrideEndpoint) {
+      // if the chatStore is not found, we need to override the endpoint
+      // with the default one
+      toast({
+        title: "New chat session created",
+        description: `API Endpoint: ${ret.apiEndpoint}`,
+      });
+    } else {
+      toast({
+        title: "Chat history loaded",
+        description: `Current API Endpoint: ${ret.apiEndpoint}`,
+      });
+    }
     return ret;
   };
 
@@ -140,7 +158,7 @@ export function App() {
     setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
     toast({
       title: "New chat session created",
-      description: `A new chat session (ID. ${newKey}) has been created.`,
+      description: `Current API Endpoint: ${chatStore.apiEndpoint}`,
     });
   };
   const handleNewChatStore = async () => {
