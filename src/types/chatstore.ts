@@ -26,7 +26,9 @@ export interface ChatStore {
   top_p: number;
   top_p_enabled: boolean;
   presence_penalty: number;
+  presence_penalty_enabled: boolean;
   frequency_penalty: number;
+  frequency_penalty_enabled: boolean;
   develop_mode: boolean;
   whisper_api: string;
   whisper_key: string;

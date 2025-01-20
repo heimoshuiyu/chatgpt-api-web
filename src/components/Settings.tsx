@@ -406,6 +406,30 @@ const Number = (props: {
             }}
           />
         )}
+
+        {props.field === "presence_penalty" && (
+          <Checkbox
+            checked={chatStore.presence_penalty_enabled}
+            onCheckedChange={() => {
+              const newChatStore = { ...chatStore };
+              newChatStore.presence_penalty_enabled =
+                !newChatStore.presence_penalty_enabled;
+              setChatStore({ ...newChatStore });
+            }}
+          />
+        )}
+
+        {props.field === "frequency_penalty" && (
+          <Checkbox
+            checked={chatStore.frequency_penalty_enabled}
+            onCheckedChange={() => {
+              const newChatStore = { ...chatStore };
+              newChatStore.frequency_penalty_enabled =
+                !newChatStore.frequency_penalty_enabled;
+              setChatStore({ ...newChatStore });
+            }}
+          />
+        )}
       </Label>
 
       <Input
