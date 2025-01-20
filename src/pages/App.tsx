@@ -135,12 +135,12 @@ export function App() {
       // if the chatStore is not found, we need to override the endpoint
       // with the default one
       toast({
-        title: "New chat session created",
+        title: "New chat created",
         description: `API Endpoint: ${ret.apiEndpoint}`,
       });
     } else {
       toast({
-        title: "Chat history loaded",
+        title: "Chat ready",
         description: `Current API Endpoint: ${ret.apiEndpoint}`,
       });
     }
@@ -157,7 +157,7 @@ export function App() {
     setSelectedChatIndex(newKey as number);
     setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
     toast({
-      title: "New chat session created",
+      title: "New chat created",
       description: `Current API Endpoint: ${chatStore.apiEndpoint}`,
     });
   };
