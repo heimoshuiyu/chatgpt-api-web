@@ -205,7 +205,7 @@ class Chat {
     this.top_p = top_p;
     this.enable_top_p = enable_top_p;
     this.presence_penalty = presence_penalty;
-    this.presence_penalty_enabled = presence_penalty_enabled
+    this.presence_penalty_enabled = presence_penalty_enabled;
     this.frequency_penalty = frequency_penalty;
     this.frequency_penalty_enabled = frequency_penalty_enabled;
     this.json_mode = json_mode;

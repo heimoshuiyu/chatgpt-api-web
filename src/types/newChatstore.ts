@@ -35,6 +35,7 @@ interface NewChatStoreOptions {
   image_gen_key?: string;
   json_mode?: boolean;
   logprobs?: boolean;
+  maxTokens?: number;
 }
 
 export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
@@ -52,7 +53,9 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     maxTokens: getDefaultParams(
       "max",
       models[getDefaultParams("model", options.model ?? DefaultModel)]
-        ?.maxToken ?? 2048
+        ?.maxToken ??
+        options.maxTokens ??
+        2048
     ),
     maxGenTokens: 2048,
     maxGenTokens_enabled: false,
