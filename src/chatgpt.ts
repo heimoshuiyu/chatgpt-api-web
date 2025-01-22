@@ -22,6 +22,7 @@ export interface ToolCall {
 export interface Message {
   role: "system" | "user" | "assistant" | "tool";
   content: string | MessageDetail[];
+  reasoning_content?: string | null;
   name?: "example_user" | "example_assistant";
   tool_calls?: ToolCall[];
   tool_call_id?: string;
@@ -30,6 +31,7 @@ export interface Message {
 interface Delta {
   role?: string;
   content?: string;
+  reasoning_content?: string;
   tool_calls?: ToolCall[];
 }
 

@@ -82,6 +82,7 @@ export default function ChatBOX() {
   ): Promise<Usage> => {
     let responseTokenCount = 0;
     const allChunkMessage: string[] = [];
+    const allReasoningContentChunk: string[] = [];
     const allChunkTool: ToolCall[] = [];
     setShowGenerating(true);
     const logprobs: Logprobs = {
@@ -110,7 +111,13 @@ export default function ChatBOX() {
         console.log(c?.delta?.content, logprob);
       }
 
-      allChunkMessage.push(c?.delta?.content ?? "");
+      if (c?.delta?.content) {
+        allChunkMessage.push(c?.delta?.content ?? "");
+      }
+      if (c?.delta?.reasoning_content) {
+        allReasoningContentChunk.push(c?.delta?.reasoning_content ?? "");
+      }
+
       const tool_calls = c?.delta?.tool_calls;
       if (tool_calls) {
         for (const tool_call of tool_calls) {
@@ -142,7 +149,12 @@ export default function ChatBOX() {
         }
       }
       setGeneratingMessage(
-        allChunkMessage.join("") +
+        (allReasoningContentChunk.length
+          ? "----------\nreasoning:\n" +
+            allReasoningContentChunk.join("") +
+            "\n----------\n"
+          : "") +
+          allChunkMessage.join("") +
           allChunkTool.map((tool) => {
             return `Tool Call ID: ${tool.id}\nType: ${tool.type}\nFunction: ${tool.function.name}\nArguments: ${tool.function.arguments}`;
           })
@@ -150,11 +162,13 @@ export default function ChatBOX() {
     }
     setShowGenerating(false);
     const content = allChunkMessage.join("");
+    const reasoning_content = allReasoningContentChunk.join("");
 
     console.log("save logprobs", logprobs);
     const newMsg: ChatStoreMessage = {
       role: "assistant",
       content,
+      reasoning_content,
       hide: false,
       token: responseTokenCount,
       example: false,
@@ -211,6 +225,7 @@ export default function ChatBOX() {
       audio: null,
       logprobs: data.choices[0]?.logprobs,
       response_model_name: data.model,
+      reasoning_content: data.choices[0]?.message?.reasoning_content ?? null,
     });
     setShowGenerating(false);
 
@@ -375,6 +390,7 @@ export default function ChatBOX() {
       audio: null,
       logprobs: null,
       response_model_name: null,
+      reasoning_content: null,
     });
 
     // manually calculate token length

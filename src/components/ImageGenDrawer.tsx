@@ -208,6 +208,7 @@ export function ImageGenDrawer({ disableFactor }: Props) {
                             audio: null,
                             logprobs: null,
                             response_model_name: imageGenModel,
+                            reasoning_content: null,
                           });
 
                           setChatStore({ ...chatStore });
