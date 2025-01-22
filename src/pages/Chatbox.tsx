@@ -80,7 +80,7 @@ export default function ChatBOX() {
   const _completeWithStreamMode = async (
     response: Response
   ): Promise<Usage> => {
-    let responseTokenCount = 0;
+    let responseTokenCount = 0; // including reasoning content and normal content
     const allChunkMessage: string[] = [];
     const allReasoningContentChunk: string[] = [];
     const allChunkTool: ToolCall[] = [];
@@ -170,7 +170,9 @@ export default function ChatBOX() {
       content,
       reasoning_content,
       hide: false,
-      token: responseTokenCount,
+      token:
+        responseTokenCount -
+        (usage?.completion_tokens_details?.reasoning_tokens ?? 0),
       example: false,
       audio: null,
       logprobs,
@@ -219,8 +221,10 @@ export default function ChatBOX() {
       content: msg.content,
       tool_calls: msg.tool_calls,
       hide: false,
-      token:
-        data.usage.completion_tokens ?? calculate_token_length(msg.content),
+      token: data.usage?.completion_tokens_details
+        ? data.usage.completion_tokens -
+          data.usage.completion_tokens_details.reasoning_tokens
+        : (data.usage.completion_tokens ?? calculate_token_length(msg.content)),
       example: false,
       audio: null,
       logprobs: data.choices[0]?.logprobs,
