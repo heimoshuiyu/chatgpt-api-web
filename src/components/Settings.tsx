@@ -76,6 +76,8 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { NonOverflowScrollArea, ScrollArea } from "@/components/ui/scroll-area";
 import { AppChatStoreContext, AppContext } from "@/pages/App";
+import { toast } from "@/hooks/use-toast";
+import { title } from "process";
 
 const TTS_VOICES: string[] = [
   "alloy",
@@ -886,7 +888,10 @@ export default (props: {}) => {
                           className="w-full"
                           onClick={() => {
                             navigator.clipboard.writeText(link);
-                            alert(tr(`Copied link:`, langCode) + `${link}`);
+                            toast({
+                              title: tr(`Copied link:`, langCode),
+                              description: `${link}`,
+                            });
                           }}
                         >
                           {Tr("Copy Setting Link")}
