@@ -74,6 +74,7 @@ const AddToolMsg = (props: {
                 audio: null,
                 logprobs: null,
                 response_model_name: null,
+                reasoning_content: null,
               });
               setChatStore({ ...chatStore });
               setNewToolCallID("");

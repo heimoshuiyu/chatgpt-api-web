@@ -18,7 +18,9 @@ interface NewChatStoreOptions {
   top_p?: number;
   top_p_enabled?: boolean;
   presence_penalty?: number;
+  presence_penalty_enabled?: boolean;
   frequency_penalty?: number;
+  frequency_penalty_enabled?: boolean;
   dev?: boolean;
   whisper_api?: string;
   whisper_key?: string;
@@ -33,6 +35,7 @@ interface NewChatStoreOptions {
   image_gen_key?: string;
   json_mode?: boolean;
   logprobs?: boolean;
+  maxTokens?: number;
 }
 
 export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
@@ -50,7 +53,9 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     maxTokens: getDefaultParams(
       "max",
       models[getDefaultParams("model", options.model ?? DefaultModel)]
-        ?.maxToken ?? 2048
+        ?.maxToken ??
+        options.maxTokens ??
+        2048
     ),
     maxGenTokens: 2048,
     maxGenTokens_enabled: false,
@@ -67,7 +72,9 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     top_p: options.top_p ?? 1,
     top_p_enabled: options.top_p_enabled ?? false,
     presence_penalty: options.presence_penalty ?? 0,
+    presence_penalty_enabled: options.presence_penalty_enabled ?? false,
     frequency_penalty: options.frequency_penalty ?? 0,
+    frequency_penalty_enabled: options.frequency_penalty_enabled ?? false,
     develop_mode: getDefaultParams("dev", options.dev ?? false),
     whisper_api: getDefaultParams(
       "whisper-api",

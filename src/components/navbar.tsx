@@ -87,12 +87,15 @@ const Navbar: React.FC = () => {
                       <MenubarItem>
                         <ReceiptIcon className="w-4 h-4 mr-2" />
                         Price:{" "}
-                        {models[chatStore.model]?.price?.prompt * 1000 * 1000}$
-                        / 1M input tokens
+                        {models[chatStore.model]?.price?.prompt *
+                          1000 *
+                          1000}$ / 1M input tokens
                       </MenubarItem>
                       <MenubarItem>
                         <WalletIcon className="w-4 h-4 mr-2" />
-                        Total: {getTotalCost().toFixed(2)}$
+                        Total: {getTotalCost().toFixed(
+                          2
+                        )}$
                       </MenubarItem>
                       <MenubarItem>
                         <ArrowUpDownIcon className="w-4 h-4 mr-2" />
@@ -112,7 +115,9 @@ const Navbar: React.FC = () => {
                       </MenubarItem>
                       <MenubarItem>
                         <ScissorsIcon className="w-4 h-4 mr-2" />
-                        {chatStore.postBeginIndex} / {chatStore.history.length}
+                        {
+                          chatStore.postBeginIndex
+                        } / {chatStore.history.length}
                       </MenubarItem>
                       <MenubarSeparator />
                       <MenubarItem disabled>

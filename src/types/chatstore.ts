@@ -26,7 +26,9 @@ export interface ChatStore {
   top_p: number;
   top_p_enabled: boolean;
   presence_penalty: number;
+  presence_penalty_enabled: boolean;
   frequency_penalty: number;
+  frequency_penalty_enabled: boolean;
   develop_mode: boolean;
   whisper_api: string;
   whisper_key: string;
@@ -72,6 +74,7 @@ export interface ChatStoreMessage {
 
   role: "system" | "user" | "assistant" | "tool";
   content: string | MessageDetail[];
+  reasoning_content: string | null;
   name?: "example_user" | "example_assistant";
   tool_calls?: ToolCall[];
   tool_call_id?: string;
