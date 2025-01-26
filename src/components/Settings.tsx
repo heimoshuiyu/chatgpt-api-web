@@ -1,7 +1,8 @@
 import { themeChange } from "theme-change";
 
-import { useRef } from "react";
+import { useRef, useCallback } from "react";
 import { useContext, useEffect, useState, Dispatch } from "react";
+import React from "react";
 import { clearTotalCost, getTotalCost } from "@/utils/totalCost";
 import { ChatStore, TemplateChatStore, TemplateTools } from "@/types/chatstore";
 import { models } from "@/types/models";
@@ -179,46 +180,70 @@ const SelectModel = (props: { help: string }) => {
   );
 };
 
-const LongInput = (props: {
-  field: "systemMessageContent" | "toolsString";
-  label: string;
-  help: string;
-}) => {
-  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
-  return (
-    <div>
-      <Label htmlFor="name" className="text-right">
-        {props.label}{" "}
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <InfoIcon />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>{props.label} Help</DialogTitle>
-            </DialogHeader>
-            {props.help}
-          </DialogContent>
-        </Dialog>
-      </Label>
+const LongInput = React.memo(
+  (props: {
+    field: "systemMessageContent" | "toolsString";
+    label: string;
+    help: string;
+  }) => {
+    const { chatStore, setChatStore } = useContext(AppChatStoreContext);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [localValue, setLocalValue] = useState(chatStore[props.field]);
 
-      <Textarea
-        className="h-24 w-full"
-        value={chatStore[props.field]}
-        onBlur={async (event: any) => {
-          chatStore[props.field] = event.target.value;
-          await setChatStore({ ...chatStore });
-          autoHeight(event.target);
-        }}
-        onKeyPress={(event: any) => {
-          autoHeight(event.target);
-        }}
-      />
-    </div>
-  );
-};
+    // Update height when value changes
+    useEffect(() => {
+      if (textareaRef.current) {
+        autoHeight(textareaRef.current);
+      }
+    }, [localValue]);
+
+    // Sync local value with chatStore when it changes externally
+    useEffect(() => {
+      setLocalValue(chatStore[props.field]);
+    }, [chatStore[props.field]]);
+
+    const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setLocalValue(event.target.value);
+    };
+
+    const handleBlur = () => {
+      if (localValue !== chatStore[props.field]) {
+        chatStore[props.field] = localValue;
+        setChatStore({ ...chatStore });
+      }
+    };
+
+    return (
+      <div>
+        <Label htmlFor="name" className="text-right">
+          {props.label}{" "}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <InfoIcon />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>{props.label} Help</DialogTitle>
+              </DialogHeader>
+              {props.help}
+            </DialogContent>
+          </Dialog>
+        </Label>
+
+        <Textarea
+          ref={textareaRef}
+          mockOnChange={false}
+          className="h-24 w-full"
+          value={localValue}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+      </div>
+    );
+  }
+);
 
 const InputField = (props: {
   field:
