@@ -22,7 +22,10 @@ export function ModeToggle() {
   const { setTheme } = useTheme();
 
   return (
-    <Select onValueChange={(value) => setTheme(value as Theme)}>
+    <Select
+      onValueChange={(value) => setTheme(value as Theme)}
+      defaultValue={useTheme().theme}
+    >
       <SelectTrigger className="w-full">
         <SelectValue placeholder="Select theme" />
       </SelectTrigger>

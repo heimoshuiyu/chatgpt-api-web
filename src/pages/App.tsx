@@ -89,6 +89,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { ModeToggle } from "@/components/ModeToggle";
 
+import Search from "@/components/Search";
+
 import Navbar from "@/components/navbar";
 
 export function App() {
@@ -352,7 +354,10 @@ export function App() {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <ModeToggle />
+          <div className="flex items-start gap-2">
+            <ModeToggle />
+            <Search />
+          </div>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive">{Tr("DEL")}</Button>

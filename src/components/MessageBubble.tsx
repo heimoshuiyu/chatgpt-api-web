@@ -322,7 +322,35 @@ export default function Message(props: { messageIndex: number }) {
             ) : chat.role === "tool" ? (
               <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
-              <Markdown>{getMessageText(chat)}</Markdown>
+              <div className="message-content max-w-full md:max-w-[75%]">
+                <Markdown
+                  break={true}
+                  components={{
+                    code: ({ children }) => (
+                      <code className="bg-muted px-1 py-0.5 rounded">
+                        {children}
+                      </code>
+                    ),
+                    pre: ({ children }) => (
+                      <pre className="bg-muted p-4 rounded-lg overflow-auto">
+                        {children}
+                      </pre>
+                    ),
+                    a: ({ href, children }) => (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        {children}
+                      </a>
+                    ),
+                  }}
+                >
+                  {getMessageText(chat)}
+                </Markdown>
+              </div>
             ) : (
               <div className="message-content max-w-full md:max-w-[75%]">
                 {chat.content &&
