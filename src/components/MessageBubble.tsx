@@ -1,5 +1,8 @@
 import { LightBulbIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Markdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import { useContext, useState, useMemo } from "react";
 import { ChatStoreMessage } from "@/types/chatstore";
 import { addTotalCost } from "@/utils/totalCost";
@@ -324,6 +327,8 @@ export default function Message(props: { messageIndex: number }) {
             ) : renderMarkdown ? (
               <div className="message-content max-w-full md:max-w-[75%]">
                 <Markdown
+                  remarkPlugins={[remarkMath]}
+                  rehypePlugins={[rehypeKatex]}
                   break={true}
                   components={{
                     code: ({ children }) => (
