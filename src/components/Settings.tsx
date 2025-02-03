@@ -477,6 +477,29 @@ const Number = (props: {
   );
 };
 
+const DefaultRenderMDCheckbox = () => {
+  const { defaultRenderMD, setDefaultRenderMD } = useContext(AppContext);
+  return (
+    <div className="flex items-center space-x-2">
+      <div className="flex items-center">
+        <Checkbox
+          id="defaultRenderMD-checkbox"
+          checked={defaultRenderMD}
+          onCheckedChange={(checked: boolean) => {
+            setDefaultRenderMD(checked);
+          }}
+        />
+      </div>
+      <label
+        htmlFor="defaultRenderMD-checkbox"
+        className="flex items-center gap-2 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
+        Render Markdown by Default
+      </label>
+    </div>
+  );
+};
+
 const Choice = (props: {
   field: "streamMode" | "develop_mode" | "json_mode" | "logprobs";
   help: string;
@@ -909,6 +932,7 @@ export default (props: {}) => {
                     help="开发者模式，开启后会显示更多选项及功能"
                     {...props}
                   />
+                  <DefaultRenderMDCheckbox />
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label>Language</Label>

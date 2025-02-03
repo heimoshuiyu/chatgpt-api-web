@@ -250,7 +250,8 @@ export default function Message(props: { messageIndex: number }) {
 
   const chat = chatStore.history[messageIndex];
   const [showEdit, setShowEdit] = useState(false);
-  const [renderMarkdown, setRenderWorkdown] = useState(false);
+  const { defaultRenderMD } = useContext(AppContext);
+  const [renderMarkdown, setRenderWorkdown] = useState(defaultRenderMD);
   const [renderColor, setRenderColor] = useState(false);
 
   const { toast } = useToast();
@@ -293,7 +294,7 @@ export default function Message(props: { messageIndex: number }) {
             </span>
           </div>
         )}
-      {chat.role === "assistant" || chat.role === "received" ? (
+      {chat.role === "assistant" ? (
         <div className="border-b border-border dark:border-border-dark pb-4">
           {chat.reasoning_content ? (
             <Collapsible className="mb-3 w-[450px]">
@@ -322,14 +323,12 @@ export default function Message(props: { messageIndex: number }) {
               <MessageDetail chat={chat} renderMarkdown={renderMarkdown} />
             ) : chat.tool_calls ? (
               <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
-            ) : chat.role === "tool" ? (
-              <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
               <div className="message-content max-w-full md:max-w-[75%]">
                 <Markdown
                   remarkPlugins={[remarkMath]}
                   rehypePlugins={[rehypeKatex]}
-                  break={true}
+                  //break={true}
                   components={{
                     code: ({ children }) => (
                       <code className="bg-muted px-1 py-0.5 rounded">

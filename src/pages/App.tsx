@@ -45,6 +45,8 @@ interface AppContextType {
   setTemplateAPIsImageGen: (t: TemplateAPI[]) => void;
   templateTools: TemplateTools[];
   setTemplateTools: (t: TemplateTools[]) => void;
+  defaultRenderMD: boolean;
+  setDefaultRenderMD: (b: boolean) => void;
 }
 
 interface AppChatStoreContextType {
@@ -297,6 +299,14 @@ export function App() {
     );
     _setTemplateTools(templateTools);
   };
+  const [defaultRenderMD, _setDefaultRenderMD] = useState(
+    localStorage.getItem("defaultRenderMD") === "true"
+  );
+  const setDefaultRenderMD = (defaultRenderMD: boolean) => {
+    localStorage.setItem("defaultRenderMD", `${defaultRenderMD}`);
+    _setDefaultRenderMD(defaultRenderMD);
+  };
+
   console.log("[PERFORMANCE!] reading localStorage");
 
   return (
@@ -317,6 +327,8 @@ export function App() {
         setTemplateAPIsImageGen,
         templateTools,
         setTemplateTools,
+        defaultRenderMD,
+        setDefaultRenderMD,
       }}
     >
       <Sidebar>
