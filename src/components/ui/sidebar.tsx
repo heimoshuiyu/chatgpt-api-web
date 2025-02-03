@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { VariantProps, cva } from "class-variance-authority";
-import { PanelLeft } from "lucide-react";
+import { PanelLeft, X } from "lucide-react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -192,21 +192,41 @@ const Sidebar = React.forwardRef<
 
     if (isMobile) {
       return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-          <SheetContent
+        <div className="md:hidden">
+          {/* 遮罩层 */}
+          <div
+            className={cn(
+              "fixed inset-0 z-40 bg-black/80 transition-opacity duration-500",
+              openMobile ? "opacity-100" : "opacity-0 pointer-events-none"
+            )}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setOpenMobile(false);
+            }}
+          />
+
+          {/* 侧边栏 */}
+          <div
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+            className={cn(
+              "fixed inset-y-0 z-50 h-svh w-[--sidebar-width-mobile] bg-sidebar p-0 text-sidebar-foreground transition-transform duration-500 ease-in-out",
+              side === "left"
+                ? "-translate-x-full left-0"
+                : "translate-x-full right-0",
+              openMobile && "translate-x-0"
+            )}
             style={
               {
-                "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+                "--sidebar-width-mobile": SIDEBAR_WIDTH_MOBILE,
               } as React.CSSProperties
             }
-            side={side}
+            {...props}
           >
             <div className="flex h-full w-full flex-col">{children}</div>
-          </SheetContent>
-        </Sheet>
+          </div>
+        </div>
       );
     }
 

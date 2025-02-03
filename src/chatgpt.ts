@@ -1,4 +1,5 @@
 import { DefaultModel } from "@/const";
+import { MutableRefObject } from "react";
 
 export interface ImageURL {
   url: string;
@@ -91,7 +92,7 @@ export const getMessageText = (message: Message): string => {
         })
         .join("\n");
     }
-    return message.content;
+    return message.content.trim();
   }
   return message.content
     .filter((c) => c.type === "text")
@@ -213,7 +214,7 @@ class Chat {
     this.json_mode = json_mode;
   }
 
-  _fetch(stream = false, logprobs = false) {
+  _fetch(stream = false, logprobs = false, signal: AbortSignal) {
     // perform role type check
     let hasNonSystemMessage = false;
     for (const msg of this.messages) {
@@ -301,10 +302,11 @@ class Chat {
       method: "POST",
       headers,
       body: JSON.stringify(body),
+      signal,
     });
   }
 
-  async *processStreamResponse(resp: Response) {
+  async *processStreamResponse(resp: Response, signal?: AbortSignal) {
     const reader = resp?.body?.pipeThrough(new TextDecoderStream()).getReader();
     if (reader === undefined) {
       console.log("reader is undefined");
@@ -313,6 +315,11 @@ class Chat {
     let receiving = true;
     let buffer = "";
     while (receiving) {
+      if (signal?.aborted) {
+        reader.cancel();
+        console.log("signal aborted in stream response");
+        break;
+      }
       const { value, done } = await reader.read();
       if (done) break;
 

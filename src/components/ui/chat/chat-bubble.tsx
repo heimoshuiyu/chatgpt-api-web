@@ -177,7 +177,7 @@ const ChatBubbleActionWrapper = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "absolute z-50 translate-y-full flex opacity-0 group-hover:opacity-100 transition-opacity duration-200",
+      "absolute z-30 translate-y-full flex opacity-0 group-hover:opacity-100 transition-opacity duration-200",
       variant === "sent" ? "flex-row-reverse" : "",
       className
     )}

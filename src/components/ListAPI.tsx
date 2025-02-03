@@ -151,7 +151,9 @@ function ToolsDropdownList() {
 
   return (
     <div className="flex items-center space-x-4 mx-3">
-      <p className="text-sm text-muted-foreground">{Tr(`Tools`)}</p>
+      <p className="text-sm text-muted-foreground">
+        <Tr>Tools</Tr>
+      </p>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-[150px] justify-start">
@@ -164,7 +166,9 @@ function ToolsDropdownList() {
                 }
               </>
             ) : (
-              <>+ {Tr(`Set tools`)}</>
+              <>
+                + <Tr>Set tools</Tr>
+              </>
             )}
           </Button>
         </PopoverTrigger>
@@ -172,7 +176,9 @@ function ToolsDropdownList() {
           <Command>
             <CommandInput placeholder="You can search..." />
             <CommandList>
-              <CommandEmpty>{Tr(`No results found.`)}</CommandEmpty>
+              <CommandEmpty>
+                <Tr>No results found.</Tr>
+              </CommandEmpty>
               <CommandGroup>
                 {chatStore.toolsString && (
                   <CommandItem
@@ -188,7 +194,7 @@ function ToolsDropdownList() {
                       setOpen(false);
                     }}
                   >
-                    <BrushIcon /> {Tr(`Clear tools`)}
+                    <BrushIcon /> <Tr>Clear tools</Tr>
                   </CommandItem>
                 )}
                 {ctx.templateTools.map((t, index) => (
@@ -247,23 +253,21 @@ const ChatTemplateItem = ({
   const { templates, setTemplates } = useContext(AppContext);
 
   return (
-    <li>
+    <li
+      onClick={() => {
+        // Update chatStore with the selected template
+        if (chatStore.history.length > 0 || chatStore.systemMessageContent) {
+          console.log("you clicked", t.name);
+          const confirm = window.confirm(
+            "This will replace the current chat history. Are you sure?"
+          );
+          if (!confirm) return;
+        }
+        setChatStore({ ...newChatStore({ ...chatStore, ...t }) });
+      }}
+    >
       <NavigationMenuLink asChild>
         <a
-          onClick={() => {
-            // Update chatStore with the selected template
-            if (
-              chatStore.history.length > 0 ||
-              chatStore.systemMessageContent
-            ) {
-              console.log("you clicked", t.name);
-              const confirm = window.confirm(
-                "This will replace the current chat history. Are you sure?"
-              );
-              if (!confirm) return;
-            }
-            setChatStore({ ...newChatStore({ ...chatStore, ...t }) });
-          }}
           className={cn(
             "flex flex-row justify-between items-center select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
           )}

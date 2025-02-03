@@ -10,7 +10,7 @@ const VersionHint = () => {
       {chatStore.chatgpt_api_web_version < "v1.3.0" && (
         <p className="p-2 my-2 text-center dark:text-white">
           <br />
-          {Tr("Warning: current chatStore version")}:{" "}
+          <Tr>Warning: current chatStore version</Tr>:{" "}
           {chatStore.chatgpt_api_web_version} {"< v1.3.0"}
           <br />
           v1.3.0
@@ -22,7 +22,7 @@ const VersionHint = () => {
       {chatStore.chatgpt_api_web_version < "v1.4.0" && (
         <p className="p-2 my-2 text-center dark:text-white">
           <br />
-          {Tr("Warning: current chatStore version")}:{" "}
+          <Tr>Warning: current chatStore version</Tr>:{" "}
           {chatStore.chatgpt_api_web_version} {"< v1.4.0"}
           <br />
           v1.4.0 增加了更多参数，继续使用旧版可能因参数确实导致未定义的行为
@@ -34,7 +34,7 @@ const VersionHint = () => {
         <p className="p-2 my-2 text-center dark:text-white">
           <br />
           提示：当前会话版本 {chatStore.chatgpt_api_web_version}
-          {Tr("Warning: current chatStore version")}:{" "}
+          <Tr>Warning: current chatStore version</Tr>:{" "}
           {chatStore.chatgpt_api_web_version} {"< v1.6.0"}
           。
           <br />

@@ -39,13 +39,13 @@ const Navbar: React.FC = () => {
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
 
   return (
-    <header className="flex sticky top-0 bg-background h-14 shrink-0 items-center border-b z-50">
+    <header className="flex sticky top-0 bg-background h-14 shrink-0 items-center border-b z-30">
       <div className="flex flex-col w-full">
         <div className="flex flex-1 items-center gap-2">
           <div className="flex items-center gap-2 px-3">
             <SidebarTrigger />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            <h1 className="text-lg font-bold">{chatStore.model}</h1>
+            <h1 className="text-lg font-bold break-all">{chatStore.model}</h1>
           </div>
           <div className="flex ml-auto gap-2 px-3">
             <Settings />
@@ -63,13 +63,22 @@ const Navbar: React.FC = () => {
               <div className="flex items-center gap-2">
                 <ReceiptIcon className="w-4 h-4" />
                 <span className="text-sm font-medium">
-                  Generated Tokens: {chatStore.totalTokens.toString()}
+                  <Tr>Total Tokens</Tr>: {chatStore.totalTokens.toString()}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <WalletIcon className="w-4 h-4" />
                 <span className="text-sm font-medium">
-                  Cost: ${getTotalCost().toFixed(2)}
+                  <Tr>Session Cost</Tr>: ${chatStore.cost.toFixed(2)}
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center px-4 py-2 border-b">
+              <div></div>
+              <div className="flex items-center gap-2">
+                <WalletIcon className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  <Tr>Accumulated Cost</Tr>: ${getTotalCost().toFixed(2)}
                 </span>
               </div>
             </div>

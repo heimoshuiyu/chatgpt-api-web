@@ -81,7 +81,7 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
                         }
                       }}
                     >
-                      {Tr("Edit URL")}
+                      <Tr>Edit URL</Tr>
                     </Button>
                     <Button
                       className="bg-blue-300 p-1 rounded m-1"
@@ -110,7 +110,7 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
                         input.click();
                       }}
                     >
-                      {Tr("Upload")}
+                      <Tr>Upload</Tr>
                     </Button>
                     <span
                       className="bg-blue-300 p-1 rounded m-1"
@@ -155,7 +155,7 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
               setChatStore({ ...chatStore });
             }}
           >
-            {Tr("Add text")}
+            <Tr>Add text</Tr>
           </Button>
           <Button
             className={"m-2 p-1 rounded bg-green-500"}
@@ -171,7 +171,7 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
               setChatStore({ ...chatStore });
             }}
           >
-            {Tr("Add image")}
+            <Tr>Add image</Tr>
           </Button>
         </div>
         <DrawerFooter>
@@ -179,7 +179,7 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
             className="bg-blue-500 p-2 rounded"
             onClick={() => setShowEdit(false)}
           >
-            {Tr("Close")}
+            <Tr>Close</Tr>
           </Button>
         </DrawerFooter>
       </DrawerContent>

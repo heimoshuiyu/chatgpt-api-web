@@ -47,6 +47,7 @@ interface AppContextType {
   setTemplateTools: (t: TemplateTools[]) => void;
   defaultRenderMD: boolean;
   setDefaultRenderMD: (b: boolean) => void;
+  handleNewChatStore: () => Promise<void>;
 }
 
 interface AppChatStoreContextType {
@@ -94,6 +95,7 @@ import { ModeToggle } from "@/components/ModeToggle";
 import Search from "@/components/Search";
 
 import Navbar from "@/components/navbar";
+import ConversationTitle from "@/components/ConversationTitle.";
 
 export function App() {
   // init selected index
@@ -329,12 +331,15 @@ export function App() {
         setTemplateTools,
         defaultRenderMD,
         setDefaultRenderMD,
+        handleNewChatStore,
       }}
     >
       <Sidebar>
         <SidebarHeader>
           <Button onClick={handleNewChatStore}>
-            <span>{Tr("New")}</span>
+            <span>
+              <Tr>New Chat</Tr>
+            </span>
           </Button>
         </SidebarHeader>
         <SidebarContent>
@@ -356,7 +361,12 @@ export function App() {
                           asChild
                           isActive={i === selectedChatIndex}
                         >
-                          <span>{i}</span>
+                          <span>
+                            <ConversationTitle
+                              chatStoreIndex={i}
+                              selectedChatStoreIndex={selectedChatIndex}
+                            />
+                          </span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     );
@@ -372,7 +382,9 @@ export function App() {
           </div>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive">{Tr("DEL")}</Button>
+              <Button variant="destructive">
+                <Tr>Delete Chat</Tr>
+              </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>

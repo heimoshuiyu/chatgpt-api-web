@@ -209,6 +209,7 @@ export function ImageGenDrawer({ disableFactor }: Props) {
                             logprobs: null,
                             response_model_name: imageGenModel,
                             reasoning_content: null,
+                            usage: null,
                           });
 
                           setChatStore({ ...chatStore });
@@ -221,7 +222,7 @@ export function ImageGenDrawer({ disableFactor }: Props) {
                       }
                     }}
                   >
-                    {Tr("Generate")}
+                    <Tr>Generate</Tr>
                   </Button>
                 </span>
               </div>

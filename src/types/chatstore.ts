@@ -1,4 +1,4 @@
-import { Logprobs, Message, MessageDetail, ToolCall } from "@/chatgpt";
+import { Logprobs, Message, MessageDetail, ToolCall, Usage } from "@/chatgpt";
 
 /**
  * ChatStore is the main object of the chatgpt-api-web,
@@ -71,6 +71,11 @@ export interface ChatStoreMessage {
   audio: Blob | null;
   logprobs: Logprobs | null;
   response_model_name: string | null;
+  usage: Usage | null;
+
+  created_at?: string;
+  responsed_at?: string;
+  completed_at?: string;
 
   role: "system" | "user" | "assistant" | "tool";
   content: string | MessageDetail[];

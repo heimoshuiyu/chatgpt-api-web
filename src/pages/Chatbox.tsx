@@ -1,6 +1,6 @@
 import { useContext, useRef } from "react";
 import { useEffect, useState } from "react";
-import { Tr } from "@/translate";
+import { langCodeContext, tr, Tr } from "@/translate";
 import { addTotalCost } from "@/utils/totalCost";
 import ChatGPT, {
   calculate_token_length,
@@ -42,10 +42,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AppChatStoreContext, AppContext } from "./App";
 import APIListMenu from "@/components/ListAPI";
 import { ImageGenDrawer } from "@/components/ImageGenDrawer";
+import { abort } from "process";
 
 export default function ChatBOX() {
-  const { db, selectedChatIndex, setSelectedChatIndex } =
+  const { db, selectedChatIndex, setSelectedChatIndex, handleNewChatStore } =
     useContext(AppContext);
+  const { langCode, setLangCode } = useContext(langCodeContext);
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
   // prevent error
   const [inputMsg, setInputMsg] = useState("");
@@ -73,13 +75,14 @@ export default function ChatBOX() {
       if (messagesEndRef.current === null) return;
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [showRetry, showGenerating, generatingMessage]);
+  }, [showRetry, showGenerating, generatingMessage, chatStore]);
 
   const client = new ChatGPT(chatStore.apiKey);
 
   const _completeWithStreamMode = async (
-    response: Response
-  ): Promise<Usage> => {
+    response: Response,
+    signal: AbortSignal
+  ): Promise<ChatStoreMessage> => {
     let responseTokenCount = 0; // including reasoning content and normal content
     const allChunkMessage: string[] = [];
     const allReasoningContentChunk: string[] = [];
@@ -90,7 +93,8 @@ export default function ChatBOX() {
     };
     let response_model_name: string | null = null;
     let usage: Usage | null = null;
-    for await (const i of client.processStreamResponse(response)) {
+    for await (const i of client.processStreamResponse(response, signal)) {
+      if (signal?.aborted) break;
       response_model_name = i.model;
       responseTokenCount += 1;
       if (i.usage) {
@@ -165,22 +169,7 @@ export default function ChatBOX() {
     const reasoning_content = allReasoningContentChunk.join("");
 
     console.log("save logprobs", logprobs);
-    const newMsg: ChatStoreMessage = {
-      role: "assistant",
-      content,
-      reasoning_content,
-      hide: false,
-      token:
-        responseTokenCount -
-        (usage?.completion_tokens_details?.reasoning_tokens ?? 0),
-      example: false,
-      audio: null,
-      logprobs,
-      response_model_name,
-    };
-    if (allChunkTool.length > 0) newMsg.tool_calls = allChunkTool;
 
-    chatStore.history.push(newMsg);
     // manually copy status from client to chatStore
     chatStore.maxTokens = client.max_tokens;
     chatStore.tokenMargin = client.tokens_margin;
@@ -209,14 +198,43 @@ export default function ChatBOX() {
       ret.completion_tokens_details = usage.completion_tokens_details ?? null;
     }
 
-    return ret;
+    const newMsg: ChatStoreMessage = {
+      role: "assistant",
+      content,
+      reasoning_content,
+      hide: false,
+      token:
+        responseTokenCount -
+        (usage?.completion_tokens_details?.reasoning_tokens ?? 0),
+      example: false,
+      audio: null,
+      logprobs,
+      response_model_name,
+      usage,
+    };
+    if (allChunkTool.length > 0) newMsg.tool_calls = allChunkTool;
+
+    return newMsg;
   };
 
-  const _completeWithFetchMode = async (response: Response): Promise<Usage> => {
+  const _completeWithFetchMode = async (
+    response: Response
+  ): Promise<ChatStoreMessage> => {
     const data = (await response.json()) as FetchResponse;
     const msg = client.processFetchResponse(data);
 
-    chatStore.history.push({
+    setShowGenerating(false);
+
+    const usage: Usage = {
+      prompt_tokens: data.usage.prompt_tokens ?? 0,
+      completion_tokens: data.usage.completion_tokens ?? 0,
+      total_tokens: data.usage.total_tokens ?? 0,
+      response_model_name: data.model ?? null,
+      prompt_tokens_details: data.usage.prompt_tokens_details ?? null,
+      completion_tokens_details: data.usage.completion_tokens_details ?? null,
+    };
+
+    const ret: ChatStoreMessage = {
       role: "assistant",
       content: msg.content,
       tool_calls: msg.tool_calls,
@@ -224,22 +242,13 @@ export default function ChatBOX() {
       token: data.usage?.completion_tokens_details
         ? data.usage.completion_tokens -
           data.usage.completion_tokens_details.reasoning_tokens
-        : data.usage.completion_tokens ?? calculate_token_length(msg.content),
+        : (data.usage.completion_tokens ?? calculate_token_length(msg.content)),
       example: false,
       audio: null,
       logprobs: data.choices[0]?.logprobs,
       response_model_name: data.model,
       reasoning_content: data.choices[0]?.message?.reasoning_content ?? null,
-    });
-    setShowGenerating(false);
-
-    const ret: Usage = {
-      prompt_tokens: data.usage.prompt_tokens ?? 0,
-      completion_tokens: data.usage.completion_tokens ?? 0,
-      total_tokens: data.usage.total_tokens ?? 0,
-      response_model_name: data.model ?? null,
-      prompt_tokens_details: data.usage.prompt_tokens_details ?? null,
-      completion_tokens_details: data.usage.completion_tokens_details ?? null,
+      usage,
     };
 
     return ret;
@@ -288,28 +297,47 @@ export default function ChatBOX() {
     client.max_gen_tokens = chatStore.maxGenTokens;
     client.enable_max_gen_tokens = chatStore.maxGenTokens_enabled;
 
+    const created_at = new Date();
+
     try {
       setShowGenerating(true);
+      abortControllerRef.current = new AbortController();
       const response = await client._fetch(
         chatStore.streamMode,
-        chatStore.logprobs
+        chatStore.logprobs,
+        abortControllerRef.current.signal
       );
+      const responsed_at = new Date();
       const contentType = response.headers.get("content-type");
-      let usage: Usage;
+      let cs: ChatStoreMessage;
       if (contentType?.startsWith("text/event-stream")) {
-        usage = await _completeWithStreamMode(response);
+        cs = await _completeWithStreamMode(
+          response,
+          abortControllerRef.current.signal
+        );
       } else if (contentType?.startsWith("application/json")) {
-        usage = await _completeWithFetchMode(response);
+        cs = await _completeWithFetchMode(response);
       } else {
         throw `unknown response content type ${contentType}`;
       }
+      const usage = cs.usage;
+      if (!usage) {
+        throw "panic: usage is null";
+      }
+
+      const completed_at = new Date();
+      cs.created_at = created_at.toISOString();
+      cs.responsed_at = responsed_at.toISOString();
+      cs.completed_at = completed_at.toISOString();
+
+      chatStore.history.push(cs);
+      console.log("new chatStore", cs);
 
       // manually copy status from client to chatStore
       chatStore.maxTokens = client.max_tokens;
       chatStore.tokenMargin = client.tokens_margin;
       chatStore.totalTokens = client.total_tokens;
 
-      console.log("usage", usage);
       // estimate user's input message token
       const aboveTokens = chatStore.history
         .filter(({ hide }) => !hide)
@@ -357,7 +385,11 @@ export default function ChatBOX() {
 
       setShowRetry(false);
       setChatStore({ ...chatStore });
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        console.log("abort complete");
+        return;
+      }
       setShowRetry(true);
       alert(error);
     } finally {
@@ -368,9 +400,9 @@ export default function ChatBOX() {
 
   // when user click the "send" button or ctrl+Enter in the textarea
   const send = async (msg = "", call_complete = true) => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 0);
 
     const inputMsg = msg.trim();
     if (!inputMsg && images.length === 0) {
@@ -395,6 +427,7 @@ export default function ChatBOX() {
       logprobs: null,
       response_model_name: null,
       reasoning_content: null,
+      usage: null,
     });
 
     // manually calculate token length
@@ -411,40 +444,44 @@ export default function ChatBOX() {
   };
 
   const userInputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController>(new AbortController());
 
   return (
     <>
-      <div className="grow flex flex-col p-2 w-full">
+      <div className="grow flex flex-col w-full">
         <ChatMessageList>
           {chatStore.history.length === 0 && (
             <Alert variant="default" className="my-3">
               <InfoIcon className="h-4 w-4" />
               <AlertTitle>
-                {Tr("This is a new chat session, start by typing a message")}
+                <Tr>This is a new chat session, start by typing a message</Tr>
               </AlertTitle>
               <AlertDescription className="flex flex-col gap-1 mt-5">
                 <div className="flex items-center gap-2">
                   <CornerRightUpIcon className="h-4 w-4" />
                   <span>
-                    {Tr(
-                      "Settings button located at the top right corner can be used to change the settings of this chat"
-                    )}
+                    <Tr>
+                      Settings button located at the top right corner can be
+                      used to change the settings of this chat
+                    </Tr>
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CornerLeftUpIcon className="h-4 w-4" />
                   <span>
-                    {Tr(
-                      "'New' button located at the top left corner can be used to create a new chat"
-                    )}
+                    <Tr>
+                      'New' button located at the top left corner can be used to
+                      create a new chat
+                    </Tr>
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <ArrowDownToDotIcon className="h-4 w-4" />
                   <span>
-                    {Tr(
-                      "All chat history and settings are stored in the local browser"
-                    )}
+                    <Tr>
+                      All chat history and settings are stored in the local
+                      browser
+                    </Tr>
                   </span>
                 </div>
               </AlertDescription>
@@ -489,7 +526,7 @@ export default function ChatBOX() {
             </ChatBubble>
           )}
           <p className="text-center">
-            {chatStore.history.length > 0 && (
+            {chatStore.history.length > 0 && !showGenerating && (
               <Button
                 variant="secondary"
                 size="sm"
@@ -505,7 +542,35 @@ export default function ChatBOX() {
                   await complete();
                 }}
               >
-                {Tr("Re-Generate")}
+                <Tr>Re-Generate</Tr>
+              </Button>
+            )}
+            {chatStore.history.length > 0 && !showGenerating && (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="m-2"
+                disabled={showGenerating}
+                onClick={() => {
+                  handleNewChatStore();
+                }}
+              >
+                <Tr>New Chat</Tr>
+              </Button>
+            )}
+            {showGenerating && (
+              <Button
+                size="sm"
+                className="ml-auto gap-1.5"
+                variant="destructive"
+                onClick={() => {
+                  abortControllerRef.current.abort();
+                  setShowGenerating(false);
+                  setGeneratingMessage("");
+                }}
+              >
+                <Tr>Stop Generating</Tr>
+                <ScissorsIcon className="size-3.5" />
               </Button>
             )}
             {chatStore.develop_mode && chatStore.history.length > 0 && (
@@ -517,22 +582,24 @@ export default function ChatBOX() {
                   await complete();
                 }}
               >
-                {Tr("Completion")}
+                <Tr>Completion</Tr>
               </Button>
             )}
           </p>
-          <p className="p-2 my-2 text-center opacity-50 dark:text-white">
-            {chatStore.postBeginIndex !== 0 && (
+          {chatStore.postBeginIndex !== 0 && (
+            <p className="p-2 my-2 text-center opacity-50 dark:text-white">
               <Alert variant="default">
                 <InfoIcon className="h-4 w-4" />
-                <AlertTitle>{Tr("Chat History Notice")}</AlertTitle>
+                <AlertTitle>
+                  <Tr>Chat History Notice</Tr>
+                </AlertTitle>
                 <AlertDescription>
-                  {Tr("Info: chat history is too long, forget messages")}:{" "}
+                  <Tr>Info: chat history is too long, forget messages</Tr>:{" "}
                   {chatStore.postBeginIndex}
                 </AlertDescription>
               </Alert>
-            )}
-          </p>
+            </p>
+          )}
           <VersionHint />
           {showRetry && (
             <p className="text-right p-2 my-2 dark:text-white">
@@ -543,12 +610,12 @@ export default function ChatBOX() {
                   await complete();
                 }}
               >
-                {Tr("Retry")}
+                <Tr>Retry</Tr>
               </Button>
             </p>
           )}
-          <div ref={messagesEndRef as any}></div>
         </ChatMessageList>
+        <div id="message-end" ref={messagesEndRef as any}></div>
         {images.length > 0 && (
           <div className="flex flex-wrap">
             {images.map((image, index) => (
@@ -581,7 +648,7 @@ export default function ChatBOX() {
           <ChatInput
             value={inputMsg}
             ref={userInputRef as any}
-            placeholder="Type your message here..."
+            placeholder={tr("Type your message here...", langCode)}
             onChange={(event: any) => {
               setInputMsg(event.target.value);
               autoHeight(event.target);
@@ -620,7 +687,7 @@ export default function ChatBOX() {
                 autoHeight(userInputRef.current);
               }}
             >
-              Send Message
+              <Tr>Send</Tr>
               <CornerDownLeftIcon className="size-3.5" />
             </Button>
           </div>
