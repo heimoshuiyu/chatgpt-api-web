@@ -33,7 +33,9 @@ export function SetAPIsTemplate({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">{Tr(`Save ${label}`)}</Button>
+        <Button variant="outline">
+          <Tr>Save</Tr>${label}
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

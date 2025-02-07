@@ -73,7 +73,7 @@ export function EditMessageString({ chat, setShowEdit }: Props) {
                   setChatStore({ ...chatStore });
                 }}
               >
-                {Tr("Delete this tool call")}
+                <Tr>Delete this tool call</Tr>
               </button>
             </span>
             <hr className="my-2" />
@@ -94,7 +94,7 @@ export function EditMessageString({ chat, setShowEdit }: Props) {
                   setChatStore({ ...chatStore });
                 }}
               >
-                {Tr("Add a tool call")}
+                <Tr>Add a tool call</Tr>
               </button>
             </span>
           </div>

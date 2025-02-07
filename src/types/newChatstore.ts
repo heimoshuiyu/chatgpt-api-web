@@ -4,7 +4,7 @@ import {
   CHATGPT_API_WEB_VERSION,
 } from "@/const";
 import { getDefaultParams } from "@/utils/getDefaultParam";
-import { ChatStore } from "@/types/chatstore";
+import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
 import { models } from "@/types/models";
 
 interface NewChatStoreOptions {
@@ -36,6 +36,7 @@ interface NewChatStoreOptions {
   json_mode?: boolean;
   logprobs?: boolean;
   maxTokens?: number;
+  use_this_history?: ChatStoreMessage[];
 }
 
 export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
@@ -46,7 +47,7 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
       options.systemMessageContent ?? ""
     ),
     toolsString: options.toolsString ?? "",
-    history: [],
+    history: options.use_this_history ?? [],
     postBeginIndex: 0,
     tokenMargin: 1024,
     totalTokens: 0,

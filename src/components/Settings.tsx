@@ -78,7 +78,6 @@ import { Slider } from "@/components/ui/slider";
 import { NonOverflowScrollArea, ScrollArea } from "@/components/ui/scroll-area";
 import { AppChatStoreContext, AppContext } from "@/pages/App";
 import { toast } from "@/hooks/use-toast";
-import { title } from "process";
 
 const TTS_VOICES: string[] = [
   "alloy",
@@ -132,7 +131,7 @@ const SelectModel = (props: { help: string }) => {
         <div className="flex items-center gap-2">
           <Label className="flex items-center gap-2">
             <CogIcon className="w-4 h-4" />
-            {Tr("Custom")}
+            <Tr>Custom</Tr>
           </Label>
           <Checkbox
             checked={useCustomModel}
@@ -764,7 +763,7 @@ export default (props: {}) => {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" className="flex-grow">
-          {Tr("Settings")}
+          <Tr>Settings</Tr>
           {(!chatStore.apiKey || !chatStore.apiEndpoint) && (
             <TriangleAlertIcon className="w-4 h-4 ml-1 text-yellow-500" />
           )}
@@ -773,14 +772,18 @@ export default (props: {}) => {
       <SheetContent className="flex flex-col overflow-scroll">
         <NonOverflowScrollArea>
           <SheetHeader>
-            <SheetTitle>{Tr("Settings")}</SheetTitle>
+            <SheetTitle>
+              <Tr>Settings</Tr>
+            </SheetTitle>
             <SheetDescription>
-              You can customize the settings here.
+              <Tr>You can customize all the settings here</Tr>
             </SheetDescription>
           </SheetHeader>
           <Accordion type="multiple" className="w-full">
             <AccordionItem value="session">
-              <AccordionTrigger>Session</AccordionTrigger>
+              <AccordionTrigger>
+                <Tr>Session</Tr>
+              </AccordionTrigger>
               <AccordionContent>
                 <Card>
                   <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
@@ -828,7 +831,9 @@ export default (props: {}) => {
                     {chatStore.toolsString.trim() && (
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="outline">{Tr(`Save Tools`)}</Button>
+                          <Button variant="outline">
+                            <Tr>Save Tools</Tr>
+                          </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-md">
                           <DialogHeader>
@@ -894,14 +899,20 @@ export default (props: {}) => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="system">
-              <AccordionTrigger>System</AccordionTrigger>
+              <AccordionTrigger>
+                <Tr>System</Tr>
+              </AccordionTrigger>
               <AccordionContent>
                 <>
                   <Card>
                     <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
                       <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-                        <CardTitle>Accumulated Cost</CardTitle>
-                        <CardDescription>in all sessions</CardDescription>
+                        <CardTitle>
+                          <Tr>Accumulated Cost</Tr>
+                        </CardTitle>
+                        <CardDescription>
+                          <Tr>in all sessions</Tr>
+                        </CardDescription>
                       </div>
                       <div className="flex">
                         <div className="flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6">
@@ -924,25 +935,34 @@ export default (props: {}) => {
                         setTotalCost(getTotalCost());
                       }}
                     >
-                      Reset Total Cost
+                      <Tr>Reset Total Cost</Tr>
                     </Button>
                   </div>
                   <Choice
                     field="develop_mode"
-                    help="开发者模式，开启后会显示更多选项及功能"
+                    help={tr(
+                      "Develop Mode, enable to show more options and features",
+                      langCode
+                    )}
                     {...props}
                   />
                   <DefaultRenderMDCheckbox />
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label>Language</Label>
+                      <Label>
+                        <Tr>Language</Tr>
+                      </Label>
                       <Select value={langCode} onValueChange={setLangCode}>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select language" />
+                          <SelectValue
+                            placeholder={tr("Select language", langCode)}
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel>Languages</SelectLabel>
+                            <SelectLabel>
+                              <Tr>Languages</Tr>
+                            </SelectLabel>
                             {Object.keys(LANG_OPTIONS).map((opt) => (
                               <SelectItem key={opt} value={opt}>
                                 {LANG_OPTIONS[opt].name}
@@ -954,7 +974,9 @@ export default (props: {}) => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Quick Actions</Label>
+                      <Label>
+                        <Tr>Quick Actions</Tr>
+                      </Label>
                       <div className="space-y-2">
                         <Button
                           variant="outline"
@@ -967,23 +989,25 @@ export default (props: {}) => {
                             });
                           }}
                         >
-                          {Tr("Copy Setting Link")}
+                          <Tr>Copy Setting Link</Tr>
                         </Button>
 
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="destructive" className="w-full">
-                              {Tr("Clear History")}
+                              <Tr>Clear History</Tr>
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
                               <DialogTitle>
-                                Are you absolutely sure?
+                                <Tr>Are you absolutely sure?</Tr>
                               </DialogTitle>
                               <DialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete all chat history.
+                                <Tr>
+                                  This action cannot be undone. This will
+                                  permanently delete all chat history.
+                                </Tr>
                               </DialogDescription>
                             </DialogHeader>
 
@@ -998,7 +1022,7 @@ export default (props: {}) => {
                                   setChatStore({ ...chatStore });
                                 }}
                               >
-                                Yes, clear all history
+                                <Tr>Yes, clear all history</Tr>
                               </Button>
                             </DialogFooter>
                           </DialogContent>
@@ -1025,7 +1049,7 @@ export default (props: {}) => {
                             downloadAnchorNode.remove();
                           }}
                         >
-                          {Tr("Export")}
+                          <Tr>Export</Tr>
                         </Button>
 
                         <Button
@@ -1047,7 +1071,7 @@ export default (props: {}) => {
                             setTemplates([...templates]);
                           }}
                         >
-                          {Tr("As template")}
+                          <Tr>As template</Tr>
                         </Button>
 
                         <Button
@@ -1067,7 +1091,7 @@ export default (props: {}) => {
                             importFileRef.current.click();
                           }}
                         >
-                          Import
+                          <Tr>Import</Tr>
                         </Button>
 
                         <input
@@ -1116,28 +1140,38 @@ export default (props: {}) => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="chat">
-              <AccordionTrigger>Chat</AccordionTrigger>
+              <AccordionTrigger>
+                <Tr>Chat</Tr>
+              </AccordionTrigger>
               <AccordionContent>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Chat API</CardTitle>
+                    <CardTitle>
+                      <Tr>Chat API</Tr>
+                    </CardTitle>
                     <CardDescription>
-                      Configure the LLM API settings
+                      <Tr>Configure the LLM API settings</Tr>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <InputField
                       field="apiKey"
-                      help="OPEN AI API 密钥，请勿泄漏此密钥"
+                      help={tr(
+                        "OpenAI API key, do not leak this key",
+                        langCode
+                      )}
                       {...props}
                     />
                     <InputField
                       field="apiEndpoint"
-                      help="API 端点，方便在不支持的地区使用反向代理服务，默认为 https://api.openai.com/v1/chat/completions"
+                      help={tr(
+                        "API endpoint, useful for using reverse proxy services in unsupported regions, default to https://api.openai.com/v1/chat/completions",
+                        langCode
+                      )}
                       {...props}
                     />
                     <SetAPIsTemplate
-                      label="Chat API"
+                      label={tr("Chat API", langCode)}
                       endpoint={chatStore.apiEndpoint}
                       APIkey={chatStore.apiKey}
                       temps={templateAPIs}
@@ -1147,54 +1181,81 @@ export default (props: {}) => {
                 </Card>
                 <Separator className="my-3" />
                 <SelectModel
-                  help="模型，默认 3.5。不同模型性能和定价也不同，请参考 API 文档。"
+                  help={tr(
+                    "Model, Different models have different performance and pricing, please refer to the API documentation",
+                    langCode
+                  )}
                   {...props}
                 />
                 <Slicer
                   field="temperature"
                   min={0}
                   max={2}
-                  help="温度，数值越大模型生成文字的随机性越高。"
+                  help={tr(
+                    "Temperature, the higher the value, the higher the randomness of the generated text.",
+                    langCode
+                  )}
                   {...props}
                 />
                 <Choice
                   field="streamMode"
-                  help="流模式，使用 stream mode 将可以动态看到生成内容，但无法准确计算 token 数量，在 token 数量过多时可能会裁切过多或过少历史消息"
+                  help={tr(
+                    "Stream Mode, use stream mode to see the generated content dynamically, but the token count cannot be accurately calculated, which may cause too much or too little history messages to be truncated when the token count is too large.",
+                    langCode
+                  )}
                   {...props}
                 />
                 <Choice
                   field="logprobs"
-                  help="返回每个Token的概率"
+                  help={tr(
+                    "Logprobs, return the probability of each token",
+                    langCode
+                  )}
                   {...props}
                 />
                 <Number
                   field="maxTokens"
-                  help="最大上下文 token 数量。此值会根据选择的模型自动设置。"
+                  help={tr(
+                    "Max context token count. This value will be set automatically based on the selected model.",
+                    langCode
+                  )}
                   readOnly={false}
                   {...props}
                 />
                 <Number
                   field="maxGenTokens"
-                  help="最大生成 Tokens 数量，可选值。"
+                  help={tr(
+                    "maxGenTokens is the maximum number of tokens that can be generated in a single request.",
+                    langCode
+                  )}
                   readOnly={false}
                   {...props}
                 />
                 <Number
                   field="tokenMargin"
-                  help="当 totalTokens > maxTokens - tokenMargin 时会触发历史消息裁切，chatgpt会“忘记”一部分对话中的消息（但所有历史消息仍然保存在本地）"
+                  help={tr(
+                    'When totalTokens > maxTokens - tokenMargin, the history message will be truncated, chatgpt will "forget" part of the messages in the conversation (but all history messages are still saved locally)',
+                    langCode
+                  )}
                   readOnly={false}
                   {...props}
                 />
                 <Choice field="json_mode" help="JSON Mode" {...props} />
                 <Number
                   field="postBeginIndex"
-                  help="指示发送 API 请求时要”忘记“多少历史消息"
+                  help={tr(
+                    "Indicates how many history messages to 'forget' when sending API requests",
+                    langCode
+                  )}
                   readOnly={true}
                   {...props}
                 />
                 <Number
                   field="totalTokens"
-                  help="token总数，每次对话都会更新此参数，stream模式下该参数为估计值"
+                  help={tr(
+                    "Total token count, this parameter will be updated every time you chat, in stream mode this parameter is an estimate",
+                    langCode
+                  )}
                   readOnly={true}
                   {...props}
                 />
@@ -1202,43 +1263,56 @@ export default (props: {}) => {
                   field="top_p"
                   min={0}
                   max={1}
-                  help="Top P 采样方法。建议与温度采样方法二选一，不要同时开启。"
+                  help={tr(
+                    "Top P sampling method. It is recommended to choose one of the temperature sampling methods, do not enable both at the same time.",
+                    langCode
+                  )}
                   {...props}
                 />
                 <Number
                   field="presence_penalty"
-                  help="存在惩罚度"
+                  help={tr("Presence Penalty", langCode)}
                   readOnly={false}
                   {...props}
                 />
                 <Number
                   field="frequency_penalty"
-                  help="频率惩罚度"
+                  help={tr("Frequency Penalty", langCode)}
                   readOnly={false}
                   {...props}
                 />
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="speech">
-              <AccordionTrigger>Speech Recognition</AccordionTrigger>
+              <AccordionTrigger>
+                <Tr>Speech Recognition</Tr>
+              </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Whisper API</CardTitle>
+                      <CardTitle>
+                        <Tr>Whisper API</Tr>
+                      </CardTitle>
                       <CardDescription>
-                        Configure speech recognition settings
+                        <Tr>Configure speech recognition settings</Tr>
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <InputField
                         field="whisper_key"
-                        help="Used for Whisper service. Defaults to the OpenAI key above, but can be configured separately here"
+                        help={tr(
+                          "Used for Whisper service. Defaults to the OpenAI key above, but can be configured separately here",
+                          langCode
+                        )}
                         {...props}
                       />
                       <InputField
                         field="whisper_api"
-                        help="Whisper speech-to-text service. Service is enabled when this is set. Default: https://api.openai.com/v1/audio/transriptions"
+                        help={tr(
+                          "Whisper speech-to-text service. Service is enabled when this is set. Default: https://api.openai.com/v1/audio/transriptions",
+                          langCode
+                        )}
                         {...props}
                       />
                       <SetAPIsTemplate
@@ -1254,24 +1328,34 @@ export default (props: {}) => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="tts">
-              <AccordionTrigger>TTS</AccordionTrigger>
+              <AccordionTrigger>
+                <Tr>TTS</Tr>
+              </AccordionTrigger>
               <AccordionContent>
                 <Card>
                   <CardHeader>
-                    <CardTitle>TTS API</CardTitle>
+                    <CardTitle>
+                      <Tr>TTS API</Tr>
+                    </CardTitle>
                     <CardDescription>
-                      Configure text-to-speech settings
+                      <Tr>Configure text-to-speech settings</Tr>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <InputField
                       field="tts_key"
-                      help="Text-to-speech service API key. Defaults to the OpenAI key above, but can be configured separately here"
+                      help={tr(
+                        "Text-to-speech service API key. Defaults to the OpenAI key above, but can be configured separately here",
+                        langCode
+                      )}
                       {...props}
                     />
                     <InputField
                       field="tts_api"
-                      help="TTS API endpoint. Service is enabled when this is set. Default: https://api.openai.com/v1/audio/speech"
+                      help={tr(
+                        "TTS API endpoint. Service is enabled when this is set. Default: https://api.openai.com/v1/audio/speech",
+                        langCode
+                      )}
                       {...props}
                     />
                     <SetAPIsTemplate
@@ -1286,7 +1370,7 @@ export default (props: {}) => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      TTS Voice
+                      <Tr>TTS Voice</Tr>
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -1295,9 +1379,11 @@ export default (props: {}) => {
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>TTS Voice</DialogTitle>
+                            <DialogTitle>
+                              <Tr>TTS Voice</Tr>
+                            </DialogTitle>
                             <DialogDescription>
-                              Select the voice style for text-to-speech
+                              <Tr>Select the voice style for text-to-speech</Tr>
                             </DialogDescription>
                           </DialogHeader>
                         </DialogContent>
@@ -1315,7 +1401,9 @@ export default (props: {}) => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectLabel>Voices</SelectLabel>
+                          <SelectLabel>
+                            <Tr>Voices</Tr>
+                          </SelectLabel>
                           {TTS_VOICES.map((opt) => (
                             <SelectItem key={opt} value={opt}>
                               {opt}
@@ -1330,13 +1418,16 @@ export default (props: {}) => {
                     min={0.25}
                     max={4.0}
                     field="tts_speed"
-                    help="Adjust the playback speed of text-to-speech"
+                    help={tr(
+                      "Adjust the playback speed of text-to-speech",
+                      langCode
+                    )}
                     {...props}
                   />
 
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
-                      TTS Format
+                      <Tr>TTS Format</Tr>
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -1345,9 +1436,14 @@ export default (props: {}) => {
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>TTS Format</DialogTitle>
+                            <DialogTitle>
+                              <Tr>TTS Format</Tr>
+                            </DialogTitle>
                             <DialogDescription>
-                              Select the audio format for text-to-speech output
+                              <Tr>
+                                Select the audio format for text-to-speech
+                                output
+                              </Tr>
                             </DialogDescription>
                           </DialogHeader>
                         </DialogContent>
@@ -1365,7 +1461,9 @@ export default (props: {}) => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectLabel>Formats</SelectLabel>
+                          <SelectLabel>
+                            <Tr>Formats</Tr>
+                          </SelectLabel>
                           {TTS_FORMAT.map((opt) => (
                             <SelectItem key={opt} value={opt}>
                               {opt}
@@ -1379,28 +1477,38 @@ export default (props: {}) => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="image_gen">
-              <AccordionTrigger>Image Generation</AccordionTrigger>
+              <AccordionTrigger>
+                <Tr>Image Generation</Tr>
+              </AccordionTrigger>
               <AccordionContent>
                 <Card>
                   <CardHeader>
-                    <CardTitle>Image Generation API</CardTitle>
+                    <CardTitle>
+                      <Tr>Image Generation API</Tr>
+                    </CardTitle>
                     <CardDescription>
-                      Configure image generation settings
+                      <Tr>Configure image generation settings</Tr>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <InputField
                       field="image_gen_key"
-                      help="Image generation service API key. Defaults to the OpenAI key above, but can be configured separately here"
+                      help={tr(
+                        "Image generation service API key. Defaults to the OpenAI key above, but can be configured separately here",
+                        langCode
+                      )}
                       {...props}
                     />
                     <InputField
                       field="image_gen_api"
-                      help="Image generation API endpoint. Service is enabled when this is set. Default: https://api.openai.com/v1/images/generations"
+                      help={tr(
+                        "Image generation API endpoint. Service is enabled when this is set. Default: https://api.openai.com/v1/images/generations",
+                        langCode
+                      )}
                       {...props}
                     />
                     <SetAPIsTemplate
-                      label="Image Gen API"
+                      label={tr("Image Gen API", langCode)}
                       endpoint={chatStore.image_gen_api}
                       APIkey={chatStore.image_gen_key}
                       temps={templateAPIsImageGen}
@@ -1411,7 +1519,9 @@ export default (props: {}) => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="templates">
-              <AccordionTrigger>Saved Template</AccordionTrigger>
+              <AccordionTrigger>
+                <Tr>Saved Template</Tr>
+              </AccordionTrigger>
               <AccordionContent>
                 {templateAPIs.map((template, index) => (
                   <div key={index}>
@@ -1471,11 +1581,11 @@ export default (props: {}) => {
           </Accordion>
           <div className="pt-4 space-y-2">
             <p className="text-sm text-muted-foreground text-center">
-              chatgpt-api-web ChatStore {Tr("Version")}{" "}
+              chatgpt-api-web ChatStore <Tr>Version</Tr>
               {chatStore.chatgpt_api_web_version}
             </p>
             <p className="text-sm text-muted-foreground text-center">
-              {Tr("Documents and source code are avaliable here")}:{" "}
+              <Tr>Documents and source code are avaliable here</Tr>:{" "}
               <a
                 className="underline hover:text-primary transition-colors"
                 href="https://github.com/heimoshuiyu/chatgpt-api-web"

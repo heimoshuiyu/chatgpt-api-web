@@ -7,6 +7,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
+import "./registerSW"; // 添加此行
+
 function Base() {
   const [langCode, _setLangCode] = useState("en-US");
 

@@ -51,7 +51,7 @@ const AddToolMsg = (props: {
             className="btn btn-info m-1 p-1"
             onClick={() => setShowAddToolMsg(false)}
           >
-            {Tr("Cancle")}
+            <Tr>Cancle</Tr>
           </button>
           <button
             className="rounded m-1 p-1 border-2 bg-cyan-400 hover:bg-cyan-600"
@@ -75,6 +75,7 @@ const AddToolMsg = (props: {
                 logprobs: null,
                 response_model_name: null,
                 reasoning_content: null,
+                usage: null,
               });
               setChatStore({ ...chatStore });
               setNewToolCallID("");
@@ -82,7 +83,7 @@ const AddToolMsg = (props: {
               setShowAddToolMsg(false);
             }}
           >
-            {Tr("Add")}
+            <Tr>Add</Tr>
           </button>
         </span>
       </div>

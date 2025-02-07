@@ -3,7 +3,13 @@ import Markdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
-import { useContext, useState, useMemo } from "react";
+import {
+  useContext,
+  useState,
+  useMemo,
+  useInsertionEffect,
+  useEffect,
+} from "react";
 import { ChatStoreMessage } from "@/types/chatstore";
 import { addTotalCost } from "@/utils/totalCost";
 
@@ -254,12 +260,16 @@ export default function Message(props: { messageIndex: number }) {
   const [renderMarkdown, setRenderWorkdown] = useState(defaultRenderMD);
   const [renderColor, setRenderColor] = useState(false);
 
+  useEffect(() => {
+    setRenderWorkdown(defaultRenderMD);
+  }, [defaultRenderMD]);
+
   const { toast } = useToast();
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
       toast({
-        description: Tr("Message copied to clipboard!"),
+        description: <Tr>Message copied to clipboard!</Tr>,
       });
     } catch (err) {
       const textArea = document.createElement("textarea");
@@ -269,11 +279,11 @@ export default function Message(props: { messageIndex: number }) {
       try {
         document.execCommand("copy");
         toast({
-          description: Tr("Message copied to clipboard!"),
+          description: <Tr>Message copied to clipboard!</Tr>,
         });
       } catch (err) {
         toast({
-          description: Tr("Failed to copy to clipboard"),
+          description: <Tr>Failed to copy to clipboard</Tr>,
         });
       }
       document.body.removeChild(textArea);
@@ -297,7 +307,7 @@ export default function Message(props: { messageIndex: number }) {
       {chat.role === "assistant" ? (
         <div className="border-b border-border dark:border-border-dark pb-4">
           {chat.reasoning_content ? (
-            <Collapsible className="mb-3 w-[450px]">
+            <Collapsible className="mb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <h4 className="text-sm font-semibold text-gray-500">
@@ -311,8 +321,8 @@ export default function Message(props: { messageIndex: number }) {
                   </CollapsibleTrigger>
                 </div>
               </div>
-              <CollapsibleContent className="ml-5 text-gray-500">
-                {chat.reasoning_content}
+              <CollapsibleContent className="ml-5 text-gray-500 message-content">
+                {chat.reasoning_content.trim()}
               </CollapsibleContent>
             </Collapsible>
           ) : null}
@@ -324,7 +334,7 @@ export default function Message(props: { messageIndex: number }) {
             ) : chat.tool_calls ? (
               <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
-              <div className="message-content max-w-full md:max-w-[75%]">
+              <div className="message-content max-w-full md:max-w-[100%]">
                 <Markdown
                   remarkPlugins={[remarkMath]}
                   rehypePlugins={[rehypeKatex]}
@@ -356,7 +366,7 @@ export default function Message(props: { messageIndex: number }) {
                 </Markdown>
               </div>
             ) : (
-              <div className="message-content max-w-full md:max-w-[75%]">
+              <div className="message-content max-w-full md:max-w-[100%]">
                 {chat.content &&
                   (chat.logprobs && renderColor
                     ? chat.logprobs.content
@@ -374,6 +384,7 @@ export default function Message(props: { messageIndex: number }) {
                     : getMessageText(chat))}
               </div>
             )}
+            <TTSPlay chat={chat} />
           </div>
           <div className="flex md:opacity-0 hover:opacity-100 transition-opacity">
             <ChatBubbleAction
@@ -408,7 +419,6 @@ export default function Message(props: { messageIndex: number }) {
             {chatStore.tts_api && chatStore.tts_key && (
               <TTSButton chat={chat} />
             )}
-            <TTSPlay chat={chat} />
           </div>
         </div>
       ) : (
@@ -443,6 +453,7 @@ export default function Message(props: { messageIndex: number }) {
                     : getMessageText(chat))}
               </div>
             )}
+            <TTSPlay chat={chat} />
           </ChatBubbleMessage>
           <ChatBubbleActionWrapper>
             <ChatBubbleAction
@@ -477,7 +488,6 @@ export default function Message(props: { messageIndex: number }) {
             {chatStore.tts_api && chatStore.tts_key && (
               <TTSButton chat={chat} />
             )}
-            <TTSPlay chat={chat} />
           </ChatBubbleActionWrapper>
         </ChatBubble>
       )}
@@ -529,7 +539,9 @@ export default function Message(props: { messageIndex: number }) {
                   setChatStore({ ...chatStore });
                 }}
               />
-              <span className="text-sm font-medium">{Tr("example")}</span>
+              <span className="text-sm font-medium">
+                <Tr>example</Tr>
+              </span>
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -538,7 +550,9 @@ export default function Message(props: { messageIndex: number }) {
                 checked={renderMarkdown}
                 onChange={() => setRenderWorkdown(!renderMarkdown)}
               />
-              <span className="text-sm font-medium">{Tr("render")}</span>
+              <span className="text-sm font-medium">
+                <Tr>render</Tr>
+              </span>
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -547,7 +561,9 @@ export default function Message(props: { messageIndex: number }) {
                 checked={renderColor}
                 onChange={() => setRenderColor(!renderColor)}
               />
-              <span className="text-sm font-medium">{Tr("color")}</span>
+              <span className="text-sm font-medium">
+                <Tr>color</Tr>
+              </span>
             </label>
             {chat.response_model_name && (
               <>
