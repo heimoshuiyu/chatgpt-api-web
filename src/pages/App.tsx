@@ -1,5 +1,5 @@
 import { IDBPDatabase, openDB } from "idb";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react"; // 添加了useRef
 import "@/global.css";
 
 import { calculate_token_length } from "@/chatgpt";
@@ -140,10 +140,6 @@ export function App() {
     }
     if (ret.cost === undefined) ret.cost = 0;
 
-    toast({
-      title: "Chat ready",
-      description: `Current API Endpoint: ${ret.apiEndpoint}`,
-    });
     return ret;
   };
 
@@ -427,9 +423,78 @@ const AppChatStoreProvider = ({
   selectedChatIndex: number;
   getChatStoreByIndex: (index: number) => Promise<ChatStore>;
 }) => {
-  console.log("[Render] AppChatStoreProvider");
   const ctx = useContext(AppContext);
+  const { toast } = useToast();
+  const tabId = useRef<string>(Math.random().toString(36).substr(2, 9)).current;
 
+  useEffect(() => {
+    const channel = new BroadcastChannel("chat-store-access");
+
+    // 页面激活状态处理
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        channel.postMessage({
+          type: "open",
+          index: selectedChatIndex,
+          tabId,
+        });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // 消息处理逻辑
+    const handleMessage = (event: MessageEvent) => {
+      // 忽略自身消息和无关索引消息
+      if (event.data.tabId === tabId) return;
+      if (event.data.index !== selectedChatIndex) return;
+
+      // 根据消息类型处理
+      switch (event.data.type) {
+        case "open":
+          // 收到open消息时发送确认回复并显示警告
+          channel.postMessage({
+            type: "ack",
+            index: selectedChatIndex,
+            tabId,
+          });
+          showConflictWarning();
+          break;
+
+        case "ack":
+          // 收到确认回复时显示警告
+          showConflictWarning();
+          break;
+      }
+    };
+
+    // 立即发送初始查询
+    channel.postMessage({
+      type: "open",
+      index: selectedChatIndex,
+      tabId,
+    });
+
+    // 绑定事件监听器
+    channel.addEventListener("message", handleMessage);
+
+    // 清理函数
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      channel.removeEventListener("message", handleMessage);
+      channel.close();
+    };
+  }, [selectedChatIndex, toast, tabId]);
+
+  // 警告提示统一处理
+  const showConflictWarning = () => {
+    toast({
+      title: "访问冲突警告",
+      description: "当前会话已在其他浏览器标签打开, 请注意数据一致性！",
+      variant: "destructive",
+      duration: 8000,
+    });
+  };
   const [chatStore, _setChatStore] = useState(newChatStore({}));
   const setChatStore = async (chatStore: ChatStore) => {
     console.log("recalculate postBeginIndex");
