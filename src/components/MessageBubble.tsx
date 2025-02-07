@@ -2,6 +2,7 @@ import { LightBulbIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Markdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import rehypeHighlight from "rehype-highlight";
 import "katex/dist/katex.min.css";
 import {
   useContext,
@@ -338,7 +339,7 @@ export default function Message(props: { messageIndex: number }) {
             ) : renderMarkdown ? (
               <Markdown
                 remarkPlugins={[remarkMath]}
-                rehypePlugins={[rehypeKatex]}
+                rehypePlugins={[rehypeKatex, rehypeHighlight]}
                 disallowedElements={[
                   "script",
                   "iframe",
