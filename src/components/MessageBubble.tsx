@@ -376,6 +376,13 @@ export default function Message(props: { messageIndex: number }) {
                     ul: ({ children }) => (
                       <ul className="list-disc ml-6 space-y-2">{children}</ul>
                     ),
+                    li: ({ children }) => <li>{children}</li>,
+                    p: ({ children, node }: any) => {
+                      if (node?.parent?.type === "listItem") {
+                        return <>{children}</>;
+                      }
+                      return <p>{children}</p>;
+                    },
                     h1: ({ children }) => (
                       <h1 className="text-2xl font-bold mt-6 mb-4">
                         {children}
@@ -469,7 +476,18 @@ export default function Message(props: { messageIndex: number }) {
             ) : chat.role === "tool" ? (
               <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
-              <Markdown>{getMessageText(chat)}</Markdown>
+              <Markdown
+                components={{
+                  p: ({ children, node }: any) => {
+                    if (node?.parent?.type === "listItem") {
+                      return <>{children}</>;
+                    }
+                    return <p>{children}</p>;
+                  },
+                }}
+              >
+                {getMessageText(chat)}
+              </Markdown>
             ) : (
               <div className="message-content">
                 {chat.content &&
