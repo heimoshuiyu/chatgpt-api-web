@@ -51,10 +51,12 @@ function MessageHide({ chat }: HideMessageProps) {
   return (
     <>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>{getMessageText(chat).split("\n")[0].slice(0, 28)} ...</span>
+        <span>{getMessageText(chat).trim().slice(0, 28)} ...</span>
       </div>
       <div className="flex mt-2 justify-center">
-        <Badge variant="destructive">Removed from context</Badge>
+        <Badge variant="destructive">
+          <Tr>Removed from context</Tr>
+        </Badge>
       </div>
     </>
   );
@@ -73,7 +75,7 @@ function MessageDetail({ chat, renderMarkdown }: MessageDetailProps) {
       {chat.content.map((mdt) =>
         mdt.type === "text" ? (
           chat.hide ? (
-            mdt.text?.split("\n")[0].slice(0, 16) + " ..."
+            mdt.text?.trim().slice(0, 16) + " ..."
           ) : renderMarkdown ? (
             <Markdown>{mdt.text}</Markdown>
           ) : (
