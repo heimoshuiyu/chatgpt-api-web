@@ -40,9 +40,28 @@ import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { AppChatStoreContext, AppContext } from "./App";
-import APIListMenu from "@/components/ListAPI";
 import { ImageGenDrawer } from "@/components/ImageGenDrawer";
-import { abort } from "process";
+
+const createMessageFromCurrentBuffer = (
+  chunkMessages: string[],
+  reasoningChunks: string[],
+  tools: ToolCall[]
+): ChatStoreMessage => {
+  return {
+    role: "assistant",
+    content: chunkMessages.join(""),
+    reasoning_content: reasoningChunks.join(""),
+    tool_calls: tools.length > 0 ? tools : undefined,
+    // 补全其他必填字段的默认值（根据你的类型定义）
+    hide: false,
+    token: 0, // 需要实际的token计算逻辑
+    example: false,
+    audio: null,
+    logprobs: null,
+    response_model_name: null,
+    usage: null,
+  };
+};
 
 export default function ChatBOX() {
   const { db, selectedChatIndex, setSelectedChatIndex, handleNewChatStore } =
@@ -93,78 +112,101 @@ export default function ChatBOX() {
     };
     let response_model_name: string | null = null;
     let usage: Usage | null = null;
-    for await (const i of client.processStreamResponse(response, signal)) {
-      if (signal?.aborted) break;
-      response_model_name = i.model;
-      responseTokenCount += 1;
-      if (i.usage) {
-        usage = i.usage;
-      }
 
-      const c = i.choices[0];
-
-      // skip if choice is empty (e.g. azure)
-      if (!c) continue;
-
-      const logprob = c?.logprobs?.content[0]?.logprob;
-      if (logprob !== undefined) {
-        logprobs.content.push({
-          token: c?.delta?.content ?? "",
-          logprob,
-        });
-        console.log(c?.delta?.content, logprob);
-      }
-
-      if (c?.delta?.content) {
-        allChunkMessage.push(c?.delta?.content ?? "");
-      }
-      if (c?.delta?.reasoning_content) {
-        allReasoningContentChunk.push(c?.delta?.reasoning_content ?? "");
-      }
-
-      const tool_calls = c?.delta?.tool_calls;
-      if (tool_calls) {
-        for (const tool_call of tool_calls) {
-          // init
-          if (tool_call.id) {
-            allChunkTool.push({
-              id: tool_call.id,
-              type: tool_call.type,
-              index: tool_call.index,
-              function: {
-                name: tool_call.function.name,
-                arguments: "",
-              },
-            });
-            continue;
-          }
-
-          // update tool call arguments
-          const tool = allChunkTool.find(
-            (tool) => tool.index === tool_call.index
-          );
-
-          if (!tool) {
-            console.log("tool (by index) not found", tool_call.index);
-            continue;
-          }
-
-          tool.function.arguments += tool_call.function.arguments;
+    try {
+      for await (const i of client.processStreamResponse(response, signal)) {
+        if (signal?.aborted) break;
+        response_model_name = i.model;
+        responseTokenCount += 1;
+        if (i.usage) {
+          usage = i.usage;
         }
+
+        const c = i.choices[0];
+
+        // skip if choice is empty (e.g. azure)
+        if (!c) continue;
+
+        const logprob = c?.logprobs?.content[0]?.logprob;
+        if (logprob !== undefined) {
+          logprobs.content.push({
+            token: c?.delta?.content ?? "",
+            logprob,
+          });
+          console.log(c?.delta?.content, logprob);
+        }
+
+        if (c?.delta?.content) {
+          allChunkMessage.push(c?.delta?.content ?? "");
+        }
+        if (c?.delta?.reasoning_content) {
+          allReasoningContentChunk.push(c?.delta?.reasoning_content ?? "");
+        }
+
+        const tool_calls = c?.delta?.tool_calls;
+        if (tool_calls) {
+          for (const tool_call of tool_calls) {
+            // init
+            if (tool_call.id) {
+              allChunkTool.push({
+                id: tool_call.id,
+                type: tool_call.type,
+                index: tool_call.index,
+                function: {
+                  name: tool_call.function.name,
+                  arguments: "",
+                },
+              });
+              continue;
+            }
+
+            // update tool call arguments
+            const tool = allChunkTool.find(
+              (tool) => tool.index === tool_call.index
+            );
+
+            if (!tool) {
+              console.log("tool (by index) not found", tool_call.index);
+              continue;
+            }
+
+            tool.function.arguments += tool_call.function.arguments;
+          }
+        }
+        setGeneratingMessage(
+          (allReasoningContentChunk.length
+            ? "----------\nreasoning:\n" +
+              allReasoningContentChunk.join("") +
+              "\n----------\n"
+            : "") +
+            allChunkMessage.join("") +
+            allChunkTool.map((tool) => {
+              return `Tool Call ID: ${tool.id}\nType: ${tool.type}\nFunction: ${tool.function.name}\nArguments: ${tool.function.arguments}`;
+            })
+        );
       }
-      setGeneratingMessage(
-        (allReasoningContentChunk.length
-          ? "----------\nreasoning:\n" +
-            allReasoningContentChunk.join("") +
-            "\n----------\n"
-          : "") +
-          allChunkMessage.join("") +
-          allChunkTool.map((tool) => {
-            return `Tool Call ID: ${tool.id}\nType: ${tool.type}\nFunction: ${tool.function.name}\nArguments: ${tool.function.arguments}`;
-          })
-      );
+    } catch (e: any) {
+      if (e.name === "AbortError") {
+        // 1. 立即保存当前buffer中的内容
+        if (allChunkMessage.length > 0 || allReasoningContentChunk.length > 0) {
+          const partialMsg = createMessageFromCurrentBuffer(
+            allChunkMessage,
+            allReasoningContentChunk,
+            allChunkTool
+          );
+          chatStore.history.push(partialMsg);
+          setChatStore({ ...chatStore });
+        }
+        // 2. 不隐藏错误，重新抛出给上层
+        throw e;
+      }
+      // 其他错误直接抛出
+      throw e;
+    } finally {
+      setShowGenerating(false);
+      setGeneratingMessage("");
     }
-    setShowGenerating(false);
+
     const content = allChunkMessage.join("");
     const reasoning_content = allReasoningContentChunk.join("");
 
