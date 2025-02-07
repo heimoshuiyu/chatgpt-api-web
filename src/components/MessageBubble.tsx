@@ -336,37 +336,35 @@ export default function Message(props: { messageIndex: number }) {
             ) : chat.tool_calls ? (
               <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
-              <div className="max-w-full md:max-w-[100%]">
-                <Markdown
-                  remarkPlugins={[remarkMath]}
-                  rehypePlugins={[rehypeKatex]}
-                  disallowedElements={[
-                    "script",
-                    "iframe",
-                    "object",
-                    "embed",
-                    "hr",
-                  ]}
-                  // allowElement={(element) => {
-                  //   return [
-                  //     "p",
-                  //     "em",
-                  //     "strong",
-                  //     "del",
-                  //     "code",
-                  //     "inlineCode",
-                  //     "blockquote",
-                  //     "ul",
-                  //     "ol",
-                  //     "li",
-                  //     "pre",
-                  //   ].includes(element.tagName);
-                  // }}
-                  className={"prose"}
-                >
-                  {getMessageText(chat)}
-                </Markdown>
-              </div>
+              <Markdown
+                remarkPlugins={[remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+                disallowedElements={[
+                  "script",
+                  "iframe",
+                  "object",
+                  "embed",
+                  "hr",
+                ]}
+                // allowElement={(element) => {
+                //   return [
+                //     "p",
+                //     "em",
+                //     "strong",
+                //     "del",
+                //     "code",
+                //     "inlineCode",
+                //     "blockquote",
+                //     "ul",
+                //     "ol",
+                //     "li",
+                //     "pre",
+                //   ].includes(element.tagName);
+                // }}
+                className={"prose max-w-none md:max-w-[75%]"}
+              >
+                {getMessageText(chat)}
+              </Markdown>
             ) : (
               <div className="message-content max-w-full md:max-w-[100%]">
                 {chat.content &&
