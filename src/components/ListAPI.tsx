@@ -259,11 +259,17 @@ const ChatTemplateItem = ({
         if (chatStore.history.length > 0 || chatStore.systemMessageContent) {
           console.log("you clicked", t.name);
           const confirm = window.confirm(
-            "This will replace the current chat history. Are you sure?"
+            "This will replace the current chat history. Are you sure? "
           );
           if (!confirm) return;
         }
-        setChatStore({ ...newChatStore({ ...chatStore, ...t }) });
+        setChatStore({
+          ...newChatStore({
+            ...chatStore,
+            ...{ use_this_history: t.history ?? chatStore.history },
+            ...t,
+          }),
+        });
       }}
     >
       <NavigationMenuLink asChild>
