@@ -305,7 +305,7 @@ export default function Message(props: { messageIndex: number }) {
           </div>
         )}
       {chat.role === "assistant" ? (
-        <div className="border-b border-border dark:border-border-dark pb-4">
+        <div className="pb-4">
           {chat.reasoning_content ? (
             <Card className="bg-muted hover:bg-muted/80 mb-5 w-full lg:w-[65%]">
               <Collapsible>
@@ -336,74 +336,33 @@ export default function Message(props: { messageIndex: number }) {
             ) : chat.tool_calls ? (
               <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
-              <div className="message-content max-w-full md:max-w-[100%]">
+              <div className="max-w-full md:max-w-[100%]">
                 <Markdown
                   remarkPlugins={[remarkMath]}
                   rehypePlugins={[rehypeKatex]}
-                  //break={true}
-                  components={{
-                    strong: ({ children }) => (
-                      <strong className="font-semibold">{children}</strong>
-                    ),
-                    em: ({ children }) => (
-                      <em className="italic text-primary">{children}</em>
-                    ),
-                    code: ({ children }) => (
-                      <code className="bg-muted px-1 py-0.5 rounded">
-                        {children}
-                      </code>
-                    ),
-                    pre: ({ children }) => (
-                      <pre className="bg-muted p-4 rounded-lg overflow-auto">
-                        {children}
-                      </pre>
-                    ),
-                    a: ({ href, children }) => (
-                      <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        {children}
-                      </a>
-                    ),
-                    ol: ({ children }) => (
-                      <ol className="list-decimal ml-6 space-y-2">
-                        {children}
-                      </ol>
-                    ),
-                    ul: ({ children }) => (
-                      <ul className="list-disc ml-6 space-y-2">{children}</ul>
-                    ),
-                    li: ({ children }) => <li>{children}</li>,
-                    p: ({ children, node }: any) => {
-                      if (node?.parent?.type === "listItem") {
-                        return <>{children}</>;
-                      }
-                      return <p>{children}</p>;
-                    },
-                    h1: ({ children }) => (
-                      <h1 className="text-2xl font-bold mt-6 mb-4">
-                        {children}
-                      </h1>
-                    ),
-                    h2: ({ children }) => (
-                      <h2 className="text-xl font-bold mt-5 mb-3">
-                        {children}
-                      </h2>
-                    ),
-                    h3: ({ children }) => (
-                      <h3 className="text-lg font-semibold mt-4 mb-2">
-                        {children}
-                      </h3>
-                    ),
-                    blockquote: ({ children }) => (
-                      <blockquote className="border-l-4 border-muted pl-4 italic">
-                        {children}
-                      </blockquote>
-                    ),
-                  }}
+                  disallowedElements={[
+                    "script",
+                    "iframe",
+                    "object",
+                    "embed",
+                    "hr",
+                  ]}
+                  // allowElement={(element) => {
+                  //   return [
+                  //     "p",
+                  //     "em",
+                  //     "strong",
+                  //     "del",
+                  //     "code",
+                  //     "inlineCode",
+                  //     "blockquote",
+                  //     "ul",
+                  //     "ol",
+                  //     "li",
+                  //     "pre",
+                  //   ].includes(element.tagName);
+                  // }}
+                  className={"prose"}
                 >
                   {getMessageText(chat)}
                 </Markdown>
