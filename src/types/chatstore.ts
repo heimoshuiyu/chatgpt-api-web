@@ -76,6 +76,7 @@ export interface ChatStoreMessage {
   created_at?: string;
   responsed_at?: string;
   completed_at?: string;
+  response_count?: number;
 
   role: "system" | "user" | "assistant" | "tool";
   content: string | MessageDetail[];

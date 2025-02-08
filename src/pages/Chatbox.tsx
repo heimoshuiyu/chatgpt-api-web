@@ -45,7 +45,8 @@ import { ImageGenDrawer } from "@/components/ImageGenDrawer";
 const createMessageFromCurrentBuffer = (
   chunkMessages: string[],
   reasoningChunks: string[],
-  tools: ToolCall[]
+  tools: ToolCall[],
+  response_count: number
 ): ChatStoreMessage => {
   return {
     role: "assistant",
@@ -62,6 +63,7 @@ const createMessageFromCurrentBuffer = (
     logprobs: null,
     response_model_name: null,
     usage: null,
+    response_count,
   };
 };
 
@@ -184,7 +186,10 @@ export default function ChatBOX() {
             allChunkMessage.join("") +
             allChunkTool.map((tool) => {
               return `Tool Call ID: ${tool.id}\nType: ${tool.type}\nFunction: ${tool.function.name}\nArguments: ${tool.function.arguments}`;
-            })
+            }) +
+            "\n" +
+            responseTokenCount +
+            " response count"
         );
       }
     } catch (e: any) {
@@ -194,7 +199,8 @@ export default function ChatBOX() {
           const partialMsg = createMessageFromCurrentBuffer(
             allChunkMessage,
             allReasoningContentChunk,
-            allChunkTool
+            allChunkTool,
+            responseTokenCount
           );
           chatStore.history.push(partialMsg);
           setChatStore({ ...chatStore });
@@ -255,6 +261,7 @@ export default function ChatBOX() {
       logprobs,
       response_model_name,
       usage,
+      response_count: responseTokenCount,
     };
     if (allChunkTool.length > 0) newMsg.tool_calls = allChunkTool;
 
@@ -286,7 +293,7 @@ export default function ChatBOX() {
       token: data.usage?.completion_tokens_details
         ? data.usage.completion_tokens -
           data.usage.completion_tokens_details.reasoning_tokens
-        : data.usage.completion_tokens ?? calculate_token_length(msg.content),
+        : (data.usage.completion_tokens ?? calculate_token_length(msg.content)),
       example: false,
       audio: null,
       logprobs: data.choices[0]?.logprobs,
