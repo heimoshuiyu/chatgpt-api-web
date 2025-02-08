@@ -602,21 +602,6 @@ export default function ChatBOX() {
                 <Tr>New Chat</Tr>
               </Button>
             )}
-            {showGenerating && (
-              <Button
-                size="sm"
-                className="ml-auto gap-1.5"
-                variant="destructive"
-                onClick={() => {
-                  abortControllerRef.current.abort();
-                  setShowGenerating(false);
-                  setGeneratingMessage("");
-                }}
-              >
-                <Tr>Stop Generating</Tr>
-                <ScissorsIcon className="size-3.5" />
-              </Button>
-            )}
             {chatStore.develop_mode && chatStore.history.length > 0 && (
               <Button
                 variant="outline"
@@ -677,15 +662,32 @@ export default function ChatBOX() {
       </div>
       <div className="sticky bottom-0 w-full z-20 bg-background">
         {generatingMessage && (
-          <div className="flex items-center justify-end gap-2 p-2 m-2 rounded bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              Follow
-            </label>
-            <Switch
-              checked={follow}
-              onCheckedChange={setFollow}
-              aria-label="Toggle auto-scroll"
-            />
+          <div className="flex items-center justify-between gap-2 p-2 m-2 rounded bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <Tr>Follow</Tr>
+              </label>
+              <Switch
+                checked={follow}
+                onCheckedChange={setFollow}
+                aria-label="Toggle auto-scroll"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                className="ml-auto gap-1.5"
+                variant="destructive"
+                onClick={() => {
+                  abortControllerRef.current.abort();
+                  setShowGenerating(false);
+                  setGeneratingMessage("");
+                }}
+              >
+                <Tr>Stop Generating</Tr>
+                <ScissorsIcon className="size-3.5" />
+              </Button>
+            </div>
           </div>
         )}
         <form className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring p-1">
