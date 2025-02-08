@@ -142,6 +142,8 @@ const LANG_MAP: Record<string, string> = {
   "New Chat": "新对话",
   "Delete Chat": "删除对话",
   "removed from context": "已从上下文中移除",
+  follow: "跟随",
+  "stop generating": "停止生成",
 };
 
 export default LANG_MAP;

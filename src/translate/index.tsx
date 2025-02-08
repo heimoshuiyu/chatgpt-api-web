@@ -50,7 +50,9 @@ function tr(text: string, langCode: "en-US" | "zh-CN") {
 
   const translatedText = langMap[text.toLowerCase()];
   if (translatedText === undefined) {
-    console.log(`[Translation] not found for "${text}"`);
+    if (langCode !== "en-US") {
+      console.log(`[Translation] not found for "${text}"`);
+    }
     return text;
   }
 
