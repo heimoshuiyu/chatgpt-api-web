@@ -260,7 +260,14 @@ export default function ChatBOX() {
       audio: null,
       logprobs,
       response_model_name,
-      usage,
+      usage: usage ?? {
+        prompt_tokens: prompt_tokens,
+        completion_tokens: responseTokenCount,
+        total_tokens: prompt_tokens + responseTokenCount,
+        response_model_name: response_model_name,
+        prompt_tokens_details: null,
+        completion_tokens_details: null,
+      },
       response_count: responseTokenCount,
     };
     if (allChunkTool.length > 0) newMsg.tool_calls = allChunkTool;
@@ -293,7 +300,7 @@ export default function ChatBOX() {
       token: data.usage?.completion_tokens_details
         ? data.usage.completion_tokens -
           data.usage.completion_tokens_details.reasoning_tokens
-        : (data.usage.completion_tokens ?? calculate_token_length(msg.content)),
+        : data.usage.completion_tokens ?? calculate_token_length(msg.content),
       example: false,
       audio: null,
       logprobs: data.choices[0]?.logprobs,
