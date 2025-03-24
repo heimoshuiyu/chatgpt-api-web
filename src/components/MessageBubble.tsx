@@ -310,7 +310,7 @@ export default function Message(props: { messageIndex: number }) {
       {chat.role === "assistant" ? (
         <div className="pb-4">
           {chat.reasoning_content ? (
-            <Card className="bg-muted hover:bg-muted/80 mb-5 w-full lg:w-[65%]">
+            <Card className="bg-muted hover:bg-muted/80 mb-5 w-full">
               <Collapsible>
                 <div className="flex items-center justify-between px-3 py-1">
                   <div className="flex items-center">
