@@ -2,6 +2,7 @@ import { LightBulbIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Markdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import rehypeHighlight from "rehype-highlight";
 import "katex/dist/katex.min.css";
 import {
   useContext,
@@ -307,26 +308,28 @@ export default function Message(props: { messageIndex: number }) {
           </div>
         )}
       {chat.role === "assistant" ? (
-        <div className="border-b border-border dark:border-border-dark pb-4">
+        <div className="pb-4">
           {chat.reasoning_content ? (
-            <Collapsible className="mb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-semibold text-gray-500">
-                    {chat.response_model_name}
-                  </h4>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <LightBulbIcon className="h-3 w-3 text-gray-500" />
-                      <span className="sr-only">Toggle</span>
-                    </Button>
-                  </CollapsibleTrigger>
+            <Card className="bg-muted hover:bg-muted/80 mb-5 w-full lg:w-[65%]">
+              <Collapsible>
+                <div className="flex items-center justify-between px-3 py-1">
+                  <div className="flex items-center">
+                    <h4 className="font-semibold text-sm">
+                      Think Content of {chat.response_model_name}
+                    </h4>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <LightBulbIcon className="h-3 w-3 text-gray-500" />
+                        <span className="sr-only">Toggle</span>
+                      </Button>
+                    </CollapsibleTrigger>
+                  </div>
                 </div>
-              </div>
-              <CollapsibleContent className="ml-5 text-gray-500 message-content">
-                {chat.reasoning_content.trim()}
-              </CollapsibleContent>
-            </Collapsible>
+                <CollapsibleContent className="ml-5 text-gray-500 message-content p">
+                  {chat.reasoning_content.trim()}
+                </CollapsibleContent>
+              </Collapsible>
+            </Card>
           ) : null}
           <div>
             {chat.hide ? (
@@ -336,37 +339,35 @@ export default function Message(props: { messageIndex: number }) {
             ) : chat.tool_calls ? (
               <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
-              <div className="message-content max-w-full md:max-w-[100%]">
-                <Markdown
-                  remarkPlugins={[remarkMath]}
-                  rehypePlugins={[rehypeKatex]}
-                  //break={true}
-                  components={{
-                    code: ({ children }) => (
-                      <code className="bg-muted px-1 py-0.5 rounded">
-                        {children}
-                      </code>
-                    ),
-                    pre: ({ children }) => (
-                      <pre className="bg-muted p-4 rounded-lg overflow-auto">
-                        {children}
-                      </pre>
-                    ),
-                    a: ({ href, children }) => (
-                      <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        {children}
-                      </a>
-                    ),
-                  }}
-                >
-                  {getMessageText(chat)}
-                </Markdown>
-              </div>
+              <Markdown
+                remarkPlugins={[remarkMath]}
+                rehypePlugins={[rehypeKatex, rehypeHighlight]}
+                disallowedElements={[
+                  "script",
+                  "iframe",
+                  "object",
+                  "embed",
+                  "hr",
+                ]}
+                // allowElement={(element) => {
+                //   return [
+                //     "p",
+                //     "em",
+                //     "strong",
+                //     "del",
+                //     "code",
+                //     "inlineCode",
+                //     "blockquote",
+                //     "ul",
+                //     "ol",
+                //     "li",
+                //     "pre",
+                //   ].includes(element.tagName);
+                // }}
+                className={"prose max-w-none md:max-w-[75%]"}
+              >
+                {getMessageText(chat)}
+              </Markdown>
             ) : (
               <div className="message-content max-w-full md:max-w-[100%]">
                 {chat.content &&
@@ -435,7 +436,18 @@ export default function Message(props: { messageIndex: number }) {
             ) : chat.role === "tool" ? (
               <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
-              <Markdown>{getMessageText(chat)}</Markdown>
+              <Markdown
+                components={{
+                  p: ({ children, node }: any) => {
+                    if (node?.parent?.type === "listItem") {
+                      return <>{children}</>;
+                    }
+                    return <p>{children}</p>;
+                  },
+                }}
+              >
+                {getMessageText(chat)}
+              </Markdown>
             ) : (
               <div className="message-content">
                 {chat.content &&
