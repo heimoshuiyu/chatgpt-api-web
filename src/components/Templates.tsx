@@ -1,7 +1,6 @@
 import { AppChatStoreContext, AppContext } from "@/pages/App";
 import { TemplateChatStore } from "@/types/chatstore";
 import { ChatStore } from "@/types/chatstore";
-import { getDefaultParams } from "@/utils/getDefaultParam";
 import { useContext } from "react";
 
 const Templates = () => {
@@ -18,51 +17,6 @@ const Templates = () => {
             const newChatStore: ChatStore = structuredClone(t);
             // @ts-ignore
             delete newChatStore.name;
-            if (!newChatStore.apiEndpoint) {
-              newChatStore.apiEndpoint = getDefaultParams(
-                "api",
-                chatStore.apiEndpoint
-              );
-            }
-            if (!newChatStore.apiKey) {
-              newChatStore.apiKey = getDefaultParams("key", chatStore.apiKey);
-            }
-            if (!newChatStore.whisper_api) {
-              newChatStore.whisper_api = getDefaultParams(
-                "whisper-api",
-                chatStore.whisper_api
-              );
-            }
-            if (!newChatStore.whisper_key) {
-              newChatStore.whisper_key = getDefaultParams(
-                "whisper-key",
-                chatStore.whisper_key
-              );
-            }
-            if (!newChatStore.tts_api) {
-              newChatStore.tts_api = getDefaultParams(
-                "tts-api",
-                chatStore.tts_api
-              );
-            }
-            if (!newChatStore.tts_key) {
-              newChatStore.tts_key = getDefaultParams(
-                "tts-key",
-                chatStore.tts_key
-              );
-            }
-            if (!newChatStore.image_gen_api) {
-              newChatStore.image_gen_api = getDefaultParams(
-                "image-gen-api",
-                chatStore.image_gen_api
-              );
-            }
-            if (!newChatStore.image_gen_key) {
-              newChatStore.image_gen_key = getDefaultParams(
-                "image-gen-key",
-                chatStore.image_gen_key
-              );
-            }
             newChatStore.cost = 0;
 
             // manage undefined value because of version update

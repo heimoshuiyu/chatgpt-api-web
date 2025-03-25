@@ -48,6 +48,7 @@ interface AppContextType {
   defaultRenderMD: boolean;
   setDefaultRenderMD: (b: boolean) => void;
   handleNewChatStore: () => Promise<void>;
+  handleNewChatStoreWithOldOne: (chatStore: ChatStore) => Promise<void>;
 }
 
 interface AppChatStoreContextType {
@@ -96,6 +97,7 @@ import Search from "@/components/Search";
 
 import Navbar from "@/components/navbar";
 import ConversationTitle from "@/components/ConversationTitle.";
+import ImportDialog from "@/components/ImportDialog";
 
 export function App() {
   // init selected index
@@ -194,9 +196,28 @@ export function App() {
     window.location.reload();
   };
 
-  // if there are any params in URL, create a new chatStore
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  // if there are any params in URL, show the alert dialog to import configure
   useEffect(() => {
     const run = async () => {
+      const params = new URLSearchParams(window.location.search);
+      if (
+        params.get("api") ||
+        params.get("key") ||
+        params.get("sys") ||
+        params.get("mode") ||
+        params.get("model") ||
+        params.get("max") ||
+        params.get("temp") ||
+        params.get("dev") ||
+        params.get("whisper-api") ||
+        params.get("whisper-key") ||
+        params.get("tts-api") ||
+        params.get("tts-key")
+      ) {
+        setShowImportDialog(true);
+      }
+      /*
       const chatStore = await getChatStoreByIndex(selectedChatIndex);
       const api = getDefaultParams("api", "");
       const key = getDefaultParams("key", "");
@@ -224,6 +245,7 @@ export function App() {
         handleNewChatStore();
       }
       setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
+      */
     };
     run();
   }, []);
@@ -328,6 +350,7 @@ export function App() {
         defaultRenderMD,
         setDefaultRenderMD,
         handleNewChatStore,
+        handleNewChatStoreWithOldOne,
       }}
     >
       <Sidebar>
@@ -406,6 +429,7 @@ export function App() {
           selectedChatIndex={selectedChatIndex}
           getChatStoreByIndex={getChatStoreByIndex}
         >
+          <ImportDialog open={showImportDialog} setOpen={setShowImportDialog} />
           <Navbar />
           <ChatBOX />
         </AppChatStoreProvider>

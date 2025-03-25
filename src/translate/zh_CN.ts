@@ -144,6 +144,10 @@ const LANG_MAP: Record<string, string> = {
   "removed from context": "已从上下文中移除",
   follow: "跟随",
   "stop generating": "停止生成",
+  "there are some configurations in the URL, import them?":
+    "URL 中有一些配置，是否导入？",
+  "Import Configuration": "导入配置",
+  cancel: "取消",
 };
 
 export default LANG_MAP;

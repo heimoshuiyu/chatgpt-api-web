@@ -10,7 +10,6 @@ import { tr, Tr, langCodeContext, LANG_OPTIONS } from "@/translate";
 import { isVailedJSON } from "@/utils/isVailedJSON";
 import { SetAPIsTemplate } from "@/components/setAPIsTemplate";
 import { autoHeight } from "@/utils/textAreaHelp";
-import { getDefaultParams } from "@/utils/getDefaultParam";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -153,10 +152,7 @@ const SelectModel = (props: { help: string }) => {
           value={chatStore.model}
           onValueChange={(model: string) => {
             chatStore.model = model;
-            chatStore.maxTokens = getDefaultParams(
-              "max",
-              models[model].maxToken
-            );
+            chatStore.maxTokens = models[model].maxToken;
             setChatStore({ ...chatStore });
           }}
         >

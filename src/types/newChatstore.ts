@@ -3,7 +3,6 @@ import {
   DefaultModel,
   CHATGPT_API_WEB_VERSION,
 } from "@/const";
-import { getDefaultParams } from "@/utils/getDefaultParam";
 import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
 import { models } from "@/types/models";
 
@@ -42,33 +41,24 @@ interface NewChatStoreOptions {
 export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
   return {
     chatgpt_api_web_version: CHATGPT_API_WEB_VERSION,
-    systemMessageContent: getDefaultParams(
-      "sys",
-      options.systemMessageContent ?? ""
-    ),
+    systemMessageContent: options.systemMessageContent ?? "",
     toolsString: options.toolsString ?? "",
     history: options.use_this_history ?? [],
     postBeginIndex: 0,
     tokenMargin: 1024,
     totalTokens: 0,
-    maxTokens: getDefaultParams(
-      "max",
-      models[getDefaultParams("model", options.model ?? DefaultModel)]
-        ?.maxToken ??
-        options.maxTokens ??
-        2048
-    ),
+    maxTokens:
+      models[options.model ?? DefaultModel]?.maxToken ??
+      options.maxTokens ??
+      2048,
     maxGenTokens: 2048,
     maxGenTokens_enabled: false,
-    apiKey: getDefaultParams("key", options.apiKey ?? ""),
-    apiEndpoint: getDefaultParams(
-      "api",
-      options.apiEndpoint ?? DefaultAPIEndpoint
-    ),
-    streamMode: getDefaultParams("mode", options.streamMode ?? true),
-    model: getDefaultParams("model", options.model ?? DefaultModel),
+    apiKey: options.apiKey ?? "",
+    apiEndpoint: options.apiEndpoint ?? DefaultAPIEndpoint,
+    streamMode: options.streamMode ?? true,
+    model: options.model ?? DefaultModel,
     cost: 0,
-    temperature: getDefaultParams("temp", options.temperature ?? 1),
+    temperature: options.temperature ?? 1,
     temperature_enabled: options.temperature_enabled ?? true,
     top_p: options.top_p ?? 1,
     top_p_enabled: options.top_p_enabled ?? false,
@@ -76,17 +66,12 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     presence_penalty_enabled: options.presence_penalty_enabled ?? false,
     frequency_penalty: options.frequency_penalty ?? 0,
     frequency_penalty_enabled: options.frequency_penalty_enabled ?? false,
-    develop_mode: getDefaultParams("dev", options.dev ?? false),
-    whisper_api: getDefaultParams(
-      "whisper-api",
-      options.whisper_api ?? "https://api.openai.com/v1/audio/transcriptions"
-    ),
-    whisper_key: getDefaultParams("whisper-key", options.whisper_key ?? ""),
-    tts_api: getDefaultParams(
-      "tts-api",
-      options.tts_api ?? "https://api.openai.com/v1/audio/speech"
-    ),
-    tts_key: getDefaultParams("tts-key", options.tts_key ?? ""),
+    develop_mode: options.dev ?? false,
+    whisper_api:
+      options.whisper_api ?? "https://api.openai.com/v1/audio/transcriptions",
+    whisper_key: options.whisper_key ?? "",
+    tts_api: options.tts_api ?? "https://api.openai.com/v1/audio/speech",
+    tts_key: options.tts_key ?? "",
     tts_voice: options.tts_voice ?? "alloy",
     tts_speed: options.tts_speed ?? 1.0,
     tts_speed_enabled: options.tts_speed_enabled ?? false,
