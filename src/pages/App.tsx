@@ -217,6 +217,12 @@ export function App() {
       ) {
         setShowImportDialog(true);
       }
+      await db;
+      const allidx = await (await db).getAllKeys(STORAGE_NAME);
+      if (allidx.length === 0) {
+        handleNewChatStore();
+      }
+      setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
       /*
       const chatStore = await getChatStoreByIndex(selectedChatIndex);
       const api = getDefaultParams("api", "");
@@ -239,12 +245,6 @@ export function App() {
         console.log("create new chatStore because of params in URL");
         handleNewChatStoreWithOldOne(chatStore);
       }
-      await db;
-      const allidx = await (await db).getAllKeys(STORAGE_NAME);
-      if (allidx.length === 0) {
-        handleNewChatStore();
-      }
-      setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
       */
     };
     run();
