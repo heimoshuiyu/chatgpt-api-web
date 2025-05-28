@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
 import { AppChatStoreContext, AppContext } from "../pages/App";
+import { ConfirmationDialog } from "./ui/confirmation-dialog";
 
 interface EditMessageProps {
   chat: ChatStoreMessage;
@@ -22,8 +23,18 @@ interface EditMessageProps {
 }
 export function EditMessage(props: EditMessageProps) {
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const { showEdit, setShowEdit, chat } = props;
+
+  const handleSwitchMessageType = () => {
+    if (typeof chat.content === "string") {
+      chat.content = [];
+    } else {
+      chat.content = "";
+    }
+    setChatStore({ ...chatStore });
+  };
 
   return (
     <Dialog open={showEdit} onOpenChange={setShowEdit}>
@@ -46,19 +57,7 @@ export function EditMessage(props: EditMessageProps) {
           <Button
             variant="destructive"
             className="w-full"
-            onClick={() => {
-              const confirm = window.confirm(
-                "Change message type will clear the content, are you sure?"
-              );
-              if (!confirm) return;
-
-              if (typeof chat.content === "string") {
-                chat.content = [];
-              } else {
-                chat.content = "";
-              }
-              setChatStore({ ...chatStore });
-            }}
+            onClick={() => setShowConfirmDialog(true)}
           >
             Switch to{" "}
             {typeof chat.content === "string"
@@ -68,6 +67,13 @@ export function EditMessage(props: EditMessageProps) {
         )}
         <Button onClick={() => setShowEdit(false)}>Close</Button>
       </DialogContent>
+      <ConfirmationDialog
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={handleSwitchMessageType}
+        title="Switch Message Type"
+        description="Change message type will clear the content, are you sure?"
+      />
     </Dialog>
   );
 }

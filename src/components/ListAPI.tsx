@@ -46,6 +46,7 @@ import { Input } from "./ui/input";
 import { SetAPIsTemplate } from "./setAPIsTemplate";
 import { isVailedJSON } from "@/utils/isVailedJSON";
 import { toast } from 'sonner';
+import { ConfirmationDialog } from "./ui/confirmation-dialog";
 
 interface APITemplateDropdownProps {
   label: string;
@@ -151,6 +152,8 @@ function APIsDropdownList({
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [editingTemplate, setEditingTemplate] = useState<TemplateAPI | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<TemplateAPI | null>(null);
 
   let API = templateAPIs;
   let setAPI = setTemplateAPIs;
@@ -186,8 +189,13 @@ function APIsDropdownList({
   };
 
   const handleDelete = (template: TemplateAPI) => {
-    if (window.confirm(`Are you sure you want to delete "${template.name}"?`)) {
-      const newAPI = API.filter(t => t.name !== template.name);
+    setTemplateToDelete(template);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (templateToDelete) {
+      const newAPI = API.filter(t => t.name !== templateToDelete.name);
       setAPI(newAPI);
       toast({
         title: "Success",
@@ -271,6 +279,16 @@ function APIsDropdownList({
           onClose={() => setEditingTemplate(null)}
         />
       )}
+      <ConfirmationDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setTemplateToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Template"
+        description={`Are you sure you want to delete "${templateToDelete?.name}"?`}
+      />
     </div>
   );
 }
@@ -460,6 +478,8 @@ function ChatTemplateDropdownList() {
   const [open, setOpen] = React.useState(false);
   const [editingTemplate, setEditingTemplate] = useState<TemplateChatStore | null>(null);
   const { toast } = useToast();
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [templateToApply, setTemplateToApply] = useState<TemplateChatStore | null>(null);
 
   const handleEdit = (template: TemplateChatStore) => {
     setEditingTemplate(template);
@@ -479,14 +499,30 @@ function ChatTemplateDropdownList() {
   };
 
   const handleDelete = (template: TemplateChatStore) => {
-    if (window.confirm(`Are you sure you want to delete "${template.name}"?`)) {
-      const newTemplates = templates.filter(t => t.name !== template.name);
-      setTemplates(newTemplates);
-      toast({
-        title: "Success",
-        description: "Template deleted successfully",
-      });
+    setTemplateToApply(template);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleTemplateSelect = (template: TemplateChatStore) => {
+    if (chatStore.history.length > 0 || chatStore.systemMessageContent) {
+      setTemplateToApply(template);
+      setConfirmDialogOpen(true);
+    } else {
+      applyTemplate(template);
     }
+  };
+
+  const applyTemplate = (template: TemplateChatStore) => {
+    setChatStore({
+      ...newChatStore({
+        ...chatStore,
+        ...{
+          use_this_history: template.history ?? chatStore.history,
+        },
+        ...template,
+      }),
+    });
+    setOpen(false);
   };
 
   return (
@@ -512,30 +548,7 @@ function ChatTemplateDropdownList() {
                   <CommandItem
                     key={index}
                     value={t.name}
-                    onSelect={() => {
-                      if (
-                        chatStore.history.length > 0 ||
-                        chatStore.systemMessageContent
-                      ) {
-                        const confirm = window.confirm(
-                          "This will replace the current chat history. Are you sure? "
-                        );
-                        if (!confirm) {
-                          setOpen(false);
-                          return;
-                        }
-                      }
-                      setChatStore({
-                        ...newChatStore({
-                          ...chatStore,
-                          ...{
-                            use_this_history: t.history ?? chatStore.history,
-                          },
-                          ...t,
-                        }),
-                      });
-                      setOpen(false);
-                    }}
+                    onSelect={() => handleTemplateSelect(t)}
                   >
                     <div className="flex items-center justify-between w-full">
                       <span>{t.name}</span>
@@ -576,6 +589,16 @@ function ChatTemplateDropdownList() {
           onClose={() => setEditingTemplate(null)}
         />
       )}
+      <ConfirmationDialog
+        isOpen={confirmDialogOpen}
+        onClose={() => {
+          setConfirmDialogOpen(false);
+          setTemplateToApply(null);
+        }}
+        onConfirm={() => templateToApply && applyTemplate(templateToApply)}
+        title="Replace Chat History"
+        description="This will replace the current chat history. Are you sure?"
+      />
     </div>
   );
 }
