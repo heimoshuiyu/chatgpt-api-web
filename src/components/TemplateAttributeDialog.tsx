@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { ChatStore } from "@/types/chatstore";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -31,7 +38,9 @@ export function TemplateAttributeDialog({
   langCode,
 }: TemplateAttributeDialogProps) {
   // Create a map of all ChatStore attributes and their selection state
-  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, boolean>>(() => {
+  const [selectedAttributes, setSelectedAttributes] = useState<
+    Record<string, boolean>
+  >(() => {
     const initial: Record<string, boolean> = {};
     // Initialize all attributes as selected by default
     Object.keys(chatStore).forEach((key) => {
@@ -71,13 +80,31 @@ export function TemplateAttributeDialog({
     setSelectedAttributes(newSelected);
   };
 
+  const formatValue = (value: any): string => {
+    if (value === null || value === undefined) return "null";
+    if (typeof value === "object") {
+      if (Array.isArray(value)) {
+        return `[${value.length} items]`;
+      }
+      return "{...}";
+    }
+    if (typeof value === "string") {
+      if (value.length > 50) {
+        return value.substring(0, 47) + "...";
+      }
+      return value;
+    }
+    return String(value);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Select Template Attributes</DialogTitle>
           <DialogDescription>
-            Choose which attributes to include in your template. Unselected attributes will be omitted.
+            Choose which attributes to include in your template. Unselected
+            attributes will be omitted.
           </DialogDescription>
         </DialogHeader>
 
@@ -93,9 +120,7 @@ export function TemplateAttributeDialog({
               }}
               placeholder={tr("Enter template name", langCode)}
             />
-            {nameError && (
-              <p className="text-sm text-red-500">{nameError}</p>
-            )}
+            {nameError && <p className="text-sm text-red-500">{nameError}</p>}
           </div>
 
           <div className="flex items-center space-x-2">
@@ -108,7 +133,7 @@ export function TemplateAttributeDialog({
           </div>
 
           <ScrollArea className="h-[400px] rounded-md border p-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {Object.keys(chatStore).map((key) => (
                 <div key={key} className="flex items-center space-x-2">
                   <Checkbox
@@ -121,9 +146,29 @@ export function TemplateAttributeDialog({
                       }))
                     }
                   />
-                  <Label htmlFor={key} className="text-sm">
-                    {key}
-                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex flex-col">
+                          <Label htmlFor={key} className="text-sm">
+                            {key}
+                          </Label>
+                          <span className="text-xs text-muted-foreground">
+                            {formatValue(chatStore[key as keyof ChatStore])}
+                          </span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs break-words">
+                          {JSON.stringify(
+                            chatStore[key as keyof ChatStore],
+                            null,
+                            2
+                          )}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               ))}
             </div>
@@ -139,4 +184,4 @@ export function TemplateAttributeDialog({
       </DialogContent>
     </Dialog>
   );
-} 
+}
