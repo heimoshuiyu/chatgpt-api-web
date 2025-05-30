@@ -77,6 +77,7 @@ import { Slider } from "@/components/ui/slider";
 import { NonOverflowScrollArea, ScrollArea } from "@/components/ui/scroll-area";
 import { AppChatStoreContext, AppContext } from "@/pages/App";
 import { toast } from "@/hooks/use-toast";
+import { TemplateAttributeDialog } from "@/components/TemplateAttributeDialog";
 
 const TTS_VOICES: string[] = [
   "alloy",
@@ -739,6 +740,7 @@ export default (props: {}) => {
   // @ts-ignore
   const { langCode, setLangCode } = useContext(langCodeContext);
   const [open, setOpen] = useState<boolean>(false);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
 
   useEffect(() => {
     themeChange(false);
@@ -804,7 +806,7 @@ export default (props: {}) => {
                 <LongInput
                   label="System Prompt"
                   field="systemMessageContent"
-                  help="系统消息，用于指示ChatGPT的角色和一些前置条件，例如“你是一个有帮助的人工智能助理”，或者“你是一个专业英语翻译，把我的话全部翻译成英语”，详情参考 OPEAN AI API 文档"
+                  help="System prompt, used to indicate the role of ChatGPT and some preconditions, such as 'You are a helpful AI assistant' or 'You are a professional English translator, translate my words into English', please refer to the OpenAI API documentation"
                   {...props}
                 />
 
@@ -1051,21 +1053,7 @@ export default (props: {}) => {
                         <Button
                           variant="outline"
                           className="w-full"
-                          onClick={() => {
-                            const name = prompt(
-                              tr("Give this template a name:", langCode)
-                            );
-                            if (!name) {
-                              alert(tr("No template name specified", langCode));
-                              return;
-                            }
-                            const tmp: ChatStore = structuredClone(chatStore);
-                            tmp.history = tmp.history.filter((h) => h.example);
-                            // @ts-ignore
-                            tmp.name = name;
-                            templates.push(tmp as TemplateChatStore);
-                            setTemplates([...templates]);
-                          }}
+                          onClick={() => setShowTemplateDialog(true)}
                         >
                           <Tr>As template</Tr>
                         </Button>
@@ -1594,6 +1582,25 @@ export default (props: {}) => {
           </div>
         </NonOverflowScrollArea>
       </SheetContent>
+
+      <TemplateAttributeDialog
+        open={showTemplateDialog}
+        chatStore={chatStore}
+        langCode={langCode}
+        onClose={() => setShowTemplateDialog(false)}
+        onSave={(name, selectedAttributes) => {
+          const tmp: ChatStore = {
+            ...chatStore,
+            ...selectedAttributes,
+            history: chatStore.history.filter((h) => h.example),
+          };
+          // @ts-ignore
+          tmp.name = name;
+          templates.push(tmp as TemplateChatStore);
+          setTemplates([...templates]);
+          setShowTemplateDialog(false);
+        }}
+      />
     </Sheet>
   );
 };
