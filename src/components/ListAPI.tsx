@@ -548,7 +548,7 @@ function ChatTemplateDropdownList() {
                   <CommandItem
                     key={index}
                     value={t.name}
-                    onSelect={() => handleTemplateSelect(t)}
+                    onSelect={() => handleTemplateSelect(structuredClone(t))}
                   >
                     <div className="flex items-center justify-between w-full">
                       <span>{t.name}</span>

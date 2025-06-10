@@ -69,7 +69,7 @@ export function TemplateAttributeDialog({
         (filteredStore as any)[typedKey] = chatStore[typedKey];
       }
     });
-    onSave(templateName, filteredStore);
+    onSave(templateName, structuredClone(filteredStore));
   };
 
   const toggleAll = (checked: boolean) => {
