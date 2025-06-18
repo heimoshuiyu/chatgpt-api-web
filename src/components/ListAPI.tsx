@@ -480,6 +480,8 @@ function ChatTemplateDropdownList() {
   const { toast } = useToast();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [templateToApply, setTemplateToApply] = useState<TemplateChatStore | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<TemplateChatStore | null>(null);
 
   const handleEdit = (template: TemplateChatStore) => {
     setEditingTemplate(template);
@@ -499,8 +501,19 @@ function ChatTemplateDropdownList() {
   };
 
   const handleDelete = (template: TemplateChatStore) => {
-    setTemplateToApply(template);
-    setConfirmDialogOpen(true);
+    setTemplateToDelete(template);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (templateToDelete) {
+      const newTemplates = templates.filter(t => t.name !== templateToDelete.name);
+      setTemplates(newTemplates);
+      toast({
+        title: "Success",
+        description: "Template deleted successfully",
+      });
+    }
   };
 
   const handleTemplateSelect = (template: TemplateChatStore) => {
@@ -598,6 +611,16 @@ function ChatTemplateDropdownList() {
         onConfirm={() => templateToApply && applyTemplate(templateToApply)}
         title="Replace Chat History"
         description="This will replace the current chat history. Are you sure?"
+      />
+      <ConfirmationDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setTemplateToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Template"
+        description={`Are you sure you want to delete "${templateToDelete?.name}"?`}
       />
     </div>
   );
