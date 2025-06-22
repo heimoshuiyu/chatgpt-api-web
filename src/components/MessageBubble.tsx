@@ -364,7 +364,7 @@ export default function Message(props: { messageIndex: number }) {
                 //     "pre",
                 //   ].includes(element.tagName);
                 // }}
-                className={"prose max-w-none md:max-w-[75%]"}
+                className={"prose max-w-none"}
               >
                 {getMessageText(chat)}
               </Markdown>
