@@ -179,9 +179,9 @@ export default function ChatBOX() {
         }
         setGeneratingMessage(
           (allReasoningContentChunk.length
-            ? "----------\nreasoning:\n" +
+            ? "<think>\n" +
               allReasoningContentChunk.join("") +
-              "\n----------\n"
+              "\n</think>\n"
             : "") +
             allChunkMessage.join("") +
             allChunkTool.map((tool) => {
