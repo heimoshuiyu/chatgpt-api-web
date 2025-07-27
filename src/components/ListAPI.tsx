@@ -45,7 +45,7 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { SetAPIsTemplate } from "./setAPIsTemplate";
 import { isVailedJSON } from "@/utils/isVailedJSON";
-import { toast } from 'sonner';
+import { toast } from "sonner";
 import { ConfirmationDialog } from "./ui/confirmation-dialog";
 
 interface APITemplateDropdownProps {
@@ -61,7 +61,11 @@ interface EditTemplateDialogProps {
   onClose: () => void;
 }
 
-function EditTemplateDialog({ template, onSave, onClose }: EditTemplateDialogProps) {
+function EditTemplateDialog({
+  template,
+  onSave,
+  onClose,
+}: EditTemplateDialogProps) {
   const [name, setName] = useState(template.name);
   const [endpoint, setEndpoint] = useState(template.endpoint);
   const [key, setKey] = useState(template.key);
@@ -151,9 +155,13 @@ function APIsDropdownList({
   } = useContext(AppContext);
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<TemplateAPI | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<TemplateAPI | null>(
+    null
+  );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [templateToDelete, setTemplateToDelete] = useState<TemplateAPI | null>(null);
+  const [templateToDelete, setTemplateToDelete] = useState<TemplateAPI | null>(
+    null
+  );
 
   let API = templateAPIs;
   let setAPI = setTemplateAPIs;
@@ -176,7 +184,7 @@ function APIsDropdownList({
   };
 
   const handleSave = (updatedTemplate: TemplateAPI) => {
-    const index = API.findIndex(t => t.name === updatedTemplate.name);
+    const index = API.findIndex((t) => t.name === updatedTemplate.name);
     if (index !== -1) {
       const newAPI = [...API];
       newAPI[index] = updatedTemplate;
@@ -195,7 +203,7 @@ function APIsDropdownList({
 
   const confirmDelete = () => {
     if (templateToDelete) {
-      const newAPI = API.filter(t => t.name !== templateToDelete.name);
+      const newAPI = API.filter((t) => t.name !== templateToDelete.name);
       setAPI(newAPI);
       toast({
         title: "Success",
@@ -375,7 +383,11 @@ interface EditChatTemplateDialogProps {
   onClose: () => void;
 }
 
-function EditChatTemplateDialog({ template, onSave, onClose }: EditChatTemplateDialogProps) {
+function EditChatTemplateDialog({
+  template,
+  onSave,
+  onClose,
+}: EditChatTemplateDialogProps) {
   const [name, setName] = useState(template.name);
   const [jsonContent, setJsonContent] = useState(() => {
     const { name: _, ...rest } = template;
@@ -389,13 +401,13 @@ function EditChatTemplateDialog({ template, onSave, onClose }: EditChatTemplateD
 
   const handleFormat = () => {
     if (editor) {
-      editor.getAction('editor.action.formatDocument').run();
+      editor.getAction("editor.action.formatDocument").run();
     }
   };
 
   const handleSave = () => {
     if (!name.trim()) {
-      toast.error('Template name cannot be empty');
+      toast.error("Template name cannot be empty");
       return;
     }
 
@@ -403,12 +415,12 @@ function EditChatTemplateDialog({ template, onSave, onClose }: EditChatTemplateD
       const parsedJson = JSON.parse(jsonContent);
       const updatedTemplate: TemplateChatStore = {
         name: name.trim(),
-        ...parsedJson
+        ...parsedJson,
       };
       onSave(updatedTemplate);
-      toast.success('Template updated successfully');
+      toast.success("Template updated successfully");
     } catch (error) {
-      toast.error('Invalid JSON format');
+      toast.error("Invalid JSON format");
     }
   };
 
@@ -444,16 +456,16 @@ function EditChatTemplateDialog({ template, onSave, onClose }: EditChatTemplateD
                   height="400px"
                   defaultLanguage="json"
                   value={jsonContent}
-                  onChange={(value) => setJsonContent(value || '')}
+                  onChange={(value) => setJsonContent(value || "")}
                   onMount={handleEditorDidMount}
                   options={{
                     minimap: { enabled: false },
                     fontSize: 14,
-                    lineNumbers: 'on',
+                    lineNumbers: "on",
                     scrollBeyondLastLine: false,
                     automaticLayout: true,
                     tabSize: 2,
-                    wordWrap: 'on'
+                    wordWrap: "on",
                   }}
                 />
               </div>
@@ -476,19 +488,22 @@ function ChatTemplateDropdownList() {
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
   const { templates, setTemplates } = useContext(AppContext);
   const [open, setOpen] = React.useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<TemplateChatStore | null>(null);
+  const [editingTemplate, setEditingTemplate] =
+    useState<TemplateChatStore | null>(null);
   const { toast } = useToast();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [templateToApply, setTemplateToApply] = useState<TemplateChatStore | null>(null);
+  const [templateToApply, setTemplateToApply] =
+    useState<TemplateChatStore | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [templateToDelete, setTemplateToDelete] = useState<TemplateChatStore | null>(null);
+  const [templateToDelete, setTemplateToDelete] =
+    useState<TemplateChatStore | null>(null);
 
   const handleEdit = (template: TemplateChatStore) => {
     setEditingTemplate(template);
   };
 
   const handleSave = (updatedTemplate: TemplateChatStore) => {
-    const index = templates.findIndex(t => t.name === updatedTemplate.name);
+    const index = templates.findIndex((t) => t.name === updatedTemplate.name);
     if (index !== -1) {
       const newTemplates = [...templates];
       newTemplates[index] = updatedTemplate;
@@ -507,7 +522,9 @@ function ChatTemplateDropdownList() {
 
   const confirmDelete = () => {
     if (templateToDelete) {
-      const newTemplates = templates.filter(t => t.name !== templateToDelete.name);
+      const newTemplates = templates.filter(
+        (t) => t.name !== templateToDelete.name
+      );
       setTemplates(newTemplates);
       toast({
         title: "Success",

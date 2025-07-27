@@ -338,7 +338,8 @@ class Chat {
         console.log("line", line);
         try {
           const jsonStr = line.slice("data:".length).trim();
-          if (jsonStr === "keep-alive") {  // for deepseek https://api-docs.deepseek.com/quick_start/rate_limit
+          if (jsonStr === "keep-alive") {
+            // for deepseek https://api-docs.deepseek.com/quick_start/rate_limit
             continue;
           }
           const json = JSON.parse(jsonStr) as StreamingResponseChunk;

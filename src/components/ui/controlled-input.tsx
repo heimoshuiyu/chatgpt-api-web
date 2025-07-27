@@ -18,4 +18,4 @@ const ControlledInput = forwardRef<HTMLInputElement, ComponentProps<"input">>(
 );
 ControlledInput.displayName = "ControlledInput";
 
-export { ControlledInput }; 
+export { ControlledInput };

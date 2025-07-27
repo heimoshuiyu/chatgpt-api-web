@@ -17,8 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const SIDEBAR_COOKIE_NAME = "sidebar:state";
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+const SIDEBAR_LOCALSTORAGE_KEY = "sidebar:state";
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
@@ -68,9 +67,25 @@ const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
 
+    // 从localStorage读取初始状态
+    const getInitialState = React.useCallback(() => {
+      if (typeof window === "undefined") return defaultOpen;
+
+      try {
+        const saved = localStorage.getItem(SIDEBAR_LOCALSTORAGE_KEY);
+        if (saved !== null) {
+          return saved === "true";
+        }
+      } catch (error) {
+        console.warn("Failed to read sidebar state from localStorage:", error);
+      }
+
+      return defaultOpen;
+    }, [defaultOpen]);
+
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
-    const [_open, _setOpen] = React.useState(defaultOpen);
+    const [_open, _setOpen] = React.useState(getInitialState);
     const open = openProp ?? _open;
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
@@ -81,8 +96,12 @@ const SidebarProvider = React.forwardRef<
           _setOpen(openState);
         }
 
-        // This sets the cookie to keep the sidebar state.
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+        // 使用localStorage保存状态
+        try {
+          localStorage.setItem(SIDEBAR_LOCALSTORAGE_KEY, String(openState));
+        } catch (error) {
+          console.warn("Failed to save sidebar state to localStorage:", error);
+        }
       },
       [setOpenProp, open]
     );

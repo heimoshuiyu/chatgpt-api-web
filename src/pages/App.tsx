@@ -75,6 +75,7 @@ import {
   SidebarRail,
   SidebarInset,
   SidebarTrigger,
+  SidebarProvider,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
@@ -353,87 +354,92 @@ export function App() {
         handleNewChatStoreWithOldOne,
       }}
     >
-      <Sidebar>
-        <SidebarHeader>
-          <Button onClick={handleNewChatStore}>
-            <span>
-              <Tr>New Chat</Tr>
-            </span>
-          </Button>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Conversation</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {(allChatStoreIndexes as number[])
-                  .slice()
-                  .reverse()
-                  .map((i) => {
-                    // reverse
-                    return (
-                      <SidebarMenuItem
-                        key={i}
-                        onClick={() => setSelectedChatIndex(i)}
-                      >
-                        <SidebarMenuButton
-                          asChild
-                          isActive={i === selectedChatIndex}
+      <SidebarProvider defaultOpen={true}>
+        <Sidebar>
+          <SidebarHeader>
+            <Button onClick={handleNewChatStore}>
+              <span>
+                <Tr>New Chat</Tr>
+              </span>
+            </Button>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Conversation</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {(allChatStoreIndexes as number[])
+                    .slice()
+                    .reverse()
+                    .map((i) => {
+                      // reverse
+                      return (
+                        <SidebarMenuItem
+                          key={i}
+                          onClick={() => setSelectedChatIndex(i)}
                         >
-                          <span>
-                            <ConversationTitle
-                              chatStoreIndex={i}
-                              selectedChatStoreIndex={selectedChatIndex}
-                            />
-                          </span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-        <SidebarFooter>
-          <div className="flex items-start gap-2">
-            <ModeToggle />
-            <Search />
-          </div>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">
-                <Tr>Delete Chat</Tr>
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the
-                  chat history.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDEL}>
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </SidebarFooter>
-        <SidebarRail />
-      </Sidebar>
-      <SidebarInset>
-        <AppChatStoreProvider
-          selectedChatIndex={selectedChatIndex}
-          getChatStoreByIndex={getChatStoreByIndex}
-        >
-          <ImportDialog open={showImportDialog} setOpen={setShowImportDialog} />
-          <Navbar />
-          <ChatBOX />
-        </AppChatStoreProvider>
-      </SidebarInset>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={i === selectedChatIndex}
+                          >
+                            <span>
+                              <ConversationTitle
+                                chatStoreIndex={i}
+                                selectedChatStoreIndex={selectedChatIndex}
+                              />
+                            </span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+          <SidebarFooter>
+            <div className="flex items-start gap-2">
+              <ModeToggle />
+              <Search />
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">
+                  <Tr>Delete Chat</Tr>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the chat history.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDEL}>
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </SidebarFooter>
+          <SidebarRail />
+        </Sidebar>
+        <SidebarInset>
+          <AppChatStoreProvider
+            selectedChatIndex={selectedChatIndex}
+            getChatStoreByIndex={getChatStoreByIndex}
+          >
+            <ImportDialog
+              open={showImportDialog}
+              setOpen={setShowImportDialog}
+            />
+            <Navbar />
+            <ChatBOX />
+          </AppChatStoreProvider>
+        </SidebarInset>
+      </SidebarProvider>
     </AppContext.Provider>
   );
 }

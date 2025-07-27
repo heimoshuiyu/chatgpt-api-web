@@ -17,12 +17,12 @@ interface ConfirmationDialogProps {
   description: string;
 }
 
-export function ConfirmationDialog({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
-  title, 
-  description 
+export function ConfirmationDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  description,
 }: ConfirmationDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -35,14 +35,17 @@ export function ConfirmationDialog({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={() => {
-            onConfirm();
-            onClose();
-          }}>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              onConfirm();
+              onClose();
+            }}
+          >
             Confirm
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-} 
+}
