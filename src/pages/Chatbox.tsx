@@ -380,6 +380,7 @@ export default function ChatBOX() {
       if (!usage) {
         throw "panic: usage is null";
       }
+      console.log("usage", usage);
 
       const completed_at = new Date();
       cs.created_at = created_at.toISOString();
@@ -408,12 +409,13 @@ export default function ChatBOX() {
       }
       // [TODO]
       // calculate cost
-      if (usage.response_model_name) {
+      if (usage.response_model_name || chatStore.chatPrice) {
         let cost = 0;
 
         // Use custom pricing if available, otherwise fall back to model pricing
         const pricing =
-          chatStore.chatPrice || models[usage.response_model_name]?.price;
+          chatStore.chatPrice ||
+          models[usage.response_model_name ?? ""]?.price;
 
         if (!pricing) {
           console.warn(
