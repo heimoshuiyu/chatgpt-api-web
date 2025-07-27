@@ -1,6 +1,7 @@
 import { LightBulbIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Markdown from "react-markdown";
 import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import "katex/dist/katex.min.css";
@@ -78,7 +79,13 @@ function MessageDetail({ chat, renderMarkdown }: MessageDetailProps) {
           chat.hide ? (
             mdt.text?.trim().slice(0, 16) + " ..."
           ) : renderMarkdown ? (
-            <Markdown>{mdt.text}</Markdown>
+            <Markdown 
+              remarkPlugins={[remarkMath, remarkGfm]}
+              rehypePlugins={[rehypeKatex, rehypeHighlight]}
+              className={"prose max-w-none"}
+            >
+              {mdt.text}
+            </Markdown>
           ) : (
             mdt.text
           )
@@ -340,7 +347,7 @@ export default function Message(props: { messageIndex: number }) {
               <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
               <Markdown
-                remarkPlugins={[remarkMath]}
+                remarkPlugins={[remarkMath, remarkGfm]}
                 rehypePlugins={[rehypeKatex, rehypeHighlight]}
                 disallowedElements={[
                   "script",
@@ -437,6 +444,8 @@ export default function Message(props: { messageIndex: number }) {
               <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
               <Markdown
+                remarkPlugins={[remarkMath, remarkGfm]}
+                rehypePlugins={[rehypeKatex, rehypeHighlight]}
                 components={{
                   p: ({ children, node }: any) => {
                     if (node?.parent?.type === "listItem") {
