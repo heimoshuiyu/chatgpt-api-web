@@ -298,7 +298,7 @@ export default function ChatBOX() {
       token: data.usage?.completion_tokens_details
         ? data.usage.completion_tokens -
           data.usage.completion_tokens_details.reasoning_tokens
-        : (data.usage.completion_tokens ?? calculate_token_length(msg.content)),
+        : data.usage.completion_tokens ?? calculate_token_length(msg.content),
       example: false,
       audio: null,
       logprobs: data.choices[0]?.logprobs,
@@ -411,32 +411,43 @@ export default function ChatBOX() {
       if (usage.response_model_name) {
         let cost = 0;
 
-        if (usage.prompt_tokens_details) {
-          const cached_prompt_tokens =
-            usage.prompt_tokens_details.cached_tokens ?? 0;
-          const uncached_prompt_tokens =
-            usage.prompt_tokens - cached_prompt_tokens;
-          const prompt_price =
-            models[usage.response_model_name]?.price?.prompt ?? 0;
-          const cached_price =
-            models[usage.response_model_name]?.price?.cached_prompt ??
-            prompt_price;
-          cost +=
-            cached_prompt_tokens * cached_price +
-            uncached_prompt_tokens * prompt_price;
-        } else {
-          cost +=
-            usage.prompt_tokens *
-            (models[usage.response_model_name]?.price?.prompt ?? 0);
-        }
+        // Use custom pricing if available, otherwise fall back to model pricing
+        const pricing =
+          chatStore.chatPrice || models[usage.response_model_name]?.price;
 
-        cost +=
-          usage.completion_tokens *
-          (models[usage.response_model_name]?.price?.completion ?? 0);
+        if (!pricing) {
+          console.warn(
+            `No pricing information found for model: ${usage.response_model_name}`
+          );
+        } else {
+          if (usage.prompt_tokens_details) {
+            const cached_prompt_tokens =
+              usage.prompt_tokens_details.cached_tokens ?? 0;
+            const uncached_prompt_tokens =
+              usage.prompt_tokens - cached_prompt_tokens;
+            const prompt_price = pricing.prompt ?? 0;
+            const cached_price = pricing.cached_prompt ?? prompt_price;
+            cost +=
+              cached_prompt_tokens * cached_price +
+              uncached_prompt_tokens * prompt_price;
+          } else {
+            cost += usage.prompt_tokens * (pricing.prompt ?? 0);
+          }
+
+          cost += usage.completion_tokens * (pricing.completion ?? 0);
+        }
 
         addTotalCost(cost);
         chatStore.cost += cost;
-        console.log("cost", cost);
+        console.log("cost calculation:", {
+          model: usage.response_model_name,
+          usingCustomPricing: !!chatStore.chatPrice,
+          pricing: pricing,
+          promptTokens: usage.prompt_tokens,
+          completionTokens: usage.completion_tokens,
+          cachedTokens: usage.prompt_tokens_details?.cached_tokens,
+          totalCost: cost,
+        });
       }
 
       setShowRetry(false);
