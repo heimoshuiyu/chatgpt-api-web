@@ -79,10 +79,27 @@ function MessageDetail({ chat, renderMarkdown }: MessageDetailProps) {
           chat.hide ? (
             mdt.text?.trim().slice(0, 16) + " ..."
           ) : renderMarkdown ? (
-            <Markdown 
+            <Markdown
               remarkPlugins={[remarkMath, remarkGfm]}
               rehypePlugins={[rehypeKatex, rehypeHighlight]}
-              className={"prose max-w-none"}
+              className={"prose max-w-none break-words overflow-wrap-anywhere"}
+              components={{
+                p: ({ children }: any) => (
+                  <p className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
+                    {children}
+                  </p>
+                ),
+                code: ({ children }: any) => (
+                  <code className="break-all whitespace-pre-wrap">
+                    {children}
+                  </code>
+                ),
+                pre: ({ children }: any) => (
+                  <pre className="break-words whitespace-pre-wrap overflow-x-auto">
+                    {children}
+                  </pre>
+                ),
+              }}
             >
               {mdt.text}
             </Markdown>
@@ -356,22 +373,35 @@ export default function Message(props: { messageIndex: number }) {
                   "embed",
                   "hr",
                 ]}
-                // allowElement={(element) => {
-                //   return [
-                //     "p",
-                //     "em",
-                //     "strong",
-                //     "del",
-                //     "code",
-                //     "inlineCode",
-                //     "blockquote",
-                //     "ul",
-                //     "ol",
-                //     "li",
-                //     "pre",
-                //   ].includes(element.tagName);
-                // }}
-                className={"prose max-w-none"}
+                className={
+                  "prose max-w-none break-words overflow-wrap-anywhere"
+                }
+                components={{
+                  p: ({ children, node }: any) => {
+                    if (node?.parent?.type === "listItem") {
+                      return (
+                        <span className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
+                          {children}
+                        </span>
+                      );
+                    }
+                    return (
+                      <p className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
+                        {children}
+                      </p>
+                    );
+                  },
+                  code: ({ children }: any) => (
+                    <code className="break-all whitespace-pre-wrap">
+                      {children}
+                    </code>
+                  ),
+                  pre: ({ children }: any) => (
+                    <pre className="break-words whitespace-pre-wrap overflow-x-auto">
+                      {children}
+                    </pre>
+                  ),
+                }}
               >
                 {getMessageText(chat)}
               </Markdown>
@@ -446,13 +476,32 @@ export default function Message(props: { messageIndex: number }) {
               <Markdown
                 remarkPlugins={[remarkMath, remarkGfm]}
                 rehypePlugins={[rehypeKatex, rehypeHighlight]}
+                className={"max-w-none break-words overflow-wrap-anywhere"}
                 components={{
                   p: ({ children, node }: any) => {
                     if (node?.parent?.type === "listItem") {
-                      return <>{children}</>;
+                      return (
+                        <span className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
+                          {children}
+                        </span>
+                      );
                     }
-                    return <p>{children}</p>;
+                    return (
+                      <p className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
+                        {children}
+                      </p>
+                    );
                   },
+                  code: ({ children }: any) => (
+                    <code className="break-all whitespace-pre-wrap">
+                      {children}
+                    </code>
+                  ),
+                  pre: ({ children }: any) => (
+                    <pre className="break-words whitespace-pre-wrap overflow-x-auto">
+                      {children}
+                    </pre>
+                  ),
                 }}
               >
                 {getMessageText(chat)}
