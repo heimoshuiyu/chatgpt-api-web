@@ -1450,7 +1450,7 @@ export default (props: {}) => {
                           variant="destructive"
                           className="w-full"
                           onClick={() => {
-                            chatStore.chatPrice = null;
+                            chatStore.chatPrice = undefined;
                             setChatStore({ ...chatStore });
                           }}
                         >

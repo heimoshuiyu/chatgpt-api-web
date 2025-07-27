@@ -44,7 +44,7 @@ export interface ChatStore {
   json_mode: boolean;
   logprobs: boolean;
   contents_for_index: string[];
-  chatPrice: ModelPricing | null;
+  chatPrice?: ModelPricing;
 }
 
 export interface TemplateChatStore extends ChatStore {

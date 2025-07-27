@@ -4,7 +4,7 @@ import {
   CHATGPT_API_WEB_VERSION,
 } from "@/const";
 import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
-import { models } from "@/types/models";
+import { ModelPricing, models } from "@/types/models";
 
 interface NewChatStoreOptions {
   apiKey?: string;
@@ -36,6 +36,7 @@ interface NewChatStoreOptions {
   logprobs?: boolean;
   maxTokens?: number;
   use_this_history?: ChatStoreMessage[];
+  chatPrice?: ModelPricing;
 }
 
 export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
@@ -82,5 +83,6 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     tts_format: options.tts_format ?? "mp3",
     logprobs: options.logprobs ?? false,
     contents_for_index: [],
+    chatPrice: options.chatPrice ?? undefined,
   };
 };
