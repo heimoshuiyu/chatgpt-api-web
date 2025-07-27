@@ -1,4 +1,5 @@
 import { Logprobs, Message, MessageDetail, ToolCall, Usage } from "@/chatgpt";
+import { ModelPricing } from "./models";
 
 /**
  * ChatStore is the main object of the chatgpt-api-web,
@@ -43,6 +44,7 @@ export interface ChatStore {
   json_mode: boolean;
   logprobs: boolean;
   contents_for_index: string[];
+  chatPrice: ModelPricing | null;
 }
 
 export interface TemplateChatStore extends ChatStore {

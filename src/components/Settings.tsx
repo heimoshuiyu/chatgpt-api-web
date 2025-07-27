@@ -176,6 +176,106 @@ const SelectModel = (props: { help: string }) => {
   );
 };
 
+// Custom Pricing Input Component
+const CustomPricingInput = (props: {
+  id: string;
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+}) => {
+  const [unit, setUnit] = useState<"token" | "k" | "m">("m"); // Default to per million tokens
+  const [displayValue, setDisplayValue] = useState<string>("");
+
+  // Update display value when unit or actual value changes
+  useEffect(() => {
+    let converted = props.value;
+    if (unit === "k") {
+      converted = props.value * 1000;
+    } else if (unit === "m") {
+      converted = props.value * 1000000;
+    }
+    // Use toFixed to handle precision, but remove trailing zeros
+    const formattedValue = parseFloat(converted.toFixed(10)).toString();
+    setDisplayValue(formattedValue);
+  }, [props.value, unit]);
+
+  const handleValueChange = (inputValue: string) => {
+    setDisplayValue(inputValue);
+    const numValue = parseFloat(inputValue) || 0;
+    let actualValue = numValue;
+    
+    // Convert to per token price
+    if (unit === "k") {
+      actualValue = numValue / 1000;
+    } else if (unit === "m") {
+      actualValue = numValue / 1000000;
+    }
+    
+    props.onChange(actualValue);
+  };
+
+  const handleUnitChange = (newUnit: "token" | "k" | "m") => {
+    // Convert current display value to the new unit
+    const currentValue = parseFloat(displayValue) || 0;
+    let actualPerTokenValue = currentValue;
+    
+    // First convert current display value to per token
+    if (unit === "k") {
+      actualPerTokenValue = currentValue / 1000;
+    } else if (unit === "m") {
+      actualPerTokenValue = currentValue / 1000000;
+    }
+    
+    // Then convert to new unit for display
+    let newDisplayValue = actualPerTokenValue;
+    if (newUnit === "k") {
+      newDisplayValue = actualPerTokenValue * 1000;
+    } else if (newUnit === "m") {
+      newDisplayValue = actualPerTokenValue * 1000000;
+    }
+    
+    setUnit(newUnit);
+    const formattedValue = parseFloat(newDisplayValue.toFixed(10)).toString();
+    setDisplayValue(formattedValue);
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={props.id}>
+        <Tr>{props.label}</Tr>
+      </Label>
+      <div className="flex gap-2">
+        <Input
+          id={props.id}
+          type="number"
+          step="any"
+          value={displayValue}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            handleValueChange(e.target.value);
+          }}
+          className="flex-1"
+        />
+        <Select value={unit} onValueChange={handleUnitChange}>
+          <SelectTrigger className="w-32">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="token">
+              <Tr>Per token</Tr>
+            </SelectItem>
+            <SelectItem value="k">
+              <Tr>Per k tokens</Tr>
+            </SelectItem>
+            <SelectItem value="m">
+              <Tr>Per m tokens</Tr>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+};
+
 const LongInput = React.memo(
   (props: {
     field: "systemMessageContent" | "toolsString";
@@ -1265,6 +1365,112 @@ export default (props: {}) => {
                   readOnly={false}
                   {...props}
                 />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="custom-pricing">
+              <AccordionTrigger>
+                <Tr>Custom Model Pricing</Tr>
+              </AccordionTrigger>
+              <AccordionContent>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      <Tr>Custom Model Pricing</Tr>
+                    </CardTitle>
+                    <CardDescription>
+                      <Tr>Set custom pricing for your model (prices per token)</Tr>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {chatStore.chatPrice ? (
+                      <div className="space-y-4">
+                        <CustomPricingInput
+                          id="prompt-price"
+                          label="Prompt Price"
+                          value={chatStore.chatPrice.prompt}
+                          onChange={(value) => {
+                            if (chatStore.chatPrice) {
+                              chatStore.chatPrice.prompt = value;
+                              setChatStore({ ...chatStore });
+                            }
+                          }}
+                        />
+                        
+                        <CustomPricingInput
+                          id="completion-price"
+                          label="Completion Price"
+                          value={chatStore.chatPrice.completion}
+                          onChange={(value) => {
+                            if (chatStore.chatPrice) {
+                              chatStore.chatPrice.completion = value;
+                              setChatStore({ ...chatStore });
+                            }
+                          }}
+                        />
+                        
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="cached-prompt-price">
+                              <Tr>Cached Prompt Price</Tr> (optional)
+                            </Label>
+                            <Checkbox
+                              checked={chatStore.chatPrice.cached_prompt !== undefined}
+                              onCheckedChange={(checked) => {
+                                if (chatStore.chatPrice) {
+                                  chatStore.chatPrice.cached_prompt = checked ? 0 : undefined;
+                                  setChatStore({ ...chatStore });
+                                }
+                              }}
+                            />
+                          </div>
+                          {chatStore.chatPrice.cached_prompt !== undefined && (
+                            <CustomPricingInput
+                              id="cached-prompt-price"
+                              label="Cached Prompt Price"
+                              value={chatStore.chatPrice.cached_prompt}
+                              onChange={(value) => {
+                                if (chatStore.chatPrice) {
+                                  chatStore.chatPrice.cached_prompt = value;
+                                  setChatStore({ ...chatStore });
+                                }
+                              }}
+                            />
+                          )}
+                        </div>
+                        
+                        <Button
+                          variant="destructive"
+                          className="w-full"
+                          onClick={() => {
+                            chatStore.chatPrice = null;
+                            setChatStore({ ...chatStore });
+                          }}
+                        >
+                          <Tr>Delete Custom Pricing</Tr>
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="text-center space-y-4">
+                        <p className="text-muted-foreground">
+                          <Tr>No custom pricing set</Tr>
+                        </p>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            chatStore.chatPrice = {
+                              prompt: 0,
+                              completion: 0,
+                              cached_prompt: undefined
+                            };
+                            setChatStore({ ...chatStore });
+                          }}
+                        >
+                          <Tr>Set Custom Pricing</Tr>
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="speech">

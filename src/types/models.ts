@@ -1,10 +1,12 @@
-interface Model {
+export interface Model {
   maxToken: number;
-  price: {
-    prompt: number;
-    completion: number;
-    cached_prompt?: number;
-  };
+  price: ModelPricing;
+}
+
+export interface ModelPricing {
+  prompt: number;
+  completion: number;
+  cached_prompt?: number;
 }
 
 const M = 1000 * 1000; // dollars per million tokens
