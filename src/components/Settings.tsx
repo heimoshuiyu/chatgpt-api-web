@@ -203,14 +203,14 @@ const CustomPricingInput = (props: {
     setDisplayValue(inputValue);
     const numValue = parseFloat(inputValue) || 0;
     let actualValue = numValue;
-    
+
     // Convert to per token price
     if (unit === "k") {
       actualValue = numValue / 1000;
     } else if (unit === "m") {
       actualValue = numValue / 1000000;
     }
-    
+
     props.onChange(actualValue);
   };
 
@@ -218,14 +218,14 @@ const CustomPricingInput = (props: {
     // Convert current display value to the new unit
     const currentValue = parseFloat(displayValue) || 0;
     let actualPerTokenValue = currentValue;
-    
+
     // First convert current display value to per token
     if (unit === "k") {
       actualPerTokenValue = currentValue / 1000;
     } else if (unit === "m") {
       actualPerTokenValue = currentValue / 1000000;
     }
-    
+
     // Then convert to new unit for display
     let newDisplayValue = actualPerTokenValue;
     if (newUnit === "k") {
@@ -233,7 +233,7 @@ const CustomPricingInput = (props: {
     } else if (newUnit === "m") {
       newDisplayValue = actualPerTokenValue * 1000000;
     }
-    
+
     setUnit(newUnit);
     const formattedValue = parseFloat(newDisplayValue.toFixed(10)).toString();
     setDisplayValue(formattedValue);
@@ -245,7 +245,10 @@ const CustomPricingInput = (props: {
         <Tr>{props.label}</Tr>
       </Label>
       <div className="flex gap-2">
-        <Input
+        <input
+          className={
+            "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+          }
           id={props.id}
           type="number"
           step="any"
@@ -253,7 +256,6 @@ const CustomPricingInput = (props: {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             handleValueChange(e.target.value);
           }}
-          className="flex-1"
         />
         <Select value={unit} onValueChange={handleUnitChange}>
           <SelectTrigger className="w-32">
@@ -1378,7 +1380,9 @@ export default (props: {}) => {
                       <Tr>Custom Model Pricing</Tr>
                     </CardTitle>
                     <CardDescription>
-                      <Tr>Set custom pricing for your model (prices per token)</Tr>
+                      <Tr>
+                        Set custom pricing for your model (prices per token)
+                      </Tr>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -1395,7 +1399,7 @@ export default (props: {}) => {
                             }
                           }}
                         />
-                        
+
                         <CustomPricingInput
                           id="completion-price"
                           label="Completion Price"
@@ -1407,17 +1411,21 @@ export default (props: {}) => {
                             }
                           }}
                         />
-                        
+
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <Label htmlFor="cached-prompt-price">
                               <Tr>Cached Prompt Price</Tr> (optional)
                             </Label>
                             <Checkbox
-                              checked={chatStore.chatPrice.cached_prompt !== undefined}
+                              checked={
+                                chatStore.chatPrice.cached_prompt !== undefined
+                              }
                               onCheckedChange={(checked) => {
                                 if (chatStore.chatPrice) {
-                                  chatStore.chatPrice.cached_prompt = checked ? 0 : undefined;
+                                  chatStore.chatPrice.cached_prompt = checked
+                                    ? 0
+                                    : undefined;
                                   setChatStore({ ...chatStore });
                                 }
                               }}
@@ -1437,7 +1445,7 @@ export default (props: {}) => {
                             />
                           )}
                         </div>
-                        
+
                         <Button
                           variant="destructive"
                           className="w-full"
@@ -1460,7 +1468,7 @@ export default (props: {}) => {
                             chatStore.chatPrice = {
                               prompt: 0,
                               completion: 0,
-                              cached_prompt: undefined
+                              cached_prompt: undefined,
                             };
                             setChatStore({ ...chatStore });
                           }}
