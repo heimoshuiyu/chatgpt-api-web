@@ -160,6 +160,28 @@ const LANG_MAP: Record<string, string> = {
   "Per token": "每个token",
   "Per k tokens": "每千个token",
   "Per m tokens": "每百万个token",
+  "Tools configuration is currently controlled by MCP functionality. Connected":
+    "工具配置目前由 MCP 功能控制。已连接",
+  "MCP servers, providing": "个 MCP 服务器，提供",
+  "tools. To edit tool configuration, please disconnect all MCP connections first.":
+    "个工具。如需编辑工具配置，请先断开所有 MCP 连接。",
+  "When MCP connections exist, tool configuration is automatically managed by MCP functionality, including existing tools and all connected MCP server tools.":
+    "当有 MCP 连接时，工具配置由 MCP 功能自动管理，包含现有工具和所有已连接 MCP 服务器的工具。",
+  "Tool Call": "工具调用",
+  "Tool call failed": "工具调用失败",
+  "Tool call ID is missing": "工具调用 ID 缺失",
+  "MCP tool not found": "未找到 MCP 工具",
+  "Tool arguments are not valid JSON format": "工具参数不是有效的 JSON 格式",
+  "MCP tool call failed": "MCP 工具调用失败",
+  "MCP tool call succeeded": "MCP 工具调用成功",
+  "Successfully called": "成功调用",
+  tool: "工具",
+  "Unknown error": "未知错误",
+  "Calling...": "调用中...",
+  "Call MCP Tool": "调用 MCP 工具",
+  Type: "类型",
+  Function: "函数",
+  Arguments: "参数",
 };
 
 export default LANG_MAP;

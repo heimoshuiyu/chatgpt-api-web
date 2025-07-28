@@ -17,10 +17,11 @@ interface LongInputProps {
   field: "systemMessageContent" | "toolsString";
   label: string;
   help: string;
+  disabled?: boolean;
 }
 
 export const LongInput: React.FC<LongInputProps> = React.memo(
-  ({ field, label, help }) => {
+  ({ field, label, help, disabled = false }) => {
     const { chatStore, setChatStore } = useContext(AppChatStoreContext);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [localValue, setLocalValue] = useState(chatStore[field]);
@@ -38,11 +39,13 @@ export const LongInput: React.FC<LongInputProps> = React.memo(
     }, [chatStore[field]]);
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setLocalValue(event.target.value);
+      if (!disabled) {
+        setLocalValue(event.target.value);
+      }
     };
 
     const handleBlur = () => {
-      if (localValue !== chatStore[field]) {
+      if (!disabled && localValue !== chatStore[field]) {
         chatStore[field] = localValue;
         setChatStore({ ...chatStore });
       }
@@ -74,6 +77,7 @@ export const LongInput: React.FC<LongInputProps> = React.memo(
           value={localValue}
           onChange={handleChange}
           onBlur={handleBlur}
+          disabled={disabled}
         />
       </div>
     );

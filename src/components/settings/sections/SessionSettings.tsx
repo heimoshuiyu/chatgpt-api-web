@@ -27,13 +27,30 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CheckIcon, BanIcon, SaveIcon } from "lucide-react";
+import {
+  CheckIcon,
+  BanIcon,
+  SaveIcon,
+  InfoIcon,
+  WrenchIcon,
+} from "lucide-react";
 import { LongInput } from "../ui/LongInput";
-import { Tr } from "@/translate";
+import { Tr, tr, langCodeContext } from "@/translate";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const SessionSettings: React.FC = () => {
   const { chatStore } = useContext(AppChatStoreContext);
   const { templateTools, setTemplateTools } = useContext(AppContext);
+  const { langCode } = useContext(langCodeContext);
+
+  // 检查是否有已连接的 MCP 服务器
+  const connectedMCPServers =
+    chatStore.mcpConnections?.filter((conn) => conn.connected) || [];
+  const hasMCPConnections = connectedMCPServers.length > 0;
+  const totalTools = connectedMCPServers.reduce(
+    (sum, conn) => sum + conn.tools.length,
+    0
+  );
 
   return (
     <AccordionItem value="session">
@@ -64,10 +81,27 @@ export const SessionSettings: React.FC = () => {
           help="System prompt, used to indicate the role of ChatGPT and some preconditions, such as 'You are a helpful AI assistant' or 'You are a professional English translator, translate my words into English', please refer to the OpenAI API documentation"
         />
 
+        {hasMCPConnections && (
+          <Alert className="my-4">
+            <WrenchIcon className="h-4 w-4" />
+            <AlertDescription>
+              {`${tr("Tools configuration is currently controlled by MCP functionality. Connected", langCode)} ${connectedMCPServers.length} ${tr("MCP servers, providing", langCode)} ${totalTools} ${tr("tools. To edit tool configuration, please disconnect all MCP connections first.", langCode)}`}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <LongInput
           label="Tools String"
           field="toolsString"
-          help="function call tools, should be valid json format in list"
+          help={
+            hasMCPConnections
+              ? tr(
+                  "When MCP connections exist, tool configuration is automatically managed by MCP functionality, including existing tools and all connected MCP server tools.",
+                  langCode
+                )
+              : "function call tools, should be valid json format in list"
+          }
+          disabled={hasMCPConnections}
         />
 
         <span className="pt-1">
@@ -81,7 +115,7 @@ export const SessionSettings: React.FC = () => {
 
         <div className="box">
           <div className="flex justify-evenly flex-wrap">
-            {chatStore.toolsString.trim() && (
+            {chatStore.toolsString.trim() && !hasMCPConnections && (
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="outline">

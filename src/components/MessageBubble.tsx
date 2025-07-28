@@ -15,7 +15,7 @@ import {
 import { ChatStoreMessage } from "@/types/chatstore";
 import { addTotalCost } from "@/utils/totalCost";
 
-import { Tr } from "@/translate";
+import { Tr, tr, langCodeContext } from "@/translate";
 import { getMessageText } from "@/chatgpt";
 import { EditMessage } from "@/components/editMessage";
 import logprobToColor from "@/utils/logprob";
@@ -128,6 +128,7 @@ interface ToolCallMessageProps {
 function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
   const { toast } = useToast();
+  const { langCode } = useContext(langCodeContext);
   const [callingTools, setCallingTools] = useState<{ [key: string]: boolean }>(
     {}
   );
@@ -138,8 +139,8 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
 
     if (!toolId) {
       toast({
-        title: "工具调用失败",
-        description: "工具调用 ID 缺失",
+        title: tr("Tool call failed", langCode),
+        description: tr("Tool call ID is missing", langCode),
         variant: "destructive",
       });
       return;
@@ -162,8 +163,8 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
 
     if (!foundConnection || !foundTool) {
       toast({
-        title: "工具调用失败",
-        description: `未找到名为 "${toolName}" 的 MCP 工具`,
+        title: tr("Tool call failed", langCode),
+        description: `${tr("MCP tool not found", langCode)}: "${toolName}"`,
         variant: "destructive",
       });
       return;
@@ -183,7 +184,7 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
           toolCall.function.arguments
         );
         throw new Error(
-          `工具参数不是有效的 JSON 格式：${toolCall.function.arguments}`
+          `${tr("Tool arguments are not valid JSON format", langCode)}: ${toolCall.function.arguments}`
         );
       }
 
@@ -213,7 +214,7 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
 
       if (!response.ok) {
         throw new Error(
-          `MCP 工具调用失败: ${response.status} ${response.statusText}`
+          `${tr("MCP tool call failed", langCode)}: ${response.status} ${response.statusText}`
         );
       }
 
@@ -279,14 +280,17 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
       }
 
       toast({
-        title: "MCP 工具调用成功",
-        description: `成功调用 ${toolName} 工具`,
+        title: tr("MCP tool call succeeded", langCode),
+        description: `${tr("Successfully called", langCode)} ${toolName} ${tr("tool", langCode)}`,
       });
     } catch (error) {
       console.error("MCP tool call error:", error);
       toast({
-        title: "MCP 工具调用失败",
-        description: error instanceof Error ? error.message : "未知错误",
+        title: tr("MCP tool call failed", langCode),
+        description:
+          error instanceof Error
+            ? error.message
+            : tr("Unknown error", langCode),
         variant: "destructive",
       });
     } finally {
@@ -302,7 +306,9 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
           className="bg-blue-300 dark:bg-blue-800 p-3 rounded my-2"
         >
           <div className="flex items-center justify-between mb-2">
-            <strong className="text-sm">Tool Call</strong>
+            <strong className="text-sm">
+              <Tr>Tool Call</Tr>
+            </strong>
             <Button
               size="sm"
               variant="secondary"
@@ -313,10 +319,10 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
               {tool_call.id && callingTools[tool_call.id] ? (
                 <>
                   <LoaderCircleIcon className="h-4 w-4 animate-spin mr-1" />
-                  调用中...
+                  <Tr>Calling...</Tr>
                 </>
               ) : (
-                "调用 MCP 工具"
+                <Tr>Call MCP Tool</Tr>
               )}
             </Button>
           </div>
@@ -331,11 +337,15 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
               </span>
             </p>
             <p>
-              <strong>Type: </strong>
+              <strong>
+                <Tr>Type</Tr>:{" "}
+              </strong>
               {tool_call?.type}
             </p>
             <p>
-              <strong>Function: </strong>
+              <strong>
+                <Tr>Function</Tr>:{" "}
+              </strong>
               <span
                 className="p-1 rounded cursor-pointer hover:opacity-50 hover:underline bg-white/20"
                 onClick={() => copyToClipboard(tool_call.function.name)}
@@ -344,7 +354,9 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
               </span>
             </p>
             <div>
-              <strong>Arguments:</strong>
+              <strong>
+                <Tr>Arguments</Tr>:
+              </strong>
               <pre
                 className="mt-1 p-2 rounded cursor-pointer hover:opacity-50 hover:underline bg-white/20 text-xs overflow-auto"
                 onClick={() => copyToClipboard(tool_call.function.arguments)}
