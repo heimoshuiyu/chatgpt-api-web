@@ -149,7 +149,8 @@ const LANG_MAP: Record<string, string> = {
   "Import Configuration": "导入配置",
   cancel: "取消",
   "Custom Model Pricing": "自定义模型定价",
-  "Set custom pricing for your model (prices per token)": "为您的模型设置自定义定价（每token价格）",
+  "Set custom pricing for your model (prices per token)":
+    "为您的模型设置自定义定价（每token价格）",
   "Prompt Price": "提示价格",
   "Completion Price": "补全价格",
   "Cached Prompt Price": "缓存提示价格",

@@ -298,7 +298,7 @@ export default function ChatBOX() {
       token: data.usage?.completion_tokens_details
         ? data.usage.completion_tokens -
           data.usage.completion_tokens_details.reasoning_tokens
-        : data.usage.completion_tokens ?? calculate_token_length(msg.content),
+        : (data.usage.completion_tokens ?? calculate_token_length(msg.content)),
       example: false,
       audio: null,
       logprobs: data.choices[0]?.logprobs,
@@ -414,8 +414,7 @@ export default function ChatBOX() {
 
         // Use custom pricing if available, otherwise fall back to model pricing
         const pricing =
-          chatStore.chatPrice ||
-          models[usage.response_model_name ?? ""]?.price;
+          chatStore.chatPrice || models[usage.response_model_name ?? ""]?.price;
 
         if (!pricing) {
           console.warn(
