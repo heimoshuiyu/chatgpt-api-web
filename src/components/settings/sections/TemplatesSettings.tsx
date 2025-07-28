@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AppContext } from "@/pages/App";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { SaveIcon } from "lucide-react";
 import { Tr } from "@/translate";
 
 const APIShowBlock = (props: {
@@ -160,6 +172,146 @@ const ToolsShowBlock = (props: {
   );
 };
 
+const MCPServerShowBlock = (props: {
+  index: number;
+  label: string;
+  serverUrl: string;
+}) => {
+  const { templateMCPServers, setTemplateMCPServers } = useContext(AppContext);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  const handleEdit = () => {
+    const nameInput = document.getElementById(`editMcpServerName_${props.index}`) as HTMLInputElement;
+    const urlInput = document.getElementById(`editMcpServerUrl_${props.index}`) as HTMLInputElement;
+    const nameError = document.getElementById(`editMcpServerNameError_${props.index}`) as HTMLLabelElement;
+    const urlError = document.getElementById(`editMcpServerUrlError_${props.index}`) as HTMLLabelElement;
+
+    // 清除之前的错误信息
+    if (nameError) nameError.textContent = "";
+    if (urlError) urlError.textContent = "";
+
+    if (!nameInput.value.trim()) {
+      if (nameError) {
+        nameError.textContent = "MCP Server 名称不能为空";
+      }
+      return;
+    }
+
+    if (!urlInput.value.trim()) {
+      if (urlError) {
+        urlError.textContent = "MCP Server URL 不能为空";
+      }
+      return;
+    }
+
+    const updatedServers = [...templateMCPServers];
+    updatedServers[props.index] = {
+      name: nameInput.value.trim(),
+      serverUrl: urlInput.value.trim(),
+    };
+    setTemplateMCPServers(updatedServers);
+    setEditDialogOpen(false);
+  };
+
+  const openEditDialog = () => {
+    setEditDialogOpen(true);
+    // 在下一个事件循环中设置初始值
+    setTimeout(() => {
+      const nameInput = document.getElementById(`editMcpServerName_${props.index}`) as HTMLInputElement;
+      const urlInput = document.getElementById(`editMcpServerUrl_${props.index}`) as HTMLInputElement;
+      if (nameInput) nameInput.value = props.label;
+      if (urlInput) urlInput.value = props.serverUrl;
+    }, 0);
+  };
+
+  return (
+    <div className="border-b border-gray-200 pb-4 pt-4">
+      <Badge variant="outline">MCP Server</Badge> <Label>{props.label}</Label>
+      <div className="mt-4">
+        <div className="grid w-full max-w-sm items-center gap-1.5 mt-2">
+          <Label>Server URL</Label>
+          <div className="w-72">
+            <pre className="text-xs whitespace-pre-wrap">{props.serverUrl}</pre>
+          </div>
+        </div>
+      </div>
+      
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-2 mr-2"
+            onClick={openEditDialog}
+          >
+            编辑
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>编辑 MCP Server</DialogTitle>
+            <DialogDescription>
+              修改 MCP Server 的名称和 URL 地址。
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col space-y-4">
+            <div className="grid gap-2">
+              <Label htmlFor={`editMcpServerName_${props.index}`}>名称</Label>
+              <Input 
+                id={`editMcpServerName_${props.index}`}
+                placeholder="请输入 MCP Server 名称..." 
+              />
+              <Label id={`editMcpServerNameError_${props.index}`} className="text-red-600 text-sm"></Label>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor={`editMcpServerUrl_${props.index}`}>Server URL</Label>
+              <Input 
+                id={`editMcpServerUrl_${props.index}`}
+                placeholder="请输入 MCP Server URL..." 
+              />
+              <Label id={`editMcpServerUrlError_${props.index}`} className="text-red-600 text-sm"></Label>
+            </div>
+          </div>
+          <DialogFooter className="sm:justify-start">
+            <DialogClose asChild>
+              <Button variant="outline">
+                取消
+              </Button>
+            </DialogClose>
+            <Button
+              type="submit"
+              size="sm"
+              className="px-3"
+              onClick={handleEdit}
+            >
+              <SaveIcon className="w-4 h-4" /> 保存
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Button
+        variant="destructive"
+        size="sm"
+        className="mt-2"
+        onClick={() => {
+          if (
+            !confirm(
+              `确定要删除 ${props.label} MCP Server 吗？`
+            )
+          ) {
+            return;
+          }
+          templateMCPServers.splice(props.index, 1);
+          setTemplateMCPServers(structuredClone(templateMCPServers));
+        }}
+      >
+        删除
+      </Button>
+    </div>
+  );
+};
+
 export const TemplatesSettings: React.FC = () => {
   const {
     templateAPIs,
@@ -167,7 +319,48 @@ export const TemplatesSettings: React.FC = () => {
     templateAPIsTTS,
     templateAPIsImageGen,
     templateTools,
+    templateMCPServers,
+    setTemplateMCPServers,
   } = useContext(AppContext);
+
+  const [mcpDialogOpen, setMcpDialogOpen] = useState(false);
+
+  const handleAddMCPServer = () => {
+    const nameInput = document.getElementById("mcpServerName") as HTMLInputElement;
+    const urlInput = document.getElementById("mcpServerUrl") as HTMLInputElement;
+    const nameError = document.getElementById("mcpServerNameError") as HTMLLabelElement;
+    const urlError = document.getElementById("mcpServerUrlError") as HTMLLabelElement;
+
+    // 清除之前的错误信息
+    if (nameError) nameError.textContent = "";
+    if (urlError) urlError.textContent = "";
+
+    if (!nameInput.value.trim()) {
+      if (nameError) {
+        nameError.textContent = "MCP Server 名称不能为空";
+      }
+      return;
+    }
+
+    if (!urlInput.value.trim()) {
+      if (urlError) {
+        urlError.textContent = "MCP Server URL 不能为空";
+      }
+      return;
+    }
+
+    const newMCPServer = {
+      name: nameInput.value.trim(),
+      serverUrl: urlInput.value.trim(),
+    };
+
+    setTemplateMCPServers([...templateMCPServers, newMCPServer]);
+    
+    // 清空输入框
+    nameInput.value = "";
+    urlInput.value = "";
+    setMcpDialogOpen(false);
+  };
 
   return (
     <AccordionItem value="templates">
@@ -175,6 +368,61 @@ export const TemplatesSettings: React.FC = () => {
         <Tr>Saved Template</Tr>
       </AccordionTrigger>
       <AccordionContent>
+        <div className="mb-4">
+          <Dialog open={mcpDialogOpen} onOpenChange={setMcpDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mb-2"
+              >
+                添加 MCP Server
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>添加 MCP Server</DialogTitle>
+                <DialogDescription>
+                  请输入 MCP Server 的名称和 URL 地址。
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex flex-col space-y-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="mcpServerName">名称</Label>
+                  <Input 
+                    id="mcpServerName" 
+                    placeholder="请输入 MCP Server 名称..." 
+                  />
+                  <Label id="mcpServerNameError" className="text-red-600 text-sm"></Label>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="mcpServerUrl">Server URL</Label>
+                  <Input 
+                    id="mcpServerUrl" 
+                    placeholder="请输入 MCP Server URL..." 
+                  />
+                  <Label id="mcpServerUrlError" className="text-red-600 text-sm"></Label>
+                </div>
+              </div>
+              <DialogFooter className="sm:justify-start">
+                <DialogClose asChild>
+                  <Button variant="outline">
+                    取消
+                  </Button>
+                </DialogClose>
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="px-3"
+                  onClick={handleAddMCPServer}
+                >
+                  <SaveIcon className="w-4 h-4" /> 保存
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+        
         {templateAPIs.map((template, index) => (
           <div key={index}>
             <APIShowBlock
@@ -225,6 +473,15 @@ export const TemplatesSettings: React.FC = () => {
               index={index}
               label={template.name}
               content={template.toolsString}
+            />
+          </div>
+        ))}
+        {templateMCPServers.map((template, index) => (
+          <div key={index}>
+            <MCPServerShowBlock
+              index={index}
+              label={template.name}
+              serverUrl={template.serverUrl}
             />
           </div>
         ))}

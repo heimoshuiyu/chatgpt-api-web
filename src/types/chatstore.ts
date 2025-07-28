@@ -62,6 +62,11 @@ export interface TemplateTools {
   toolsString: string;
 }
 
+export interface TemplateMCPServer {
+  name: string;
+  serverUrl: string;
+}
+
 /**
  * ChatStoreMessage extends the Message type defined by OpenAI.
  * It adds more fields to be stored within the ChatStore structure.

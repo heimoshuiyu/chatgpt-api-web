@@ -21,12 +21,14 @@ import {
   STORAGE_NAME_TEMPLATE_API_TTS,
   STORAGE_NAME_TEMPLATE_API_WHISPER,
   STORAGE_NAME_TEMPLATE_TOOLS,
+  STORAGE_NAME_TEMPLATE_MCP_SERVERS,
 } from "@/const";
 import {
   ChatStoreMessage,
   TemplateChatStore,
   TemplateAPI,
   TemplateTools,
+  TemplateMCPServer,
 } from "../types/chatstore";
 
 interface AppContextType {
@@ -45,6 +47,8 @@ interface AppContextType {
   setTemplateAPIsImageGen: (t: TemplateAPI[]) => void;
   templateTools: TemplateTools[];
   setTemplateTools: (t: TemplateTools[]) => void;
+  templateMCPServers: TemplateMCPServer[];
+  setTemplateMCPServers: (t: TemplateMCPServer[]) => void;
   defaultRenderMD: boolean;
   setDefaultRenderMD: (b: boolean) => void;
   handleNewChatStore: () => Promise<void>;
@@ -281,6 +285,11 @@ export function App() {
       localStorage.getItem(STORAGE_NAME_TEMPLATE_TOOLS) || "[]"
     ) as TemplateTools[]
   );
+  const [templateMCPServers, _setTemplateMCPServers] = useState(
+    JSON.parse(
+      localStorage.getItem(STORAGE_NAME_TEMPLATE_MCP_SERVERS) || "[]"
+    ) as TemplateMCPServer[]
+  );
   const setTemplates = (templates: TemplateChatStore[]) => {
     localStorage.setItem(STORAGE_NAME_TEMPLATE, JSON.stringify(templates));
     _setTemplates(templates);
@@ -320,6 +329,13 @@ export function App() {
     );
     _setTemplateTools(templateTools);
   };
+  const setTemplateMCPServers = (templateMCPServers: TemplateMCPServer[]) => {
+    localStorage.setItem(
+      STORAGE_NAME_TEMPLATE_MCP_SERVERS,
+      JSON.stringify(templateMCPServers)
+    );
+    _setTemplateMCPServers(templateMCPServers);
+  };
   const [defaultRenderMD, _setDefaultRenderMD] = useState(
     localStorage.getItem("defaultRenderMD") === "true"
   );
@@ -348,6 +364,8 @@ export function App() {
         setTemplateAPIsImageGen,
         templateTools,
         setTemplateTools,
+        templateMCPServers,
+        setTemplateMCPServers,
         defaultRenderMD,
         setDefaultRenderMD,
         handleNewChatStore,
