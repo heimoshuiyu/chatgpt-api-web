@@ -177,7 +177,14 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
       try {
         toolArguments = JSON.parse(toolCall.function.arguments);
       } catch (e) {
-        throw new Error("工具参数格式错误：" + toolCall.function.arguments);
+        // 如果参数不是有效的 JSON，给出明确的错误信息
+        console.warn(
+          "Tool arguments is not valid JSON:",
+          toolCall.function.arguments
+        );
+        throw new Error(
+          `工具参数不是有效的 JSON 格式：${toolCall.function.arguments}`
+        );
       }
 
       // 构建 MCP tools/call 请求
