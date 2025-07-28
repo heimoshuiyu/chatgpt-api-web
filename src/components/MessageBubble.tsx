@@ -184,7 +184,9 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
           toolCall.function.arguments
         );
         throw new Error(
-          `${tr("Tool arguments are not valid JSON format", langCode)}: ${toolCall.function.arguments}`
+          `${tr("Tool arguments are not valid JSON format", langCode)}: ${
+            toolCall.function.arguments
+          }`
         );
       }
 
@@ -214,7 +216,9 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
 
       if (!response.ok) {
         throw new Error(
-          `${tr("MCP tool call failed", langCode)}: ${response.status} ${response.statusText}`
+          `${tr("MCP tool call failed", langCode)}: ${response.status} ${
+            response.statusText
+          }`
         );
       }
 
@@ -281,7 +285,10 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
 
       toast({
         title: tr("MCP tool call succeeded", langCode),
-        description: `${tr("Successfully called", langCode)} ${toolName} ${tr("tool", langCode)}`,
+        description: `${tr("Successfully called", langCode)} ${toolName} ${tr(
+          "tool",
+          langCode
+        )}`,
       });
     } catch (error) {
       console.error("MCP tool call error:", error);
@@ -381,11 +388,12 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
               </div>
             </div>
           ))}
-          {chat.content && (
-            <div className="text-sm text-muted-foreground">
-              {chat.content as string}
-            </div>
-          )}
+          {typeof chat.content === "string" &&
+            (chat.content as string).trim() && (
+              <div className="text-sm text-muted-foreground">
+                {chat.content as string}
+              </div>
+            )}
         </div>
       </ChatBubbleMessage>
     </ChatBubble>
@@ -402,7 +410,7 @@ function MessageToolResp({ chat, copyToClipboard }: ToolRespondMessageProps) {
       variant="sent"
       className="flex-row-reverse border-gray-200 dark:border-gray-800 !bg-gray-50 dark:!bg-gray-900/40"
     >
-      <ChatBubbleMessage isLoading={false}>
+      <ChatBubbleMessage isLoading={false} className="p-0">
         <div className="bg-gray-100 dark:bg-gray-800/50 p-3 rounded border border-gray-300 dark:border-gray-600">
           <div className="mb-2">
             <strong className="text-sm text-gray-800 dark:text-gray-200">
