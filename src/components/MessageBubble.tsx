@@ -299,87 +299,96 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
   };
 
   return (
-    <div className="message-content">
-      {chat.tool_calls?.map((tool_call) => (
-        <div
-          key={tool_call.id}
-          className="bg-blue-300 dark:bg-blue-800 p-3 rounded my-2"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <strong className="text-sm">
-              <Tr>Tool Call</Tr>
-            </strong>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => callMCPTool(tool_call)}
-              disabled={tool_call.id ? callingTools[tool_call.id] : false}
-              className="ml-2"
+    <ChatBubble className="border-gray-300 dark:border-gray-600">
+      <ChatBubbleMessage isLoading={false}>
+        <div className="space-y-3">
+          {chat.tool_calls?.map((tool_call) => (
+            <div
+              key={tool_call.id}
+              className="bg-gray-100 dark:bg-gray-800/50 p-3 rounded border border-gray-300 dark:border-gray-600"
             >
-              {tool_call.id && callingTools[tool_call.id] ? (
-                <>
-                  <LoaderCircleIcon className="h-4 w-4 animate-spin mr-1" />
-                  <Tr>Calling...</Tr>
-                </>
-              ) : (
-                <Tr>Call MCP Tool</Tr>
-              )}
-            </Button>
-          </div>
-          <div className="space-y-1 text-sm">
-            <p>
-              <strong>ID: </strong>
-              <span
-                className="p-1 rounded cursor-pointer hover:opacity-50 hover:underline bg-white/20"
-                onClick={() => copyToClipboard(String(tool_call.id))}
-              >
-                {tool_call?.id}
-              </span>
-            </p>
-            <p>
-              <strong>
-                <Tr>Type</Tr>:{" "}
-              </strong>
-              {tool_call?.type}
-            </p>
-            <p>
-              <strong>
-                <Tr>Function</Tr>:{" "}
-              </strong>
-              <span
-                className="p-1 rounded cursor-pointer hover:opacity-50 hover:underline bg-white/20"
-                onClick={() => copyToClipboard(tool_call.function.name)}
-              >
-                {tool_call.function.name}
-              </span>
-            </p>
-            <div>
-              <strong>
-                <Tr>Arguments</Tr>:
-              </strong>
-              <pre
-                className="mt-1 p-2 rounded cursor-pointer hover:opacity-50 hover:underline bg-white/20 text-xs overflow-auto"
-                onClick={() => copyToClipboard(tool_call.function.arguments)}
-              >
-                {(() => {
-                  try {
-                    return JSON.stringify(
-                      JSON.parse(tool_call.function.arguments),
-                      null,
-                      2
-                    );
-                  } catch {
-                    return tool_call.function.arguments;
-                  }
-                })()}
-              </pre>
+              <div className="flex items-center justify-between mb-2">
+                <strong className="text-sm text-gray-800 dark:text-gray-200">
+                  <Tr>Tool Call</Tr>
+                </strong>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => callMCPTool(tool_call)}
+                  disabled={tool_call.id ? callingTools[tool_call.id] : false}
+                  className="ml-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+                >
+                  {tool_call.id && callingTools[tool_call.id] ? (
+                    <>
+                      <LoaderCircleIcon className="h-4 w-4 animate-spin mr-1" />
+                      <Tr>Calling...</Tr>
+                    </>
+                  ) : (
+                    <Tr>Call MCP Tool</Tr>
+                  )}
+                </Button>
+              </div>
+              <div className="space-y-1 text-sm">
+                <p>
+                  <strong>ID: </strong>
+                  <span
+                    className="p-1 rounded cursor-pointer hover:opacity-70 hover:underline bg-gray-200/70 dark:bg-gray-700/70"
+                    onClick={() => copyToClipboard(String(tool_call.id))}
+                  >
+                    {tool_call?.id}
+                  </span>
+                </p>
+                <p>
+                  <strong>
+                    <Tr>Type</Tr>:{" "}
+                  </strong>
+                  {tool_call?.type}
+                </p>
+                <p>
+                  <strong>
+                    <Tr>Function</Tr>:{" "}
+                  </strong>
+                  <span
+                    className="p-1 rounded cursor-pointer hover:opacity-70 hover:underline bg-gray-200/70 dark:bg-gray-700/70"
+                    onClick={() => copyToClipboard(tool_call.function.name)}
+                  >
+                    {tool_call.function.name}
+                  </span>
+                </p>
+                <div>
+                  <strong>
+                    <Tr>Arguments</Tr>:
+                  </strong>
+                  <pre
+                    className="mt-1 p-2 rounded cursor-pointer hover:opacity-70 hover:underline bg-gray-200/70 dark:bg-gray-700/70 text-xs overflow-auto"
+                    onClick={() =>
+                      copyToClipboard(tool_call.function.arguments)
+                    }
+                  >
+                    {(() => {
+                      try {
+                        return JSON.stringify(
+                          JSON.parse(tool_call.function.arguments),
+                          null,
+                          2
+                        );
+                      } catch {
+                        return tool_call.function.arguments;
+                      }
+                    })()}
+                  </pre>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
+          {chat.content && (
+            <div className="text-sm text-muted-foreground">
+              {chat.content as string}
+            </div>
+          )}
         </div>
-      ))}
-      {/* [TODO] */}
-      {chat.content as string}
-    </div>
+      </ChatBubbleMessage>
+    </ChatBubble>
   );
 }
 
@@ -389,21 +398,31 @@ interface ToolRespondMessageProps {
 }
 function MessageToolResp({ chat, copyToClipboard }: ToolRespondMessageProps) {
   return (
-    <div className="message-content">
-      <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded my-1">
-        <strong>
-          Tool Response ID:{" "}
-          <span
-            className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
-            onClick={() => copyToClipboard(String(chat.tool_call_id))}
-          >
-            {chat.tool_call_id}
-          </span>
-        </strong>
-        {/* [TODO] */}
-        <p>{chat.content as string}</p>
-      </div>
-    </div>
+    <ChatBubble
+      variant="sent"
+      className="flex-row-reverse border-gray-200 dark:border-gray-800 !bg-gray-50 dark:!bg-gray-900/40"
+    >
+      <ChatBubbleMessage isLoading={false}>
+        <div className="bg-gray-100 dark:bg-gray-800/50 p-3 rounded border border-gray-300 dark:border-gray-600">
+          <div className="mb-2">
+            <strong className="text-sm text-gray-800 dark:text-gray-200">
+              Tool Response ID:{" "}
+              <span
+                className="p-1 mx-1 rounded cursor-pointer hover:opacity-70 hover:underline bg-gray-200/70 dark:bg-gray-700/70"
+                onClick={() => copyToClipboard(String(chat.tool_call_id))}
+              >
+                {chat.tool_call_id}
+              </span>
+            </strong>
+          </div>
+          <div className="text-sm">
+            <pre className="whitespace-pre-wrap font-sans text-gray-900 dark:text-gray-100">
+              {chat.content as string}
+            </pre>
+          </div>
+        </div>
+      </ChatBubbleMessage>
+    </ChatBubble>
   );
 }
 
