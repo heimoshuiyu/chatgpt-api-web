@@ -26,6 +26,7 @@ import { WhisperSettings } from "./settings/sections/WhisperSettings";
 import { TTSSettings } from "./settings/sections/TTSSettings";
 import { ImageGenSettings } from "./settings/sections/ImageGenSettings";
 import { TemplatesSettings } from "./settings/sections/TemplatesSettings";
+import { ThemeSettings } from "./settings/sections/ThemeSettings";
 
 export default function Settings() {
   const { chatStore } = useContext(AppChatStoreContext);
@@ -70,6 +71,7 @@ export default function Settings() {
           <Accordion type="multiple" className="w-full">
             <SessionSettings />
             <SystemSettings />
+            <ThemeSettings />
             <ChatSettings />
             <PricingSettings />
             <WhisperSettings />
