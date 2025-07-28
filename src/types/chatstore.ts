@@ -44,6 +44,7 @@ export interface ChatStore {
   json_mode: boolean;
   logprobs: boolean;
   contents_for_index: string[];
+  selectedMCPServers: string[]; // Array of selected MCP server URLs
   chatPrice?: ModelPricing;
 }
 
@@ -64,7 +65,7 @@ export interface TemplateTools {
 
 export interface TemplateMCPServer {
   name: string;
-  serverUrl: string;
+  configJson: string; // JSON string containing the MCP server configuration
 }
 
 /**

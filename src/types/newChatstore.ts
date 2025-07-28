@@ -83,6 +83,7 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     tts_format: options.tts_format ?? "mp3",
     logprobs: options.logprobs ?? false,
     contents_for_index: [],
+    selectedMCPServers: [], // Default to empty array
     chatPrice: options.chatPrice ?? undefined,
   };
 };

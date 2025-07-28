@@ -136,6 +136,7 @@ export function App() {
     if (ret.maxGenTokens_enabled === undefined) ret.maxGenTokens_enabled = true;
     if (ret.model === undefined) ret.model = DefaultModel;
     if (ret.toolsString === undefined) ret.toolsString = "";
+    if (ret.selectedMCPServers === undefined) ret.selectedMCPServers = [];
     if (ret.chatgpt_api_web_version === undefined)
       // this is from old version becasue it is undefined,
       // so no higher than v1.3.0
