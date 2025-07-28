@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { AppContext } from "@/pages/App";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { SaveIcon } from "lucide-react";
 import { Tr } from "@/translate";
-import { MCPServerShowBlock, MCPServerAddDialog } from "./MCPServerSettings";
 
 const APIShowBlock = (props: {
   index: number;
@@ -180,10 +179,7 @@ export const TemplatesSettings: React.FC = () => {
     templateAPIsTTS,
     templateAPIsImageGen,
     templateTools,
-    templateMCPServers,
   } = useContext(AppContext);
-
-  const [mcpDialogOpen, setMcpDialogOpen] = useState(false);
 
   return (
     <AccordionItem value="templates">
@@ -191,20 +187,6 @@ export const TemplatesSettings: React.FC = () => {
         <Tr>Saved Template</Tr>
       </AccordionTrigger>
       <AccordionContent>
-        <div className="mb-4">
-          <Dialog open={mcpDialogOpen} onOpenChange={setMcpDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="mb-2">
-                添加 MCP Server
-              </Button>
-            </DialogTrigger>
-          </Dialog>
-          <MCPServerAddDialog
-            open={mcpDialogOpen}
-            onOpenChange={setMcpDialogOpen}
-          />
-        </div>
-
         {templateAPIs.map((template, index) => (
           <div key={index}>
             <APIShowBlock
@@ -255,15 +237,6 @@ export const TemplatesSettings: React.FC = () => {
               index={index}
               label={template.name}
               content={template.toolsString}
-            />
-          </div>
-        ))}
-        {templateMCPServers.map((template, index) => (
-          <div key={index}>
-            <MCPServerShowBlock
-              index={index}
-              label={template.name}
-              configJson={template.configJson}
             />
           </div>
         ))}

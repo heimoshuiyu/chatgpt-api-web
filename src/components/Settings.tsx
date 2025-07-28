@@ -26,6 +26,7 @@ import { WhisperSettings } from "./settings/sections/WhisperSettings";
 import { TTSSettings } from "./settings/sections/TTSSettings";
 import { ImageGenSettings } from "./settings/sections/ImageGenSettings";
 import { TemplatesSettings } from "./settings/sections/TemplatesSettings";
+import { MCPSettings } from "./settings/sections/MCPSettings";
 import { ThemeSettings } from "./settings/sections/ThemeSettings";
 
 export default function Settings() {
@@ -78,6 +79,7 @@ export default function Settings() {
             <TTSSettings />
             <ImageGenSettings />
             <TemplatesSettings />
+            <MCPSettings />
           </Accordion>
           <div className="pt-4 space-y-2">
             <p className="text-sm text-muted-foreground text-center">
