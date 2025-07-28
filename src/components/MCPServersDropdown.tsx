@@ -143,7 +143,7 @@ function MCPHandshakeDialog({
       const responseText = await initResponse.text();
       let initResult;
 
-      if (responseText.includes("event: message")) {
+      if (responseText.includes("data: ")) {
         // 解析 SSE 格式
         const lines = responseText.split("\n");
         const dataLine = lines.find((line) => line.startsWith("data: "));
@@ -230,7 +230,7 @@ function MCPHandshakeDialog({
       const toolsResponseText = await toolsResponse.text();
       let toolsResult;
 
-      if (toolsResponseText.includes("event: message")) {
+      if (toolsResponseText.includes("data: ")) {
         // 解析 SSE 格式
         const lines = toolsResponseText.split("\n");
         const dataLine = lines.find((line) => line.startsWith("data: "));

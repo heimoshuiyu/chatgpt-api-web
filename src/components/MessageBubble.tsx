@@ -226,7 +226,7 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
       const responseText = await response.text();
       let mcpResult;
 
-      if (responseText.includes("event: message")) {
+      if (responseText.includes("data: ")) {
         // 解析 SSE 格式
         const lines = responseText.split("\n");
         const dataLine = lines.find((line) => line.startsWith("data: "));
