@@ -2,6 +2,30 @@ import { Logprobs, Message, MessageDetail, ToolCall, Usage } from "@/chatgpt";
 import { ModelPricing } from "./models";
 
 /**
+ * MCP Tool definition
+ */
+export interface MCPTool {
+  name: string;
+  description: string;
+  inputSchema: any;
+  outputSchema?: any;
+}
+
+/**
+ * MCP Server Connection information
+ */
+export interface MCPServerConnection {
+  serverName: string;
+  templateName: string;
+  config: any; // Server configuration (url, type, etc.)
+  sessionId: string;
+  tools: MCPTool[];
+  connected: boolean;
+  connectedAt: string; // ISO timestamp when connection was established
+  lastUsed?: string; // ISO timestamp when last used
+}
+
+/**
  * ChatStore is the main object of the chatgpt-api-web,
  * stored in IndexedDB and passed across various components.
  * It contains all the information needed for a conversation.
@@ -44,7 +68,8 @@ export interface ChatStore {
   json_mode: boolean;
   logprobs: boolean;
   contents_for_index: string[];
-  selectedMCPServers: string[]; // Array of selected MCP server URLs
+  selectedMCPServers: string[]; // Array of selected MCP server names (for backward compatibility)
+  mcpConnections: MCPServerConnection[]; // Detailed MCP connection information
   chatPrice?: ModelPricing;
 }
 

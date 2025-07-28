@@ -84,6 +84,7 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     logprobs: options.logprobs ?? false,
     contents_for_index: [],
     selectedMCPServers: [], // Default to empty array
+    mcpConnections: [], // Default to empty array for MCP connections
     chatPrice: options.chatPrice ?? undefined,
   };
 };

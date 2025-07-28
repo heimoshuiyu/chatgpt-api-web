@@ -315,7 +315,51 @@ export default function ChatBOX() {
     // manually copy status from chatStore to client
     client.apiEndpoint = chatStore.apiEndpoint;
     client.sysMessageContent = chatStore.systemMessageContent;
-    client.toolsString = chatStore.toolsString;
+
+    // Combine existing tools with MCP tools
+    let combinedToolsString = chatStore.toolsString;
+
+    // Collect tools from connected MCP servers
+    const connectedMCPServers =
+      chatStore.mcpConnections?.filter((conn) => conn.connected) || [];
+    if (connectedMCPServers.length > 0) {
+      const mcpTools: any[] = [];
+
+      // Convert MCP tools to the required format
+      connectedMCPServers.forEach((connection) => {
+        connection.tools.forEach((mcpTool) => {
+          mcpTools.push({
+            type: "function",
+            function: {
+              name: mcpTool.name,
+              description: mcpTool.description,
+              parameters: mcpTool.inputSchema,
+            },
+          });
+        });
+      });
+
+      // Merge with existing tools
+      let existingTools: any[] = [];
+      if (chatStore.toolsString.trim()) {
+        try {
+          existingTools = JSON.parse(chatStore.toolsString);
+        } catch (e) {
+          console.error("Error parsing existing toolsString:", e);
+          existingTools = [];
+        }
+      }
+
+      // Combine existing tools with MCP tools
+      const allTools = [...existingTools, ...mcpTools];
+      combinedToolsString = JSON.stringify(allTools);
+
+      console.log(
+        `Combined ${existingTools.length} existing tools with ${mcpTools.length} MCP tools from ${connectedMCPServers.length} servers`
+      );
+    }
+
+    client.toolsString = combinedToolsString;
     client.tokens_margin = chatStore.tokenMargin;
     client.temperature = chatStore.temperature;
     client.enable_temperature = chatStore.temperature_enabled;

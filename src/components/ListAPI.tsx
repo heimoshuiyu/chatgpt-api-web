@@ -4,6 +4,7 @@ import {
   TemplateAPI,
   TemplateChatStore,
   TemplateTools,
+  MCPServerConnection,
 } from "@/types/chatstore";
 import { Tr } from "@/translate";
 import Editor from "@monaco-editor/react";
@@ -28,7 +29,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { BrushIcon, DeleteIcon, EditIcon } from "lucide-react";
+import {
+  BrushIcon,
+  DeleteIcon,
+  EditIcon,
+  InfoIcon,
+  WrenchIcon,
+} from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { useToast } from "@/hooks/use-toast";
@@ -49,6 +56,8 @@ import { isVailedJSON } from "@/utils/isVailedJSON";
 import { toast } from "sonner";
 import { ConfirmationDialog } from "./ui/confirmation-dialog";
 import { MCPServersDropdownList } from "./MCPServersDropdown";
+import { Badge } from "./ui/badge";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface APITemplateDropdownProps {
   label: string;
@@ -645,12 +654,172 @@ function ChatTemplateDropdownList() {
   );
 }
 
+function ConnectedMCPServersInfo() {
+  const { chatStore } = useContext(AppChatStoreContext);
+  const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+  const [selectedConnection, setSelectedConnection] =
+    useState<MCPServerConnection | null>(null);
+
+  const connectedServers =
+    chatStore.mcpConnections?.filter((conn) => conn.connected) || [];
+
+  if (connectedServers.length === 0) {
+    return null;
+  }
+
+  const handleShowInfo = (connection: MCPServerConnection) => {
+    setSelectedConnection(connection);
+    setInfoDialogOpen(true);
+  };
+
+  const totalTools = connectedServers.reduce(
+    (sum, conn) => sum + conn.tools.length,
+    0
+  );
+
+  return (
+    <div className="flex items-center space-x-4 mx-3">
+      <p className="text-sm text-muted-foreground">已连接 MCP</p>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="w-[200px] justify-start">
+            <WrenchIcon className="w-4 h-4 mr-2" />
+            {connectedServers.length} 服务器 / {totalTools} 工具
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="p-0" side="bottom" align="start">
+          <Command>
+            <CommandInput placeholder="搜索已连接的服务器..." />
+            <CommandList>
+              <CommandEmpty>没有找到匹配的服务器</CommandEmpty>
+              <CommandGroup>
+                {connectedServers.map((connection, index) => (
+                  <CommandItem
+                    key={index}
+                    onSelect={() => handleShowInfo(connection)}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex flex-col">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm font-medium">
+                          {connection.serverName}
+                        </span>
+                        <Badge variant="default" className="text-xs">
+                          {connection.tools.length} 工具
+                        </Badge>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        来自: {connection.templateName}
+                      </span>
+                    </div>
+                    <InfoIcon className="h-4 w-4 text-blue-500" />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      {selectedConnection && (
+        <Dialog open={infoDialogOpen} onOpenChange={setInfoDialogOpen}>
+          <DialogContent className="max-w-3xl max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle>
+                MCP Server 详情: {selectedConnection.serverName}
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {/* 连接信息 */}
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="text-sm font-medium text-blue-900 mb-2">
+                  连接信息
+                </h4>
+                <div className="grid grid-cols-2 gap-2 text-xs text-blue-700">
+                  <div>
+                    服务器:{" "}
+                    <code className="bg-blue-100 px-1 rounded">
+                      {selectedConnection.config.url}
+                    </code>
+                  </div>
+                  <div>
+                    模板:{" "}
+                    <code className="bg-blue-100 px-1 rounded">
+                      {selectedConnection.templateName}
+                    </code>
+                  </div>
+                  <div>
+                    Session ID:{" "}
+                    <code className="bg-blue-100 px-1 rounded">
+                      {selectedConnection.sessionId}
+                    </code>
+                  </div>
+                  <div>
+                    连接时间:{" "}
+                    <code className="bg-blue-100 px-1 rounded">
+                      {new Date(
+                        selectedConnection.connectedAt
+                      ).toLocaleString()}
+                    </code>
+                  </div>
+                </div>
+              </div>
+
+              {/* 工具列表 */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium">
+                  可用工具 ({selectedConnection.tools.length})
+                </h4>
+                {selectedConnection.tools.length > 0 ? (
+                  <ScrollArea className="h-[300px]">
+                    <div className="space-y-3">
+                      {selectedConnection.tools.map((tool, index) => (
+                        <div key={index} className="p-3 border rounded-lg">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h5 className="text-sm font-medium">{tool.name}</h5>
+                            <Badge variant="outline">工具</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {tool.description}
+                          </p>
+                          <details>
+                            <summary className="text-xs text-blue-600 cursor-pointer hover:text-blue-800">
+                              参数 Schema
+                            </summary>
+                            <pre className="text-xs bg-gray-50 p-2 rounded mt-1 overflow-auto max-h-32">
+                              {JSON.stringify(tool.inputSchema, null, 2)}
+                            </pre>
+                          </details>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    该服务器未提供任何工具
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button onClick={() => setInfoDialogOpen(false)}>关闭</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+}
+
 const APIListMenu: React.FC = () => {
   const ctx = useContext(AppContext);
   return (
     <div className="flex flex-col my-2 gap-2 w-full">
       {ctx.templateTools.length > 0 && <ToolsDropdownList />}
       {ctx.templateMCPServers.length > 0 && <MCPServersDropdownList />}
+      <ConnectedMCPServersInfo />
       {ctx.templates.length > 0 && <ChatTemplateDropdownList />}
       {ctx.templateAPIs.length > 0 && (
         <APIsDropdownList
