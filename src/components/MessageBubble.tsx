@@ -126,38 +126,236 @@ interface ToolCallMessageProps {
   copyToClipboard: (text: string) => void;
 }
 function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
+  const { toast } = useToast();
+  const [callingTools, setCallingTools] = useState<{ [key: string]: boolean }>(
+    {}
+  );
+
+  const callMCPTool = async (toolCall: any) => {
+    const toolName = toolCall.function.name;
+    const toolId = toolCall.id;
+
+    if (!toolId) {
+      toast({
+        title: "工具调用失败",
+        description: "工具调用 ID 缺失",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 在 MCP 连接中查找对应的工具
+    const connectedServers =
+      chatStore.mcpConnections?.filter((conn) => conn.connected) || [];
+    let foundConnection = null;
+    let foundTool = null;
+
+    for (const connection of connectedServers) {
+      const tool = connection.tools.find((t) => t.name === toolName);
+      if (tool) {
+        foundConnection = connection;
+        foundTool = tool;
+        break;
+      }
+    }
+
+    if (!foundConnection || !foundTool) {
+      toast({
+        title: "工具调用失败",
+        description: `未找到名为 "${toolName}" 的 MCP 工具`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCallingTools((prev) => ({ ...prev, [toolId]: true }));
+
+    try {
+      // 解析工具参数
+      let toolArguments;
+      try {
+        toolArguments = JSON.parse(toolCall.function.arguments);
+      } catch (e) {
+        throw new Error("工具参数格式错误：" + toolCall.function.arguments);
+      }
+
+      // 构建 MCP tools/call 请求
+      const mcpRequest = {
+        method: "tools/call",
+        params: {
+          name: toolName,
+          arguments: toolArguments,
+        },
+        id: Date.now(), // 使用时间戳作为请求 ID
+        jsonrpc: "2.0",
+      };
+
+      console.log("Calling MCP tool:", mcpRequest);
+
+      // 发送 MCP 工具调用请求
+      const response = await fetch(foundConnection.config.url, {
+        method: "POST",
+        headers: {
+          Accept: "application/json, text/event-stream",
+          "Content-Type": "application/json; charset=utf-8",
+          "Mcp-Session-Id": foundConnection.sessionId,
+        },
+        body: JSON.stringify(mcpRequest),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `MCP 工具调用失败: ${response.status} ${response.statusText}`
+        );
+      }
+
+      // 解析响应
+      const responseText = await response.text();
+      let mcpResult;
+
+      if (responseText.includes("event: message")) {
+        // 解析 SSE 格式
+        const lines = responseText.split("\n");
+        const dataLine = lines.find((line) => line.startsWith("data: "));
+        if (dataLine) {
+          const jsonData = dataLine.substring(6);
+          mcpResult = JSON.parse(jsonData);
+        }
+      } else {
+        // 普通 JSON 响应
+        mcpResult = JSON.parse(responseText);
+      }
+
+      console.log("MCP tool result:", mcpResult);
+
+      // 提取结果内容
+      const resultContent = mcpResult?.result?.content;
+      let outputText = "";
+
+      if (Array.isArray(resultContent)) {
+        outputText = resultContent
+          .filter((item) => item.type === "text")
+          .map((item) => item.text)
+          .join("\n");
+      } else if (typeof resultContent === "string") {
+        outputText = resultContent;
+      } else {
+        outputText = JSON.stringify(resultContent);
+      }
+
+      // 添加工具调用结果消息
+      const functionCallOutputMessage: ChatStoreMessage = {
+        role: "tool",
+        content: outputText,
+        tool_call_id: toolId,
+        hide: false,
+        token: outputText.length / 4, // 估算 token 数量
+        example: false,
+        audio: null,
+        logprobs: null,
+        response_model_name: null,
+        reasoning_content: null,
+        usage: null,
+      };
+
+      // 更新聊天记录
+      const messageIndex = chatStore.history.findIndex((msg) => msg === chat);
+      if (messageIndex !== -1) {
+        const newHistory = [...chatStore.history];
+        newHistory.splice(messageIndex + 1, 0, functionCallOutputMessage);
+        setChatStore({
+          ...chatStore,
+          history: newHistory,
+          totalTokens: chatStore.totalTokens + functionCallOutputMessage.token,
+        });
+      }
+
+      toast({
+        title: "MCP 工具调用成功",
+        description: `成功调用 ${toolName} 工具`,
+      });
+    } catch (error) {
+      console.error("MCP tool call error:", error);
+      toast({
+        title: "MCP 工具调用失败",
+        description: error instanceof Error ? error.message : "未知错误",
+        variant: "destructive",
+      });
+    } finally {
+      setCallingTools((prev) => ({ ...prev, [toolId]: false }));
+    }
+  };
+
   return (
     <div className="message-content">
       {chat.tool_calls?.map((tool_call) => (
-        <div className="bg-blue-300 dark:bg-blue-800 p-1 rounded my-1">
-          <strong>
-            Tool Call ID:{" "}
-            <span
-              className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
-              onClick={() => copyToClipboard(String(tool_call.id))}
+        <div
+          key={tool_call.id}
+          className="bg-blue-300 dark:bg-blue-800 p-3 rounded my-2"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <strong className="text-sm">Tool Call</strong>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => callMCPTool(tool_call)}
+              disabled={tool_call.id ? callingTools[tool_call.id] : false}
+              className="ml-2"
             >
-              {tool_call?.id}
-            </span>
-          </strong>
-          <p>Type: {tool_call?.type}</p>
-          <p>
-            Function:
-            <span
-              className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
-              onClick={() => copyToClipboard(tool_call.function.name)}
-            >
-              {tool_call.function.name}
-            </span>
-          </p>
-          <p>
-            Arguments:
-            <span
-              className="p-1 m-1 rounded cursor-pointer hover:opacity-50 hover:underline"
-              onClick={() => copyToClipboard(tool_call.function.arguments)}
-            >
-              {tool_call.function.arguments}
-            </span>
-          </p>
+              {tool_call.id && callingTools[tool_call.id] ? (
+                <>
+                  <LoaderCircleIcon className="h-4 w-4 animate-spin mr-1" />
+                  调用中...
+                </>
+              ) : (
+                "调用 MCP 工具"
+              )}
+            </Button>
+          </div>
+          <div className="space-y-1 text-sm">
+            <p>
+              <strong>ID: </strong>
+              <span
+                className="p-1 rounded cursor-pointer hover:opacity-50 hover:underline bg-white/20"
+                onClick={() => copyToClipboard(String(tool_call.id))}
+              >
+                {tool_call?.id}
+              </span>
+            </p>
+            <p>
+              <strong>Type: </strong>
+              {tool_call?.type}
+            </p>
+            <p>
+              <strong>Function: </strong>
+              <span
+                className="p-1 rounded cursor-pointer hover:opacity-50 hover:underline bg-white/20"
+                onClick={() => copyToClipboard(tool_call.function.name)}
+              >
+                {tool_call.function.name}
+              </span>
+            </p>
+            <div>
+              <strong>Arguments:</strong>
+              <pre
+                className="mt-1 p-2 rounded cursor-pointer hover:opacity-50 hover:underline bg-white/20 text-xs overflow-auto"
+                onClick={() => copyToClipboard(tool_call.function.arguments)}
+              >
+                {(() => {
+                  try {
+                    return JSON.stringify(
+                      JSON.parse(tool_call.function.arguments),
+                      null,
+                      2
+                    );
+                  } catch {
+                    return tool_call.function.arguments;
+                  }
+                })()}
+              </pre>
+            </div>
+          </div>
         </div>
       ))}
       {/* [TODO] */}
