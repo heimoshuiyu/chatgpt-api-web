@@ -535,10 +535,6 @@ export function MCPServersDropdownList() {
       const updatedChatStore = {
         ...chatStore,
         mcpConnections: updatedConnections,
-        // 同时更新旧的 selectedMCPServers 字段以保持兼容性
-        selectedMCPServers: (chatStore.selectedMCPServers || []).filter(
-          (name) => name !== serverName
-        ),
       };
       setChatStore(updatedChatStore);
 
@@ -565,16 +561,9 @@ export function MCPServersDropdownList() {
       updatedConnections = [...existingConnections, connection];
     }
 
-    // 更新选中的服务器列表（兼容性）
-    const selectedServers = [...(chatStore.selectedMCPServers || [])];
-    if (!selectedServers.includes(connection.serverName)) {
-      selectedServers.push(connection.serverName);
-    }
-
     const updatedChatStore = {
       ...chatStore,
       mcpConnections: updatedConnections,
-      selectedMCPServers: selectedServers,
     };
     setChatStore(updatedChatStore);
 

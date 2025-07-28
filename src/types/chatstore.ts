@@ -68,7 +68,6 @@ export interface ChatStore {
   json_mode: boolean;
   logprobs: boolean;
   contents_for_index: string[];
-  selectedMCPServers: string[]; // Array of selected MCP server names (for backward compatibility)
   mcpConnections: MCPServerConnection[]; // Detailed MCP connection information
   chatPrice?: ModelPricing;
 }

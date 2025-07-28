@@ -3,7 +3,11 @@ import {
   DefaultModel,
   CHATGPT_API_WEB_VERSION,
 } from "@/const";
-import { ChatStore, ChatStoreMessage } from "@/types/chatstore";
+import {
+  ChatStore,
+  ChatStoreMessage,
+  MCPServerConnection,
+} from "@/types/chatstore";
 import { ModelPricing, models } from "@/types/models";
 
 interface NewChatStoreOptions {
@@ -37,6 +41,7 @@ interface NewChatStoreOptions {
   maxTokens?: number;
   use_this_history?: ChatStoreMessage[];
   chatPrice?: ModelPricing;
+  mcpConnections?: MCPServerConnection[];
 }
 
 export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
@@ -83,8 +88,7 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     tts_format: options.tts_format ?? "mp3",
     logprobs: options.logprobs ?? false,
     contents_for_index: [],
-    selectedMCPServers: [], // Default to empty array
-    mcpConnections: [], // Default to empty array for MCP connections
+    mcpConnections: options.mcpConnections ?? [], // Default to empty array for MCP connections
     chatPrice: options.chatPrice ?? undefined,
   };
 };
