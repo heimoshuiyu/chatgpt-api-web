@@ -112,6 +112,38 @@ const createMarkdownComponents = (copyToClipboard: (text: string) => void) => {
   };
 };
 
+// 可复用的 Markdown 渲染器组件
+interface MarkdownRendererProps {
+  content: string;
+  className?: string;
+  disallowedElements?: string[];
+  copyToClipboard: (text: string) => void;
+}
+
+function MarkdownRenderer({
+  content,
+  className = "prose max-w-none break-words overflow-wrap-anywhere",
+  disallowedElements,
+  copyToClipboard,
+}: MarkdownRendererProps) {
+  const markdownComponents = useMemo(
+    () => createMarkdownComponents(copyToClipboard),
+    [copyToClipboard]
+  );
+
+  return (
+    <Markdown
+      remarkPlugins={[remarkMath, remarkGfm]}
+      rehypePlugins={[rehypeKatex, rehypeHighlight]}
+      className={className}
+      disallowedElements={disallowedElements}
+      components={markdownComponents}
+    >
+      {content}
+    </Markdown>
+  );
+}
+
 interface HideMessageProps {
   chat: ChatStoreMessage;
 }
@@ -141,11 +173,6 @@ function MessageDetail({
   renderMarkdown,
   copyToClipboard,
 }: MessageDetailProps) {
-  const markdownComponents = useMemo(
-    () => createMarkdownComponents(copyToClipboard),
-    [copyToClipboard]
-  );
-
   if (typeof chat.content === "string") {
     return <div></div>;
   }
@@ -156,14 +183,10 @@ function MessageDetail({
           chat.hide ? (
             mdt.text?.trim().slice(0, 16) + " ..."
           ) : renderMarkdown ? (
-            <Markdown
-              remarkPlugins={[remarkMath, remarkGfm]}
-              rehypePlugins={[rehypeKatex, rehypeHighlight]}
-              className={"prose max-w-none break-words overflow-wrap-anywhere"}
-              components={markdownComponents}
-            >
-              {mdt.text}
-            </Markdown>
+            <MarkdownRenderer
+              content={mdt.text || ""}
+              copyToClipboard={copyToClipboard}
+            />
           ) : (
             mdt.text
           )
@@ -655,11 +678,6 @@ export default function Message(props: { messageIndex: number }) {
     }
   };
 
-  const markdownComponents = useMemo(
-    () => createMarkdownComponents(copyToClipboard),
-    [copyToClipboard]
-  );
-
   return (
     <>
       {chatStore.postBeginIndex !== 0 &&
@@ -710,9 +728,8 @@ export default function Message(props: { messageIndex: number }) {
             ) : chat.tool_calls ? (
               <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
-              <Markdown
-                remarkPlugins={[remarkMath, remarkGfm]}
-                rehypePlugins={[rehypeKatex, rehypeHighlight]}
+              <MarkdownRenderer
+                content={getMessageText(chat)}
                 disallowedElements={[
                   "script",
                   "iframe",
@@ -720,13 +737,8 @@ export default function Message(props: { messageIndex: number }) {
                   "embed",
                   "hr",
                 ]}
-                className={
-                  "prose max-w-none break-words overflow-wrap-anywhere"
-                }
-                components={markdownComponents}
-              >
-                {getMessageText(chat)}
-              </Markdown>
+                copyToClipboard={copyToClipboard}
+              />
             ) : (
               <div className="message-content max-w-full md:max-w-[100%]">
                 {chat.content &&
@@ -799,14 +811,11 @@ export default function Message(props: { messageIndex: number }) {
             ) : chat.role === "tool" ? (
               <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
-              <Markdown
-                remarkPlugins={[remarkMath, remarkGfm]}
-                rehypePlugins={[rehypeKatex, rehypeHighlight]}
-                className={"max-w-none break-words overflow-wrap-anywhere"}
-                components={markdownComponents}
-              >
-                {getMessageText(chat)}
-              </Markdown>
+              <MarkdownRenderer
+                content={getMessageText(chat)}
+                className="max-w-none break-words overflow-wrap-anywhere"
+                copyToClipboard={copyToClipboard}
+              />
             ) : (
               <div className="message-content">
                 {chat.content &&
