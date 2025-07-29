@@ -62,36 +62,6 @@ const DefaultRenderMDCheckbox = () => {
   );
 };
 
-const AutoCallMCPCheckbox = () => {
-  const [autoCallMCP, setAutoCallMCP] = useState<boolean>(() => {
-    const stored = localStorage.getItem("autoCallMCP");
-    return stored ? JSON.parse(stored) : false;
-  });
-
-  const handleToggle = (checked: boolean) => {
-    setAutoCallMCP(checked);
-    localStorage.setItem("autoCallMCP", JSON.stringify(checked));
-  };
-
-  return (
-    <div className="flex items-center space-x-2">
-      <div className="flex items-center">
-        <Checkbox
-          id="autoCallMCP-checkbox"
-          checked={autoCallMCP}
-          onCheckedChange={handleToggle}
-        />
-      </div>
-      <label
-        htmlFor="autoCallMCP-checkbox"
-        className="flex items-center gap-2 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-      >
-        Auto Call MCP
-      </label>
-    </div>
-  );
-};
-
 export const SystemSettings: React.FC = () => {
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
   const { templates, setTemplates, selectedChatIndex } = useContext(AppContext);
@@ -164,9 +134,6 @@ export const SystemSettings: React.FC = () => {
           </div>
           <div className="mt-4">
             <DefaultRenderMDCheckbox />
-          </div>
-          <div className="mt-4">
-            <AutoCallMCPCheckbox />
           </div>
           <div className="space-y-4 mt-4">
             <div className="space-y-2">

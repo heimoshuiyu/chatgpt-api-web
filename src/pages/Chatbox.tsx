@@ -1,5 +1,13 @@
-import { useContext, useRef } from "react";
-import { useEffect, useState } from "react";
+import React, { useContext, useRef, useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+
 import { langCodeContext, tr, Tr } from "@/translate";
 import { addTotalCost } from "@/utils/totalCost";
 import ChatGPT, {
@@ -69,8 +77,14 @@ const createMessageFromCurrentBuffer = (
 };
 
 export default function ChatBOX() {
-  const { db, selectedChatIndex, setSelectedChatIndex, handleNewChatStore, callingTools, setCallingTools } =
-    useContext(AppContext);
+  const {
+    db,
+    selectedChatIndex,
+    setSelectedChatIndex,
+    handleNewChatStore,
+    callingTools,
+    setCallingTools,
+  } = useContext(AppContext);
   const { langCode, setLangCode } = useContext(langCodeContext);
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
   const { toast } = useToast();
@@ -82,24 +96,20 @@ export default function ChatBOX() {
   const [showGenerating, setShowGenerating] = useState(false);
   const [generatingMessage, setGeneratingMessage] = useState("");
   const [showRetry, setShowRetry] = useState(false);
+  const [mcpConfirmOpen, setMcpConfirmOpen] = useState(false);
+  const [pendingMcpMessage, setPendingMcpMessage] =
+    useState<ChatStoreMessage | null>(null);
   let default_follow = localStorage.getItem("follow");
   if (default_follow === null) {
     default_follow = "true";
   }
   const [follow, _setFollow] = useState(default_follow === "true");
 
-  // Get auto call MCP setting from localStorage
-  const getAutoCallMCP = (): boolean => {
-    const stored = localStorage.getItem("autoCallMCP");
-    return stored ? JSON.parse(stored) : false;
-  };
-
-  // Auto call MCP tools function
-  const autoCallMCPTools = async (
+  // Execute MCP tools function (after user confirmation)
+  const executeMCPTools = async (
     assistantMessage: ChatStoreMessage
   ): Promise<boolean> => {
     if (
-      !getAutoCallMCP() ||
       !assistantMessage.tool_calls ||
       assistantMessage.tool_calls.length === 0
     ) {
@@ -107,7 +117,7 @@ export default function ChatBOX() {
     }
 
     console.log(
-      "Auto calling MCP tools for message with",
+      "Executing MCP tools for message with",
       assistantMessage.tool_calls.length,
       "tool calls"
     );
@@ -117,8 +127,13 @@ export default function ChatBOX() {
     let allToolCallsCompleted = true;
 
     // Set all tool calls to loading state
-    const toolCallIds = assistantMessage.tool_calls.map((tc) => tc.id).filter((id): id is string => Boolean(id));
-    const loadingState = toolCallIds.reduce((acc, id) => ({ ...acc, [id as string]: true }), {});
+    const toolCallIds = assistantMessage.tool_calls
+      .map((tc) => tc.id)
+      .filter((id): id is string => Boolean(id));
+    const loadingState = toolCallIds.reduce(
+      (acc, id) => ({ ...acc, [id as string]: true }),
+      {}
+    );
     setCallingTools((prev) => ({ ...prev, ...loadingState }));
 
     for (const toolCall of assistantMessage.tool_calls) {
@@ -175,7 +190,7 @@ export default function ChatBOX() {
           jsonrpc: "2.0",
         };
 
-        console.log("Auto calling MCP tool:", mcpRequest);
+        console.log("Calling MCP tool:", mcpRequest);
 
         // Send MCP tool call request
         const response = await fetch(foundConnection.config.url, {
@@ -249,15 +264,18 @@ export default function ChatBOX() {
         chatStore.history.push(functionCallOutputMessage);
         chatStore.totalTokens += functionCallOutputMessage.token;
 
-        console.log(`Auto called MCP tool "${toolName}" successfully`);
+        console.log(`Called MCP tool "${toolName}" successfully`);
       } catch (error) {
-        console.error("Auto MCP tool call error:", error);
+        console.error("MCP tool call error:", error);
         allToolCallsCompleted = false;
       }
     }
 
     // Clear loading states for all tool calls
-    const clearingState = toolCallIds.reduce((acc, id) => ({ ...acc, [id as string]: false }), {});
+    const clearingState = toolCallIds.reduce(
+      (acc, id) => ({ ...acc, [id as string]: false }),
+      {}
+    );
     setCallingTools((prev) => ({ ...prev, ...clearingState }));
 
     if (allToolCallsCompleted && assistantMessage.tool_calls.length > 0) {
@@ -266,6 +284,24 @@ export default function ChatBOX() {
     }
 
     return false;
+  };
+
+  const handleMcpConfirm = async () => {
+    if (pendingMcpMessage) {
+      const messageToExecute = pendingMcpMessage; // Store reference before clearing state
+      setMcpConfirmOpen(false);
+      setPendingMcpMessage(null); // Clear state immediately to prevent race conditions
+
+      const shouldRegenerate = await executeMCPTools(messageToExecute);
+      if (shouldRegenerate) {
+        await complete(); // Allow further MCP confirmations
+      }
+    }
+  };
+
+  const handleMcpCancel = () => {
+    setMcpConfirmOpen(false);
+    setPendingMcpMessage(null);
   };
 
   const setFollow = (follow: boolean) => {
@@ -493,7 +529,7 @@ export default function ChatBOX() {
   };
 
   // wrap the actuall complete api
-  const complete = async (skipAutoMCP = false) => {
+  const complete = async () => {
     // manually copy status from chatStore to client
     client.apiEndpoint = chatStore.apiEndpoint;
     client.sysMessageContent = chatStore.systemMessageContent;
@@ -680,11 +716,26 @@ export default function ChatBOX() {
       setShowRetry(false);
       setChatStore({ ...chatStore });
 
-      // Auto call MCP tools if enabled and not skipped
-      if (!skipAutoMCP && getAutoCallMCP()) {
-        const shouldRegenerate = await autoCallMCPTools(cs);
-        if (shouldRegenerate) {
-          await complete(true); // Regenerate with skipAutoMCP=true to prevent infinite recursion
+      // Check if there are MCP tool calls to execute
+      if (cs.tool_calls && cs.tool_calls.length > 0) {
+        // Check if any of the tool calls are MCP tools
+        const connectedServers =
+          chatStore.mcpConnections?.filter((conn) => conn.connected) || [];
+        const hasMcpToolCalls = cs.tool_calls.some((toolCall) => {
+          const toolName = toolCall.function.name;
+          return connectedServers.some((connection) =>
+            connection.tools.some((tool) => tool.name === toolName)
+          );
+        });
+
+        if (hasMcpToolCalls) {
+          // Show confirmation dialog for MCP tool calls
+          console.log(
+            "Showing MCP confirmation dialog for tools:",
+            cs.tool_calls?.map((tc) => tc.function.name)
+          );
+          setPendingMcpMessage(cs);
+          setMcpConfirmOpen(true);
         }
       }
     } catch (error: any) {
@@ -997,6 +1048,112 @@ export default function ChatBOX() {
           </div>
         </form>
       </div>
+      <Dialog open={mcpConfirmOpen} onOpenChange={setMcpConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              <Tr>Confirm MCP Tool Execution</Tr>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground mb-3">
+              <Tr>The assistant wants to execute the following MCP tools:</Tr>
+            </p>
+            {pendingMcpMessage?.tool_calls && (
+              <div className="space-y-2">
+                {(() => {
+                  const mcpTools = pendingMcpMessage.tool_calls
+                    .map((toolCall, index) => {
+                      // Check if this is an MCP tool
+                      const connectedServers =
+                        chatStore.mcpConnections?.filter(
+                          (conn) => conn.connected
+                        ) || [];
+                      const isMcpTool = connectedServers.some((connection) =>
+                        connection.tools.some(
+                          (tool) => tool.name === toolCall.function.name
+                        )
+                      );
+
+                      if (!isMcpTool) {
+                        console.warn(
+                          `Tool ${toolCall.function.name} is not an MCP tool, skipping from confirmation dialog`
+                        );
+                        return null;
+                      }
+
+                      return (
+                        <div
+                          key={index}
+                          className="p-2 border rounded-lg bg-gray-50"
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="text-xs">
+                              MCP Tool
+                            </Badge>
+                            <span className="font-medium text-sm">
+                              {toolCall.function.name}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Arguments: {toolCall.function.arguments}
+                          </p>
+                        </div>
+                      );
+                    })
+                    .filter(Boolean);
+
+                  if (mcpTools.length === 0) {
+                    return (
+                      <div className="p-2 border rounded-lg bg-yellow-50 border-yellow-200">
+                        <p className="text-sm text-yellow-800">
+                          <Tr>
+                            No valid MCP tools found in the assistant's
+                            response.
+                          </Tr>
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  return mcpTools;
+                })()}
+              </div>
+            )}
+            <p className="text-sm text-muted-foreground mt-3">
+              <Tr>Do you want to execute these tools?</Tr>
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleMcpCancel}>
+              <Tr>Cancel</Tr>
+            </Button>
+            <Button
+              onClick={handleMcpConfirm}
+              disabled={(() => {
+                if (!pendingMcpMessage?.tool_calls) return true;
+
+                const connectedServers =
+                  chatStore.mcpConnections?.filter((conn) => conn.connected) ||
+                  [];
+                const validMcpTools = pendingMcpMessage.tool_calls.filter(
+                  (toolCall) => {
+                    return connectedServers.some((connection) =>
+                      connection.tools.some(
+                        (tool) => tool.name === toolCall.function.name
+                      )
+                    );
+                  }
+                );
+
+                return validMcpTools.length === 0;
+              })()}
+            >
+              <Tr>Execute</Tr>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

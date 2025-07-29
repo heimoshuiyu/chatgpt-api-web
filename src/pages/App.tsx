@@ -52,7 +52,11 @@ interface AppContextType {
   defaultRenderMD: boolean;
   setDefaultRenderMD: (b: boolean) => void;
   callingTools: { [key: string]: boolean };
-  setCallingTools: (tools: { [key: string]: boolean } | ((prev: { [key: string]: boolean }) => { [key: string]: boolean })) => void;
+  setCallingTools: (
+    tools:
+      | { [key: string]: boolean }
+      | ((prev: { [key: string]: boolean }) => { [key: string]: boolean })
+  ) => void;
   handleNewChatStore: () => Promise<void>;
   handleNewChatStoreWithOldOne: (chatStore: ChatStore) => Promise<void>;
 }
@@ -347,7 +351,9 @@ export function App() {
   };
 
   // Global state for tracking calling tools status
-  const [callingTools, setCallingTools] = useState<{ [key: string]: boolean }>({});
+  const [callingTools, setCallingTools] = useState<{ [key: string]: boolean }>(
+    {}
+  );
 
   console.log("[PERFORMANCE!] reading localStorage");
 
