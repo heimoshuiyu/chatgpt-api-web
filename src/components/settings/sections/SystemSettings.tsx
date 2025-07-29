@@ -30,6 +30,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/hooks/use-toast";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import {
   AccordionContent,
   AccordionItem,
@@ -37,7 +51,6 @@ import {
 } from "@/components/ui/accordion";
 import { ChoiceCheckbox } from "../ui/ChoiceCheckbox";
 import { TemplateAttributeDialog } from "@/components/TemplateAttributeDialog";
-import { toast } from "@/hooks/use-toast";
 
 const DefaultRenderMDCheckbox = () => {
   const { defaultRenderMD, setDefaultRenderMD } = useContext(AppContext);
@@ -69,6 +82,7 @@ export const SystemSettings: React.FC = () => {
   const [totalCost, setTotalCost] = useState(getTotalCost());
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const importFileRef = useRef<any>(null);
+  const copyToClipboard = useCopyToClipboard();
 
   let link =
     location.protocol +
@@ -80,9 +94,6 @@ export const SystemSettings: React.FC = () => {
     )}&mode=${chatStore.streamMode ? "stream" : "fetch"}&model=${
       chatStore.model
     }&sys=${encodeURIComponent(chatStore.systemMessageContent)}`;
-  if (chatStore.develop_mode) {
-    link = link + `&dev=true`;
-  }
 
   return (
     <>
@@ -168,11 +179,10 @@ export const SystemSettings: React.FC = () => {
                   variant="outline"
                   className="w-full"
                   onClick={() => {
-                    navigator.clipboard.writeText(link);
-                    toast({
-                      title: tr(`Copied link:`, langCode),
-                      description: `${link}`,
-                    });
+                    copyToClipboard(
+                      link,
+                      tr(`Copied link:`, langCode) + ` ${link}`
+                    );
                   }}
                 >
                   <Tr>Copy Setting Link</Tr>

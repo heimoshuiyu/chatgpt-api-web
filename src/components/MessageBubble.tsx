@@ -33,6 +33,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import {
   ClipboardIcon,
   PencilIcon,
@@ -47,9 +48,10 @@ import { AppChatStoreContext, AppContext } from "@/pages/App";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 // 可复用的Markdown组件配置
-const createMarkdownComponents = (copyToClipboard: (text: string) => void) => {
+const createMarkdownComponents = () => {
   const CodeBlockWithCopy = ({ children, ...props }: any) => {
     const [copied, setCopied] = useState(false);
+    const copyToClipboard = useCopyToClipboard();
 
     const extractTextContent = (node: any): string => {
       if (typeof node === "string") return node;
@@ -117,19 +119,14 @@ interface MarkdownRendererProps {
   content: string;
   className?: string;
   disallowedElements?: string[];
-  copyToClipboard: (text: string) => void;
 }
 
 function MarkdownRenderer({
   content,
   className = "prose max-w-none break-words overflow-wrap-anywhere",
   disallowedElements,
-  copyToClipboard,
 }: MarkdownRendererProps) {
-  const markdownComponents = useMemo(
-    () => createMarkdownComponents(copyToClipboard),
-    [copyToClipboard]
-  );
+  const markdownComponents = useMemo(() => createMarkdownComponents(), []);
 
   return (
     <Markdown
@@ -166,13 +163,10 @@ function MessageHide({ chat }: HideMessageProps) {
 interface MessageDetailProps {
   chat: ChatStoreMessage;
   renderMarkdown: boolean;
-  copyToClipboard: (text: string) => void;
 }
-function MessageDetail({
-  chat,
-  renderMarkdown,
-  copyToClipboard,
-}: MessageDetailProps) {
+function MessageDetail({ chat, renderMarkdown }: MessageDetailProps) {
+  const copyToClipboard = useCopyToClipboard();
+
   if (typeof chat.content === "string") {
     return <div></div>;
   }
@@ -183,10 +177,7 @@ function MessageDetail({
           chat.hide ? (
             mdt.text?.trim().slice(0, 16) + " ..."
           ) : renderMarkdown ? (
-            <MarkdownRenderer
-              content={mdt.text || ""}
-              copyToClipboard={copyToClipboard}
-            />
+            <MarkdownRenderer content={mdt.text || ""} />
           ) : (
             mdt.text
           )
@@ -207,13 +198,13 @@ function MessageDetail({
 
 interface ToolCallMessageProps {
   chat: ChatStoreMessage;
-  copyToClipboard: (text: string) => void;
 }
-function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
+function MessageToolCall({ chat }: ToolCallMessageProps) {
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
   const { toast } = useToast();
   const { langCode } = useContext(langCodeContext);
   const { callingTools, setCallingTools } = useContext(AppContext);
+  const copyToClipboard = useCopyToClipboard();
 
   const callMCPTool = async (toolCall: any) => {
     const toolName = toolCall.function.name;
@@ -503,10 +494,10 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
 
 interface ToolRespondMessageProps {
   chat: ChatStoreMessage;
-  copyToClipboard: (text: string) => void;
 }
-function MessageToolResp({ chat, copyToClipboard }: ToolRespondMessageProps) {
+function MessageToolResp({ chat }: ToolRespondMessageProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const copyToClipboard = useCopyToClipboard();
 
   return (
     <ChatBubble
@@ -653,30 +644,7 @@ export default function Message(props: { messageIndex: number }) {
   }, [defaultRenderMD]);
 
   const { toast } = useToast();
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast({
-        description: <Tr>Message copied to clipboard!</Tr>,
-      });
-    } catch (err) {
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand("copy");
-        toast({
-          description: <Tr>Message copied to clipboard!</Tr>,
-        });
-      } catch (err) {
-        toast({
-          description: <Tr>Failed to copy to clipboard</Tr>,
-        });
-      }
-      document.body.removeChild(textArea);
-    }
-  };
+  const copyToClipboard = useCopyToClipboard();
 
   return (
     <>
@@ -720,13 +688,9 @@ export default function Message(props: { messageIndex: number }) {
             {chat.hide ? (
               <MessageHide chat={chat} />
             ) : typeof chat.content !== "string" ? (
-              <MessageDetail
-                chat={chat}
-                renderMarkdown={renderMarkdown}
-                copyToClipboard={copyToClipboard}
-              />
+              <MessageDetail chat={chat} renderMarkdown={renderMarkdown} />
             ) : chat.tool_calls ? (
-              <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
+              <MessageToolCall chat={chat} />
             ) : renderMarkdown ? (
               <MarkdownRenderer
                 content={getMessageText(chat)}
@@ -737,7 +701,6 @@ export default function Message(props: { messageIndex: number }) {
                   "embed",
                   "hr",
                 ]}
-                copyToClipboard={copyToClipboard}
               />
             ) : (
               <div className="message-content max-w-full md:max-w-[100%]">
@@ -801,20 +764,15 @@ export default function Message(props: { messageIndex: number }) {
             {chat.hide ? (
               <MessageHide chat={chat} />
             ) : typeof chat.content !== "string" ? (
-              <MessageDetail
-                chat={chat}
-                renderMarkdown={renderMarkdown}
-                copyToClipboard={copyToClipboard}
-              />
+              <MessageDetail chat={chat} renderMarkdown={renderMarkdown} />
             ) : chat.tool_calls ? (
-              <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
+              <MessageToolCall chat={chat} />
             ) : chat.role === "tool" ? (
-              <MessageToolResp chat={chat} copyToClipboard={copyToClipboard} />
+              <MessageToolResp chat={chat} />
             ) : renderMarkdown ? (
               <MarkdownRenderer
                 content={getMessageText(chat)}
                 className="max-w-none break-words overflow-wrap-anywhere"
-                copyToClipboard={copyToClipboard}
               />
             ) : (
               <div className="message-content">
