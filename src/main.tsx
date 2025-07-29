@@ -19,32 +19,6 @@ function Base() {
     localStorage.setItem("chatgpt-api-web-lang", langCode);
   };
 
-  // Hide loading screen and show app
-  useEffect(() => {
-    const hideLoadingScreen = () => {
-      const loadingScreen = document.getElementById("loading-screen");
-      const app = document.getElementById("app");
-
-      if (loadingScreen && app) {
-        // Add loaded class to app for fade-in effect
-        app.classList.add("loaded");
-
-        // Hide loading screen with fade-out effect
-        loadingScreen.style.opacity = "0";
-
-        // Remove loading screen from DOM after transition
-        setTimeout(() => {
-          loadingScreen.remove();
-        }, 500);
-      }
-    };
-
-    // Hide loading screen after a short delay to ensure smooth transition
-    const timer = setTimeout(hideLoadingScreen, 0);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   // select language
   useEffect(() => {
     themeChange(false);
