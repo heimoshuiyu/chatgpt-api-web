@@ -257,6 +257,22 @@ export function App() {
         handleNewChatStoreWithOldOne(chatStore);
       }
       */
+
+      // Hide loading screen and show app
+      const loadingScreen = document.getElementById("loading-screen");
+      const app = document.getElementById("app");
+      if (loadingScreen && app) {
+        // Add loaded class to app for fade-in effect
+        app.classList.add("loaded");
+
+        // Hide loading screen with fade-out effect
+        loadingScreen.style.opacity = "0";
+
+        // Remove loading screen from DOM after transition
+        setTimeout(() => {
+          loadingScreen.remove();
+        }, 500);
+      }
     };
     run();
   }, []);
@@ -356,25 +372,6 @@ export function App() {
   );
 
   console.log("[PERFORMANCE!] reading localStorage");
-
-  // Hide loading screen and show app
-  useEffect(() => {
-    const loadingScreen = document.getElementById("loading-screen");
-    const app = document.getElementById("app");
-
-    if (loadingScreen && app) {
-      // Add loaded class to app for fade-in effect
-      app.classList.add("loaded");
-
-      // Hide loading screen with fade-out effect
-      loadingScreen.style.opacity = "0";
-
-      // Remove loading screen from DOM after transition
-      setTimeout(() => {
-        loadingScreen.remove();
-      }, 500);
-    }
-  }, []);
 
   return (
     <AppContext.Provider
