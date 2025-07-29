@@ -31,4 +31,35 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+  build: {
+    // 启用代码分割
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // 将 React 相关库分离
+          'react-vendor': ['react', 'react-dom'],
+          // 将 UI 组件库分离
+          'ui-vendor': ['@radix-ui/react-slot', '@radix-ui/react-toast', '@radix-ui/react-dialog'],
+          // 将工具库分离
+          'utils-vendor': ['clsx', 'tailwind-merge', 'class-variance-authority'],
+        },
+      },
+    },
+    // 启用压缩
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    // 启用源码映射（开发时）
+    sourcemap: false,
+    // 设置块大小警告限制
+    chunkSizeWarningLimit: 1000,
+  },
+  // 优化依赖预构建
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
+  },
 });

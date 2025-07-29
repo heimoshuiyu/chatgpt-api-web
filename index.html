@@ -13,9 +13,338 @@
     <title>ChatGPT API Web</title>
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#ffffff" />
+    <style>
+      /* 加载页面样式 */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+
+      /* 深色主题 */
+      @media (prefers-color-scheme: dark) {
+        #loading-screen {
+          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+      }
+
+      .loading-container {
+        text-align: center;
+        color: white;
+        max-width: 400px;
+        padding: 2rem;
+      }
+
+      .loading-logo {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1.5rem;
+        position: relative;
+      }
+
+      .loading-spinner::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border: 2px solid transparent;
+        border-top: 2px solid rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        animation: spin 1.5s linear infinite reverse;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .loading-text {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.9;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+      }
+
+      .loading-progress {
+        width: 100%;
+        max-width: 300px;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 0 auto;
+        position: relative;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+      }
+
+      .loading-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #fff, #f0f0f0);
+        border-radius: 4px;
+        width: 0%;
+        transition: width 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .loading-progress-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        animation: shimmer 2s infinite;
+      }
+
+      @keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+      }
+
+      .loading-percentage {
+        font-size: 0.9rem;
+        margin-top: 0.8rem;
+        opacity: 0.8;
+        font-weight: 500;
+        animation: fadeInUp 0.8s ease-out 0.6s both;
+      }
+
+      .loading-tips {
+        font-size: 0.8rem;
+        margin-top: 1rem;
+        opacity: 0.6;
+        animation: fadeInUp 0.8s ease-out 0.8s both;
+      }
+
+      /* 隐藏加载页面 */
+      #loading-screen.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* 确保应用容器在加载时不可见 */
+      #app {
+        opacity: 0;
+        transition: opacity 0.5s ease-in;
+      }
+
+      #app.loaded {
+        opacity: 1;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .loading-container {
+          padding: 1rem;
+        }
+        
+        .loading-logo {
+          font-size: 1.8rem;
+        }
+        
+        .loading-spinner {
+          width: 50px;
+          height: 50px;
+        }
+      }
+
+      /* 加载完成动画 */
+      .loading-complete {
+        animation: completePulse 0.6s ease-out;
+      }
+
+      @keyframes completePulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+    </style>
   </head>
   <body>
+    <!-- 加载页面 -->
+    <div id="loading-screen">
+      <div class="loading-container">
+        <div class="loading-logo">🤖 ChatGPT API Web</div>
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在加载应用...</div>
+        <div class="loading-progress">
+          <div class="loading-progress-bar"></div>
+        </div>
+        <div class="loading-percentage">0%</div>
+        <div class="loading-tips">首次加载可能需要一些时间，请耐心等待</div>
+      </div>
+    </div>
+
     <div id="app"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <script>
+      // 加载进度管理
+      class LoadingManager {
+        constructor() {
+          this.progress = 0;
+          this.progressBar = document.querySelector('.loading-progress-bar');
+          this.percentage = document.querySelector('.loading-percentage');
+          this.loadingText = document.querySelector('.loading-text');
+          this.loadingScreen = document.getElementById('loading-screen');
+          this.app = document.getElementById('app');
+          
+          this.stages = [
+            { name: '初始化应用...', weight: 10 },
+            { name: '加载核心模块...', weight: 20 },
+            { name: '加载UI组件...', weight: 30 },
+            { name: '加载语言包...', weight: 20 },
+            { name: '启动应用...', weight: 20 }
+          ];
+          
+          this.currentStage = 0;
+          this.stageProgress = 0;
+        }
+        
+        updateProgress(progress) {
+          this.progress = Math.min(progress, 100);
+          this.progressBar.style.width = this.progress + '%';
+          this.percentage.textContent = Math.round(this.progress) + '%';
+        }
+        
+        updateStage(stageIndex, stageProgress = 0) {
+          if (stageIndex >= this.stages.length) return;
+          
+          this.currentStage = stageIndex;
+          this.stageProgress = stageProgress;
+          
+          // 计算总体进度
+          let totalProgress = 0;
+          for (let i = 0; i < stageIndex; i++) {
+            totalProgress += this.stages[i].weight;
+          }
+          totalProgress += (this.stages[stageIndex].weight * stageProgress / 100);
+          
+          this.updateProgress(totalProgress);
+          this.loadingText.textContent = this.stages[stageIndex].name;
+        }
+        
+        complete() {
+          this.updateProgress(100);
+          this.loadingText.textContent = '加载完成！';
+          
+          setTimeout(() => {
+            this.loadingScreen.classList.add('hidden');
+            this.app.classList.add('loaded');
+            
+            setTimeout(() => {
+              this.loadingScreen.remove();
+            }, 500);
+          }, 500);
+        }
+      }
+      
+      const loadingManager = new LoadingManager();
+      
+      // 模拟加载阶段
+      let currentStage = 0;
+      
+      const simulateLoading = () => {
+        if (currentStage >= loadingManager.stages.length) {
+          loadingManager.complete();
+          return;
+        }
+        
+        loadingManager.updateStage(currentStage, 0);
+        
+        let stageProgress = 0;
+        const stageInterval = setInterval(() => {
+          stageProgress += Math.random() * 20 + 10;
+          
+          if (stageProgress >= 100) {
+            stageProgress = 100;
+            clearInterval(stageInterval);
+            currentStage++;
+            
+            setTimeout(simulateLoading, 200);
+          }
+          
+          loadingManager.updateStage(currentStage, stageProgress);
+        }, 100 + Math.random() * 200);
+      };
+      
+      // 检测资源加载状态
+      const checkResourceLoading = () => {
+        const resources = performance.getEntriesByType('resource');
+        const scriptResources = resources.filter(r => r.initiatorType === 'script');
+        
+        if (scriptResources.length > 0) {
+          const lastScript = scriptResources[scriptResources.length - 1];
+          if (lastScript.responseEnd > 0) {
+            // 主要脚本已加载完成
+            loadingManager.updateStage(3, 100);
+            setTimeout(() => {
+              loadingManager.updateStage(4, 50);
+              setTimeout(() => {
+                loadingManager.complete();
+              }, 300);
+            }, 200);
+            return;
+          }
+        }
+        
+        // 继续检查
+        setTimeout(checkResourceLoading, 100);
+      };
+      
+      // 开始加载
+      setTimeout(() => {
+        simulateLoading();
+        
+        // 同时检测实际资源加载
+        setTimeout(checkResourceLoading, 1000);
+      }, 300);
+      
+      // 备用完成检测
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          if (loadingManager.progress < 100) {
+            loadingManager.complete();
+          }
+        }, 1000);
+      });
+    </script>
   </body>
 </html>
