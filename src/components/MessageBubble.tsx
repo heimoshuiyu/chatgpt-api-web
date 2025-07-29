@@ -424,7 +424,7 @@ function MessageToolResp({ chat, copyToClipboard }: ToolRespondMessageProps) {
             </strong>
           </div>
           <div className="text-sm">
-            <pre className="whitespace-pre-wrap font-sans text-gray-900 dark:text-gray-100">
+            <pre className="whitespace-pre-wrap font-sans text-gray-900 dark:text-gray-100 break-all overflow-wrap-anywhere overflow-x-auto">
               {chat.content as string}
             </pre>
           </div>
