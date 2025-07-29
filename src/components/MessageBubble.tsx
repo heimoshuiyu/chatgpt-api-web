@@ -47,6 +47,25 @@ import {
 import { AppChatStoreContext, AppContext } from "@/pages/App";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
+// 隐藏消息通用组件
+interface HiddenMessageProps {
+  text: string;
+  maxLength?: number;
+}
+
+export const HiddenMessage = ({ text, maxLength = 28 }: HiddenMessageProps) => (
+  <>
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <span>{text.trim().slice(0, maxLength)} ...</span>
+    </div>
+    <div className="flex mt-2 justify-center">
+      <Badge variant="destructive">
+        <Tr>Removed from context</Tr>
+      </Badge>
+    </div>
+  </>
+);
+
 // 可复用的Markdown组件配置
 const createMarkdownComponents = () => {
   const CodeBlockWithCopy = ({ children, ...props }: any) => {
@@ -146,18 +165,7 @@ interface HideMessageProps {
 }
 
 function MessageHide({ chat }: HideMessageProps) {
-  return (
-    <>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>{getMessageText(chat).trim().slice(0, 28)} ...</span>
-      </div>
-      <div className="flex mt-2 justify-center">
-        <Badge variant="destructive">
-          <Tr>Removed from context</Tr>
-        </Badge>
-      </div>
-    </>
-  );
+  return <HiddenMessage text={getMessageText(chat)} />;
 }
 
 interface MessageDetailProps {
@@ -175,7 +183,7 @@ function MessageDetail({ chat, renderMarkdown }: MessageDetailProps) {
       {chat.content.map((mdt) =>
         mdt.type === "text" ? (
           chat.hide ? (
-            mdt.text?.trim().slice(0, 16) + " ..."
+            <HiddenMessage text={mdt.text || ""} maxLength={16} />
           ) : renderMarkdown ? (
             <MarkdownRenderer content={mdt.text || ""} />
           ) : (
