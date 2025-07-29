@@ -211,29 +211,39 @@ export function App() {
   // if there are any params in URL, show the alert dialog to import configure
   useEffect(() => {
     const run = async () => {
-      const params = new URLSearchParams(window.location.search);
-      if (
-        params.get("api") ||
-        params.get("key") ||
-        params.get("sys") ||
-        params.get("mode") ||
-        params.get("model") ||
-        params.get("max") ||
-        params.get("temp") ||
-        params.get("dev") ||
-        params.get("whisper-api") ||
-        params.get("whisper-key") ||
-        params.get("tts-api") ||
-        params.get("tts-key")
-      ) {
-        setShowImportDialog(true);
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (
+          params.get("api") ||
+          params.get("key") ||
+          params.get("sys") ||
+          params.get("mode") ||
+          params.get("model") ||
+          params.get("max") ||
+          params.get("temp") ||
+          params.get("dev") ||
+          params.get("whisper-api") ||
+          params.get("whisper-key") ||
+          params.get("tts-api") ||
+          params.get("tts-key")
+        ) {
+          setShowImportDialog(true);
+        }
+        await db;
+        const allidx = await (await db).getAllKeys(STORAGE_NAME);
+        if (allidx.length === 0) {
+          handleNewChatStore();
+        }
+        setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
+      } catch (e) {
+        console.error("error", e);
+        // use toast to show error
+        toast({
+          title: "Error",
+          description: "Error loading chat history",
+          variant: "destructive",
+        });
       }
-      await db;
-      const allidx = await (await db).getAllKeys(STORAGE_NAME);
-      if (allidx.length === 0) {
-        handleNewChatStore();
-      }
-      setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
       /*
       const chatStore = await getChatStoreByIndex(selectedChatIndex);
       const api = getDefaultParams("api", "");
