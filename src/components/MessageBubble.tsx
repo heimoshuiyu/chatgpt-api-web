@@ -170,6 +170,10 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
 
     setCallingTools((prev) => ({ ...prev, [toolId]: true }));
 
+    // 保存当前滚动位置
+    const chatContainer = document.querySelector('.overflow-y-auto');
+    const currentScrollTop = chatContainer?.scrollTop || 0;
+
     try {
       // 解析工具参数
       let toolArguments;
@@ -279,6 +283,13 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
           history: newHistory,
           totalTokens: chatStore.totalTokens + functionCallOutputMessage.token,
         });
+
+        // 恢复滚动位置，延迟执行确保DOM更新完成
+        setTimeout(() => {
+          if (chatContainer) {
+            chatContainer.scrollTop = currentScrollTop;
+          }
+        }, 0);
       }
 
       toast({
@@ -290,6 +301,14 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
       });
     } catch (error) {
       console.error("MCP tool call error:", error);
+      
+      // 出错时也恢复滚动位置
+      setTimeout(() => {
+        if (chatContainer) {
+          chatContainer.scrollTop = currentScrollTop;
+        }
+      }, 0);
+
       toast({
         title: tr("MCP tool call failed", langCode),
         description:
