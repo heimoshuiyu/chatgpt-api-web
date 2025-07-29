@@ -41,9 +41,76 @@ import {
   AudioLinesIcon,
   LoaderCircleIcon,
   ChevronsUpDownIcon,
+  CheckIcon,
 } from "lucide-react";
 import { AppChatStoreContext, AppContext } from "@/pages/App";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+
+// 可复用的Markdown组件配置
+const createMarkdownComponents = (copyToClipboard: (text: string) => void) => {
+  const CodeBlockWithCopy = ({ children, ...props }: any) => {
+    const [copied, setCopied] = useState(false);
+
+    const extractTextContent = (node: any): string => {
+      if (typeof node === "string") return node;
+      if (Array.isArray(node)) return node.map(extractTextContent).join("");
+      if (node?.props?.children) return extractTextContent(node.props.children);
+      return "";
+    };
+
+    const codeText = extractTextContent(children);
+
+    const handleCopy = async () => {
+      await copyToClipboard(codeText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+      <div className="relative group">
+        <pre
+          className="break-words whitespace-pre-wrap overflow-x-auto"
+          {...props}
+        >
+          {children}
+        </pre>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background"
+          onClick={handleCopy}
+        >
+          {copied ? (
+            <CheckIcon className="h-4 w-4 text-green-600" />
+          ) : (
+            <ClipboardIcon className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+    );
+  };
+
+  return {
+    p: ({ children, node }: any) => {
+      if (node?.parent?.type === "listItem") {
+        return (
+          <span className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
+            {children}
+          </span>
+        );
+      }
+      return (
+        <p className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
+          {children}
+        </p>
+      );
+    },
+    code: ({ children }: any) => (
+      <code className="break-all whitespace-pre-wrap">{children}</code>
+    ),
+    pre: CodeBlockWithCopy,
+  };
+};
 
 interface HideMessageProps {
   chat: ChatStoreMessage;
@@ -67,8 +134,18 @@ function MessageHide({ chat }: HideMessageProps) {
 interface MessageDetailProps {
   chat: ChatStoreMessage;
   renderMarkdown: boolean;
+  copyToClipboard: (text: string) => void;
 }
-function MessageDetail({ chat, renderMarkdown }: MessageDetailProps) {
+function MessageDetail({
+  chat,
+  renderMarkdown,
+  copyToClipboard,
+}: MessageDetailProps) {
+  const markdownComponents = useMemo(
+    () => createMarkdownComponents(copyToClipboard),
+    [copyToClipboard]
+  );
+
   if (typeof chat.content === "string") {
     return <div></div>;
   }
@@ -83,23 +160,7 @@ function MessageDetail({ chat, renderMarkdown }: MessageDetailProps) {
               remarkPlugins={[remarkMath, remarkGfm]}
               rehypePlugins={[rehypeKatex, rehypeHighlight]}
               className={"prose max-w-none break-words overflow-wrap-anywhere"}
-              components={{
-                p: ({ children }: any) => (
-                  <p className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
-                    {children}
-                  </p>
-                ),
-                code: ({ children }: any) => (
-                  <code className="break-all whitespace-pre-wrap">
-                    {children}
-                  </code>
-                ),
-                pre: ({ children }: any) => (
-                  <pre className="break-words whitespace-pre-wrap overflow-x-auto">
-                    {children}
-                  </pre>
-                ),
-              }}
+              components={markdownComponents}
             >
               {mdt.text}
             </Markdown>
@@ -171,7 +232,7 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
     setCallingTools((prev) => ({ ...prev, [toolId]: true }));
 
     // 保存当前滚动位置
-    const chatContainer = document.querySelector('.overflow-y-auto');
+    const chatContainer = document.querySelector(".overflow-y-auto");
     const currentScrollTop = chatContainer?.scrollTop || 0;
 
     try {
@@ -301,7 +362,7 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
       });
     } catch (error) {
       console.error("MCP tool call error:", error);
-      
+
       // 出错时也恢复滚动位置
       setTimeout(() => {
         if (chatContainer) {
@@ -594,6 +655,11 @@ export default function Message(props: { messageIndex: number }) {
     }
   };
 
+  const markdownComponents = useMemo(
+    () => createMarkdownComponents(copyToClipboard),
+    [copyToClipboard]
+  );
+
   return (
     <>
       {chatStore.postBeginIndex !== 0 &&
@@ -636,7 +702,11 @@ export default function Message(props: { messageIndex: number }) {
             {chat.hide ? (
               <MessageHide chat={chat} />
             ) : typeof chat.content !== "string" ? (
-              <MessageDetail chat={chat} renderMarkdown={renderMarkdown} />
+              <MessageDetail
+                chat={chat}
+                renderMarkdown={renderMarkdown}
+                copyToClipboard={copyToClipboard}
+              />
             ) : chat.tool_calls ? (
               <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
             ) : renderMarkdown ? (
@@ -653,32 +723,7 @@ export default function Message(props: { messageIndex: number }) {
                 className={
                   "prose max-w-none break-words overflow-wrap-anywhere"
                 }
-                components={{
-                  p: ({ children, node }: any) => {
-                    if (node?.parent?.type === "listItem") {
-                      return (
-                        <span className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
-                          {children}
-                        </span>
-                      );
-                    }
-                    return (
-                      <p className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
-                        {children}
-                      </p>
-                    );
-                  },
-                  code: ({ children }: any) => (
-                    <code className="break-all whitespace-pre-wrap">
-                      {children}
-                    </code>
-                  ),
-                  pre: ({ children }: any) => (
-                    <pre className="break-words whitespace-pre-wrap overflow-x-auto">
-                      {children}
-                    </pre>
-                  ),
-                }}
+                components={markdownComponents}
               >
                 {getMessageText(chat)}
               </Markdown>
@@ -744,7 +789,11 @@ export default function Message(props: { messageIndex: number }) {
             {chat.hide ? (
               <MessageHide chat={chat} />
             ) : typeof chat.content !== "string" ? (
-              <MessageDetail chat={chat} renderMarkdown={renderMarkdown} />
+              <MessageDetail
+                chat={chat}
+                renderMarkdown={renderMarkdown}
+                copyToClipboard={copyToClipboard}
+              />
             ) : chat.tool_calls ? (
               <MessageToolCall chat={chat} copyToClipboard={copyToClipboard} />
             ) : chat.role === "tool" ? (
@@ -754,32 +803,7 @@ export default function Message(props: { messageIndex: number }) {
                 remarkPlugins={[remarkMath, remarkGfm]}
                 rehypePlugins={[rehypeKatex, rehypeHighlight]}
                 className={"max-w-none break-words overflow-wrap-anywhere"}
-                components={{
-                  p: ({ children, node }: any) => {
-                    if (node?.parent?.type === "listItem") {
-                      return (
-                        <span className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
-                          {children}
-                        </span>
-                      );
-                    }
-                    return (
-                      <p className="break-words whitespace-pre-wrap overflow-wrap-anywhere">
-                        {children}
-                      </p>
-                    );
-                  },
-                  code: ({ children }: any) => (
-                    <code className="break-all whitespace-pre-wrap">
-                      {children}
-                    </code>
-                  ),
-                  pre: ({ children }: any) => (
-                    <pre className="break-words whitespace-pre-wrap overflow-x-auto">
-                      {children}
-                    </pre>
-                  ),
-                }}
+                components={markdownComponents}
               >
                 {getMessageText(chat)}
               </Markdown>
