@@ -365,7 +365,7 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
                     <Tr>Arguments</Tr>:
                   </strong>
                   <pre
-                    className="mt-1 p-2 rounded cursor-pointer hover:opacity-70 hover:underline bg-gray-200/70 dark:bg-gray-700/70 text-xs overflow-auto"
+                    className="mt-1 p-2 rounded cursor-pointer hover:opacity-70 hover:underline bg-gray-200/70 dark:bg-gray-700/70 text-xs overflow-auto break-words whitespace-pre-wrap word-break-break-all"
                     onClick={() =>
                       copyToClipboard(tool_call.function.arguments)
                     }
