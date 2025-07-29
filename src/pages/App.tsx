@@ -51,6 +51,8 @@ interface AppContextType {
   setTemplateMCPServers: (t: TemplateMCPServer[]) => void;
   defaultRenderMD: boolean;
   setDefaultRenderMD: (b: boolean) => void;
+  callingTools: { [key: string]: boolean };
+  setCallingTools: (tools: { [key: string]: boolean } | ((prev: { [key: string]: boolean }) => { [key: string]: boolean })) => void;
   handleNewChatStore: () => Promise<void>;
   handleNewChatStoreWithOldOne: (chatStore: ChatStore) => Promise<void>;
 }
@@ -344,6 +346,9 @@ export function App() {
     _setDefaultRenderMD(defaultRenderMD);
   };
 
+  // Global state for tracking calling tools status
+  const [callingTools, setCallingTools] = useState<{ [key: string]: boolean }>({});
+
   console.log("[PERFORMANCE!] reading localStorage");
 
   return (
@@ -368,6 +373,8 @@ export function App() {
         setTemplateMCPServers,
         defaultRenderMD,
         setDefaultRenderMD,
+        callingTools,
+        setCallingTools,
         handleNewChatStore,
         handleNewChatStoreWithOldOne,
       }}

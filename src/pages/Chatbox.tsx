@@ -69,7 +69,7 @@ const createMessageFromCurrentBuffer = (
 };
 
 export default function ChatBOX() {
-  const { db, selectedChatIndex, setSelectedChatIndex, handleNewChatStore } =
+  const { db, selectedChatIndex, setSelectedChatIndex, handleNewChatStore, callingTools, setCallingTools } =
     useContext(AppContext);
   const { langCode, setLangCode } = useContext(langCodeContext);
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
@@ -115,6 +115,11 @@ export default function ChatBOX() {
     const connectedServers =
       chatStore.mcpConnections?.filter((conn) => conn.connected) || [];
     let allToolCallsCompleted = true;
+
+    // Set all tool calls to loading state
+    const toolCallIds = assistantMessage.tool_calls.map((tc) => tc.id).filter((id): id is string => Boolean(id));
+    const loadingState = toolCallIds.reduce((acc, id) => ({ ...acc, [id as string]: true }), {});
+    setCallingTools((prev) => ({ ...prev, ...loadingState }));
 
     for (const toolCall of assistantMessage.tool_calls) {
       const toolName = toolCall.function.name;
@@ -250,6 +255,10 @@ export default function ChatBOX() {
         allToolCallsCompleted = false;
       }
     }
+
+    // Clear loading states for all tool calls
+    const clearingState = toolCallIds.reduce((acc, id) => ({ ...acc, [id as string]: false }), {});
+    setCallingTools((prev) => ({ ...prev, ...clearingState }));
 
     if (allToolCallsCompleted && assistantMessage.tool_calls.length > 0) {
       setChatStore({ ...chatStore });

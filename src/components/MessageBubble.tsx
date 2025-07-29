@@ -129,9 +129,7 @@ function MessageToolCall({ chat, copyToClipboard }: ToolCallMessageProps) {
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
   const { toast } = useToast();
   const { langCode } = useContext(langCodeContext);
-  const [callingTools, setCallingTools] = useState<{ [key: string]: boolean }>(
-    {}
-  );
+  const { callingTools, setCallingTools } = useContext(AppContext);
 
   const callMCPTool = async (toolCall: any) => {
     const toolName = toolCall.function.name;
