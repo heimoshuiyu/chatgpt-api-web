@@ -13,7 +13,6 @@ import {
   useEffect,
 } from "react";
 import { ChatStoreMessage } from "@/types/chatstore";
-import { addTotalCost } from "@/utils/totalCost";
 
 import { Tr, tr, langCodeContext } from "@/translate";
 import { getMessageText } from "@/chatgpt";
@@ -34,6 +33,7 @@ import {
 } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { useTTS } from "@/hooks/useTTS";
 import {
   ClipboardIcon,
   PencilIcon,
@@ -552,81 +552,62 @@ function MessageToolResp({ chat }: ToolRespondMessageProps) {
 
 interface TTSProps {
   chat: ChatStoreMessage;
+  messageIndex: number;
 }
-interface TTSPlayProps {
-  chat: ChatStoreMessage;
-}
-export function TTSPlay(props: TTSPlayProps) {
-  const src = useMemo(() => {
-    if (props.chat.audio instanceof Blob) {
-      return URL.createObjectURL(props.chat.audio);
-    }
-    return "";
-  }, [props.chat.audio]);
 
-  if (props.chat.hide) {
-    return <></>;
+export function TTSPlay({ chat }: TTSProps) {
+  const { getAudioSrc } = useTTS();
+  const src = getAudioSrc(chat);
+
+  if (chat.hide || !chat.audio) {
+    return null;
   }
-  if (props.chat.audio instanceof Blob) {
+
+  if (chat.audio instanceof Blob) {
     return <audio className="w-64" src={src} controls />;
   }
-  return <></>;
+
+  return null;
 }
-function TTSButton(props: TTSProps) {
-  const [generating, setGenerating] = useState(false);
-  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
+
+function TTSButton({ chat, messageIndex }: TTSProps) {
+  const { generateTTS, isGenerating, canUseTTS } = useTTS();
+  const { toast } = useToast();
+  const { langCode } = useContext(langCodeContext);
+
+  const messageId = `message-${messageIndex}`;
+  const generating = isGenerating(messageId);
+
+  const handleGenerateTTS = async () => {
+    try {
+      await generateTTS(chat, messageId);
+      toast({
+        title: tr("TTS generated successfully", langCode),
+        description: tr("Audio has been generated and is playing", langCode),
+      });
+    } catch (error) {
+      console.error("TTS generation error:", error);
+      toast({
+        title: tr("TTS generation failed", langCode),
+        description:
+          error instanceof Error
+            ? error.message
+            : tr("Unknown error", langCode),
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (!canUseTTS()) {
+    return null;
+  }
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={() => {
-        const api = chatStore.tts_api;
-        const api_key = chatStore.tts_key;
-        const model = "tts-1";
-        const input = getMessageText(props.chat);
-        const voice = chatStore.tts_voice;
-
-        const body: Record<string, any> = {
-          model,
-          input,
-          voice,
-          response_format: chatStore.tts_format || "mp3",
-        };
-        if (chatStore.tts_speed_enabled) {
-          body["speed"] = chatStore.tts_speed;
-        }
-
-        setGenerating(true);
-
-        fetch(api, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${api_key}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        })
-          .then((response) => response.blob())
-          .then((blob) => {
-            // update price
-            const cost = (input.length * 0.015) / 1000;
-            chatStore.cost += cost;
-            addTotalCost(cost);
-            setChatStore({ ...chatStore });
-
-            // save blob
-            props.chat.audio = blob;
-            setChatStore({ ...chatStore });
-
-            const url = URL.createObjectURL(blob);
-            const audio = new Audio(url);
-            audio.play();
-          })
-          .finally(() => {
-            setGenerating(false);
-          });
-      }}
+      onClick={handleGenerateTTS}
+      disabled={generating}
     >
       {generating ? (
         <LoaderCircleIcon className="h-4 w-4 animate-spin" />
@@ -729,7 +710,7 @@ export default function Message(props: { messageIndex: number }) {
                     : getMessageText(chat))}
               </div>
             )}
-            <TTSPlay chat={chat} />
+            <TTSPlay chat={chat} messageIndex={messageIndex} />
           </div>
           <div className="flex md:opacity-0 hover:opacity-100 transition-opacity">
             <ChatBubbleAction
@@ -761,9 +742,7 @@ export default function Message(props: { messageIndex: number }) {
               icon={<ClipboardIcon className="size-4" />}
               onClick={() => copyToClipboard(getMessageText(chat))}
             />
-            {chatStore.tts_api && chatStore.tts_key && (
-              <TTSButton chat={chat} />
-            )}
+            <TTSButton chat={chat} messageIndex={messageIndex} />
           </div>
         </div>
       ) : (
@@ -801,7 +780,7 @@ export default function Message(props: { messageIndex: number }) {
                     : getMessageText(chat))}
               </div>
             )}
-            <TTSPlay chat={chat} />
+            <TTSPlay chat={chat} messageIndex={messageIndex} />
           </ChatBubbleMessage>
           <ChatBubbleActionWrapper>
             <ChatBubbleAction
@@ -833,9 +812,7 @@ export default function Message(props: { messageIndex: number }) {
               icon={<ClipboardIcon className="size-4" />}
               onClick={() => copyToClipboard(getMessageText(chat))}
             />
-            {chatStore.tts_api && chatStore.tts_key && (
-              <TTSButton chat={chat} />
-            )}
+            <TTSButton chat={chat} messageIndex={messageIndex} />
           </ChatBubbleActionWrapper>
         </ChatBubble>
       )}
