@@ -75,6 +75,7 @@ function MCPHandshakeDialog({
     },
   ]);
   const [tools, setTools] = useState<MCPTool[]>([]);
+  const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [sessionId, setSessionId] = useState<string>("");
   const { toast } = useToast();
 
@@ -246,27 +247,12 @@ function MCPHandshakeDialog({
       // 提取工具列表
       const receivedTools: MCPTool[] = toolsResult?.result?.tools || [];
       setTools(receivedTools);
+      // 默认选中所有工具
+      setSelectedTools(receivedTools.map((tool) => tool.name));
 
       updateStepStatus("tools", "success", {
         request: toolsListPayload,
         response: toolsResult,
-      });
-
-      // 创建完整的连接信息
-      const connection: MCPServerConnection = {
-        serverName,
-        templateName,
-        config: serverConfig,
-        sessionId,
-        tools: receivedTools,
-        connected: true,
-        connectedAt: new Date().toISOString(),
-      };
-
-      onHandshakeComplete(connection);
-      toast({
-        title: "握手成功",
-        description: `成功连接到 ${serverName}，获取到 ${receivedTools.length} 个工具`,
       });
     } catch (error) {
       console.error("Handshake error:", error);
@@ -311,6 +297,7 @@ function MCPHandshakeDialog({
         },
       ]);
       setTools([]);
+      setSelectedTools([]);
       setSessionId("");
 
       // Start handshake
@@ -332,6 +319,39 @@ function MCPHandshakeDialog({
         );
     }
   };
+
+  const handleToolToggle = (toolName: string, checked: boolean) => {
+    setSelectedTools((prev) =>
+      checked ? [...prev, toolName] : prev.filter((name) => name !== toolName)
+    );
+  };
+
+  const handleSelectAllTools = (checked: boolean) => {
+    setSelectedTools(checked ? tools.map((tool) => tool.name) : []);
+  };
+
+  const handleImportTools = () => {
+    // 只导入选中的工具
+    const selectedToolsData = tools.filter((tool) =>
+      selectedTools.includes(tool.name)
+    );
+
+    const connection: MCPServerConnection = {
+      serverName,
+      templateName,
+      config: serverConfig,
+      sessionId,
+      tools: selectedToolsData,
+      connected: true,
+      connectedAt: new Date().toISOString(),
+    };
+
+    onHandshakeComplete(connection);
+    onClose();
+  };
+
+  const allStepsCompleted = steps.every((step) => step.status === "success");
+  const hasSelectedTools = selectedTools.length > 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -413,20 +433,49 @@ function MCPHandshakeDialog({
 
           {/* 工具列表 */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">可用工具</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">可用工具</h3>
+              {tools.length > 0 && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="select-all-tools"
+                    checked={selectedTools.length === tools.length}
+                    onCheckedChange={handleSelectAllTools}
+                  />
+                  <label
+                    htmlFor="select-all-tools"
+                    className="text-sm cursor-pointer"
+                  >
+                    全选
+                  </label>
+                </div>
+              )}
+            </div>
             {tools.length > 0 ? (
               <ScrollArea className="h-[400px]">
                 <div className="space-y-3">
                   {tools.map((tool, index) => (
                     <div key={index} className="p-3 border rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
-                        <h4 className="text-sm font-medium">{tool.name}</h4>
-                        <Badge variant="outline">工具</Badge>
+                        <Checkbox
+                          id={`tool-${index}`}
+                          checked={selectedTools.includes(tool.name)}
+                          onCheckedChange={(checked) =>
+                            handleToolToggle(tool.name, checked as boolean)
+                          }
+                        />
+                        <label
+                          htmlFor={`tool-${index}`}
+                          className="flex items-center space-x-2 cursor-pointer flex-1"
+                        >
+                          <h4 className="text-sm font-medium">{tool.name}</h4>
+                          <Badge variant="outline">工具</Badge>
+                        </label>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">
+                      <p className="text-sm text-muted-foreground mb-2 ml-6">
                         {tool.description}
                       </p>
-                      <details>
+                      <details className="ml-6">
                         <summary className="text-xs text-blue-600 cursor-pointer hover:text-blue-800">
                           参数 Schema
                         </summary>
@@ -453,8 +502,25 @@ function MCPHandshakeDialog({
           </div>
         </div>
 
-        <DialogFooter>
-          <Button onClick={onClose}>关闭</Button>
+        <DialogFooter className="flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">
+            {tools.length > 0 && (
+              <span>
+                已选择 {selectedTools.length} / {tools.length} 个工具
+              </span>
+            )}
+          </div>
+          <div className="flex space-x-2">
+            <Button variant="outline" onClick={onClose}>
+              取消
+            </Button>
+            <Button
+              onClick={handleImportTools}
+              disabled={!allStepsCompleted || !hasSelectedTools}
+            >
+              导入工具
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
