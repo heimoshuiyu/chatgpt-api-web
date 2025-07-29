@@ -41,6 +41,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { AppChatStoreContext, AppContext } from "./App";
 import { ImageGenDrawer } from "@/components/ImageGenDrawer";
+import { useToast } from "@/hooks/use-toast";
 
 const createMessageFromCurrentBuffer = (
   chunkMessages: string[],
@@ -72,6 +73,7 @@ export default function ChatBOX() {
     useContext(AppContext);
   const { langCode, setLangCode } = useContext(langCodeContext);
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
+  const { toast } = useToast();
   // prevent error
   const [inputMsg, setInputMsg] = useState("");
   const [images, setImages] = useState<MessageDetail[]>([]);
@@ -85,6 +87,177 @@ export default function ChatBOX() {
     default_follow = "true";
   }
   const [follow, _setFollow] = useState(default_follow === "true");
+
+  // Get auto call MCP setting from localStorage
+  const getAutoCallMCP = (): boolean => {
+    const stored = localStorage.getItem("autoCallMCP");
+    return stored ? JSON.parse(stored) : false;
+  };
+
+  // Auto call MCP tools function
+  const autoCallMCPTools = async (
+    assistantMessage: ChatStoreMessage
+  ): Promise<boolean> => {
+    if (
+      !getAutoCallMCP() ||
+      !assistantMessage.tool_calls ||
+      assistantMessage.tool_calls.length === 0
+    ) {
+      return false;
+    }
+
+    console.log(
+      "Auto calling MCP tools for message with",
+      assistantMessage.tool_calls.length,
+      "tool calls"
+    );
+
+    const connectedServers =
+      chatStore.mcpConnections?.filter((conn) => conn.connected) || [];
+    let allToolCallsCompleted = true;
+
+    for (const toolCall of assistantMessage.tool_calls) {
+      const toolName = toolCall.function.name;
+      const toolId = toolCall.id;
+
+      if (!toolId) {
+        console.warn("Tool call ID is missing for tool:", toolName);
+        allToolCallsCompleted = false;
+        continue;
+      }
+
+      // Find the corresponding tool in MCP connections
+      let foundConnection = null;
+      let foundTool = null;
+
+      for (const connection of connectedServers) {
+        const tool = connection.tools.find((t) => t.name === toolName);
+        if (tool) {
+          foundConnection = connection;
+          foundTool = tool;
+          break;
+        }
+      }
+
+      if (!foundConnection || !foundTool) {
+        console.warn(`MCP tool not found: "${toolName}"`);
+        allToolCallsCompleted = false;
+        continue;
+      }
+
+      try {
+        // Parse tool arguments
+        let toolArguments;
+        try {
+          toolArguments = JSON.parse(toolCall.function.arguments);
+        } catch (e) {
+          console.warn(
+            "Tool arguments is not valid JSON:",
+            toolCall.function.arguments
+          );
+          allToolCallsCompleted = false;
+          continue;
+        }
+
+        // Build MCP tools/call request
+        const mcpRequest = {
+          method: "tools/call",
+          params: {
+            name: toolName,
+            arguments: toolArguments,
+          },
+          id: Date.now(), // Use timestamp as request ID
+          jsonrpc: "2.0",
+        };
+
+        console.log("Auto calling MCP tool:", mcpRequest);
+
+        // Send MCP tool call request
+        const response = await fetch(foundConnection.config.url, {
+          method: "POST",
+          headers: {
+            Accept: "application/json, text/event-stream",
+            "Content-Type": "application/json; charset=utf-8",
+            "Mcp-Session-Id": foundConnection.sessionId,
+          },
+          body: JSON.stringify(mcpRequest),
+        });
+
+        if (!response.ok) {
+          console.error(
+            `MCP tool call failed: ${response.status} ${response.statusText}`
+          );
+          allToolCallsCompleted = false;
+          continue;
+        }
+
+        // Parse response
+        const responseText = await response.text();
+        let mcpResult;
+
+        if (responseText.includes("data: ")) {
+          // Parse SSE format
+          const lines = responseText.split("\n");
+          const dataLine = lines.find((line) => line.startsWith("data: "));
+          if (dataLine) {
+            const jsonData = dataLine.substring(6);
+            mcpResult = JSON.parse(jsonData);
+          }
+        } else {
+          // Regular JSON response
+          mcpResult = JSON.parse(responseText);
+        }
+
+        console.log("MCP tool result:", mcpResult);
+
+        // Extract result content
+        const resultContent = mcpResult?.result?.content;
+        let outputText = "";
+
+        if (Array.isArray(resultContent)) {
+          outputText = resultContent
+            .filter((item) => item.type === "text")
+            .map((item) => item.text)
+            .join("\n");
+        } else if (typeof resultContent === "string") {
+          outputText = resultContent;
+        } else {
+          outputText = JSON.stringify(resultContent);
+        }
+
+        // Add tool call result message
+        const functionCallOutputMessage: ChatStoreMessage = {
+          role: "tool",
+          content: outputText,
+          tool_call_id: toolId,
+          hide: false,
+          token: outputText.length / 4, // Estimate token count
+          example: false,
+          audio: null,
+          logprobs: null,
+          response_model_name: null,
+          reasoning_content: null,
+          usage: null,
+        };
+
+        // Update chat history
+        chatStore.history.push(functionCallOutputMessage);
+        chatStore.totalTokens += functionCallOutputMessage.token;
+
+        console.log(`Auto called MCP tool "${toolName}" successfully`);
+      } catch (error) {
+        console.error("Auto MCP tool call error:", error);
+        allToolCallsCompleted = false;
+      }
+    }
+
+    if (allToolCallsCompleted && assistantMessage.tool_calls.length > 0) {
+      setChatStore({ ...chatStore });
+      return true; // Signal that we should regenerate
+    }
+
+    return false;
+  };
 
   const setFollow = (follow: boolean) => {
     console.log("set follow", follow);
@@ -311,7 +484,7 @@ export default function ChatBOX() {
   };
 
   // wrap the actuall complete api
-  const complete = async () => {
+  const complete = async (skipAutoMCP = false) => {
     // manually copy status from chatStore to client
     client.apiEndpoint = chatStore.apiEndpoint;
     client.sysMessageContent = chatStore.systemMessageContent;
@@ -497,6 +670,14 @@ export default function ChatBOX() {
 
       setShowRetry(false);
       setChatStore({ ...chatStore });
+
+      // Auto call MCP tools if enabled and not skipped
+      if (!skipAutoMCP && getAutoCallMCP()) {
+        const shouldRegenerate = await autoCallMCPTools(cs);
+        if (shouldRegenerate) {
+          await complete(true); // Regenerate with skipAutoMCP=true to prevent infinite recursion
+        }
+      }
     } catch (error: any) {
       if (error.name === "AbortError") {
         console.log("abort complete");
