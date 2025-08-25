@@ -86,6 +86,10 @@ export const ChatSettings: React.FC = () => {
           )}
         />
         <ChoiceCheckbox
+          field="enable_thinking"
+          help={tr("enable_thinking", langCode)}
+        />
+        <ChoiceCheckbox
           field="logprobs"
           help={tr("Logprobs, return the probability of each token", langCode)}
         />

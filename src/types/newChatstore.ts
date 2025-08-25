@@ -42,6 +42,8 @@ interface NewChatStoreOptions {
   use_this_history?: ChatStoreMessage[];
   chatPrice?: ModelPricing;
   mcpConnections?: MCPServerConnection[];
+  enable_thinking?: boolean;
+  enable_thinking_enabled?: boolean;
 }
 
 export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
@@ -90,5 +92,7 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     contents_for_index: [],
     mcpConnections: options.mcpConnections ?? [], // Default to empty array for MCP connections
     chatPrice: options.chatPrice ?? undefined,
+    enable_thinking: options.enable_thinking ?? false,
+    enable_thinking_enabled: options.enable_thinking_enabled ?? false,
   };
 };

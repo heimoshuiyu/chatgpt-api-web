@@ -169,6 +169,8 @@ class Chat {
   frequency_penalty: number;
   frequency_penalty_enabled: boolean;
   json_mode: boolean;
+  enable_thinking: boolean;
+  enable_thinking_enabled: boolean;
 
   constructor(
     OPENAI_API_KEY: string | undefined,
@@ -190,6 +192,8 @@ class Chat {
       frequency_penalty = 0,
       frequency_penalty_enabled = false,
       json_mode = false,
+      enable_thinking = false,
+      enable_thinking_enabled = false,
     } = {}
   ) {
     this.OPENAI_API_KEY = OPENAI_API_KEY ?? "";
@@ -212,6 +216,8 @@ class Chat {
     this.frequency_penalty = frequency_penalty;
     this.frequency_penalty_enabled = frequency_penalty_enabled;
     this.json_mode = json_mode;
+    this.enable_thinking = enable_thinking;
+    this.enable_thinking_enabled = enable_thinking_enabled;
   }
 
   _fetch(stream = false, logprobs = false, signal: AbortSignal) {
@@ -273,6 +279,9 @@ class Chat {
       body["response_format"] = {
         type: "json_object",
       };
+    }
+    if (this.enable_thinking_enabled) {
+      body["enable_thinking"] = this.enable_thinking;
     }
     if (logprobs) {
       body["logprobs"] = true;

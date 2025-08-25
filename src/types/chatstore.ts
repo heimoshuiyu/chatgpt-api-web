@@ -69,6 +69,8 @@ export interface ChatStore {
   logprobs: boolean;
   contents_for_index: string[];
   mcpConnections: MCPServerConnection[]; // Detailed MCP connection information
+  enable_thinking: boolean;
+  enable_thinking_enabled: boolean;
   chatPrice?: ModelPricing;
 }
 

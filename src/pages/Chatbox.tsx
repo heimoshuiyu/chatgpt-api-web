@@ -614,6 +614,8 @@ export default function ChatBOX() {
     client.max_tokens = chatStore.maxTokens;
     client.max_gen_tokens = chatStore.maxGenTokens;
     client.enable_max_gen_tokens = chatStore.maxGenTokens_enabled;
+    client.enable_thinking = chatStore.enable_thinking;
+    client.enable_thinking_enabled = chatStore.enable_thinking_enabled;
 
     const created_at = new Date();
 

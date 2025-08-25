@@ -12,7 +12,12 @@ import {
 import { InfoIcon } from "lucide-react";
 
 interface ChoiceCheckboxProps {
-  field: "streamMode" | "develop_mode" | "json_mode" | "logprobs";
+  field:
+    | "streamMode"
+    | "develop_mode"
+    | "json_mode"
+    | "logprobs"
+    | "enable_thinking";
   help: string;
 }
 
@@ -22,10 +27,27 @@ export const ChoiceCheckbox: React.FC<ChoiceCheckboxProps> = ({
 }) => {
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
 
+  const enabled_filed_name: "enable_thinking_enabled" =
+    `${field}_enabled` as any;
+
+  const enabled = chatStore[enabled_filed_name];
+
+  if (enabled === null || enabled === undefined) {
+    if (field === "enable_thinking") {
+      chatStore[enabled_filed_name] = false;
+    }
+  }
+
+  const setEnabled = (state: boolean) => {
+    chatStore[enabled_filed_name] = state;
+    setChatStore({ ...chatStore });
+  };
+
   return (
     <div className="flex items-center space-x-2">
       <div className="flex items-center">
         <Checkbox
+          disabled={field === "enable_thinking" && !enabled}
           id={`${field}-checkbox`}
           checked={chatStore[field]}
           onCheckedChange={(checked: boolean) => {
@@ -53,6 +75,21 @@ export const ChoiceCheckbox: React.FC<ChoiceCheckboxProps> = ({
           </DialogContent>
         </Dialog>
       </label>
+      {field == "enable_thinking" && (
+        <>
+          <Checkbox
+            id={`${field}-enabled-checkbox`}
+            checked={chatStore[enabled_filed_name]}
+            onCheckedChange={(checked: boolean) => setEnabled(!!checked)}
+          />
+          <label
+            htmlFor={`${field}-enabled-checkbox`}
+            className="flex items-center gap-2 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Enabled
+          </label>
+        </>
+      )}
     </div>
   );
 };
