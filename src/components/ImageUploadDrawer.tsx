@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { PenIcon, XIcon, ImageIcon } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
 import { AppContext } from "@/pages/App";
 
 interface Props {
@@ -26,6 +27,8 @@ export function ImageUploadDrawer({ setImages, images, disableFactor }: Props) {
   const ctx = useContext(AppContext);
   const [showAddImage, setShowAddImage] = useState(false);
   const [enableHighResolution, setEnableHighResolution] = useState(true);
+  const [enableCompression, setEnableCompression] = useState(false);
+  const [compressionQuality, setCompressionQuality] = useState(80);
   useState("b64_json");
   return (
     <Drawer open={showAddImage} onOpenChange={setShowAddImage}>
@@ -80,31 +83,82 @@ export function ImageUploadDrawer({ setImages, images, disableFactor }: Props) {
                 const input = document.createElement("input");
                 input.type = "file";
                 input.accept = "image/*";
-                input.onchange = (event) => {
+                input.onchange = async (event) => {
                   const file = (event.target as HTMLInputElement).files?.[0];
                   if (!file) {
                     return;
                   }
-                  const reader = new FileReader();
-                  reader.readAsDataURL(file);
-                  reader.onloadend = () => {
-                    const base64data = reader.result;
-                    setImages([
-                      ...images,
-                      {
-                        type: "image_url",
-                        image_url: {
-                          url: String(base64data),
-                          detail: enableHighResolution ? "high" : "low",
-                        },
+
+                  let compressedDataUrl: string;
+
+                  if (enableCompression) {
+                    // Compress the image using canvas
+                    compressedDataUrl = await new Promise<string>(
+                      (resolve, reject) => {
+                        const img = new Image();
+                        img.onload = () => {
+                          const canvas = document.createElement("canvas");
+                          const ctx = canvas.getContext("2d");
+
+                          if (!ctx) {
+                            reject(new Error("Could not get canvas context"));
+                            return;
+                          }
+
+                          // Keep original resolution
+                          canvas.width = img.width;
+                          canvas.height = img.height;
+
+                          // Draw image on canvas
+                          ctx.drawImage(img, 0, 0);
+
+                          // Convert to compressed data URL
+                          const quality = compressionQuality / 100;
+                          const compressedDataUrl = canvas.toDataURL(
+                            "image/jpeg",
+                            quality
+                          );
+
+                          resolve(compressedDataUrl);
+                        };
+
+                        img.onerror = () =>
+                          reject(new Error("Failed to load image"));
+
+                        // Load the original file
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                          img.src = e.target?.result as string;
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    );
+                  } else {
+                    // Use original file without compression
+                    compressedDataUrl = await new Promise<string>((resolve) => {
+                      const reader = new FileReader();
+                      reader.onload = (e) => {
+                        resolve(e.target?.result as string);
+                      };
+                      reader.readAsDataURL(file);
+                    });
+                  }
+
+                  setImages([
+                    ...images,
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: compressedDataUrl,
+                        detail: enableHighResolution ? "high" : "low",
                       },
-                    ]);
-                  };
+                    },
+                  ]);
                 };
                 input.click();
               }}
             >
-              Add from local file
+              Add from local file{enableCompression && " (Compression)"}
             </Button>
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -120,6 +174,40 @@ export function ImageUploadDrawer({ setImages, images, disableFactor }: Props) {
                 High resolution
               </label>
             </div>
+          </div>
+
+          <div className="space-y-4 mt-4 p-4 border rounded-lg">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                checked={enableCompression}
+                onCheckedChange={(checked) =>
+                  setEnableCompression(checked === true)
+                }
+              />
+              <label className="text-sm font-medium">
+                Enable image compression
+              </label>
+            </div>
+
+            {enableCompression && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Compression Quality: {compressionQuality}%
+                </label>
+                <Slider
+                  value={[compressionQuality]}
+                  onValueChange={(value) => setCompressionQuality(value[0])}
+                  max={95}
+                  min={10}
+                  step={5}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Higher quality = larger file size. Compression reduces file
+                  size without changing resolution.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap">
