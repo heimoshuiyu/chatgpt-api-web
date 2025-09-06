@@ -38,7 +38,10 @@ export function useMCPToolExecution(): MCPToolExecutionHook {
       (acc, id) => ({ ...acc, [id as string]: true }),
       {}
     );
-    setCallingTools((prev: { [key: string]: boolean }) => ({ ...prev, ...loadingState }));
+    setCallingTools((prev: { [key: string]: boolean }) => ({
+      ...prev,
+      ...loadingState,
+    }));
 
     for (const toolCall of assistantMessage.tool_calls) {
       const toolName = toolCall.function.name;
@@ -180,7 +183,10 @@ export function useMCPToolExecution(): MCPToolExecutionHook {
       (acc, id) => ({ ...acc, [id as string]: false }),
       {}
     );
-    setCallingTools((prev: { [key: string]: boolean }) => ({ ...prev, ...clearingState }));
+    setCallingTools((prev: { [key: string]: boolean }) => ({
+      ...prev,
+      ...clearingState,
+    }));
 
     if (allToolCallsCompleted && assistantMessage.tool_calls.length > 0) {
       setChatStore({ ...chatStore });

@@ -49,12 +49,12 @@ export default function ChatBOX() {
   // Hooks
   const { complete } = useMessageCompletion();
   const { send, userInputRef, abortControllerRef } = useMessageSending();
-  const { 
-    mcpConfirmOpen, 
-    pendingMcpMessage, 
-    showMCPConfirmation, 
-    handleMcpConfirm, 
-    handleMcpCancel 
+  const {
+    mcpConfirmOpen,
+    pendingMcpMessage,
+    showMCPConfirmation,
+    handleMcpConfirm,
+    handleMcpCancel,
   } = useMCPConfirmation();
 
   // Auto-scroll effect
@@ -70,7 +70,7 @@ export default function ChatBOX() {
     try {
       setShowGenerating(true);
       abortControllerRef.current = new AbortController();
-      
+
       await complete((message) => {
         showMCPConfirmation(message);
       });
@@ -108,7 +108,7 @@ export default function ChatBOX() {
     if (images.length > 0 && inputMsg.trim()) {
       content = [{ type: "text", text: inputMsg }, ...images];
     }
-    
+
     chatStore.history.push({
       role: "user",
       content,
@@ -131,7 +131,7 @@ export default function ChatBOX() {
     setChatStore({ ...chatStore });
     setInputMsg("");
     setImages([]);
-    
+
     await handleComplete();
   };
 

@@ -30,7 +30,7 @@ export function useMessageSending(): MessageSendingHook {
     }
 
     let content: string | MessageDetail[] = inputMsg;
-    
+
     chatStore.history.push({
       role: "user",
       content,

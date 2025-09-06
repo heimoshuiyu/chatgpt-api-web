@@ -1,5 +1,11 @@
 import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tr } from "@/translate";
@@ -34,13 +40,16 @@ export function MCPConfirmationDialog({
 
     const mcpTools = pendingMcpMessage.tool_calls
       .map((toolCall, index) => {
-        const connectedServers = chatStore.mcpConnections?.filter((conn) => conn.connected) || [];
+        const connectedServers =
+          chatStore.mcpConnections?.filter((conn) => conn.connected) || [];
         const isMcpTool = connectedServers.some((connection) =>
           connection.tools.some((tool) => tool.name === toolCall.function.name)
         );
 
         if (!isMcpTool) {
-          console.warn(`Tool ${toolCall.function.name} is not an MCP tool, skipping from confirmation dialog`);
+          console.warn(
+            `Tool ${toolCall.function.name} is not an MCP tool, skipping from confirmation dialog`
+          );
           return null;
         }
 
@@ -78,7 +87,8 @@ export function MCPConfirmationDialog({
   const isExecuteDisabled = () => {
     if (!pendingMcpMessage?.tool_calls) return true;
 
-    const connectedServers = chatStore.mcpConnections?.filter((conn) => conn.connected) || [];
+    const connectedServers =
+      chatStore.mcpConnections?.filter((conn) => conn.connected) || [];
     const validMcpTools = pendingMcpMessage.tool_calls.filter((toolCall) => {
       return connectedServers.some((connection) =>
         connection.tools.some((tool) => tool.name === toolCall.function.name)
@@ -100,9 +110,7 @@ export function MCPConfirmationDialog({
           <p className="text-sm text-muted-foreground mb-3">
             <Tr>The assistant wants to execute the following MCP tools:</Tr>
           </p>
-          <div className="space-y-2">
-            {renderMcpTools()}
-          </div>
+          <div className="space-y-2">{renderMcpTools()}</div>
           <p className="text-sm text-muted-foreground mt-3">
             <Tr>Do you want to execute these tools?</Tr>
           </p>

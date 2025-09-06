@@ -17,7 +17,9 @@ export interface MessageCompletionHook {
     signal: AbortSignal
   ) => Promise<ChatStoreMessage>;
   completeWithFetchMode: (response: Response) => Promise<ChatStoreMessage>;
-  complete: (onMCPToolCall?: (message: ChatStoreMessage) => void) => Promise<void>;
+  complete: (
+    onMCPToolCall?: (message: ChatStoreMessage) => void
+  ) => Promise<void>;
 }
 
 const createMessageFromCurrentBuffer = (
@@ -236,7 +238,9 @@ export function useMessageCompletion(): MessageCompletionHook {
     return ret;
   };
 
-  const complete = async (onMCPToolCall?: (message: ChatStoreMessage) => void) => {
+  const complete = async (
+    onMCPToolCall?: (message: ChatStoreMessage) => void
+  ) => {
     // manually copy status from chatStore to client
     client.apiEndpoint = chatStore.apiEndpoint;
     client.sysMessageContent = chatStore.systemMessageContent;

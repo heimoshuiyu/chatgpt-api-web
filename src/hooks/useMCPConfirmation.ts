@@ -15,7 +15,8 @@ export function useMCPConfirmation(): MCPConfirmationHook {
   const { chatStore } = useContext(AppChatStoreContext);
   const { executeMCPTools } = useMCPToolExecution();
   const [mcpConfirmOpen, setMcpConfirmOpen] = useState(false);
-  const [pendingMcpMessage, setPendingMcpMessage] = useState<ChatStoreMessage | null>(null);
+  const [pendingMcpMessage, setPendingMcpMessage] =
+    useState<ChatStoreMessage | null>(null);
 
   const showMCPConfirmation = (message: ChatStoreMessage) => {
     setPendingMcpMessage(message);

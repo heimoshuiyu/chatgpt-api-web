@@ -2,11 +2,23 @@ import React from "react";
 import { ChatStoreMessage } from "@/types/chatstore";
 import Message from "@/components/MessageBubble";
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
-import { ChatBubble, ChatBubbleMessage, ChatBubbleActionWrapper, ChatBubbleAction } from "@/components/ui/chat/chat-bubble";
+import {
+  ChatBubble,
+  ChatBubbleMessage,
+  ChatBubbleActionWrapper,
+  ChatBubbleAction,
+} from "@/components/ui/chat/chat-bubble";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { InfoIcon, ScissorsIcon, CornerDownLeftIcon, CornerRightUpIcon, CornerLeftUpIcon, ArrowDownToDotIcon } from "lucide-react";
+import {
+  InfoIcon,
+  ScissorsIcon,
+  CornerDownLeftIcon,
+  CornerRightUpIcon,
+  CornerLeftUpIcon,
+  ArrowDownToDotIcon,
+} from "lucide-react";
 import { Tr } from "@/translate";
 import VersionHint from "@/components/VersionHint";
 
@@ -52,8 +64,8 @@ export function ChatMessagesDisplay({
               <CornerRightUpIcon className="h-4 w-4" />
               <span>
                 <Tr>
-                  Settings button located at the top right corner can be
-                  used to change the settings of this chat
+                  Settings button located at the top right corner can be used to
+                  change the settings of this chat
                 </Tr>
               </span>
             </div>
@@ -70,8 +82,7 @@ export function ChatMessagesDisplay({
               <ArrowDownToDotIcon className="h-4 w-4" />
               <span>
                 <Tr>
-                  All chat history and settings are stored in the local
-                  browser
+                  All chat history and settings are stored in the local browser
                 </Tr>
               </span>
             </div>
@@ -102,9 +113,7 @@ export function ChatMessagesDisplay({
       ))}
       {showGenerating && (
         <ChatBubble variant="received">
-          <ChatBubbleMessage isLoading>
-            {generatingMessage}
-          </ChatBubbleMessage>
+          <ChatBubbleMessage isLoading>{generatingMessage}</ChatBubbleMessage>
         </ChatBubble>
       )}
       <p className="text-center">
@@ -158,10 +167,7 @@ export function ChatMessagesDisplay({
       <VersionHint />
       {showRetry && (
         <p className="text-right p-2 my-2 dark:text-white">
-          <Button
-            variant="destructive"
-            onClick={onRetry}
-          >
+          <Button variant="destructive" onClick={onRetry}>
             <Tr>Retry</Tr>
           </Button>
         </p>
