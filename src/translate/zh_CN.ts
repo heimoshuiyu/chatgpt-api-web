@@ -197,6 +197,41 @@ const LANG_MAP: Record<string, string> = {
   "加载语言包...": "加载语言包...",
   "启动应用...": "启动应用...",
   "加载完成！": "加载完成！",
+  // ImageUploadDrawer 相关翻译
+  "Add Image": "添加图片",
+  "Image Manager": "图片管理器",
+  "Add and manage images for your conversation. Upload from your device or add from URL.":
+    "为您的对话添加和管理图片。从您的设备上传或从URL添加。",
+  "Add Images": "添加图片",
+  "Add from URL": "从URL添加",
+  "Upload from Device": "从设备上传",
+  "Compression ON": "压缩已开启",
+  "Use high resolution for new images": "为新图片使用高分辨率",
+  "High Quality": "高质量",
+  "Standard Quality": "标准质量",
+  "Compression Settings": "压缩设置",
+  "Enable image compression": "启用图片压缩",
+  Enabled: "已启用",
+  Disabled: "已禁用",
+  "Note: Image compression will only be applied when uploading from device if this option is enabled.":
+    "注意：图片压缩仅在从此选项启用时从设备上传才会应用。",
+  "Compression Quality": "压缩质量",
+  "Smaller file size": "更小的文件大小",
+  "Better quality": "更好的质量",
+  "Compression reduces file size without changing resolution. Higher quality = larger file size but better image clarity.":
+    "压缩可以在不改变分辨率的情况下减小文件大小。更高质量 = 更大的文件大小但更好的图像清晰度。",
+  "Added Images": "已添加的图片",
+  Image: "图片",
+  HiRes: "高分辨率",
+  Edit: "编辑",
+  Delete: "删除",
+  "No images added yet": "尚未添加图片",
+  "Upload an image or add from URL to get started": "上传图片或从URL添加以开始",
+  Done: "完成",
+  images: "张图片",
+  "Enter image URL:": "输入图片URL：",
+  "Enter new image URL:": "输入新的图片URL：",
+  "Are you sure you want to delete this image?": "确定要删除这张图片吗？",
 };
 
 export default LANG_MAP;
