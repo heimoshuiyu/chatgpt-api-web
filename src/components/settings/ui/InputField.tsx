@@ -21,6 +21,7 @@ interface InputFieldProps {
     | "whisper_key"
     | "tts_api"
     | "tts_key"
+    | "tts_model"
     | "image_gen_api"
     | "image_gen_key";
   help: string;

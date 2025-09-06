@@ -29,6 +29,7 @@ interface NewChatStoreOptions {
   whisper_key?: string;
   tts_api?: string;
   tts_key?: string;
+  tts_model?: string;
   tts_voice?: string;
   tts_speed?: number;
   tts_speed_enabled?: boolean;
@@ -80,6 +81,7 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     whisper_key: options.whisper_key ?? "",
     tts_api: options.tts_api ?? "https://api.openai.com/v1/audio/speech",
     tts_key: options.tts_key ?? "",
+    tts_model: options.tts_model ?? "tts-1",
     tts_voice: options.tts_voice ?? "alloy",
     tts_speed: options.tts_speed ?? 1.0,
     tts_speed_enabled: options.tts_speed_enabled ?? false,

@@ -83,6 +83,13 @@ export const TTSSettings: React.FC = () => {
                 langCode
               )}
             />
+            <InputField
+              field="tts_model"
+              help={tr(
+                "TTS model to use for text-to-speech generation. Default: tts-1",
+                langCode
+              )}
+            />
             <SetAPIsTemplate
               label="TTS API"
               endpoint={chatStore.tts_api}

@@ -59,6 +59,7 @@ export interface ChatStore {
   whisper_key: string;
   tts_api: string;
   tts_key: string;
+  tts_model: string;
   tts_voice: string;
   tts_speed: number;
   tts_speed_enabled: boolean;

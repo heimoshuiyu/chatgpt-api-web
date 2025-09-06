@@ -13,7 +13,7 @@ export const useTTS = () => {
   const generateTTS = async (chat: ChatStoreMessage, messageId: string) => {
     const api = chatStore.tts_api;
     const api_key = chatStore.tts_key;
-    const model = "tts-1";
+    const model = chatStore.tts_model;
     const input = getMessageText(chat);
     const voice = chatStore.tts_voice;
 
