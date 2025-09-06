@@ -9,9 +9,9 @@ export const useTTS = () => {
   const [generatingStates, setGeneratingStates] = useState<
     Record<string, boolean>
   >({});
-  const [playingStates, setPlayingStates] = useState<
-    Record<string, boolean>
-  >({});
+  const [playingStates, setPlayingStates] = useState<Record<string, boolean>>(
+    {}
+  );
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const generateTTS = async (chat: ChatStoreMessage, messageId: string) => {
@@ -68,27 +68,29 @@ export const useTTS = () => {
       // Play audio
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
-      
+
       // Set up event listeners
-      const onPlay = () => setPlayingStates(prev => ({ ...prev, [messageId]: true }));
+      const onPlay = () =>
+        setPlayingStates((prev) => ({ ...prev, [messageId]: true }));
       const onEnded = () => {
-        setPlayingStates(prev => ({ ...prev, [messageId]: false }));
+        setPlayingStates((prev) => ({ ...prev, [messageId]: false }));
         audioRef.current = null;
       };
-      const onPause = () => setPlayingStates(prev => ({ ...prev, [messageId]: false }));
-      
-      audio.addEventListener('play', onPlay);
-      audio.addEventListener('ended', onEnded);
-      audio.addEventListener('pause', onPause);
-      
+      const onPause = () =>
+        setPlayingStates((prev) => ({ ...prev, [messageId]: false }));
+
+      audio.addEventListener("play", onPlay);
+      audio.addEventListener("ended", onEnded);
+      audio.addEventListener("pause", onPause);
+
       // Stop any currently playing audio
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.removeEventListener('play', onPlay);
-        audioRef.current.removeEventListener('ended', onEnded);
-        audioRef.current.removeEventListener('pause', onPause);
+        audioRef.current.removeEventListener("play", onPlay);
+        audioRef.current.removeEventListener("ended", onEnded);
+        audioRef.current.removeEventListener("pause", onPause);
       }
-      
+
       audioRef.current = audio;
       audio.play();
 
@@ -102,7 +104,7 @@ export const useTTS = () => {
     if (audioRef.current && playingStates[messageId]) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      setPlayingStates(prev => ({ ...prev, [messageId]: false }));
+      setPlayingStates((prev) => ({ ...prev, [messageId]: false }));
     }
   };
 
@@ -118,8 +120,7 @@ export const useTTS = () => {
   const isGenerating = (messageId: string) =>
     generatingStates[messageId] || false;
 
-  const isPlaying = (messageId: string) =>
-    playingStates[messageId] || false;
+  const isPlaying = (messageId: string) => playingStates[messageId] || false;
 
   const canUseTTS = () => !!(chatStore.tts_api && chatStore.tts_key);
 
