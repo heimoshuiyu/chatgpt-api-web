@@ -37,15 +37,8 @@ import { Tr } from "@/translate";
 import { InputField } from "../ui/InputField";
 import { Slicer } from "../ui/Slicer";
 import { SetAPIsTemplate } from "@/components/setAPIsTemplate";
+import { SelectVoice } from "../ui/SelectVoice";
 
-const TTS_VOICES: string[] = [
-  "alloy",
-  "echo",
-  "fable",
-  "onyx",
-  "nova",
-  "shimmer",
-];
 const TTS_FORMAT: string[] = ["mp3", "opus", "aac", "flac"];
 
 export const TTSSettings: React.FC = () => {
@@ -100,51 +93,9 @@ export const TTSSettings: React.FC = () => {
           </CardContent>
         </Card>
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Tr>TTS Voice</Tr>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <InfoIcon className="w-4 h-4" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>
-                      <Tr>TTS Voice</Tr>
-                    </DialogTitle>
-                    <DialogDescription>
-                      <Tr>Select the voice style for text-to-speech</Tr>
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
-            </Label>
-            <Select
-              value={chatStore.tts_voice}
-              onValueChange={(value) => {
-                chatStore.tts_voice = value;
-                setChatStore({ ...chatStore });
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a voice" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>
-                    <Tr>Voices</Tr>
-                  </SelectLabel>
-                  {TTS_VOICES.map((opt) => (
-                    <SelectItem key={opt} value={opt}>
-                      {opt}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
+          <SelectVoice
+            help={tr("Select the voice style for text-to-speech", langCode)}
+          />
 
           <Slicer
             min={0.25}
