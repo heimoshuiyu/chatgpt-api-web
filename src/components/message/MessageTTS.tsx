@@ -2,7 +2,7 @@ import { useTTS } from "@/hooks/useTTS";
 import { useToast } from "@/hooks/use-toast";
 import { useContext } from "react";
 import { Button } from "@/components/ui/button";
-import { AudioLinesIcon, LoaderCircleIcon } from "lucide-react";
+import { AudioLinesIcon, LoaderCircleIcon, StopCircleIcon } from "lucide-react";
 import { ChatStoreMessage } from "@/types/chatstore";
 import { langCodeContext } from "@/translate";
 import { tr } from "@/translate";
@@ -28,12 +28,13 @@ export function TTSPlay({ chat }: TTSProps) {
 }
 
 export function TTSButton({ chat, messageIndex }: TTSProps) {
-  const { generateTTS, isGenerating, canUseTTS } = useTTS();
+  const { generateTTS, stopTTS, isGenerating, isPlaying, canUseTTS } = useTTS();
   const { toast } = useToast();
   const { langCode } = useContext(langCodeContext);
 
   const messageId = `message-${messageIndex}`;
   const generating = isGenerating(messageId);
+  const playing = isPlaying(messageId);
 
   const handleGenerateTTS = async () => {
     try {
@@ -55,6 +56,14 @@ export function TTSButton({ chat, messageIndex }: TTSProps) {
     }
   };
 
+  const handleStopTTS = () => {
+    stopTTS(messageId);
+    toast({
+      title: tr("Audio stopped", langCode),
+      description: tr("Audio playback has been stopped", langCode),
+    });
+  };
+
   if (!canUseTTS()) {
     return null;
   }
@@ -63,11 +72,13 @@ export function TTSButton({ chat, messageIndex }: TTSProps) {
     <Button
       variant="ghost"
       size="icon"
-      onClick={handleGenerateTTS}
+      onClick={playing ? handleStopTTS : handleGenerateTTS}
       disabled={generating}
     >
       {generating ? (
         <LoaderCircleIcon className="h-4 w-4 animate-spin" />
+      ) : playing ? (
+        <StopCircleIcon className="h-4 w-4" />
       ) : (
         <AudioLinesIcon className="h-4 w-4" />
       )}
