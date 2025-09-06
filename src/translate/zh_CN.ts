@@ -182,6 +182,9 @@ const LANG_MAP: Record<string, string> = {
   Type: "类型",
   Function: "函数",
   Arguments: "参数",
+  Follow: "跟随",
+  Help: "帮助",
+  "Automatically scroll to the bottom of the chat when new messages are generated. This helps you follow the conversation as it happens.": "当生成新消息时自动滚动到聊天底部。这帮助您实时跟踪对话过程。",
   // 加载页面相关翻译
   "🤖 ChatGPT API Web": "🤖 ChatGPT API Web",
   "正在加载应用...": "正在加载应用...",

@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/accordion";
 import { ChoiceCheckbox } from "../ui/ChoiceCheckbox";
 import { TemplateAttributeDialog } from "@/components/TemplateAttributeDialog";
+import { FollowCheckbox } from "../../ui/FollowCheckbox";
 
 const DefaultRenderMDCheckbox = () => {
   const { defaultRenderMD, setDefaultRenderMD } = useContext(AppContext);
@@ -145,6 +146,14 @@ export const SystemSettings: React.FC = () => {
           </div>
           <div className="mt-4">
             <DefaultRenderMDCheckbox />
+          </div>
+          <div className="mt-4">
+            <FollowCheckbox
+              help={tr(
+                "Automatically scroll to the bottom of the chat when new messages are generated. This helps you follow the conversation as it happens.",
+                langCode
+              )}
+            />
           </div>
           <div className="space-y-4 mt-4">
             <div className="space-y-2">

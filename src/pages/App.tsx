@@ -51,6 +51,8 @@ interface AppContextType {
   setTemplateMCPServers: (t: TemplateMCPServer[]) => void;
   defaultRenderMD: boolean;
   setDefaultRenderMD: (b: boolean) => void;
+  follow: boolean;
+  setFollow: (b: boolean) => void;
   callingTools: { [key: string]: boolean };
   setCallingTools: (
     tools:
@@ -376,6 +378,14 @@ export function App() {
     _setDefaultRenderMD(defaultRenderMD);
   };
 
+  const [follow, _setFollow] = useState(
+    localStorage.getItem("follow") !== "false"
+  );
+  const setFollow = (follow: boolean) => {
+    localStorage.setItem("follow", `${follow}`);
+    _setFollow(follow);
+  };
+
   // Global state for tracking calling tools status
   const [callingTools, setCallingTools] = useState<{ [key: string]: boolean }>(
     {}
@@ -405,6 +415,8 @@ export function App() {
         setTemplateMCPServers,
         defaultRenderMD,
         setDefaultRenderMD,
+        follow,
+        setFollow,
         callingTools,
         setCallingTools,
         handleNewChatStore,
