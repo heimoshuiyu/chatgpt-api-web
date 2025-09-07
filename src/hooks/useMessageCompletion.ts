@@ -161,6 +161,8 @@ export function useMessageCompletion(): MessageCompletionHook {
       throw e;
     }
 
+    setGeneratingMessage?.("");
+
     const content = allChunkMessage.join("");
     const reasoning_content = allReasoningContentChunk.join("");
 

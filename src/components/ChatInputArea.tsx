@@ -39,7 +39,7 @@ export function ChatInputArea({
 }: ChatInputAreaProps) {
   return (
     <>
-      {generatingMessage && (
+      {showGenerating && (
         <div className="flex items-center justify-between gap-2 p-2 m-2 rounded bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
