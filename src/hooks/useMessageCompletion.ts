@@ -14,11 +14,13 @@ import { models } from "@/types/models";
 export interface MessageCompletionHook {
   completeWithStreamMode: (
     response: Response,
-    signal: AbortSignal
+    signal: AbortSignal,
+    setGeneratingMessage?: (message: string) => void
   ) => Promise<ChatStoreMessage>;
   completeWithFetchMode: (response: Response) => Promise<ChatStoreMessage>;
   complete: (
-    onMCPToolCall?: (message: ChatStoreMessage) => void
+    onMCPToolCall?: (message: ChatStoreMessage) => void,
+    setGeneratingMessage?: (message: string) => void
   ) => Promise<void>;
 }
 
@@ -52,7 +54,8 @@ export function useMessageCompletion(): MessageCompletionHook {
 
   const completeWithStreamMode = async (
     response: Response,
-    signal: AbortSignal
+    signal: AbortSignal,
+    setGeneratingMessage?: (message: string) => void
   ): Promise<ChatStoreMessage> => {
     let responseTokenCount = 0; // including reasoning content and normal content
     const allChunkMessage: string[] = [];
@@ -124,6 +127,19 @@ export function useMessageCompletion(): MessageCompletionHook {
             tool.function.arguments += tool_call.function.arguments;
           }
         }
+
+        setGeneratingMessage?.(
+          (allReasoningContentChunk.length
+            ? "<think>\n" + allReasoningContentChunk.join("") + "\n</think>\n"
+            : "") +
+            allChunkMessage.join("") +
+            allChunkTool.map((tool) => {
+              return `Tool Call ID: ${tool.id}\nType: ${tool.type}\nFunction: ${tool.function.name}\nArguments: ${tool.function.arguments}`;
+            }) +
+            "\n" +
+            responseTokenCount +
+            " response count"
+        );
       }
     } catch (e: any) {
       if (e.name === "AbortError") {
@@ -239,7 +255,8 @@ export function useMessageCompletion(): MessageCompletionHook {
   };
 
   const complete = async (
-    onMCPToolCall?: (message: ChatStoreMessage) => void
+    onMCPToolCall?: (message: ChatStoreMessage) => void,
+    setGeneratingMessage?: (message: string) => void
   ) => {
     // manually copy status from chatStore to client
     client.apiEndpoint = chatStore.apiEndpoint;
@@ -341,7 +358,11 @@ export function useMessageCompletion(): MessageCompletionHook {
       const contentType = response.headers.get("content-type");
       let cs: ChatStoreMessage;
       if (contentType?.startsWith("text/event-stream")) {
-        cs = await completeWithStreamMode(response, abortController.signal);
+        cs = await completeWithStreamMode(
+          response,
+          abortController.signal,
+          setGeneratingMessage
+        );
       } else if (contentType?.startsWith("application/json")) {
         cs = await completeWithFetchMode(response);
       } else {

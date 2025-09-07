@@ -73,7 +73,7 @@ export default function ChatBOX() {
 
       await complete((message) => {
         showMCPConfirmation(message);
-      });
+      }, setGeneratingMessage);
 
       setShowRetry(false);
     } catch (error: any) {
