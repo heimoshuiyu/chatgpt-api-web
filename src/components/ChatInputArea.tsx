@@ -86,11 +86,13 @@ export function ChatInputArea({
             autoHeight(event.target);
           }}
           onKeyPress={(event: any) => {
-            if (event.ctrlKey && event.code === "Enter") {
-              onSend(event.target.value);
-              setInputMsg("");
-              event.target.value = "";
-              autoHeight(event.target);
+            if ((event.ctrlKey || event.metaKey) && event.code === "Enter") {
+              if (!showGenerating) {
+                onSend(event.target.value);
+                setInputMsg("");
+                event.target.value = "";
+                autoHeight(event.target);
+              }
               return;
             }
             autoHeight(event.target);
