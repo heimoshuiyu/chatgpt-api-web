@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { MessageDetail } from "@/chatgpt";
 import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/components/ui/chat/chat-input";
-import { ImageUploadDrawer } from "@/components/ImageUploadDrawer";
+import { ImageManagerDialog } from "@/components/ImageManagerDialog";
 import { ImageGenDrawer } from "@/components/ImageGenDrawer";
 import WhisperButton from "@/components/WhisperButton";
 import { CornerDownLeftIcon, ScissorsIcon } from "lucide-react";
@@ -101,7 +101,7 @@ export function ChatInputArea({
           className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
         />
         <div className="flex items-center p-3 pt-0">
-          <ImageUploadDrawer
+          <ImageManagerDialog
             images={images}
             setImages={setImages}
             disableFactor={[showGenerating]}
