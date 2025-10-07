@@ -31,4 +31,29 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-select',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-toast',
+            'sonner'
+          ],
+          editor: ['@monaco-editor/react'],
+          markdown: [
+            'react-markdown',
+            'rehype-highlight',
+            'rehype-katex',
+            'remark-gfm',
+            'remark-math'
+          ]
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  },
 });
