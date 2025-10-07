@@ -22,10 +22,10 @@ import {
   Settings,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AppContext } from "@/pages/App";
+import { ImageUploadDialog } from "./ImageUploadDialog";
 
 interface Props {
   images: MessageDetail[];
@@ -41,9 +41,7 @@ export function ImageManagerDialog({
   const ctx = useContext(AppContext);
   const { langCode } = useContext(langCodeContext);
   const [showAddImage, setShowAddImage] = useState(false);
-  const [enableHighResolution, setEnableHighResolution] = useState(true);
-  const [enableCompression, setEnableCompression] = useState(false);
-  const [compressionQuality, setCompressionQuality] = useState(80);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
 
   const handleAddFromUrl = () => {
     const image_url = prompt(tr("Enter image URL:", langCode));
@@ -55,73 +53,14 @@ export function ImageManagerDialog({
         type: "image_url",
         image_url: {
           url: image_url,
-          detail: enableHighResolution ? "high" : "low",
+          detail: "high", // 默认高分辨率，用户可以在管理界面中调整
         },
       },
     ]);
   };
 
-  const handleAddFromFile = async () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = async (event) => {
-      const file = (event.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      let compressedDataUrl: string;
-
-      if (enableCompression) {
-        compressedDataUrl = await new Promise<string>((resolve, reject) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-
-            if (!ctx) {
-              reject(new Error("Could not get canvas context"));
-              return;
-            }
-
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-
-            const quality = compressionQuality / 100;
-            const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
-            resolve(compressedDataUrl);
-          };
-
-          img.onerror = () => reject(new Error("Failed to load image"));
-
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            img.src = e.target?.result as string;
-          };
-          reader.readAsDataURL(file);
-        });
-      } else {
-        compressedDataUrl = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            resolve(e.target?.result as string);
-          };
-          reader.readAsDataURL(file);
-        });
-      }
-
-      setImages([
-        ...images,
-        {
-          type: "image_url",
-          image_url: {
-            url: compressedDataUrl,
-            detail: enableHighResolution ? "high" : "low",
-          },
-        },
-      ]);
-    };
-    input.click();
+  const handleImageUpload = (image: MessageDetail) => {
+    setImages([...images, image]);
   };
 
   const handleEditImage = (index: number) => {
@@ -130,7 +69,7 @@ export function ImageManagerDialog({
 
     images[index].image_url = {
       url: image_url,
-      detail: enableHighResolution ? "high" : "low",
+      detail: images[index].image_url?.detail || "high",
     };
     setImages([...images]);
   };
@@ -199,117 +138,13 @@ export function ImageManagerDialog({
                 <Tr>Add from URL</Tr>
               </Button>
               <Button
-                onClick={handleAddFromFile}
+                onClick={() => setShowUploadDialog(true)}
                 className="flex items-center gap-2 flex-1 min-w-[140px]"
               >
                 <Upload className="size-4" />
                 <Tr>Upload from Device</Tr>
               </Button>
             </div>
-
-            <div className="flex items-center space-x-2 p-3 bg-muted/50 rounded-lg">
-              <Checkbox
-                id="high-res-global"
-                checked={enableHighResolution}
-                onCheckedChange={(checked) =>
-                  setEnableHighResolution(checked === true)
-                }
-              />
-              <label
-                htmlFor="high-res-global"
-                className="text-sm font-medium cursor-pointer"
-              >
-                <Tr>Use high resolution for new images</Tr>
-              </label>
-              <Badge
-                variant={enableHighResolution ? "default" : "secondary"}
-                className="ml-auto text-xs"
-              >
-                {enableHighResolution ? (
-                  <Tr>High Quality</Tr>
-                ) : (
-                  <Tr>Standard Quality</Tr>
-                )}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Compression Settings */}
-        <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Settings className="size-4" />
-              <Tr>Compression Settings</Tr>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="enable-compression"
-                checked={enableCompression}
-                onCheckedChange={(checked) =>
-                  setEnableCompression(checked === true)
-                }
-              />
-              <label
-                htmlFor="enable-compression"
-                className="text-sm font-medium cursor-pointer"
-              >
-                <Tr>Enable image compression</Tr>
-              </label>
-              <Badge
-                variant={enableCompression ? "default" : "secondary"}
-                className="ml-auto text-xs"
-              >
-                {enableCompression ? <Tr>Enabled</Tr> : <Tr>Disabled</Tr>}
-              </Badge>
-            </div>
-            {!enableCompression && (
-              <p className="text-xs text-muted-foreground mt-2 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                💡{" "}
-                <Tr>
-                  Note: Image compression will only be applied when uploading
-                  from device if this option is enabled.
-                </Tr>
-              </p>
-            )}
-
-            {enableCompression && (
-              <div className="space-y-3 p-4 bg-muted/30 rounded-lg border">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">
-                    <Tr>Compression Quality</Tr>
-                  </label>
-                  <Badge variant="outline" className="text-xs">
-                    {compressionQuality}%
-                  </Badge>
-                </div>
-                <Slider
-                  value={[compressionQuality]}
-                  onValueChange={(value) => setCompressionQuality(value[0])}
-                  max={95}
-                  min={10}
-                  step={5}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>
-                    <Tr>Smaller file size</Tr>
-                  </span>
-                  <span>
-                    <Tr>Better quality</Tr>
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  💡{" "}
-                  <Tr>
-                    Compression reduces file size without changing resolution.
-                    Higher quality = larger file size but better image clarity.
-                  </Tr>
-                </p>
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -428,6 +263,13 @@ export function ImageManagerDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Image Upload Dialog */}
+      <ImageUploadDialog
+        open={showUploadDialog}
+        onOpenChange={setShowUploadDialog}
+        onImageSelect={handleImageUpload}
+      />
     </Dialog>
   );
 }

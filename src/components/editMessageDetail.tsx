@@ -16,9 +16,11 @@ import { Textarea } from "./ui/textarea";
 import { Card, CardContent } from "./ui/card";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
-import { GripVertical, ChevronUp, ChevronDown } from "lucide-react";
-import { useContext } from "react";
+import { GripVertical, ChevronUp, ChevronDown, Upload } from "lucide-react";
+import { useContext, useState } from "react";
 import { AppChatStoreContext, AppContext } from "../pages/App";
+import { MessageDetail } from "@/chatgpt";
+import { ImageUploadDialog } from "./ImageUploadDialog";
 
 interface Props {
   chat: ChatStoreMessage;
@@ -26,8 +28,13 @@ interface Props {
 }
 export function EditMessageDetail({ chat, setShowEdit }: Props) {
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number | null>(
+    null
+  );
 
   if (typeof chat.content !== "object") return <div>error</div>;
+
   const moveItem = (index: number, direction: "up" | "down") => {
     if (typeof chat.content === "string") return;
 
@@ -47,6 +54,18 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
     chat.content = newContent;
     chat.token = calculate_token_length(chat.content);
     setChatStore({ ...chatStore });
+  };
+
+  const handleImageUpload = (image: MessageDetail) => {
+    if (currentImageIndex !== null && typeof chat.content !== "string") {
+      const obj = chat.content[currentImageIndex].image_url;
+      if (obj !== undefined) {
+        obj.url = image.image_url?.url || "";
+        obj.detail = image.image_url?.detail || "high";
+      }
+    }
+    setChatStore({ ...chatStore });
+    setCurrentImageIndex(null);
   };
 
   return (
@@ -173,32 +192,11 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                const input = document.createElement("input");
-                                input.type = "file";
-                                input.accept = "image/*";
-                                input.onchange = (event) => {
-                                  const file = (
-                                    event.target as HTMLInputElement
-                                  ).files?.[0];
-                                  if (!file) {
-                                    return;
-                                  }
-                                  const reader = new FileReader();
-                                  reader.readAsDataURL(file);
-                                  reader.onloadend = () => {
-                                    const base64data = reader.result;
-                                    if (!base64data) return;
-                                    if (typeof chat.content === "string")
-                                      return;
-                                    const obj = chat.content[index].image_url;
-                                    if (obj === undefined) return;
-                                    obj.url = String(base64data);
-                                    setChatStore({ ...chatStore });
-                                  };
-                                };
-                                input.click();
+                                setCurrentImageIndex(index);
+                                setShowUploadDialog(true);
                               }}
                             >
+                              <Upload className="size-4 mr-1" />
                               <Tr>Upload</Tr>
                             </Button>
                           </div>
@@ -289,6 +287,13 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {/* Image Upload Dialog */}
+      <ImageUploadDialog
+        open={showUploadDialog}
+        onOpenChange={setShowUploadDialog}
+        onImageSelect={handleImageUpload}
+      />
     </Dialog>
   );
 }
