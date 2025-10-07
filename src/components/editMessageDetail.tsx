@@ -3,15 +3,13 @@ import { calculate_token_length } from "@/chatgpt";
 import { Tr } from "@/translate";
 
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 import { Button } from "./ui/button";
 import { useContext } from "react";
@@ -26,16 +24,15 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
 
   if (typeof chat.content !== "object") return <div>error</div>;
   return (
-    <Drawer open={true} onOpenChange={setShowEdit}>
-      <DrawerTrigger>Open</DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>Edit Message Detail</DrawerTitle>
-          <DrawerDescription>
+    <Dialog open={true} onOpenChange={setShowEdit}>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Edit Message Detail</DialogTitle>
+          <DialogDescription>
             Modify the content of the message.
-          </DrawerDescription>
-        </DrawerHeader>
-        <div className={"w-full h-full flex flex-col overflow-scroll"}>
+          </DialogDescription>
+        </DialogHeader>
+        <div className="w-full h-full flex flex-col overflow-scroll max-h-[60vh]">
           {chat.content.map((mdt, index) => (
             <div className={"w-full p-2 px-4"} key={index}>
               <div className="flex justify-center">
@@ -174,15 +171,15 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
             <Tr>Add image</Tr>
           </Button>
         </div>
-        <DrawerFooter>
+        <DialogFooter>
           <Button
             className="bg-blue-500 p-2 rounded"
             onClick={() => setShowEdit(false)}
           >
             <Tr>Close</Tr>
           </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
