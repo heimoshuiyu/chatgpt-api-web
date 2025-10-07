@@ -44,7 +44,7 @@ export default function Message(props: { messageIndex: number }) {
 
       {chat.role === "assistant" ? (
         <div className="pb-4">
-          <ReasoningContent chat={chat} />
+          {!chat.hide && <ReasoningContent chat={chat} />}
           <div>
             <MessageContent
               chat={chat}

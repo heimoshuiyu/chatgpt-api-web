@@ -110,7 +110,9 @@ export function ChatMessagesDisplay({
       {chatStore.history.map((message, messageIndex) => (
         <React.Fragment key={messageIndex}>
           <Message messageIndex={messageIndex} />
-          {message.error && <StreamErrorDisplay message={message} />}
+          {message.error && !message.hide && (
+            <StreamErrorDisplay message={message} />
+          )}
         </React.Fragment>
       ))}
       {showGenerating && (
