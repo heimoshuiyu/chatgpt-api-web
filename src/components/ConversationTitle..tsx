@@ -1,7 +1,14 @@
 import { STORAGE_NAME } from "@/const";
 import { AppChatStoreContext, AppContext } from "@/pages/App";
 import { ChatStore } from "@/types/chatstore";
-import { memo, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import {
+  memo,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+} from "react";
 
 const ConversationTitle = ({ chatStoreIndex }: { chatStoreIndex: number }) => {
   const { db, selectedChatIndex } = useContext(AppContext);
@@ -12,12 +19,12 @@ const ConversationTitle = ({ chatStoreIndex }: { chatStoreIndex: number }) => {
       const chatStore = (await (
         await db
       ).get(STORAGE_NAME, chatStoreIndex)) as ChatStore;
-      
+
       if (chatStore.history.length === 0) {
         setTitle(`${chatStoreIndex}`);
         return;
       }
-      
+
       const content = chatStore.history[0]?.content;
       if (!content) {
         setTitle(`${chatStoreIndex}`);
@@ -41,10 +48,7 @@ const ConversationTitle = ({ chatStoreIndex }: { chatStoreIndex: number }) => {
   }, [getTitle]);
 
   return (
-    <span
-      className="w-full"
-      onClick={handleClick}
-    >
+    <span className="w-full" onClick={handleClick}>
       {title}
     </span>
   );

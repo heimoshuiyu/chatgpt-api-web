@@ -45,13 +45,16 @@ export const useLocalStorage = <T,>(key: string, defaultValue: T) => {
     }
   }, [key, defaultValue]);
 
-  const setStoredValue = useCallback((value: T) => {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      console.warn(`Error setting localStorage key "${key}":`, error);
-    }
-  }, [key]);
+  const setStoredValue = useCallback(
+    (value: T) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        console.warn(`Error setting localStorage key "${key}":`, error);
+      }
+    },
+    [key]
+  );
 
   return { getStoredValue, setStoredValue };
 };

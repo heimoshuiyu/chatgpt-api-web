@@ -23,14 +23,22 @@ import {
 import { Tr } from "@/translate";
 import VersionHint from "@/components/VersionHint";
 
-const MessageComponent = memo(({ message, messageIndex }: { message: ChatStoreMessage; messageIndex: number }) => (
-  <React.Fragment>
-    <Message messageIndex={messageIndex} />
-    {message.error && !message.hide && (
-      <StreamErrorDisplay message={message} />
-    )}
-  </React.Fragment>
-));
+const MessageComponent = memo(
+  ({
+    message,
+    messageIndex,
+  }: {
+    message: ChatStoreMessage;
+    messageIndex: number;
+  }) => (
+    <React.Fragment>
+      <Message messageIndex={messageIndex} />
+      {message.error && !message.hide && (
+        <StreamErrorDisplay message={message} />
+      )}
+    </React.Fragment>
+  )
+);
 
 interface ChatMessagesDisplayProps {
   chatStore: {
@@ -117,7 +125,11 @@ export function ChatMessagesDisplay({
         </ChatBubble>
       )}
       {chatStore.history.map((message, messageIndex) => (
-        <MessageComponent key={messageIndex} message={message} messageIndex={messageIndex} />
+        <MessageComponent
+          key={messageIndex}
+          message={message}
+          messageIndex={messageIndex}
+        />
       ))}
       {showGenerating && (
         <ChatBubble variant="received">
