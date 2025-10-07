@@ -1,6 +1,7 @@
 import React from "react";
 import { ChatStoreMessage } from "@/types/chatstore";
 import Message from "@/components/MessageBubble";
+import { StreamErrorDisplay } from "@/components/StreamErrorDisplay";
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
 import {
   ChatBubble,
@@ -33,7 +34,6 @@ interface ChatMessagesDisplayProps {
   showGenerating: boolean;
   generatingMessage: string;
   showRetry: boolean;
-  onRetry: () => Promise<void>;
   onNewChat: () => void;
   onCompletion: () => Promise<void>;
   onRegenerate: () => Promise<void>;
@@ -45,7 +45,6 @@ export function ChatMessagesDisplay({
   showGenerating,
   generatingMessage,
   showRetry,
-  onRetry,
   onNewChat,
   onCompletion,
   onRegenerate,
@@ -108,8 +107,11 @@ export function ChatMessagesDisplay({
           </ChatBubbleActionWrapper>
         </ChatBubble>
       )}
-      {chatStore.history.map((_, messageIndex) => (
-        <Message messageIndex={messageIndex} key={messageIndex} />
+      {chatStore.history.map((message, messageIndex) => (
+        <React.Fragment key={messageIndex}>
+          <Message messageIndex={messageIndex} />
+          {message.error && <StreamErrorDisplay message={message} />}
+        </React.Fragment>
       ))}
       {showGenerating && (
         <ChatBubble variant="received">
@@ -165,13 +167,6 @@ export function ChatMessagesDisplay({
         </p>
       )}
       <VersionHint />
-      {showRetry && (
-        <p className="text-right p-2 my-2 dark:text-white">
-          <Button variant="destructive" onClick={onRetry}>
-            <Tr>Retry</Tr>
-          </Button>
-        </p>
-      )}
     </ChatMessageList>
   );
 }

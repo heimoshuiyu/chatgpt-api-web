@@ -11,6 +11,24 @@ import { AppChatStoreContext } from "@/pages/App";
 import { addTotalCost } from "@/utils/totalCost";
 import { models } from "@/types/models";
 
+export enum StreamErrorType {
+  NETWORK_ERROR = "network_error",
+  HTTP_ERROR = "http_error",
+  PARSE_ERROR = "parse_error",
+  TIMEOUT_ERROR = "timeout_error",
+  ABORT_ERROR = "abort_error",
+  RATE_LIMIT_ERROR = "rate_limit_error",
+  UNKNOWN_ERROR = "unknown_error",
+}
+
+export interface StreamError {
+  type: StreamErrorType;
+  message: string;
+  statusCode?: number;
+  details?: any;
+  errorBody?: string; // 服务器返回的原始HTTP响应体
+}
+
 export interface MessageCompletionHook {
   completeWithStreamMode: (
     response: Response,
@@ -23,6 +41,128 @@ export interface MessageCompletionHook {
     setGeneratingMessage?: (message: string) => void
   ) => Promise<void>;
 }
+
+export const createStreamError = (
+  error: any,
+  statusCode?: number,
+  errorBody?: string
+): StreamError => {
+  // 使用服务器返回的响应体作为主要错误信息
+  let message = errorBody || error.message || "Unknown error occurred";
+
+  // 如果没有响应体，使用状态码生成基本错误描述
+  if (!errorBody && statusCode) {
+    if (statusCode === 401) {
+      message = "Authentication failed: Invalid API key or token";
+    } else if (statusCode === 403) {
+      message =
+        "Access forbidden: You don't have permission to access this resource";
+    } else if (statusCode === 404) {
+      message = "Resource not found: The requested endpoint does not exist";
+    } else if (statusCode === 429) {
+      message =
+        "Rate limit exceeded: Too many requests, please try again later";
+    } else if (statusCode >= 400 && statusCode < 500) {
+      message = `Client error (${statusCode})`;
+    } else if (statusCode >= 500) {
+      message = `Server error (${statusCode})`;
+    }
+  }
+
+  if (error.name === "AbortError") {
+    return {
+      type: StreamErrorType.ABORT_ERROR,
+      message: "Request was cancelled",
+      errorBody,
+    };
+  }
+
+  if (error.name === "TimeoutError" || error.message?.includes("timeout")) {
+    return {
+      type: StreamErrorType.TIMEOUT_ERROR,
+      message,
+      errorBody,
+    };
+  }
+
+  if (error.message?.includes("fetch") || error.message?.includes("network")) {
+    return {
+      type: StreamErrorType.NETWORK_ERROR,
+      message,
+      errorBody,
+    };
+  }
+
+  if (statusCode === 401) {
+    return {
+      type: StreamErrorType.HTTP_ERROR,
+      message,
+      statusCode,
+      errorBody,
+    };
+  }
+
+  if (statusCode === 403) {
+    return {
+      type: StreamErrorType.HTTP_ERROR,
+      message,
+      statusCode,
+      errorBody,
+    };
+  }
+
+  if (statusCode === 404) {
+    return {
+      type: StreamErrorType.HTTP_ERROR,
+      message,
+      statusCode,
+      errorBody,
+    };
+  }
+
+  if (statusCode === 429) {
+    return {
+      type: StreamErrorType.RATE_LIMIT_ERROR,
+      message,
+      statusCode,
+      errorBody,
+    };
+  }
+
+  if (statusCode && statusCode >= 400 && statusCode < 500) {
+    return {
+      type: StreamErrorType.HTTP_ERROR,
+      message,
+      statusCode,
+      errorBody,
+    };
+  }
+
+  if (statusCode && statusCode >= 500) {
+    return {
+      type: StreamErrorType.HTTP_ERROR,
+      message,
+      statusCode,
+      errorBody,
+    };
+  }
+
+  if (error.message?.includes("JSON") || error.message?.includes("parse")) {
+    return {
+      type: StreamErrorType.PARSE_ERROR,
+      message,
+      details: error.message,
+      errorBody,
+    };
+  }
+
+  return {
+    type: StreamErrorType.UNKNOWN_ERROR,
+    message,
+    details: error,
+    errorBody,
+  };
+};
 
 const createMessageFromCurrentBuffer = (
   chunkMessages: string[],
@@ -142,23 +282,38 @@ export function useMessageCompletion(): MessageCompletionHook {
         );
       }
     } catch (e: any) {
-      if (e.name === "AbortError") {
-        // 1. 立即保存当前buffer中的内容
-        if (allChunkMessage.length > 0 || allReasoningContentChunk.length > 0) {
-          const partialMsg = createMessageFromCurrentBuffer(
-            allChunkMessage,
-            allReasoningContentChunk,
-            allChunkTool,
-            responseTokenCount
-          );
-          chatStore.history.push(partialMsg);
-          setChatStore({ ...chatStore });
-        }
-        // 2. 不隐藏错误，重新抛出给上层
-        throw e;
+      const streamError = createStreamError(e, response.status);
+
+      // 保存部分内容（如果有）
+      if (allChunkMessage.length > 0 || allReasoningContentChunk.length > 0) {
+        const partialMsg = createMessageFromCurrentBuffer(
+          allChunkMessage,
+          allReasoningContentChunk,
+          allChunkTool,
+          responseTokenCount
+        );
+        partialMsg.error = streamError;
+        partialMsg.incomplete = true;
+        chatStore.history.push(partialMsg);
+        setChatStore({ ...chatStore });
       }
-      // 其他错误直接抛出
-      throw e;
+
+      // 添加错误信息到控制台
+      console.error("Stream processing error:", {
+        type: streamError.type,
+        message: streamError.message,
+        statusCode: streamError.statusCode,
+        details: streamError.details,
+        chunksReceived: responseTokenCount,
+        hasPartialContent:
+          allChunkMessage.length > 0 || allReasoningContentChunk.length > 0,
+      });
+
+      // 重新抛出错误，包含增强的错误信息
+      const enhancedError = new Error(streamError.message);
+      enhancedError.name = "StreamError";
+      (enhancedError as any).streamError = streamError;
+      throw enhancedError;
     }
 
     setGeneratingMessage?.("");
@@ -224,36 +379,52 @@ export function useMessageCompletion(): MessageCompletionHook {
   const completeWithFetchMode = async (
     response: Response
   ): Promise<ChatStoreMessage> => {
-    const data = (await response.json()) as FetchResponse;
-    const msg = client.processFetchResponse(data);
+    try {
+      const data = (await response.json()) as FetchResponse;
+      const msg = client.processFetchResponse(data);
 
-    const usage: Usage = {
-      prompt_tokens: data.usage.prompt_tokens ?? 0,
-      completion_tokens: data.usage.completion_tokens ?? 0,
-      total_tokens: data.usage.total_tokens ?? 0,
-      response_model_name: data.model ?? null,
-      prompt_tokens_details: data.usage.prompt_tokens_details ?? null,
-      completion_tokens_details: data.usage.completion_tokens_details ?? null,
-    };
+      const usage: Usage = {
+        prompt_tokens: data.usage.prompt_tokens ?? 0,
+        completion_tokens: data.usage.completion_tokens ?? 0,
+        total_tokens: data.usage.total_tokens ?? 0,
+        response_model_name: data.model ?? null,
+        prompt_tokens_details: data.usage.prompt_tokens_details ?? null,
+        completion_tokens_details: data.usage.completion_tokens_details ?? null,
+      };
 
-    const ret: ChatStoreMessage = {
-      role: "assistant",
-      content: msg.content,
-      tool_calls: msg.tool_calls,
-      hide: false,
-      token: data.usage?.completion_tokens_details
-        ? data.usage.completion_tokens -
-          data.usage.completion_tokens_details.reasoning_tokens
-        : (data.usage.completion_tokens ?? calculate_token_length(msg.content)),
-      example: false,
-      audio: null,
-      logprobs: data.choices[0]?.logprobs,
-      response_model_name: data.model,
-      reasoning_content: data.choices[0]?.message?.reasoning_content ?? null,
-      usage,
-    };
+      const ret: ChatStoreMessage = {
+        role: "assistant",
+        content: msg.content,
+        tool_calls: msg.tool_calls,
+        hide: false,
+        token: data.usage?.completion_tokens_details
+          ? data.usage.completion_tokens -
+            data.usage.completion_tokens_details.reasoning_tokens
+          : (data.usage.completion_tokens ??
+            calculate_token_length(msg.content)),
+        example: false,
+        audio: null,
+        logprobs: data.choices[0]?.logprobs,
+        response_model_name: data.model,
+        reasoning_content: data.choices[0]?.message?.reasoning_content ?? null,
+        usage,
+      };
 
-    return ret;
+      return ret;
+    } catch (e: any) {
+      const streamError = createStreamError(e, response.status);
+      console.error("Fetch mode error:", {
+        type: streamError.type,
+        message: streamError.message,
+        statusCode: streamError.statusCode,
+        details: streamError.details,
+      });
+
+      const enhancedError = new Error(streamError.message);
+      enhancedError.name = "FetchError";
+      (enhancedError as any).streamError = streamError;
+      throw enhancedError;
+    }
   };
 
   const complete = async (
@@ -351,11 +522,43 @@ export function useMessageCompletion(): MessageCompletionHook {
 
     try {
       const abortController = new AbortController();
+
+      // 添加超时处理
+      const timeoutId = setTimeout(() => {
+        abortController.abort();
+      }, 120000); // 2分钟超时
+
       const response = await client._fetch(
         chatStore.streamMode,
         chatStore.logprobs,
         abortController.signal
       );
+
+      clearTimeout(timeoutId);
+
+      // 检查HTTP状态码
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "Unknown error");
+        const streamError = createStreamError(
+          new Error(`HTTP ${response.status}: ${errorText}`),
+          response.status,
+          errorText
+        );
+
+        console.error("HTTP request failed:", {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url,
+          headers: Object.fromEntries(response.headers.entries()),
+          errorBody: errorText,
+        });
+
+        const enhancedError = new Error(streamError.message);
+        enhancedError.name = "HttpError";
+        (enhancedError as any).streamError = streamError;
+        throw enhancedError;
+      }
+
       const responsed_at = new Date();
       const contentType = response.headers.get("content-type");
       let cs: ChatStoreMessage;
@@ -469,10 +672,24 @@ export function useMessageCompletion(): MessageCompletionHook {
         }
       }
     } catch (error: any) {
-      if (error.name === "AbortError") {
-        console.log("abort complete");
+      const streamError =
+        (error as any).streamError || createStreamError(error);
+
+      console.error("Complete request failed:", {
+        type: streamError.type,
+        message: streamError.message,
+        statusCode: streamError.statusCode,
+        details: streamError.details,
+      });
+
+      if (
+        error.name === "AbortError" ||
+        streamError.type === StreamErrorType.ABORT_ERROR
+      ) {
+        console.log("Request was aborted");
         return;
       }
+
       throw error;
     }
   };

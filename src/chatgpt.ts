@@ -316,47 +316,68 @@ class Chat {
   }
 
   async *processStreamResponse(resp: Response, signal?: AbortSignal) {
-    const reader = resp?.body?.pipeThrough(new TextDecoderStream()).getReader();
-    if (reader === undefined) {
-      console.log("reader is undefined");
-      return;
+    if (!resp.body) {
+      throw new Error("Response body is null");
     }
+
+    const reader = resp.body.pipeThrough(new TextDecoderStream()).getReader();
     let receiving = true;
     let buffer = "";
+
     while (receiving) {
       if (signal?.aborted) {
         reader.cancel();
         console.log("signal aborted in stream response");
         break;
       }
-      const { value, done } = await reader.read();
-      if (done) break;
 
-      buffer += value;
-      console.log("begin buffer", buffer);
-      if (!buffer.includes("\n")) continue;
-      const lines = buffer
-        .trim()
-        .split("\n")
-        .filter((line) => line.trim())
-        .map((line) => line.trim());
+      try {
+        const { value, done } = await reader.read();
+        if (done) break;
 
-      buffer = "";
+        buffer += value;
+        console.log("begin buffer", buffer);
 
-      for (const line of lines) {
-        console.log("line", line);
-        try {
-          const jsonStr = line.slice("data:".length).trim();
-          if (jsonStr === "keep-alive") {
-            // for deepseek https://api-docs.deepseek.com/quick_start/rate_limit
-            continue;
+        if (!buffer.includes("\n")) continue;
+
+        const lines = buffer
+          .trim()
+          .split("\n")
+          .filter((line) => line.trim() && line.startsWith("data:"))
+          .map((line) => line.trim());
+
+        buffer = "";
+
+        for (const line of lines) {
+          console.log("line", line);
+          try {
+            const jsonStr = line.slice("data:".length).trim();
+            if (jsonStr === "keep-alive") {
+              // for deepseek https://api-docs.deepseek.com/quick_start/rate_limit
+              continue;
+            }
+            if (jsonStr === "[DONE]") {
+              receiving = false;
+              break;
+            }
+            const json = JSON.parse(jsonStr) as StreamingResponseChunk;
+            yield json;
+          } catch (e: any) {
+            console.warn(`Chunk parse error at: ${line}`, e);
+            // 保存失败的chunk以便调试
+            if (buffer.length < 1000) {
+              // 防止buffer过大
+              buffer += line + "\n";
+            }
+            // 继续处理其他chunk，不中断整个流
           }
-          const json = JSON.parse(jsonStr) as StreamingResponseChunk;
-          yield json;
-        } catch (e) {
-          console.log(`Chunk parse error at: ${line}`);
-          buffer += line;
         }
+      } catch (e: any) {
+        if (e.name === "TypeError" && e.message.includes("network")) {
+          throw new Error(`Network error during streaming: ${e.message}`);
+        }
+        console.error("Stream reading error:", e);
+        throw e;
       }
     }
   }

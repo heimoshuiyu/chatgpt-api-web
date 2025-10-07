@@ -135,12 +135,6 @@ export default function ChatBOX() {
     await handleComplete();
   };
 
-  // Event handlers
-  const handleRetry = async () => {
-    setShowRetry(false);
-    await handleComplete();
-  };
-
   const handleRegenerate = async () => {
     const messageIndex = chatStore.history.length - 1;
     if (chatStore.history[messageIndex].role === "assistant") {
@@ -171,7 +165,6 @@ export default function ChatBOX() {
           showGenerating={showGenerating}
           generatingMessage={generatingMessage}
           showRetry={showRetry}
-          onRetry={handleRetry}
           onNewChat={handleNewChatStore}
           onCompletion={handleComplete}
           onRegenerate={handleRegenerate}
