@@ -202,11 +202,6 @@ export function ImageUploadDrawer({ setImages, images, disableFactor }: Props) {
                 >
                   <Upload className="size-4" />
                   <Tr>Upload from Device</Tr>
-                  {enableCompression && (
-                    <Badge variant="secondary" className="text-xs">
-                      <Tr>Compression ON</Tr>
-                    </Badge>
-                  )}
                 </Button>
               </div>
 
