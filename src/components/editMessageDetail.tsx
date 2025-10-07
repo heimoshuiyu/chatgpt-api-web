@@ -124,18 +124,12 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
                         id={`text-${index}`}
                         className="min-h-[120px] resize-none"
                         value={mdt.text}
-                        onChange={(event) => {
+                        onBlur={(event) => {
                           if (typeof chat.content === "string") return;
                           chat.content[index].text = event.target.value;
                           chat.token = calculate_token_length(chat.content);
                           console.log("calculated token length", chat.token);
                           setChatStore({ ...chatStore });
-                        }}
-                        mockOnChange={false}
-                        onKeyDown={(event: any) => {
-                          if (event.key === "Escape") {
-                            setShowEdit(false);
-                          }
                         }}
                       />
                     </div>
