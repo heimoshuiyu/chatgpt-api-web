@@ -20,6 +20,8 @@ import { SelectModel } from "../ui/SelectModel";
 import { Slicer } from "../ui/Slicer";
 import { ChoiceCheckbox } from "../ui/ChoiceCheckbox";
 import { NumberInput } from "../ui/NumberInput";
+import { ModalitiesSelect } from "../ui/ModalitiesSelect";
+import { AudioSelect } from "../ui/AudioSelect";
 import { SetAPIsTemplate } from "@/components/setAPIsTemplate";
 
 export const ChatSettings: React.FC = () => {
@@ -93,6 +95,8 @@ export const ChatSettings: React.FC = () => {
           field="logprobs"
           help={tr("Logprobs, return the probability of each token", langCode)}
         />
+        <ModalitiesSelect />
+        <AudioSelect />
         <NumberInput
           field="maxTokens"
           help={tr(

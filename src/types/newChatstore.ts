@@ -45,6 +45,10 @@ interface NewChatStoreOptions {
   mcpConnections?: MCPServerConnection[];
   enable_thinking?: boolean;
   enable_thinking_enabled?: boolean;
+  modalities?: string[];
+  modalities_enabled?: boolean;
+  audio?: string;
+  audio_enabled?: boolean;
 }
 
 export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
@@ -96,5 +100,9 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     chatPrice: options.chatPrice ?? undefined,
     enable_thinking: options.enable_thinking ?? false,
     enable_thinking_enabled: options.enable_thinking_enabled ?? false,
+    modalities: [],
+    modalities_enabled: false,
+    audio: "",
+    audio_enabled: false,
   };
 };

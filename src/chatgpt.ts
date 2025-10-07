@@ -171,6 +171,10 @@ class Chat {
   json_mode: boolean;
   enable_thinking: boolean;
   enable_thinking_enabled: boolean;
+  modalities: string[];
+  modalities_enabled: boolean;
+  audio: string;
+  audio_enabled: boolean;
 
   constructor(
     OPENAI_API_KEY: string | undefined,
@@ -194,6 +198,10 @@ class Chat {
       json_mode = false,
       enable_thinking = false,
       enable_thinking_enabled = false,
+      modalities = [],
+      modalities_enabled = false,
+      audio = "",
+      audio_enabled = false,
     } = {}
   ) {
     this.OPENAI_API_KEY = OPENAI_API_KEY ?? "";
@@ -218,6 +226,10 @@ class Chat {
     this.json_mode = json_mode;
     this.enable_thinking = enable_thinking;
     this.enable_thinking_enabled = enable_thinking_enabled;
+    this.modalities = modalities;
+    this.modalities_enabled = modalities_enabled;
+    this.audio = audio;
+    this.audio_enabled = audio_enabled;
   }
 
   _fetch(stream = false, logprobs = false, signal: AbortSignal) {
@@ -282,6 +294,14 @@ class Chat {
     }
     if (this.enable_thinking_enabled) {
       body["enable_thinking"] = this.enable_thinking;
+    }
+    if (this.modalities_enabled && this.modalities.length > 0) {
+      body["modalities"] = this.modalities;
+    }
+    if (this.audio_enabled && this.audio) {
+      body["audio"] = {
+        voice: this.audio,
+      };
     }
     if (logprobs) {
       body["logprobs"] = true;

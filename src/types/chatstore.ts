@@ -73,6 +73,10 @@ export interface ChatStore {
   mcpConnections: MCPServerConnection[]; // Detailed MCP connection information
   enable_thinking: boolean;
   enable_thinking_enabled: boolean;
+  modalities: string[];
+  modalities_enabled: boolean;
+  audio: string;
+  audio_enabled: boolean;
   chatPrice?: ModelPricing;
 }
 

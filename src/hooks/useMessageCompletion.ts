@@ -517,6 +517,10 @@ export function useMessageCompletion(): MessageCompletionHook {
     client.enable_max_gen_tokens = chatStore.maxGenTokens_enabled;
     client.enable_thinking = chatStore.enable_thinking;
     client.enable_thinking_enabled = chatStore.enable_thinking_enabled;
+    client.modalities = chatStore.modalities || [];
+    client.modalities_enabled = chatStore.modalities_enabled || false;
+    client.audio = chatStore.audio || "";
+    client.audio_enabled = chatStore.audio_enabled || false;
 
     const created_at = new Date();
 
