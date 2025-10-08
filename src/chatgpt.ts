@@ -1,5 +1,5 @@
 import { DefaultModel } from "@/const";
-import { MutableRefObject } from "react";
+
 
 export interface ImageURL {
   url: string;
@@ -27,6 +27,10 @@ export interface Message {
   name?: "example_user" | "example_assistant";
   tool_calls?: ToolCall[];
   tool_call_id?: string;
+  audio?: {
+    id?: string;
+    data?: string; // base64 encoded audio data
+  };
 }
 
 interface Delta {
@@ -34,6 +38,10 @@ interface Delta {
   content?: string;
   reasoning_content?: string;
   tool_calls?: ToolCall[];
+  audio?: {
+    id?: string;
+    data?: string; // base64 encoded audio data
+  };
 }
 
 interface Choices {
@@ -82,7 +90,7 @@ export interface StreamingResponseChunk {
   choices: Choices[];
   usage: null | Usage;
 }
-export const getMessageText = (message: Message): string => {
+export const getMessageText = (message: Message | { role: string; content: string | MessageDetail[]; tool_calls?: ToolCall[] }): string => {
   if (typeof message.content === "string") {
     // function call message
     if (message.tool_calls) {
@@ -103,7 +111,15 @@ export const getMessageText = (message: Message): string => {
 export interface ChunkMessage {
   model: string;
   choices: {
-    delta: { role: "assitant" | undefined; content: string | undefined };
+    delta: { 
+      role: "assitant" | undefined; 
+      content: string | undefined;
+      reasoning_content?: string | undefined;
+      audio?: {
+        id?: string;
+        data?: string;
+      } | undefined;
+    };
   }[];
 }
 
@@ -340,7 +356,8 @@ class Chat {
       throw new Error("Response body is null");
     }
 
-    const reader = resp.body.pipeThrough(new TextDecoderStream()).getReader();
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
     let receiving = true;
     let buffer = "";
 
@@ -355,7 +372,8 @@ class Chat {
         const { value, done } = await reader.read();
         if (done) break;
 
-        buffer += value;
+        const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
         console.log("begin buffer", buffer);
 
         if (!buffer.includes("\n")) continue;
@@ -384,12 +402,7 @@ class Chat {
             yield json;
           } catch (e: any) {
             console.warn(`Chunk parse error at: ${line}`, e);
-            // 保存失败的chunk以便调试
-            if (buffer.length < 1000) {
-              // 防止buffer过大
-              buffer += line + "\n";
-            }
-            // 继续处理其他chunk，不中断整个流
+            buffer += line;
           }
         }
       } catch (e: any) {
