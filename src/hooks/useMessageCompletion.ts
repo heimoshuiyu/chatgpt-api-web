@@ -14,31 +14,36 @@ import { models } from "@/types/models";
 // Create WAV header for PCM audio data
 // Note: This audio processing has only been tested with Alibaba Cloud Bailian models
 // Audio format is fixed: 24kHz, 16-bit, mono PCM data
-function createWAVHeader(dataLength: number, sampleRate: number, bitsPerSample: number, channels: number): ArrayBuffer {
+function createWAVHeader(
+  dataLength: number,
+  sampleRate: number,
+  bitsPerSample: number,
+  channels: number
+): ArrayBuffer {
   const buffer = new ArrayBuffer(44);
   const view = new DataView(buffer);
-  
+
   // RIFF identifier
   const writeString = (offset: number, string: string) => {
     for (let i = 0; i < string.length; i++) {
       view.setUint8(offset + i, string.charCodeAt(i));
     }
   };
-  
-  writeString(0, 'RIFF');
+
+  writeString(0, "RIFF");
   view.setUint32(4, 36 + dataLength, true); // file length - 8
-  writeString(8, 'WAVE');
-  writeString(12, 'fmt ');
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
   view.setUint32(16, 16, true); // chunk length
   view.setUint16(20, 1, true); // PCM format
   view.setUint16(22, channels, true); // number of channels
   view.setUint32(24, sampleRate, true); // sample rate
-  view.setUint32(28, sampleRate * channels * bitsPerSample / 8, true); // byte rate
-  view.setUint16(32, channels * bitsPerSample / 8, true); // block align
+  view.setUint32(28, (sampleRate * channels * bitsPerSample) / 8, true); // byte rate
+  view.setUint16(32, (channels * bitsPerSample) / 8, true); // block align
   view.setUint16(34, bitsPerSample, true); // bits per sample
-  writeString(36, 'data');
+  writeString(36, "data");
   view.setUint32(40, dataLength, true); // data length
-  
+
   return buffer;
 }
 
@@ -273,7 +278,7 @@ export function useMessageCompletion(): MessageCompletionHook {
           try {
             allAudioChunks.push(c?.delta?.audio.data);
           } catch (error) {
-            console.warn('Failed to collect audio chunk:', error);
+            console.warn("Failed to collect audio chunk:", error);
           }
         }
 
@@ -331,17 +336,21 @@ export function useMessageCompletion(): MessageCompletionHook {
         if (allAudioChunks.length > 0) {
           try {
             // Only tested with Alibaba Cloud Bailian models - audio format is fixed (24kHz, 16-bit, mono)
-            const base64Audio = allAudioChunks.join('');
-            const audioBytes = Uint8Array.from(atob(base64Audio), c => c.charCodeAt(0));
-            
+            const base64Audio = allAudioChunks.join("");
+            const audioBytes = Uint8Array.from(atob(base64Audio), (c) =>
+              c.charCodeAt(0)
+            );
+
             const wavHeader = createWAVHeader(audioBytes.length, 24000, 16, 1);
-            const wavBytes = new Uint8Array(wavHeader.byteLength + audioBytes.length);
+            const wavBytes = new Uint8Array(
+              wavHeader.byteLength + audioBytes.length
+            );
             wavBytes.set(new Uint8Array(wavHeader), 0);
             wavBytes.set(audioBytes, wavHeader.byteLength);
-            
-            partialAudioBlob = new Blob([wavBytes], { type: 'audio/wav' });
+
+            partialAudioBlob = new Blob([wavBytes], { type: "audio/wav" });
           } catch (error) {
-            console.error('Error processing partial audio data:', error);
+            console.error("Error processing partial audio data:", error);
           }
         }
 
@@ -386,18 +395,22 @@ export function useMessageCompletion(): MessageCompletionHook {
     let audioBlob: Blob | null = null;
     if (allAudioChunks.length > 0) {
       try {
-        const base64Audio = allAudioChunks.join('');
-        const audioBytes = Uint8Array.from(atob(base64Audio), c => c.charCodeAt(0));
-        
+        const base64Audio = allAudioChunks.join("");
+        const audioBytes = Uint8Array.from(atob(base64Audio), (c) =>
+          c.charCodeAt(0)
+        );
+
         // Add WAV header for browser compatibility (24kHz, 16-bit, mono)
         const wavHeader = createWAVHeader(audioBytes.length, 24000, 16, 1);
-        const wavBytes = new Uint8Array(wavHeader.byteLength + audioBytes.length);
+        const wavBytes = new Uint8Array(
+          wavHeader.byteLength + audioBytes.length
+        );
         wavBytes.set(new Uint8Array(wavHeader), 0);
         wavBytes.set(audioBytes, wavHeader.byteLength);
-        
-        audioBlob = new Blob([wavBytes], { type: 'audio/wav' });
+
+        audioBlob = new Blob([wavBytes], { type: "audio/wav" });
       } catch (error) {
-        console.error('Error processing audio data:', error);
+        console.error("Error processing audio data:", error);
       }
     }
 
@@ -436,7 +449,7 @@ export function useMessageCompletion(): MessageCompletionHook {
       responseTokenCount,
       audioBlob
     );
-    
+
     // Set additional properties
     newMsg.logprobs = logprobs;
     newMsg.response_model_name = response_model_name;
@@ -475,16 +488,20 @@ export function useMessageCompletion(): MessageCompletionHook {
       if (data.choices[0]?.message?.audio?.data) {
         try {
           const base64Audio = data.choices[0].message.audio.data;
-          const audioBytes = Uint8Array.from(atob(base64Audio), c => c.charCodeAt(0));
-          
+          const audioBytes = Uint8Array.from(atob(base64Audio), (c) =>
+            c.charCodeAt(0)
+          );
+
           const wavHeader = createWAVHeader(audioBytes.length, 24000, 16, 1);
-          const wavBytes = new Uint8Array(wavHeader.byteLength + audioBytes.length);
+          const wavBytes = new Uint8Array(
+            wavHeader.byteLength + audioBytes.length
+          );
           wavBytes.set(new Uint8Array(wavHeader), 0);
           wavBytes.set(audioBytes, wavHeader.byteLength);
-          
-          audioBlob = new Blob([wavBytes], { type: 'audio/wav' });
+
+          audioBlob = new Blob([wavBytes], { type: "audio/wav" });
         } catch (error) {
-          console.error('Error processing fetch audio data:', error);
+          console.error("Error processing fetch audio data:", error);
         }
       }
 

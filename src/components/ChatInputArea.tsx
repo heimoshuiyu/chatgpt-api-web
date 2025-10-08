@@ -62,7 +62,7 @@ export function ChatInputArea({
     // Add message to chat history
     chatStore.history.push(newMessage);
     setChatStore({ ...chatStore });
-    
+
     // Set up editing state - reference the message in the history
     const messageIndex = chatStore.history.length - 1;
     setEditingMessage(chatStore.history[messageIndex]);
@@ -71,16 +71,20 @@ export function ChatInputArea({
 
   const handleCloseEdit = () => {
     setShowImageEdit(false);
-    
+
     // If the message is still empty (no content), remove it from history
-    if (editingMessage && Array.isArray(editingMessage.content) && editingMessage.content.length === 0) {
+    if (
+      editingMessage &&
+      Array.isArray(editingMessage.content) &&
+      editingMessage.content.length === 0
+    ) {
       const index = chatStore.history.indexOf(editingMessage);
       if (index > -1) {
         chatStore.history.splice(index, 1);
         setChatStore({ ...chatStore });
       }
     }
-    
+
     setEditingMessage(null);
   };
   return (
@@ -178,13 +182,13 @@ export function ChatInputArea({
           </Button>
         </div>
       </form>
-      
+
       {/* Edit Message Dialog */}
       {editingMessage && (
-        <EditMessage 
-          showEdit={showImageEdit} 
-          setShowEdit={handleCloseEdit} 
-          chat={editingMessage} 
+        <EditMessage
+          showEdit={showImageEdit}
+          setShowEdit={handleCloseEdit}
+          chat={editingMessage}
         />
       )}
     </>

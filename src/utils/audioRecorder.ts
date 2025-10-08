@@ -15,7 +15,7 @@ export function useAudioRecorder() {
 
   const startRecording = async (options: AudioRecorderOptions) => {
     const { onTranscriptionComplete, whisperApi, apiKey, prompt } = options;
-    
+
     try {
       const mediaRecorder = new MediaRecorder(
         await navigator.mediaDevices.getUserMedia({
@@ -29,11 +29,11 @@ export function useAudioRecorder() {
 
       mediaRecorder.start();
       const audioChunks: Blob[] = [];
-      
+
       mediaRecorder.addEventListener("dataavailable", (event) => {
         audioChunks.push(event.data);
       });
-      
+
       mediaRecorder.addEventListener("stop", async () => {
         // Stop the MediaRecorder
         mediaRecorder.stop();
@@ -44,7 +44,7 @@ export function useAudioRecorder() {
         const audioBlob = new Blob(audioChunks);
         const audioUrl = URL.createObjectURL(audioBlob);
         console.log({ audioUrl });
-        
+
         const reader = new FileReader();
         reader.readAsDataURL(audioBlob);
 

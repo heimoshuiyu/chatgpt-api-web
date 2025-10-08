@@ -16,7 +16,13 @@ import { Textarea } from "./ui/textarea";
 import { Card, CardContent } from "./ui/card";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
-import { GripVertical, ChevronUp, ChevronDown, Upload, Mic } from "lucide-react";
+import {
+  GripVertical,
+  ChevronUp,
+  ChevronDown,
+  Upload,
+  Mic,
+} from "lucide-react";
 import { useContext, useState } from "react";
 import { AppChatStoreContext, AppContext } from "../pages/App";
 import { MessageDetail } from "@/chatgpt";
@@ -161,7 +167,10 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
                             <div className="flex items-center gap-3">
                               <audio controls className="flex-1">
                                 <source src={mdt.input_audio?.data} />
-                                <Tr>Your browser does not support the audio element.</Tr>
+                                <Tr>
+                                  Your browser does not support the audio
+                                  element.
+                                </Tr>
                               </audio>
                               <Button
                                 variant="outline"

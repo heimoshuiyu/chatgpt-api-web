@@ -1,6 +1,5 @@
 import { DefaultModel } from "@/const";
 
-
 export interface ImageURL {
   url: string;
   detail: "low" | "high";
@@ -96,7 +95,15 @@ export interface StreamingResponseChunk {
   choices: Choices[];
   usage: null | Usage;
 }
-export const getMessageText = (message: Message | { role: string; content: string | MessageDetail[]; tool_calls?: ToolCall[] }): string => {
+export const getMessageText = (
+  message:
+    | Message
+    | {
+        role: string;
+        content: string | MessageDetail[];
+        tool_calls?: ToolCall[];
+      }
+): string => {
   if (typeof message.content === "string") {
     // function call message
     if (message.tool_calls) {
@@ -117,14 +124,16 @@ export const getMessageText = (message: Message | { role: string; content: strin
 export interface ChunkMessage {
   model: string;
   choices: {
-    delta: { 
-      role: "assitant" | undefined; 
+    delta: {
+      role: "assitant" | undefined;
       content: string | undefined;
       reasoning_content?: string | undefined;
-      audio?: {
-        id?: string;
-        data?: string;
-      } | undefined;
+      audio?:
+        | {
+            id?: string;
+            data?: string;
+          }
+        | undefined;
     };
   }[];
 }

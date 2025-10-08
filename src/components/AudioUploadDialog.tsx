@@ -14,7 +14,14 @@ import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { Card, CardContent } from "./ui/card";
 import { Label } from "./ui/label";
-import { Mic, CircleStop, Upload, AudioWaveformIcon, Play, Pause } from "lucide-react";
+import {
+  Mic,
+  CircleStop,
+  Upload,
+  AudioWaveformIcon,
+  Play,
+  Pause,
+} from "lucide-react";
 import { useAudioRecorder } from "@/utils/audioRecorder";
 import { AppChatStoreContext } from "@/pages/App";
 
@@ -25,16 +32,24 @@ interface Props {
   initialAudio?: MessageDetail;
 }
 
-export function AudioUploadDialog({ open, onOpenChange, onAudioSelect, initialAudio }: Props) {
+export function AudioUploadDialog({
+  open,
+  onOpenChange,
+  onAudioSelect,
+  initialAudio,
+}: Props) {
   const { chatStore } = useContext(AppChatStoreContext);
-  const [audioUrl, setAudioUrl] = useState<string>(initialAudio?.input_audio?.data || "");
+  const [audioUrl, setAudioUrl] = useState<string>(
+    initialAudio?.input_audio?.data || ""
+  );
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [transcription, setTranscription] = useState<string>("");
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const { recordingState, mediaRef, startRecording, stopRecording } = useAudioRecorder();
+
+  const { recordingState, mediaRef, startRecording, stopRecording } =
+    useAudioRecorder();
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -85,7 +100,7 @@ export function AudioUploadDialog({ open, onOpenChange, onAudioSelect, initialAu
         type: "input_audio",
         input_audio: {
           data: audioUrl,
-          format: audioFile?.type.split('/')[1] || "wav",
+          format: audioFile?.type.split("/")[1] || "wav",
         },
       };
       onAudioSelect(audioDetail);
@@ -133,7 +148,11 @@ export function AudioUploadDialog({ open, onOpenChange, onAudioSelect, initialAu
                   <Button
                     variant="outline"
                     onClick={handleRecording}
-                    disabled={recordingState === "Transcribing" || !chatStore.whisper_api || !chatStore.whisper_key}
+                    disabled={
+                      recordingState === "Transcribing" ||
+                      !chatStore.whisper_api ||
+                      !chatStore.whisper_key
+                    }
                     ref={mediaRef as any}
                     className={`${recordingState !== "Mic" ? "animate-pulse" : ""}`}
                   >
