@@ -16,11 +16,12 @@ import { Textarea } from "./ui/textarea";
 import { Card, CardContent } from "./ui/card";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
-import { GripVertical, ChevronUp, ChevronDown, Upload } from "lucide-react";
+import { GripVertical, ChevronUp, ChevronDown, Upload, Mic } from "lucide-react";
 import { useContext, useState } from "react";
 import { AppChatStoreContext, AppContext } from "../pages/App";
 import { MessageDetail } from "@/chatgpt";
 import { ImageUploadDialog } from "./ImageUploadDialog";
+import { AudioUploadDialog } from "./AudioUploadDialog";
 
 interface Props {
   chat: ChatStoreMessage;
@@ -29,7 +30,11 @@ interface Props {
 export function EditMessageDetail({ chat, setShowEdit }: Props) {
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showAudioDialog, setShowAudioDialog] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState<number | null>(
+    null
+  );
+  const [currentAudioIndex, setCurrentAudioIndex] = useState<number | null>(
     null
   );
 
@@ -66,6 +71,18 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
     }
     setChatStore({ ...chatStore });
     setCurrentImageIndex(null);
+  };
+
+  const handleAudioUpload = (audio: MessageDetail) => {
+    if (currentAudioIndex !== null && typeof chat.content !== "string") {
+      const obj = chat.content[currentAudioIndex].audio_url;
+      if (obj !== undefined) {
+        obj.url = audio.audio_url?.url || "";
+        obj.format = audio.audio_url?.format || "unknown";
+      }
+    }
+    setChatStore({ ...chatStore });
+    setCurrentAudioIndex(null);
   };
 
   return (
@@ -132,6 +149,86 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
                           setChatStore({ ...chatStore });
                         }}
                       />
+                    </div>
+                  ) : mdt.type === "audio_url" ? (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">
+                          <Tr>Audio Preview</Tr>
+                        </Label>
+                        <div className="border rounded-lg p-3 bg-muted/30">
+                          {mdt.audio_url?.url ? (
+                            <div className="flex items-center gap-3">
+                              <audio controls className="flex-1">
+                                <source src={mdt.audio_url?.url} />
+                                <Tr>Your browser does not support the audio element.</Tr>
+                              </audio>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  window.open(mdt.audio_url?.url, "_blank");
+                                }}
+                              >
+                                <Tr>Open</Tr>
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="h-24 flex items-center justify-center text-muted-foreground">
+                              <Tr>No audio provided</Tr>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            <Tr>Audio URL</Tr>
+                          </Label>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const audio_url = prompt(
+                                  "Audio URL",
+                                  mdt.audio_url?.url
+                                );
+                                if (audio_url) {
+                                  if (typeof chat.content === "string") return;
+                                  const obj = chat.content[index].audio_url;
+                                  if (obj === undefined) return;
+                                  obj.url = audio_url;
+                                  setChatStore({ ...chatStore });
+                                }
+                              }}
+                            >
+                              <Tr>Edit URL</Tr>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setCurrentAudioIndex(index);
+                                setShowAudioDialog(true);
+                              }}
+                            >
+                              <Upload className="size-4 mr-1" />
+                              <Tr>Upload</Tr>
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            <Tr>Format</Tr>
+                          </Label>
+                          <div className="text-sm text-muted-foreground">
+                            {mdt.audio_url?.format || "unknown"}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -273,6 +370,23 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
             >
               <Tr>Add image</Tr>
             </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (typeof chat.content === "string") return;
+                chat.content.push({
+                  type: "audio_url",
+                  audio_url: {
+                    url: "",
+                    format: "unknown",
+                  },
+                });
+                setChatStore({ ...chatStore });
+              }}
+            >
+              <Mic className="h-4 w-4 mr-2" />
+              <Tr>Add audio</Tr>
+            </Button>
           </div>
         </div>
         <DialogFooter className="flex justify-end gap-3">
@@ -287,6 +401,13 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
         open={showUploadDialog}
         onOpenChange={setShowUploadDialog}
         onImageSelect={handleImageUpload}
+      />
+
+      {/* Audio Upload Dialog */}
+      <AudioUploadDialog
+        open={showAudioDialog}
+        onOpenChange={setShowAudioDialog}
+        onAudioSelect={handleAudioUpload}
       />
     </Dialog>
   );

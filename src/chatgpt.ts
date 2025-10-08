@@ -6,10 +6,17 @@ export interface ImageURL {
   detail: "low" | "high";
 }
 
+export interface AudioURL {
+  url: string;
+  format?: string;
+  duration?: number;
+}
+
 export interface MessageDetail {
-  type: "text" | "image_url";
+  type: "text" | "image_url" | "audio_url";
   text?: string;
   image_url?: ImageURL;
+  audio_url?: AudioURL;
 }
 export interface ToolCall {
   index: number;
@@ -159,6 +166,11 @@ export function calculate_token_length(
     }
     if (m.type === "image_url") {
       tokens += m.image_url?.detail === "high" ? 65 * 4 : 65;
+    }
+    if (m.type === "audio_url") {
+      // Audio tokens are calculated based on duration, approximately 100 tokens per minute
+      // For now, we'll use a fixed estimate since we don't have duration info in the URL
+      tokens += 100; // Estimate for 1 minute of audio
     }
   }
   return tokens;
