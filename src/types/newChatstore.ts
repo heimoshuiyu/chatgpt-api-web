@@ -100,9 +100,9 @@ export const newChatStore = (options: NewChatStoreOptions): ChatStore => {
     chatPrice: options.chatPrice ?? undefined,
     enable_thinking: options.enable_thinking ?? false,
     enable_thinking_enabled: options.enable_thinking_enabled ?? false,
-    modalities: [],
-    modalities_enabled: false,
-    audio: "",
-    audio_enabled: false,
+    modalities: options.modalities ?? [],
+    modalities_enabled: options.modalities_enabled ?? false,
+    audio: options.audio ?? "",
+    audio_enabled: options.audio_enabled ?? false,
   };
 };
