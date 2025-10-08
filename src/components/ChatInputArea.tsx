@@ -2,13 +2,16 @@ import React, { useState } from "react";
 import { MessageDetail } from "@/chatgpt";
 import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/components/ui/chat/chat-input";
-import { ImageManagerDialog } from "@/components/ImageManagerDialog";
 import { ImageGenDrawer } from "@/components/ImageGenDrawer";
 import WhisperButton from "@/components/WhisperButton";
-import { CornerDownLeftIcon, ScissorsIcon } from "lucide-react";
+import { CornerDownLeftIcon, ScissorsIcon, ImageIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Tr } from "@/translate";
 import { autoHeight } from "@/utils/textAreaHelp";
+import { useContext } from "react";
+import { AppChatStoreContext } from "@/pages/App";
+import { calculate_token_length } from "@/chatgpt";
+import { EditMessage } from "@/components/editMessage";
 
 interface ChatInputAreaProps {
   inputMsg: string;
@@ -37,6 +40,49 @@ export function ChatInputArea({
   setFollow,
   userInputRef,
 }: ChatInputAreaProps) {
+  const { chatStore, setChatStore } = useContext(AppChatStoreContext);
+  const [showImageEdit, setShowImageEdit] = useState(false);
+  const [editingMessage, setEditingMessage] = useState<any>(null);
+
+  const handleImageClick = () => {
+    // Create a new user message with empty content array
+    const newMessage = {
+      role: "user" as const,
+      content: [] as MessageDetail[],
+      hide: false,
+      token: 0,
+      example: false,
+      audio: null,
+      logprobs: null,
+      response_model_name: null,
+      reasoning_content: null,
+      usage: null,
+    };
+
+    // Add message to chat history
+    chatStore.history.push(newMessage);
+    setChatStore({ ...chatStore });
+    
+    // Set up editing state - reference the message in the history
+    const messageIndex = chatStore.history.length - 1;
+    setEditingMessage(chatStore.history[messageIndex]);
+    setShowImageEdit(true);
+  };
+
+  const handleCloseEdit = () => {
+    setShowImageEdit(false);
+    
+    // If the message is still empty (no content), remove it from history
+    if (editingMessage && Array.isArray(editingMessage.content) && editingMessage.content.length === 0) {
+      const index = chatStore.history.indexOf(editingMessage);
+      if (index > -1) {
+        chatStore.history.splice(index, 1);
+        setChatStore({ ...chatStore });
+      }
+    }
+    
+    setEditingMessage(null);
+  };
   return (
     <>
       {showGenerating && (
@@ -101,11 +147,17 @@ export function ChatInputArea({
           className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
         />
         <div className="flex items-center p-3 pt-0">
-          <ImageManagerDialog
-            images={images}
-            setImages={setImages}
-            disableFactor={[showGenerating]}
-          />
+          <Button
+            variant="ghost"
+            size="icon"
+            type="button"
+            disabled={showGenerating}
+            className="hover:bg-accent"
+            onClick={handleImageClick}
+          >
+            <ImageIcon className="size-4" />
+            <span className="sr-only">Add Image</span>
+          </Button>
           <ImageGenDrawer disableFactor={[showGenerating]} />
 
           <WhisperButton inputMsg={inputMsg} setInputMsg={setInputMsg} />
@@ -126,6 +178,15 @@ export function ChatInputArea({
           </Button>
         </div>
       </form>
+      
+      {/* Edit Message Dialog */}
+      {editingMessage && (
+        <EditMessage 
+          showEdit={showImageEdit} 
+          setShowEdit={handleCloseEdit} 
+          chat={editingMessage} 
+        />
+      )}
     </>
   );
 }
