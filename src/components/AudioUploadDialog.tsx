@@ -27,7 +27,7 @@ interface Props {
 
 export function AudioUploadDialog({ open, onOpenChange, onAudioSelect, initialAudio }: Props) {
   const { chatStore } = useContext(AppChatStoreContext);
-  const [audioUrl, setAudioUrl] = useState<string>(initialAudio?.audio_url?.url || "");
+  const [audioUrl, setAudioUrl] = useState<string>(initialAudio?.input_audio?.data || "");
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [transcription, setTranscription] = useState<string>("");
@@ -82,10 +82,10 @@ export function AudioUploadDialog({ open, onOpenChange, onAudioSelect, initialAu
   const handleSave = () => {
     if (audioUrl) {
       const audioDetail: MessageDetail = {
-        type: "audio_url",
-        audio_url: {
-          url: audioUrl,
-          format: audioFile?.type.split('/')[1] || "unknown",
+        type: "input_audio",
+        input_audio: {
+          data: audioUrl,
+          format: audioFile?.type.split('/')[1] || "wav",
         },
       };
       onAudioSelect(audioDetail);

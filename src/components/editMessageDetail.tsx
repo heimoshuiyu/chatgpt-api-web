@@ -75,10 +75,10 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
 
   const handleAudioUpload = (audio: MessageDetail) => {
     if (currentAudioIndex !== null && typeof chat.content !== "string") {
-      const obj = chat.content[currentAudioIndex].audio_url;
+      const obj = chat.content[currentAudioIndex].input_audio;
       if (obj !== undefined) {
-        obj.url = audio.audio_url?.url || "";
-        obj.format = audio.audio_url?.format || "unknown";
+        obj.data = audio.input_audio?.data || "";
+        obj.format = audio.input_audio?.format || "wav";
       }
     }
     setChatStore({ ...chatStore });
@@ -150,24 +150,24 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
                         }}
                       />
                     </div>
-                  ) : mdt.type === "audio_url" ? (
+                  ) : mdt.type === "input_audio" ? (
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">
                           <Tr>Audio Preview</Tr>
                         </Label>
                         <div className="border rounded-lg p-3 bg-muted/30">
-                          {mdt.audio_url?.url ? (
+                          {mdt.input_audio?.data ? (
                             <div className="flex items-center gap-3">
                               <audio controls className="flex-1">
-                                <source src={mdt.audio_url?.url} />
+                                <source src={mdt.input_audio?.data} />
                                 <Tr>Your browser does not support the audio element.</Tr>
                               </audio>
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
-                                  window.open(mdt.audio_url?.url, "_blank");
+                                  window.open(mdt.input_audio?.data, "_blank");
                                 }}
                               >
                                 <Tr>Open</Tr>
@@ -191,15 +191,15 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                const audio_url = prompt(
+                                const audio_data = prompt(
                                   "Audio URL",
-                                  mdt.audio_url?.url
+                                  mdt.input_audio?.data
                                 );
-                                if (audio_url) {
+                                if (audio_data) {
                                   if (typeof chat.content === "string") return;
-                                  const obj = chat.content[index].audio_url;
+                                  const obj = chat.content[index].input_audio;
                                   if (obj === undefined) return;
-                                  obj.url = audio_url;
+                                  obj.data = audio_data;
                                   setChatStore({ ...chatStore });
                                 }
                               }}
@@ -225,7 +225,7 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
                             <Tr>Format</Tr>
                           </Label>
                           <div className="text-sm text-muted-foreground">
-                            {mdt.audio_url?.format || "unknown"}
+                            {mdt.input_audio?.format || "wav"}
                           </div>
                         </div>
                       </div>
@@ -375,10 +375,10 @@ export function EditMessageDetail({ chat, setShowEdit }: Props) {
               onClick={() => {
                 if (typeof chat.content === "string") return;
                 chat.content.push({
-                  type: "audio_url",
-                  audio_url: {
-                    url: "",
-                    format: "unknown",
+                  type: "input_audio",
+                  input_audio: {
+                    data: "",
+                    format: "wav",
                   },
                 });
                 setChatStore({ ...chatStore });
