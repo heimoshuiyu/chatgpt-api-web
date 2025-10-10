@@ -55,6 +55,7 @@ interface ChatMessagesDisplayProps {
   onCompletion: () => Promise<void>;
   onRegenerate: () => Promise<void>;
   onClearSystem: () => void;
+  isCreatingChat: boolean;
 }
 
 export function ChatMessagesDisplay({
@@ -66,6 +67,7 @@ export function ChatMessagesDisplay({
   onCompletion,
   onRegenerate,
   onClearSystem,
+  isCreatingChat,
 }: ChatMessagesDisplayProps) {
   return (
     <ChatMessageList>
@@ -153,10 +155,10 @@ export function ChatMessagesDisplay({
             variant="secondary"
             size="sm"
             className="m-2"
-            disabled={showGenerating}
+            disabled={showGenerating || isCreatingChat}
             onClick={onNewChat}
           >
-            <Tr>New Chat</Tr>
+            {isCreatingChat ? "Creating..." : <Tr>New Chat</Tr>}
           </Button>
         )}
         {chatStore.develop_mode && chatStore.history.length > 0 && (

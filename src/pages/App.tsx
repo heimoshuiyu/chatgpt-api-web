@@ -61,6 +61,7 @@ interface AppContextType {
   ) => void;
   handleNewChatStore: () => Promise<void>;
   handleNewChatStoreWithOldOne: (chatStore: ChatStore) => Promise<void>;
+  isCreatingChat: boolean;
 }
 
 interface AppChatStoreContextType {
@@ -164,13 +165,20 @@ export function App() {
   );
 
   const handleNewChatStoreWithOldOne = async (chatStore: ChatStore) => {
-    const newKey = await (await db).add(STORAGE_NAME, newChatStore(chatStore));
-    setSelectedChatIndex(newKey as number);
-    setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
-    toast({
-      title: "New chat created",
-      description: `Current API Endpoint: ${chatStore.apiEndpoint}`,
-    });
+    setIsCreatingChat(true);
+    try {
+      const newKey = await (
+        await db
+      ).add(STORAGE_NAME, newChatStore(chatStore));
+      setSelectedChatIndex(newKey as number);
+      setAllChatStoreIndexes(await (await db).getAllKeys(STORAGE_NAME));
+      toast({
+        title: "New chat created",
+        description: `Current API Endpoint: ${chatStore.apiEndpoint}`,
+      });
+    } finally {
+      setIsCreatingChat(false);
+    }
   };
   const handleNewChatStore = async () => {
     let currentChatStore = await getChatStoreByIndex(selectedChatIndex);
@@ -210,6 +218,7 @@ export function App() {
   };
 
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
   // if there are any params in URL, show the alert dialog to import configure
   useEffect(() => {
     const run = async () => {
@@ -421,15 +430,14 @@ export function App() {
         setCallingTools,
         handleNewChatStore,
         handleNewChatStoreWithOldOne,
+        isCreatingChat,
       }}
     >
       <SidebarProvider defaultOpen={true}>
         <Sidebar>
           <SidebarHeader>
-            <Button onClick={handleNewChatStore}>
-              <span>
-                <Tr>New Chat</Tr>
-              </span>
+            <Button onClick={handleNewChatStore} disabled={isCreatingChat}>
+              <span>{isCreatingChat ? "Creating..." : <Tr>New Chat</Tr>}</span>
             </Button>
           </SidebarHeader>
           <SidebarContent>

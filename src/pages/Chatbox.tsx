@@ -18,6 +18,7 @@ export default function ChatBOX() {
     handleNewChatStore,
     callingTools,
     setCallingTools,
+    isCreatingChat,
   } = useContext(AppContext);
   const { langCode, setLangCode } = useContext(langCodeContext);
   const { chatStore, setChatStore } = useContext(AppChatStoreContext);
@@ -169,6 +170,7 @@ export default function ChatBOX() {
           onCompletion={handleComplete}
           onRegenerate={handleRegenerate}
           onClearSystem={handleClearSystem}
+          isCreatingChat={isCreatingChat}
         />
         <div id="message-end" ref={messagesEndRef as any}></div>
       </div>
