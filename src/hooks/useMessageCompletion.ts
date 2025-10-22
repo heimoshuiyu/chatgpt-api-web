@@ -74,7 +74,8 @@ export interface MessageCompletionHook {
   completeWithFetchMode: (response: Response) => Promise<ChatStoreMessage>;
   complete: (
     onMCPToolCall?: (message: ChatStoreMessage) => void,
-    setGeneratingMessage?: (message: string) => void
+    setGeneratingMessage?: (message: string) => void,
+    abortSignal?: AbortSignal
   ) => Promise<void>;
 }
 
@@ -386,8 +387,7 @@ export function useMessageCompletion(): MessageCompletionHook {
 
     setGeneratingMessage?.("");
 
-    const content = allChunkMessage.join("");
-    const reasoning_content = allReasoningContentChunk.join("");
+
 
     // Process audio data
     // Only tested with Alibaba Cloud Bailian models - audio format is fixed (24kHz, 16-bit, mono)
@@ -541,7 +541,8 @@ export function useMessageCompletion(): MessageCompletionHook {
 
   const complete = async (
     onMCPToolCall?: (message: ChatStoreMessage) => void,
-    setGeneratingMessage?: (message: string) => void
+    setGeneratingMessage?: (message: string) => void,
+    abortSignal?: AbortSignal
   ) => {
     // manually copy status from chatStore to client
     client.apiEndpoint = chatStore.apiEndpoint;
@@ -637,20 +638,33 @@ export function useMessageCompletion(): MessageCompletionHook {
     const created_at = new Date();
 
     try {
-      const abortController = new AbortController();
+      let signal: AbortSignal;
+      let abortController: AbortController | null = null;
 
-      // 添加超时处理
-      const timeoutId = setTimeout(() => {
-        abortController.abort();
-      }, 120000); // 2分钟超时
+      if (abortSignal) {
+        signal = abortSignal;
+      } else {
+        abortController = new AbortController();
+        signal = abortController.signal;
+      }
+
+      // 添加超时处理（只对内部创建的AbortController）
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
+      if (abortController) {
+        timeoutId = setTimeout(() => {
+          abortController!.abort();
+        }, 120000); // 2分钟超时
+      }
 
       const response = await client._fetch(
         chatStore.streamMode,
         chatStore.logprobs,
-        abortController.signal
+        signal
       );
 
-      clearTimeout(timeoutId);
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+      }
 
       // 检查HTTP状态码
       if (!response.ok) {
@@ -681,7 +695,7 @@ export function useMessageCompletion(): MessageCompletionHook {
       if (contentType?.startsWith("text/event-stream")) {
         cs = await completeWithStreamMode(
           response,
-          abortController.signal,
+          signal,
           setGeneratingMessage
         );
       } else if (contentType?.startsWith("application/json")) {

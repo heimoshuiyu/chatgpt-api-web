@@ -74,7 +74,7 @@ export default function ChatBOX() {
 
       await complete((message) => {
         showMCPConfirmation(message);
-      }, setGeneratingMessage);
+      }, setGeneratingMessage, abortControllerRef.current.signal);
 
       setShowRetry(false);
     } catch (error: any) {
