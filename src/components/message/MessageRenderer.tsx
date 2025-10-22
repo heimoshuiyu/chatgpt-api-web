@@ -102,3 +102,23 @@ export function MarkdownRenderer({
     </Markdown>
   );
 }
+
+// 用于用户消息的Markdown渲染器，确保文本颜色适配主题
+export function UserMessageMarkdownRenderer({
+  content,
+  disallowedElements,
+}: Omit<MarkdownRendererProps, 'className'>) {
+  const markdownComponents = useMemo(() => createMarkdownComponents(), []);
+
+  return (
+    <Markdown
+      remarkPlugins={[remarkMath, remarkGfm]}
+      rehypePlugins={[rehypeKatex, rehypeHighlight]}
+      className="prose prose-invert max-w-none break-words overflow-wrap-anywhere [&>*]:text-primary-foreground [&_p]:text-primary-foreground [&_h1]:text-primary-foreground [&_h2]:text-primary-foreground [&_h3]:text-primary-foreground [&_h4]:text-primary-foreground [&_h5]:text-primary-foreground [&_h6]:text-primary-foreground [&_li]:text-primary-foreground [&_ul]:text-primary-foreground [&_ol]:text-primary-foreground [&_blockquote]:text-primary-foreground [&_a]:text-primary-foreground [&_strong]:text-primary-foreground [&_em]:text-primary-foreground [&_code]:text-primary-foreground [&_pre]:text-primary-foreground"
+      disallowedElements={disallowedElements}
+      components={markdownComponents}
+    >
+      {content}
+    </Markdown>
+  );
+}

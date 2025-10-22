@@ -1,5 +1,4 @@
 import { useContext, useState, useEffect } from "react";
-import { ChatStoreMessage } from "@/types/chatstore";
 import { AppChatStoreContext, AppContext } from "@/pages/App";
 import { EditMessage } from "@/components/editMessage";
 import {

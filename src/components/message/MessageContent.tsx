@@ -1,6 +1,6 @@
 import { ChatStoreMessage } from "@/types/chatstore";
 import { getMessageText } from "@/chatgpt";
-import { MarkdownRenderer } from "./MessageRenderer";
+import { MarkdownRenderer, UserMessageMarkdownRenderer } from "./MessageRenderer";
 import { HiddenMessage } from "./MessageTypes/HiddenMessage";
 import { MessageDetail } from "./MessageTypes/MessageDetail";
 import { ToolCallMessage } from "./MessageTypes/ToolCallMessage";
@@ -53,9 +53,12 @@ export function MessageContent({
   }
 
   if (renderMarkdown) {
+    const isUserMessage = chat.role === "user";
+    const MarkdownComponent = isUserMessage ? UserMessageMarkdownRenderer : MarkdownRenderer;
+    
     return (
       <>
-        <MarkdownRenderer
+        <MarkdownComponent
           content={getMessageText(chat)}
           disallowedElements={["script", "iframe", "object", "embed", "hr"]}
         />
