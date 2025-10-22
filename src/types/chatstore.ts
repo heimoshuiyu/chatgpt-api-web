@@ -1,6 +1,5 @@
 import { Logprobs, Message, MessageDetail, ToolCall, Usage } from "@/chatgpt";
 import { ModelPricing } from "./models";
-import { StreamError } from "@/hooks/useMessageCompletion";
 
 /**
  * MCP Tool definition
@@ -112,7 +111,7 @@ export interface ChatStoreMessage {
   logprobs: Logprobs | null;
   response_model_name: string | null;
   usage: Usage | null;
-  error?: StreamError;
+
   incomplete?: boolean;
 
   created_at?: string;

@@ -1,7 +1,6 @@
 import React, { memo } from "react";
 import { ChatStoreMessage } from "@/types/chatstore";
 import Message from "@/components/MessageBubble";
-import { StreamErrorDisplay } from "@/components/StreamErrorDisplay";
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
 import {
   ChatBubble,
@@ -33,9 +32,6 @@ const MessageComponent = memo(
   }) => (
     <React.Fragment>
       <Message messageIndex={messageIndex} />
-      {message.error && !message.hide && (
-        <StreamErrorDisplay message={message} />
-      )}
     </React.Fragment>
   )
 );

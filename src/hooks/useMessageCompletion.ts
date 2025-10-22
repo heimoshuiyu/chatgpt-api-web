@@ -361,7 +361,6 @@ export function useMessageCompletion(): MessageCompletionHook {
           responseTokenCount,
           partialAudioBlob
         );
-        partialMsg.error = streamError;
         partialMsg.incomplete = true;
         chatStore.history.push(partialMsg);
         setChatStore({ ...chatStore });
