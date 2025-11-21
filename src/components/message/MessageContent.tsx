@@ -52,7 +52,7 @@ export function MessageContent({
     );
   }
 
-  if (renderMarkdown && chat.role !== "user") {
+  if (renderMarkdown && chat.role === "assistant") {
     const MarkdownComponent = MarkdownRenderer;
     
     return (
