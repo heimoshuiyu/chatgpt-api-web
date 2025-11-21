@@ -1,6 +1,6 @@
 import { ChatStoreMessage } from "@/types/chatstore";
 import { getMessageText } from "@/chatgpt";
-import { MarkdownRenderer, UserMessageMarkdownRenderer } from "./MessageRenderer";
+import { MarkdownRenderer } from "./MessageRenderer";
 import { HiddenMessage } from "./MessageTypes/HiddenMessage";
 import { MessageDetail } from "./MessageTypes/MessageDetail";
 import { ToolCallMessage } from "./MessageTypes/ToolCallMessage";
@@ -52,9 +52,8 @@ export function MessageContent({
     );
   }
 
-  if (renderMarkdown) {
-    const isUserMessage = chat.role === "user";
-    const MarkdownComponent = isUserMessage ? UserMessageMarkdownRenderer : MarkdownRenderer;
+  if (renderMarkdown && chat.role !== "user") {
+    const MarkdownComponent = MarkdownRenderer;
     
     return (
       <>
